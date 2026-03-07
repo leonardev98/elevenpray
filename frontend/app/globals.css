@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* Paleta ElevenPray */
+:root {
+  --app-black: #0a0a0a;
+  --app-white: #f9f9f9;
+  --app-navy: #0f1e33;
+  --app-gold: #c8a96a;
+  --app-navy-muted: #1a3050;
+  --app-gold-muted: #b8985c;
+  --app-bg: #f9f9f9;
+  --app-fg: #0a0a0a;
+  --app-surface: #ffffff;
+  --app-border: #e5e5e5;
+  --app-accent: #0f1e33;
+  --app-highlight: #c8a96a;
+}
+
+.dark {
+  --app-bg: #0a0a0a;
+  --app-fg: #f9f9f9;
+  --app-surface: #141414;
+  --app-border: #262626;
+  --app-accent: #1a3050;
+  --app-highlight: #c8a96a;
+}
+
+@theme inline {
+  --color-app-black: var(--app-black);
+  --color-app-white: var(--app-white);
+  --color-app-navy: var(--app-navy);
+  --color-app-gold: var(--app-gold);
+  --color-app-bg: var(--app-bg);
+  --color-app-fg: var(--app-fg);
+  --color-app-surface: var(--app-surface);
+  --color-app-border: var(--app-border);
+  --color-app-accent: var(--app-accent);
+  --color-app-highlight: var(--app-highlight);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--app-fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
