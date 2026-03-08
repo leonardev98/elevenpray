@@ -30,11 +30,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-[var(--app-bg)] px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-[var(--app-bg)] px-4 py-6">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <main className="w-full max-w-sm rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-8 shadow-lg">
+      <main className="w-full max-w-sm rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-lg sm:p-8">
         <h1 className="text-xl font-semibold tracking-tight text-[var(--app-fg)]">
           Iniciar sesión
         </h1>
@@ -55,7 +55,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+              className="mt-1 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-base text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)] min-h-[48px]"
             />
           </div>
           <div>
@@ -68,13 +68,13 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+              className="mt-1 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-base text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)] min-h-[48px]"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-[var(--app-navy)] py-2.5 font-medium text-[var(--app-white)] transition hover:opacity-90 disabled:opacity-50"
+            className="w-full min-h-[48px] rounded-lg bg-[var(--app-navy)] py-2.5 font-medium text-[var(--app-white)] transition hover:opacity-90 disabled:opacity-50"
           >
             {loading ? "Entrando…" : "Entrar"}
           </button>

@@ -7,17 +7,42 @@ export interface Block {
   content: string;
 }
 
+export interface DayItem {
+  id: string;
+  type: BlockType;
+  content: string;
+}
+
+export interface DayGroup {
+  id: string;
+  title: string;
+  time?: string;
+  items: DayItem[];
+}
+
 export interface DayContent {
-  blocks: Block[];
+  blocks?: Block[];
+  items?: DayItem[];
+  groups?: DayGroup[];
 }
 
 export interface Routine {
   id: string;
   userId: string;
+  topicId?: string | null;
+  workspaceId?: string | null;
   weekLabel: string;
   year: number;
   weekNumber: number;
   days: Record<string, DayContent>;
+}
+
+export async function getRoutinesByTopic(token: string, topicId: string): Promise<Routine[]> {
+  const res = await fetch(`${getBaseUrl()}/routines?topicId=${encodeURIComponent(topicId)}`, {
+    headers: getAuthHeaders(token),
+  });
+  if (!res.ok) throw new Error("Error al cargar rutinas del tópico");
+  return res.json();
 }
 
 export interface CreateRoutineDto {
@@ -34,10 +59,9 @@ export interface UpdateRoutineDto {
   days?: Record<string, DayContent>;
 }
 
-export async function getRoutines(token: string): Promise<Routine[]> {
-  const res = await fetch(`${getBaseUrl()}/routines`, {
-    headers: getAuthHeaders(token),
-  });
+export async function getRoutines(token: string, topicId?: string): Promise<Routine[]> {
+  const url = topicId ? `${getBaseUrl()}/routines?topicId=${encodeURIComponent(topicId)}` : `${getBaseUrl()}/routines`;
+  const res = await fetch(url, { headers: getAuthHeaders(token) });
   if (!res.ok) throw new Error("Error al cargar rutinas");
   return res.json();
 }
