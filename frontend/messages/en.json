@@ -1,0 +1,136 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating…",
+    "close": "Close",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menu": "Menu",
+    "more": "More",
+    "noTitle": "Untitled",
+    "empty": "(empty)",
+    "noText": "(no text)",
+    "none": "None",
+    "language": "Language"
+  },
+  "landing": {
+    "title": "ElevenPray",
+    "tagline": "Create and organize your weekly routines.",
+    "signIn": "Sign in",
+    "signUp": "Sign up"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signInSubtitle": "Sign in to your ElevenPray account",
+    "loginWith": "Sign in with",
+    "orContinueWith": "or continue with",
+    "emailPlaceholder": "you@email.com",
+    "createAccount": "Create account",
+    "enter": "Sign in",
+    "entering": "Signing in…",
+    "creating": "Creating account…",
+    "register": "Register",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signInLink": "Sign in",
+    "errorSignIn": "Error signing in",
+    "errorSignUp": "Error registering"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "routines": "Routines",
+    "workspaces": "Workspaces",
+    "openWorkspaces": "Open workspaces",
+    "logout": "Log out",
+    "navigation": "Navigation",
+    "settings": "Settings",
+    "publicRoutines": "Public routines"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "redirecting": "Redirecting to dashboard…",
+    "myDayToday": "My day (today)",
+    "prevWeek": "Previous week",
+    "currentWeek": "Current week",
+    "nextWeek": "Next week",
+    "loadingWeek": "Loading week…",
+    "errorLoad": "Error loading dashboard",
+    "myDay": "My day",
+    "selectDay": "Select a day.",
+    "routines": "Routines",
+    "entries": "Courses / entries",
+    "nothingScheduled": "Nothing scheduled for this day."
+  },
+  "routines": {
+    "myRoutines": "My routines",
+    "openTemplate": "Open each workspace's weekly template to edit it.",
+    "openRoutine": "Open routine",
+    "noWorkspacesWithRoutine": "You don't have any workspaces with a routine. Create a workspace (Skincare, Fitness or General) from the side menu.",
+    "redirecting": "Redirecting to routines…"
+  },
+  "workspace": {
+    "workspaces": "Workspaces",
+    "organizeByDomain": "Organize your content by domain.",
+    "newWorkspace": "New workspace",
+    "noWorkspacesYet": "No workspaces yet.",
+    "deleteWorkspace": "Delete workspace",
+    "namePlaceholder": "E.g. Skincare, University",
+    "type": "Type",
+    "subtypeOptional": "Subtype (optional)"
+  },
+  "workspaceTypes": {
+    "skincare": "Skincare",
+    "university": "University",
+    "work": "Work",
+    "fitness": "Fitness",
+    "general": "General"
+  },
+  "days": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
+  },
+  "months": {
+    "short": {
+      "0": "Jan",
+      "1": "Feb",
+      "2": "Mar",
+      "3": "Apr",
+      "4": "May",
+      "5": "Jun",
+      "6": "Jul",
+      "7": "Aug",
+      "8": "Sep",
+      "9": "Oct",
+      "10": "Nov",
+      "11": "Dec"
+    }
+  },
+  "errors": {
+    "loadTopics": "Error loading topics",
+    "createTopic": "Error creating topic",
+    "updateTopic": "Error updating topic",
+    "deleteTopic": "Error deleting topic",
+    "loadRoutines": "Error loading topic routines",
+    "loadAllRoutines": "Error loading routines",
+    "loadRoutine": "Error loading routine",
+    "createRoutine": "Error creating routine",
+    "updateRoutine": "Error updating routine",
+    "deleteRoutine": "Error deleting routine",
+    "loadDashboard": "Error loading dashboard"
+  },
+  "metadata": {
+    "title": "ElevenPray",
+    "description": "Weekly routines"
+  }
+}

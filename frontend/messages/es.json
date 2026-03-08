@@ -1,0 +1,136 @@
+{
+  "common": {
+    "loading": "Cargando…",
+    "email": "Email",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "creating": "Creando…",
+    "close": "Cerrar",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "menu": "Menú",
+    "more": "Más",
+    "noTitle": "Sin título",
+    "empty": "(vacío)",
+    "noText": "(sin texto)",
+    "none": "Ninguno",
+    "language": "Idioma"
+  },
+  "landing": {
+    "title": "ElevenPray",
+    "tagline": "Crea y organiza tus rutinas semanales.",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse"
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "signInSubtitle": "Accede a tu cuenta de ElevenPray",
+    "loginWith": "Iniciar sesión con",
+    "orContinueWith": "o continúa con",
+    "emailPlaceholder": "tu@email.com",
+    "createAccount": "Crear cuenta",
+    "enter": "Entrar",
+    "entering": "Entrando…",
+    "creating": "Creando cuenta…",
+    "register": "Registrarme",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "signInLink": "Inicia sesión",
+    "errorSignIn": "Error al iniciar sesión",
+    "errorSignUp": "Error al registrarse"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "routines": "Rutinas",
+    "workspaces": "Workspaces",
+    "openWorkspaces": "Abrir workspaces",
+    "logout": "Salir",
+    "navigation": "Navegación",
+    "settings": "Configuración",
+    "publicRoutines": "Rutinas públicas"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "redirecting": "Redirigiendo al dashboard…",
+    "myDayToday": "Mi día (hoy)",
+    "prevWeek": "Semana anterior",
+    "currentWeek": "Semana actual",
+    "nextWeek": "Siguiente semana",
+    "loadingWeek": "Cargando semana…",
+    "errorLoad": "Error al cargar el dashboard",
+    "myDay": "Mi día",
+    "selectDay": "Selecciona un día.",
+    "routines": "Rutinas",
+    "entries": "Cursos / entradas",
+    "nothingScheduled": "Nada programado este día."
+  },
+  "routines": {
+    "myRoutines": "Mis rutinas",
+    "openTemplate": "Abre la plantilla semanal de cada workspace para editarla.",
+    "openRoutine": "Abrir rutina",
+    "noWorkspacesWithRoutine": "No tienes workspaces con rutina. Crea un workspace (Skincare, Fitness o General) desde el menú lateral.",
+    "redirecting": "Redirigiendo a rutinas…"
+  },
+  "workspace": {
+    "workspaces": "Workspaces",
+    "organizeByDomain": "Organiza tu contenido por dominio.",
+    "newWorkspace": "Nuevo workspace",
+    "noWorkspacesYet": "Aún no hay workspaces.",
+    "deleteWorkspace": "Eliminar workspace",
+    "namePlaceholder": "Ej. Skincare, Universidad",
+    "type": "Tipo",
+    "subtypeOptional": "Subtipo (opcional)"
+  },
+  "workspaceTypes": {
+    "skincare": "Skincare",
+    "university": "Universidad",
+    "work": "Trabajo",
+    "fitness": "Fitness",
+    "general": "General"
+  },
+  "days": {
+    "monday": "Lun",
+    "tuesday": "Mar",
+    "wednesday": "Mié",
+    "thursday": "Jue",
+    "friday": "Vie",
+    "saturday": "Sáb",
+    "sunday": "Dom"
+  },
+  "months": {
+    "short": {
+      "0": "Ene",
+      "1": "Feb",
+      "2": "Mar",
+      "3": "Abr",
+      "4": "May",
+      "5": "Jun",
+      "6": "Jul",
+      "7": "Ago",
+      "8": "Sep",
+      "9": "Oct",
+      "10": "Nov",
+      "11": "Dic"
+    }
+  },
+  "errors": {
+    "loadTopics": "Error al cargar tópicos",
+    "createTopic": "Error al crear tópico",
+    "updateTopic": "Error al actualizar tópico",
+    "deleteTopic": "Error al eliminar tópico",
+    "loadRoutines": "Error al cargar rutinas del tópico",
+    "loadAllRoutines": "Error al cargar rutinas",
+    "loadRoutine": "Error al cargar rutina",
+    "createRoutine": "Error al crear rutina",
+    "updateRoutine": "Error al actualizar rutina",
+    "deleteRoutine": "Error al eliminar rutina",
+    "loadDashboard": "Error al cargar el dashboard"
+  },
+  "metadata": {
+    "title": "ElevenPray",
+    "description": "Rutinas semanales"
+  }
+}
