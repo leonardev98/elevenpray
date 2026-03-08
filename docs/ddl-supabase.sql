@@ -56,15 +56,6 @@ CREATE TRIGGER tr_routines_updated_at
   EXECUTE PROCEDURE set_updated_at();
 
 -- ---------------------------------------------------------------------------
--- (Opcional) Tabla: topics
--- Para los tópicos del aside del frontend (ahora en localStorage)
--- Si más adelante quieres persistirlos en la BD:
+-- Schema completo (tópicos, topic_entries): usar migraciones en /database/migrations/
+-- 003_create_topics.sql, 004_alter_routines_add_topic_id.sql, 005_create_topic_entries.sql
 -- ---------------------------------------------------------------------------
--- CREATE TABLE IF NOT EXISTS topics (
---   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
---   user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
---   title TEXT NOT NULL,
---   type TEXT NOT NULL CHECK (type IN ('rutina', 'notas', 'lista', 'meta', 'otro')),
---   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
--- );
--- CREATE INDEX IF NOT EXISTS idx_topics_user_id ON topics (user_id);

@@ -1,19 +1,23 @@
-import { IsInt, IsObject, IsOptional, IsString, Min, Max } from 'class-validator';
+import { IsInt, IsObject, IsOptional, IsString, Min, Max, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 import type { DayContent } from '../entities/routine.entity';
 
 export class CreateRoutineDto {
+  @IsUUID()
+  @IsOptional()
+  topicId?: string;
+
   @IsString()
   weekLabel: string;
 
   @IsInt()
-  @Min(2000)
+  @Min(0)
   @Max(2100)
   @Type(() => Number)
   year: number;
 
   @IsInt()
-  @Min(1)
+  @Min(0)
   @Max(53)
   @Type(() => Number)
   weekNumber: number;
@@ -29,14 +33,14 @@ export class UpdateRoutineDto {
   weekLabel?: string;
 
   @IsInt()
-  @Min(2000)
+  @Min(0)
   @Max(2100)
   @IsOptional()
   @Type(() => Number)
   year?: number;
 
   @IsInt()
-  @Min(1)
+  @Min(0)
   @Max(53)
   @IsOptional()
   @Type(() => Number)

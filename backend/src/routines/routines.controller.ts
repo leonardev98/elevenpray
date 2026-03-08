@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RoutinesService } from './routines.service';
@@ -20,7 +21,11 @@ export class RoutinesController {
   constructor(private readonly routinesService: RoutinesService) {}
 
   @Get()
-  findAll(@CurrentUser('id') userId: string) {
+  findAll(
+    @CurrentUser('id') userId: string,
+    @Query('topicId') topicId?: string,
+  ) {
+    if (topicId) return this.routinesService.findByTopicId(topicId, userId);
     return this.routinesService.findAllByUserId(userId);
   }
 

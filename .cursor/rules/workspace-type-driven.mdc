@@ -1,0 +1,19 @@
+---
+description: Workspace types and features are data-driven; no per-type components or folders (fitness, work, etc.)
+alwaysApply: true
+---
+
+# Workspace type–driven architecture (ElevenPray)
+
+When the user asks to add something "in fitness", "for work", "in skincare", or "for [workspace type]":
+
+- Do NOT create components, folders, or files named after the workspace type (e.g. no `FitnessRoutineEditor`, no `components/fitness/`, no `WorkDashboard`).
+- Do NOT add `if (type === 'fitness')` or switch-by-type logic.
+
+Instead:
+
+1. **Generic or feature-named components**: Add one reusable component with a generic or feature name (e.g. `RoutineEditor`, `ExerciseLogBlock`, `WorkoutLogWidget`). Use it for all types that need it.
+2. **Capabilities / registry**: Control visibility and behavior via workspace type and subtype capabilities (e.g. `hasRoutine`, `hasExerciseLog`) and optional block-type or widget registries. Enable the feature for the right types in data (DB or registry), not in code branches.
+3. **Different "form" per workspace**: Achieve different structure (default pages, blocks, widgets) through type/subtype data (default_pages, default_blocks, capabilities), not through separate components per type.
+
+Notion-like approach: one editor and a fixed set of block/feature types; "templates" and "different shape" come from data (which blocks, which pages, which capabilities), not from new code per workspace type.

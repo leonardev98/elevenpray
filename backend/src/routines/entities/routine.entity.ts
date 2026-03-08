@@ -12,12 +12,33 @@ import { User } from '../../users/entities/user.entity';
 export type BlockType = 'heading' | 'list' | 'text';
 
 export interface Block {
+  id?: string;
   type: BlockType;
   content: string;
 }
 
+/** Items con id estable para drag & drop. Orden = orden del array. */
+export interface DayItem {
+  id: string;
+  type: BlockType;
+  content: string;
+}
+
+/** Contenedor padre por día: título, horario opcional, ítems hijos. */
+export interface DayGroup {
+  id: string;
+  title: string;
+  time?: string;
+  items: DayItem[];
+}
+
 export interface DayContent {
-  blocks: Block[];
+  /** Legacy */
+  blocks?: Block[];
+  /** Legacy; si no hay groups, la UI puede usarlo como un solo grupo implícito */
+  items?: DayItem[];
+  /** Grupos (contenedores) del día; si existe, la UI usa solo groups */
+  groups?: DayGroup[];
 }
 
 @Entity('routines')
@@ -27,6 +48,9 @@ export class Routine {
 
   @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
+
+  @Column({ name: 'topic_id', type: 'uuid', nullable: true })
+  topicId: string | null;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })

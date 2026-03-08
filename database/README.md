@@ -9,8 +9,11 @@ Migraciones SQL para ElevenPray. **Hay que ejecutarlas antes de usar el backend.
 3. Ejecuta los archivos **en este orden**:
    - `migrations/001_create_users.sql`
    - `migrations/002_create_routines.sql`
+   - `migrations/003_create_topics.sql`
+   - `migrations/004_alter_routines_add_topic_id.sql`
+   - `migrations/005_create_topic_entries.sql`
 
-Con eso quedan creadas las tablas `users` y `routines` con índices y el trigger de `updated_at`.
+Con eso quedan creadas las tablas `users`, `routines`, `topics` y `topic_entries`, con índices y triggers.
 
 ## ¿Por qué está en el repo?
 
