@@ -30,7 +30,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (isLoading) return;
-    if (!token || !user) router.replace("/login");
+    if (!token || !user) router.replace("/");
   }, [isLoading, token, user, router]);
 
   useEffect(() => {

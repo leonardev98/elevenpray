@@ -36,6 +36,17 @@ export default function RegisterPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-[var(--app-bg)] px-4 py-6">
+      <div className="absolute left-4 top-4 z-10">
+        <Link
+          href="/"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--app-fg)] hover:bg-[var(--app-surface)] transition"
+          aria-label={tCommon("backToHome")}
+        >
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </Link>
+      </div>
       <div className="absolute right-4 top-4 flex items-center gap-2">
         <LocaleSwitcher />
         <ThemeToggle />
