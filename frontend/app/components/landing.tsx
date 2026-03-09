@@ -92,7 +92,7 @@ export function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-fg)]">
+    <div className="relative min-h-screen bg-white text-[var(--app-fg)]">
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-[var(--app-border)] bg-[var(--app-surface)]/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -133,16 +133,48 @@ export function Landing() {
       </header>
 
       <main>
+      <div
+          className="absolute top-0 left-0 right-0 pointer-events-none h-[100vh] w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#333333_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,white,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,white,transparent)]"
+          aria-hidden="true"
+        />
         {/* Hero */}
-        <section className="relative mx-auto max-w-4xl px-4 pt-12 pb-16 text-center sm:px-6 sm:pt-16 sm:pb-20">
+        <section className="relative z-0 mx-auto max-w-4xl px-4 pt-12 pb-16 text-center sm:px-6 sm:pt-16 sm:pb-20">
+          {/* Resplandor para limpiar los puntos detrás del texto */}
+          <div
+            className="absolute left-1/2 top-8 -z-10 h-[140px] w-full max-w-2xl -translate-x-1/2 bg-white opacity-95 blur-[40px] dark:bg-[var(--app-bg)] dark:opacity-95"
+            aria-hidden="true"
+          />
           <div className="mx-auto max-w-3xl">
-            <h1 className="text-3xl font-extrabold leading-tight tracking-tighter text-[var(--app-fg)] sm:text-4xl md:text-5xl md:leading-[1.15]" style={{ letterSpacing: "-0.02em" }}>
+            <h1
+              className="leading-tight tracking-tight text-[#1a1a1a] sm:leading-[1.1]"
+              style={{
+                fontFamily: "var(--font-hero), system-ui, sans-serif",
+                fontSize: "clamp(2rem, 5vw, 3.25rem)",
+                fontWeight: 800,
+                letterSpacing: "-0.03em",
+              }}
+            >
               {t("heroTitle")}
             </h1>
           </div>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-[var(--app-fg)]/80 sm:text-lg">
-            {t("heroSubtitle")}
-          </p>
+          <div className="relative mx-auto mt-4 max-w-2xl">
+            {/* Resplandor detrás del subtítulo */}
+            <div
+              className="absolute left-1/2 top-1/2 -z-10 h-14 w-full -translate-x-1/2 -translate-y-1/2 bg-white opacity-95 blur-[32px] dark:bg-[var(--app-bg)] dark:opacity-95"
+              aria-hidden="true"
+            />
+            <p
+              className="relative text-base text-[#4a4a4a] sm:text-lg"
+              style={{
+                fontFamily: "var(--font-hero), system-ui, sans-serif",
+                fontWeight: 400,
+                letterSpacing: "-0.01em",
+                lineHeight: 1.6,
+              }}
+            >
+              {t("heroSubtitle")}
+            </p>
+          </div>
           <div className="mt-8 flex justify-center">
             <Link
               href="/register"
