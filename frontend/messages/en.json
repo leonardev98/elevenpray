@@ -107,7 +107,27 @@
     "openTemplate": "Open each workspace's weekly template to edit it.",
     "openRoutine": "Open routine",
     "noWorkspacesWithRoutine": "You don't have any workspaces with a routine. Create a workspace (Skincare, Fitness or General) from the side menu.",
-    "redirecting": "Redirecting to routines…"
+    "redirecting": "Redirecting to routines…",
+    "backToRoutines": "Back to routines",
+    "template": "Template",
+    "save": "Save",
+    "saving": "Saving…",
+    "addBlock": "Add block",
+    "routineNotFound": "Routine not found",
+    "errorSave": "Error saving",
+    "moveItem": "Move item",
+    "moveContainer": "Move container",
+    "block": "Block",
+    "deleteBlock": "Delete block",
+    "deleteContainer": "Delete container",
+    "itemTypeText": "Text",
+    "itemTypeHeading": "Heading",
+    "itemTypeList": "List",
+    "placeholderTitle": "Title",
+    "placeholderElement": "Item",
+    "placeholderWriteHere": "Write here…",
+    "delete": "Delete",
+    "addItem": "Add item"
   },
   "workspace": {
     "workspaces": "Workspaces",
@@ -117,7 +137,19 @@
     "deleteWorkspace": "Delete workspace",
     "namePlaceholder": "E.g. Skincare, University",
     "type": "Type",
-    "subtypeOptional": "Subtype (optional)"
+    "subtypeOptional": "Subtype (optional)",
+    "weeklyRoutine": "Weekly routine",
+    "spaces": "Spaces",
+    "newSpacePlaceholder": "New space",
+    "add": "Add",
+    "pages": "Pages",
+    "newPage": "New page",
+    "creatingPage": "Creating…",
+    "noPagesYet": "No pages yet. Create one to get started.",
+    "workspaceNotFound": "Workspace not found",
+    "errorCreatePage": "Error creating page",
+    "errorCreateSpace": "Error creating space",
+    "backToWorkspace": "Back to workspace"
   },
   "workspaceTypes": {
     "skincare": "Skincare",
@@ -133,7 +165,16 @@
     "thursday": "Thu",
     "friday": "Fri",
     "saturday": "Sat",
-    "sunday": "Sun"
+    "sunday": "Sun",
+    "long": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    }
   },
   "months": {
     "short": {
@@ -150,6 +191,25 @@
       "10": "Nov",
       "11": "Dec"
     }
+  },
+  "blocks": {
+    "addBlock": "Add block",
+    "addItem": "Add item",
+    "blockTypeText": "Text",
+    "blockTypeHeading": "Heading",
+    "blockTypeChecklist": "Checklist",
+    "moveBlock": "Move block",
+    "pageTitlePlaceholder": "Page title",
+    "backToWorkspace": "Back to workspace",
+    "checklistLabel": "Checklist",
+    "placeholderWriteHere": "Write here…",
+    "placeholderTitle": "Title",
+    "placeholderElement": "Item",
+    "delete": "Delete",
+    "deleteBlock": "Delete block",
+    "pageNotFound": "Page not found",
+    "errorCreateBlock": "Error creating block",
+    "errorDelete": "Error deleting"
   },
   "errors": {
     "loadTopics": "Error loading topics",

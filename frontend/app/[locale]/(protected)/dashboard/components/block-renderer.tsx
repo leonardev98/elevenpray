@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { BlockApi } from "../../../../lib/blocks-api";
 
 interface BlockRendererProps {
@@ -36,9 +37,13 @@ export function BlockRenderer({
   onContentChange,
   onDelete,
   onKeyDown,
-  placeholder = "Escribe aquí…",
+  placeholder,
   autoFocus,
 }: BlockRendererProps) {
+  const t = useTranslations("blocks");
+  const defaultPlaceholder = t("placeholderWriteHere");
+  const place = placeholder ?? defaultPlaceholder;
+
   if (block.type === "heading") {
     const text = getText(block.content);
     return (
@@ -50,14 +55,14 @@ export function BlockRenderer({
           onBlur={() => onContentChange(block.content)}
           onKeyDown={onKeyDown}
           autoFocus={autoFocus}
-          placeholder="Título"
+          placeholder={t("placeholderTitle")}
           className="min-w-0 flex-1 rounded border-0 bg-transparent px-1 py-0.5 text-lg font-semibold text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
         />
         {onDelete && (
           <button
             type="button"
             onClick={onDelete}
-            aria-label="Eliminar"
+            aria-label={t("delete")}
             className="rounded p-1 text-[var(--app-fg)]/40 opacity-0 hover:text-red-500 group-hover:opacity-100"
           >
             ×
@@ -73,13 +78,13 @@ export function BlockRenderer({
       <div className="group rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)]/50 p-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg)]/50">
-            Lista de tareas
+            {t("checklistLabel")}
           </span>
           {onDelete && (
             <button
               type="button"
               onClick={onDelete}
-              aria-label="Eliminar bloque"
+              aria-label={t("deleteBlock")}
               className="rounded p-1 text-[var(--app-fg)]/40 hover:text-red-500 opacity-0 group-hover:opacity-100"
             >
               ×
@@ -109,7 +114,7 @@ export function BlockRenderer({
                   );
                   onContentChange({ ...block.content, items: next });
                 }}
-                placeholder="Elemento"
+                placeholder={t("placeholderElement")}
                 className="min-w-0 flex-1 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
               />
             </li>
@@ -123,7 +128,7 @@ export function BlockRenderer({
           }}
           className="mt-2 text-xs text-[var(--app-fg)]/50 hover:text-[var(--app-gold)]"
         >
-          + Añadir ítem
+          + {t("addItem")}
         </button>
       </div>
     );
@@ -139,7 +144,7 @@ export function BlockRenderer({
         onBlur={() => onContentChange(block.content)}
         onKeyDown={onKeyDown}
         autoFocus={autoFocus}
-        placeholder={placeholder}
+        placeholder={place}
         rows={1}
         className="min-w-0 flex-1 resize-none rounded border-0 bg-transparent px-1 py-0.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
         style={{ minHeight: "1.5rem" }}
@@ -148,7 +153,7 @@ export function BlockRenderer({
         <button
           type="button"
           onClick={onDelete}
-          aria-label="Eliminar"
+          aria-label={t("delete")}
           className="mt-1 rounded p-1 text-[var(--app-fg)]/40 opacity-0 hover:text-red-500 group-hover:opacity-100"
         >
           ×

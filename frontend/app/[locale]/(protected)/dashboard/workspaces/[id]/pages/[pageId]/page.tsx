@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
   DndContext,
   closestCenter,
@@ -32,12 +33,6 @@ import {
 } from "../../../../../../../lib/blocks-api";
 import { BlockRenderer } from "../../../../components/block-renderer";
 
-const BLOCK_TYPES: { type: string; label: string }[] = [
-  { type: "text", label: "Texto" },
-  { type: "heading", label: "Título" },
-  { type: "checklist", label: "Lista de tareas" },
-];
-
 function SortableBlockRow({
   block,
   onContentChange,
@@ -51,6 +46,7 @@ function SortableBlockRow({
   onKeyDown: (blockId: string, e: React.KeyboardEvent) => void;
   autoFocus?: boolean;
 }) {
+  const t = useTranslations("blocks");
   const {
     attributes,
     listeners,
@@ -76,7 +72,7 @@ function SortableBlockRow({
         className="cursor-grab touch-none rounded p-1.5 text-[var(--app-fg)]/40 hover:bg-[var(--app-gold)]/10 hover:text-[var(--app-gold)] active:cursor-grabbing"
         {...attributes}
         {...listeners}
-        aria-label="Mover bloque"
+        aria-label={t("moveBlock")}
       >
         ⋮⋮
       </button>
@@ -87,17 +83,26 @@ function SortableBlockRow({
           onDelete={() => onDelete(block.id)}
           onKeyDown={(e) => onKeyDown(block.id, e)}
           autoFocus={autoFocus}
+          placeholder={t("placeholderWriteHere")}
         />
       </div>
     </div>
   );
 }
 
+const BLOCK_TYPE_KEYS = [
+  { type: "text", labelKey: "blockTypeText" as const },
+  { type: "heading", labelKey: "blockTypeHeading" as const },
+  { type: "checklist", labelKey: "blockTypeChecklist" as const },
+];
+
 export default function PageEditorPage() {
   const params = useParams();
   const workspaceId = params.id as string;
   const pageId = params.pageId as string;
   const { token } = useAuth();
+  const t = useTranslations("blocks");
+  const tCommon = useTranslations("common");
   const [page, setPage] = useState<PageApi | null>(null);
   const [blocks, setBlocks] = useState<BlockApi[]>([]);
   const [loading, setLoading] = useState(true);
@@ -162,7 +167,7 @@ export default function PageEditorPage() {
       setFocusNewId(created.id);
       setTimeout(() => setFocusNewId(null), 100);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al crear bloque");
+      setError(e instanceof Error ? e.message : t("errorCreateBlock"));
     }
   }
 
@@ -172,7 +177,7 @@ export default function PageEditorPage() {
       await deleteBlock(token, blockId);
       setBlocks((prev) => prev.filter((b) => b.id !== blockId));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al eliminar");
+      setError(e instanceof Error ? e.message : t("errorDelete"));
     }
   }
 
@@ -208,7 +213,7 @@ export default function PageEditorPage() {
     return (
       <div className="flex justify-center py-8">
         <p className="text-[var(--app-fg)]/60">
-          {loading ? "Cargando…" : "Página no encontrada"}
+          {loading ? tCommon("loading") : t("pageNotFound")}
         </p>
       </div>
     );
@@ -221,7 +226,7 @@ export default function PageEditorPage() {
           href={`/dashboard/workspaces/${workspaceId}`}
           className="text-sm font-medium text-[var(--app-fg)]/70 hover:text-[var(--app-gold)]"
         >
-          Volver al workspace
+          {t("backToWorkspace")}
         </Link>
       </div>
       {error && (
@@ -237,7 +242,7 @@ export default function PageEditorPage() {
           onBlur={handleSaveTitle}
           disabled={saving}
           className="mb-4 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-lg font-semibold text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)] disabled:opacity-50"
-          placeholder="Título de la página"
+          placeholder={t("pageTitlePlaceholder")}
         />
 
         <DndContext
@@ -267,14 +272,14 @@ export default function PageEditorPage() {
         <div className="relative mt-4">
           {slashOpen ? (
             <div className="absolute left-0 top-0 z-10 rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] py-1 shadow-lg">
-              {BLOCK_TYPES.map(({ type, label }) => (
+              {BLOCK_TYPE_KEYS.map(({ type, labelKey }) => (
                 <button
                   key={type}
                   type="button"
                   onClick={() => handleAddBlock(type)}
                   className="block w-full px-4 py-2 text-left text-sm text-[var(--app-fg)] hover:bg-[var(--app-gold)]/10"
                 >
-                  {label}
+                  {t(labelKey)}
                 </button>
               ))}
             </div>
@@ -284,7 +289,7 @@ export default function PageEditorPage() {
             onClick={() => setSlashOpen((o) => !o)}
             className="rounded-lg border border-dashed border-[var(--app-border)] py-2 px-3 text-sm text-[var(--app-fg)]/50 hover:border-[var(--app-gold)]/50 hover:text-[var(--app-gold)]"
           >
-            + Añadir bloque
+            + {t("addBlock")}
           </button>
         </div>
       </div>

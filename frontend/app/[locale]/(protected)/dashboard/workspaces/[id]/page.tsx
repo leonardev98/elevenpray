@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useAuth } from "../../../../../providers/auth-provider";
 import { getWorkspace } from "../../../../../lib/workspaces-api";
 import { getSpaces, createSpace, type SpaceApi } from "../../../../../lib/spaces-api";
@@ -14,6 +15,8 @@ export default function WorkspaceDetailPage() {
   const params = useParams();
   const workspaceId = params.id as string;
   const { token } = useAuth();
+  const t = useTranslations("workspace");
+  const tCommon = useTranslations("common");
   const [workspace, setWorkspace] = useState<WorkspaceApi | null>(null);
   const [spaces, setSpaces] = useState<SpaceApi[]>([]);
   const [rootPages, setRootPages] = useState<PageApi[]>([]);
@@ -43,10 +46,10 @@ export default function WorkspaceDetailPage() {
     setCreatingPage(true);
     setError("");
     try {
-      const created = await createPage(token, workspaceId, { title: "Nueva página" });
+      const created = await createPage(token, workspaceId, { title: t("newPage") });
       setRootPages((prev) => [created, ...prev]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al crear página");
+      setError(e instanceof Error ? e.message : t("errorCreatePage"));
     } finally {
       setCreatingPage(false);
     }
@@ -60,14 +63,14 @@ export default function WorkspaceDetailPage() {
       setSpaces((prev) => [...prev, created]);
       setNewSpaceTitle("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al crear space");
+      setError(e instanceof Error ? e.message : t("errorCreateSpace"));
     }
   }
 
   if (loading || !workspace) {
     return (
       <div className="flex justify-center py-8">
-        <p className="text-[var(--app-fg)]/60">{loading ? "Cargando…" : "Workspace no encontrado"}</p>
+        <p className="text-[var(--app-fg)]/60">{loading ? tCommon("loading") : t("workspaceNotFound")}</p>
       </div>
     );
   }
@@ -85,7 +88,7 @@ export default function WorkspaceDetailPage() {
             href={`/dashboard/workspaces/${workspaceId}/routine`}
             className="rounded-lg border border-[var(--app-border)] px-3 py-1.5 text-sm text-[var(--app-fg)] hover:bg-[var(--app-bg)] hover:text-[var(--app-gold)]"
           >
-            Rutina semanal
+            {t("weeklyRoutine")}
           </Link>
         )}
       </div>
@@ -98,7 +101,7 @@ export default function WorkspaceDetailPage() {
 
       <section className="mb-8">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-          Spaces
+          {t("spaces")}
         </h2>
         <div className="flex flex-wrap gap-2">
           {spaces.map((s) => (
@@ -114,7 +117,7 @@ export default function WorkspaceDetailPage() {
               type="text"
               value={newSpaceTitle}
               onChange={(e) => setNewSpaceTitle(e.target.value)}
-              placeholder="Nuevo space"
+              placeholder={t("newSpacePlaceholder")}
               className="w-36 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50"
             />
             <button
@@ -122,7 +125,7 @@ export default function WorkspaceDetailPage() {
               onClick={handleCreateSpace}
               className="rounded-lg bg-[var(--app-navy)] px-2.5 py-1.5 text-sm text-white hover:opacity-90"
             >
-              Añadir
+              {t("add")}
             </button>
           </div>
         </div>
@@ -131,7 +134,7 @@ export default function WorkspaceDetailPage() {
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-            Páginas
+            {t("pages")}
           </h2>
           <button
             type="button"
@@ -139,12 +142,12 @@ export default function WorkspaceDetailPage() {
             disabled={creatingPage}
             className="rounded-lg bg-[var(--app-gold)] px-3 py-1.5 text-sm font-medium text-[var(--app-black)] hover:opacity-90 disabled:opacity-50"
           >
-            {creatingPage ? "Creando…" : "Nueva página"}
+            {creatingPage ? t("creatingPage") : t("newPage")}
           </button>
         </div>
         {rootPages.length === 0 ? (
           <p className="rounded-xl border border-dashed border-[var(--app-border)] py-8 text-center text-sm text-[var(--app-fg)]/50">
-            No hay páginas. Crea una para empezar.
+            {t("noPagesYet")}
           </p>
         ) : (
           <ul className="space-y-1">

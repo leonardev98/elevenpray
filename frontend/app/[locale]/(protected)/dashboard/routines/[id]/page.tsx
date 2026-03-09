@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
   DndContext,
   closestCenter,
@@ -31,31 +32,6 @@ import {
 import type { DayItem, DayGroup } from "../../../../../lib/routines-api";
 import { TimePicker } from "../../components/time-picker";
 
-const DAY_LABELS_SHORT: Record<string, string> = {
-  monday: "Lun",
-  tuesday: "Mar",
-  wednesday: "Mié",
-  thursday: "Jue",
-  friday: "Vie",
-  saturday: "Sáb",
-  sunday: "Dom",
-};
-
-const DAY_LABELS: Record<string, string> = {
-  monday: "Lunes",
-  tuesday: "Martes",
-  wednesday: "Miércoles",
-  thursday: "Jueves",
-  friday: "Viernes",
-  saturday: "Sábado",
-  sunday: "Domingo",
-};
-
-function getTodayDayKey(): string {
-  const d = new Date().getDay();
-  return DAY_KEYS[d === 0 ? 6 : d - 1];
-}
-
 const DAY_KEYS = [
   "monday",
   "tuesday",
@@ -65,6 +41,11 @@ const DAY_KEYS = [
   "saturday",
   "sunday",
 ] as const;
+
+function getTodayDayKey(): string {
+  const d = new Date().getDay();
+  return DAY_KEYS[d === 0 ? 6 : d - 1];
+}
 
 function normalizeDayToGroups(day: DayContent | undefined): DayGroup[] {
   if (!day) return [];
@@ -91,6 +72,7 @@ function SortableDayItem({
   onUpdate: (updates: Partial<DayItem>) => void;
   onRemove: () => void;
 }) {
+  const t = useTranslations("routines");
   const {
     attributes,
     listeners,
@@ -105,6 +87,13 @@ function SortableDayItem({
     transition,
   };
 
+  const placeholder =
+    item.type === "heading"
+      ? t("placeholderTitle")
+      : item.type === "list"
+        ? t("placeholderElement")
+        : t("placeholderWriteHere");
+
   return (
     <div
       ref={setNodeRef}
@@ -116,7 +105,7 @@ function SortableDayItem({
         className="cursor-grab touch-none rounded p-1.5 text-[var(--app-fg)]/50 hover:bg-[var(--app-gold)]/10 hover:text-[var(--app-gold)] active:cursor-grabbing"
         {...attributes}
         {...listeners}
-        aria-label="Mover ítem"
+        aria-label={t("moveItem")}
       >
         ⋮⋮
       </button>
@@ -125,23 +114,21 @@ function SortableDayItem({
         onChange={(e) => onUpdate({ type: e.target.value as DayItem["type"] })}
         className="w-24 rounded-md border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-xs text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
       >
-        <option value="text">Texto</option>
-        <option value="heading">Título</option>
-        <option value="list">Lista</option>
+        <option value="text">{t("itemTypeText")}</option>
+        <option value="heading">{t("itemTypeHeading")}</option>
+        <option value="list">{t("itemTypeList")}</option>
       </select>
       <input
         type="text"
         value={item.content}
         onChange={(e) => onUpdate({ content: e.target.value })}
-        placeholder={
-          item.type === "heading" ? "Título" : item.type === "list" ? "Elemento" : "Escribe aquí…"
-        }
+        placeholder={placeholder}
         className="min-w-0 flex-1 rounded-md border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
       />
       <button
         type="button"
         onClick={onRemove}
-        aria-label="Eliminar"
+        aria-label={t("delete")}
         className="rounded p-1.5 text-[var(--app-fg)]/40 hover:bg-red-500/10 hover:text-red-500"
       >
         ×
@@ -169,6 +156,7 @@ function SortableDayGroup({
   onUpdateItem: (itemId: string, updates: Partial<DayItem>) => void;
   onRemoveItem: (itemId: string) => void;
 }) {
+  const t = useTranslations("routines");
   const {
     attributes,
     listeners,
@@ -197,18 +185,18 @@ function SortableDayGroup({
             className="cursor-grab touch-none rounded p-1.5 text-[var(--app-fg)]/50 hover:bg-[var(--app-gold)]/20 hover:text-[var(--app-gold)] active:cursor-grabbing"
             {...attributes}
             {...listeners}
-            aria-label="Mover contenedor"
+            aria-label={t("moveContainer")}
           >
             ⋮⋮
           </button>
           <span className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg)]/50">
-            Bloque
+            {t("block")}
           </span>
           <input
             type="text"
             value={group.title}
             onChange={(e) => onUpdateGroup({ title: e.target.value })}
-            placeholder="Título"
+            placeholder={t("placeholderTitle")}
             className="min-w-0 flex-1 rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-2 py-1.5 text-sm font-medium text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
           />
           <TimePicker
@@ -219,10 +207,10 @@ function SortableDayGroup({
           <button
             type="button"
             onClick={onRemoveGroup}
-            aria-label="Eliminar contenedor"
+            aria-label={t("deleteContainer")}
             className="rounded-lg px-2.5 py-1.5 text-xs text-[var(--app-fg)]/50 hover:bg-red-500/10 hover:text-red-500"
           >
-            Eliminar bloque
+            {t("deleteBlock")}
           </button>
         </div>
       </div>
@@ -248,7 +236,7 @@ function SortableDayGroup({
           onClick={onAddItem}
           className="mt-3 w-full rounded-lg border border-dashed border-[var(--app-border)] py-2 text-sm text-[var(--app-fg)]/60 hover:border-[var(--app-gold)]/50 hover:text-[var(--app-gold)]"
         >
-          + Añadir ítem
+          + {t("addItem")}
         </button>
       </div>
     </div>
@@ -259,6 +247,9 @@ export default function RoutineEditorPage() {
   const params = useParams();
   const id = params.id as string;
   const { token } = useAuth();
+  const t = useTranslations("routines");
+  const tCommon = useTranslations("common");
+  const tDays = useTranslations("days");
   const [routine, setRoutine] = useState<Routine | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -405,7 +396,7 @@ export default function RoutineEditorPage() {
         days: routine.days,
       } as UpdateRoutineDto);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al guardar");
+      setError(e instanceof Error ? e.message : t("errorSave"));
     } finally {
       setSaving(false);
     }
@@ -415,7 +406,7 @@ export default function RoutineEditorPage() {
     return (
       <div className="flex justify-center py-8">
         <p className="text-[var(--app-fg)]/60">
-          {loading ? "Cargando…" : "Rutina no encontrada"}
+          {loading ? tCommon("loading") : t("routineNotFound")}
         </p>
       </div>
     );
@@ -435,10 +426,10 @@ export default function RoutineEditorPage() {
             href="/dashboard/routines"
             className="text-sm font-medium text-[var(--app-fg)]/70 hover:text-[var(--app-gold)]"
           >
-            Volver a rutinas
+            {t("backToRoutines")}
           </Link>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
-            {routine.weekLabel} {routine.year === 0 ? "(Plantilla)" : `(${routine.year})`}
+            {routine.weekLabel} {routine.year === 0 ? `(${t("template")})` : `(${routine.year})`}
           </h1>
         </div>
         <div className="flex items-center gap-3">
@@ -453,9 +444,9 @@ export default function RoutineEditorPage() {
                     ? "bg-[var(--app-gold)] text-[var(--app-black)]"
                     : "text-[var(--app-fg)]/80 hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
                 }`}
-                title={DAY_LABELS[dayKey]}
+                title={tDays(`long.${dayKey}`)}
               >
-                {DAY_LABELS_SHORT[dayKey]}
+                {tDays(dayKey)}
               </button>
             ))}
           </div>
@@ -465,7 +456,7 @@ export default function RoutineEditorPage() {
             disabled={saving}
             className="rounded-lg bg-[var(--app-gold)] px-4 py-2 text-sm font-medium text-[var(--app-black)] transition hover:opacity-90 disabled:opacity-50"
           >
-            {saving ? "Guardando…" : "Guardar"}
+            {saving ? t("saving") : t("save")}
           </button>
         </div>
       </div>
@@ -497,12 +488,12 @@ export default function RoutineEditorPage() {
                 >
                   <div className="sticky top-0 z-10 shrink-0 border-b border-[var(--app-border)] bg-inherit px-3 py-2.5">
                     <h2
-                      title={DAY_LABELS[dayKey]}
+                      title={tDays(`long.${dayKey}`)}
                       className={`text-center text-xs font-semibold uppercase tracking-wider ${
                         isToday ? "text-[var(--app-gold)]" : "text-[var(--app-fg)]/80"
                       }`}
                     >
-                      {DAY_LABELS_SHORT[dayKey]}
+                      {tDays(dayKey)}
                     </h2>
                   </div>
                   <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3">
@@ -529,7 +520,7 @@ export default function RoutineEditorPage() {
                       onClick={() => addGroup(dayKey)}
                       className="mt-auto shrink-0 rounded-lg border border-dashed border-[var(--app-border)] py-2 text-xs text-[var(--app-fg)]/60 hover:border-[var(--app-gold)]/50 hover:text-[var(--app-gold)]"
                     >
-                      + Añadir bloque
+                      + {t("addBlock")}
                     </button>
                   </div>
                 </section>
