@@ -14,7 +14,7 @@ export function LocaleSwitcher() {
   const pathname = usePathname();
 
   return (
-    <div className="flex items-center gap-1 rounded-lg border border-[var(--app-border)] p-0.5">
+    <div className="flex items-center gap-1">
       {routing.locales.map((loc) => (
         <Link
           key={loc}
@@ -22,8 +22,8 @@ export function LocaleSwitcher() {
           locale={loc}
           className={`min-h-[36px] min-w-[36px] rounded-md px-2.5 text-sm font-medium transition flex items-center justify-center ${
             locale === loc
-              ? "bg-[var(--app-navy)] text-[var(--app-white)]"
-              : "text-[var(--app-fg)]/80 hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
+              ? "text-[var(--app-fg)] font-semibold"
+              : "text-[var(--app-fg)]/50 hover:text-[var(--app-fg)]"
           }`}
         >
           {localeNames[loc]}
