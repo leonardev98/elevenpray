@@ -7,6 +7,7 @@ import { RoutineTemplatesModule } from '../routine-templates/routine-templates.m
 import { WorkspacePreferencesModule } from '../workspace-preferences/workspace-preferences.module';
 import { RoutineProvider } from './providers/routine.provider';
 import { EntriesProvider } from './providers/entries.provider';
+import { WorkspaceSummaryProvider } from './providers/workspace-summary.provider';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { EntriesProvider } from './providers/entries.provider';
     WorkspacePreferencesModule,
   ],
   controllers: [DashboardController],
-  providers: [DashboardService, RoutineProvider, EntriesProvider],
+  providers: [DashboardService, RoutineProvider, EntriesProvider, WorkspaceSummaryProvider],
 })
 export class DashboardModule {}

@@ -11,12 +11,17 @@ export interface DayItem {
   id: string;
   type: BlockType;
   content: string;
+  productId?: string;
+  stepType?: string;
 }
+
+export type RoutineSlot = "am" | "pm";
 
 export interface DayGroup {
   id: string;
   title: string;
   time?: string;
+  slot?: RoutineSlot;
   items: DayItem[];
 }
 

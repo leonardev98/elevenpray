@@ -70,7 +70,13 @@ export async function deleteWorkspace(token: string, id: string): Promise<void> 
     method: "DELETE",
     headers: getAuthHeaders(token),
   });
-  if (!res.ok) throw new Error("Error al eliminar workspace");
+  if (res.status === 404) {
+    return;
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? "Error al eliminar workspace");
+  }
 }
 
 export async function getRoutineTemplatesByWorkspace(

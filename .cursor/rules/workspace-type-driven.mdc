@@ -17,3 +17,5 @@ Instead:
 3. **Different "form" per workspace**: Achieve different structure (default pages, blocks, widgets) through type/subtype data (default_pages, default_blocks, capabilities), not through separate components per type.
 
 Notion-like approach: one editor and a fixed set of block/feature types; "templates" and "different shape" come from data (which blocks, which pages, which capabilities), not from new code per workspace type.
+
+4. **Reusable capabilities across types**: Some capabilities are the same feature with different labels per type (e.g. `hasExpertConsultation` → "Mentores" en skincare, "Coaches" en fitness, "Asesores" en startup). Implement one generic module and UI (e.g. `expert-consultation`, route `/workspaces/:id/experts`); enable it for the right workspace types via the capability. Do not create separate modules or components per type (no `SkinMentorsModule`, no `FitnessCoachesPage`).

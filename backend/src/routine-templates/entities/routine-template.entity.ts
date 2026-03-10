@@ -16,12 +16,20 @@ export interface DayItem {
   id: string;
   type: BlockType;
   content: string;
+  /** Optional product reference (e.g. workspace product id). Used when workspace has product vault. */
+  productId?: string;
+  /** Optional step type for display (e.g. cleanser, moisturizer). */
+  stepType?: string;
 }
+
+export type RoutineSlot = 'am' | 'pm';
 
 export interface DayGroup {
   id: string;
   title: string;
   time?: string;
+  /** Optional slot for AM/PM grouping (e.g. skincare routines). */
+  slot?: RoutineSlot;
   items: DayItem[];
 }
 

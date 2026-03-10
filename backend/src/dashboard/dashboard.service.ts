@@ -3,6 +3,7 @@ import { WorkspacesService } from '../workspaces/workspaces.service';
 import { WorkspacePreferencesService } from '../workspace-preferences/workspace-preferences.service';
 import { RoutineProvider } from './providers/routine.provider';
 import { EntriesProvider } from './providers/entries.provider';
+import { WorkspaceSummaryProvider } from './providers/workspace-summary.provider';
 import type { DashboardScope } from './dto/dashboard-query.dto';
 import { getWeekDateRange } from './dashboard.constants';
 import type {
@@ -22,6 +23,7 @@ export class DashboardService {
     private readonly workspacePreferencesService: WorkspacePreferencesService,
     private readonly routineProvider: RoutineProvider,
     private readonly entriesProvider: EntriesProvider,
+    private readonly workspaceSummaryProvider: WorkspaceSummaryProvider,
   ) {}
 
   /** Resolve workspace IDs from scope (and optionally explicit workspaceIds). */
@@ -61,9 +63,10 @@ export class DashboardService {
   ): Promise<DashboardWeekDto> {
     const { from, to } = getWeekDateRange(year, weekNumber);
     const resolvedIds = await this.resolveWorkspaceIds(userId, scope, workspaceIds);
-    const [routineDays, entries] = await Promise.all([
+    const [routineDays, entries, workspaceSummaries] = await Promise.all([
       this.routineProvider.getRoutineDays(userId, year, weekNumber, resolvedIds),
       this.entriesProvider.getEntries(userId, from, to, resolvedIds),
+      this.workspaceSummaryProvider.getSummaries(userId, resolvedIds),
     ]);
     return {
       year,
@@ -72,6 +75,7 @@ export class DashboardService {
       to,
       routineDays,
       entries,
+      workspaceSummaries,
     };
   }
 

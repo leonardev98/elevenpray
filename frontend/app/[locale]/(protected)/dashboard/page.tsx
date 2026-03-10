@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
@@ -180,6 +181,9 @@ export default function DashboardPage() {
   const isCurrentWeek =
     year === getCurrentWeek().year && week === getCurrentWeek().week;
 
+  const routineTodaySummaries =
+    data?.workspaceSummaries?.filter((s) => s.kind === "routine_today") ?? [];
+
   if (loading && !data) {
     return (
       <div className="flex justify-center py-12">
@@ -234,7 +238,7 @@ export default function DashboardPage() {
             type="button"
             onClick={() => {
               const curr = getCurrentWeek();
-              setSlideDirection(0);
+              setSlideDirection(1);
               setYear(curr.year);
               setWeek(curr.week);
             }}
@@ -265,6 +269,44 @@ export default function DashboardPage() {
         <p className="mt-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
           {error}
         </p>
+      )}
+
+      {routineTodaySummaries.length > 0 && (
+        <section className="mt-4" aria-label="Rutina de hoy">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
+            Hoy
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {routineTodaySummaries.map((s) => {
+              const payload = s.data as { dayKey?: string; groups?: { title: string; time?: string; items: { content: string }[] }[] };
+              const groups = payload?.groups ?? [];
+              const hasContent = groups.some((g) => g.items?.length > 0);
+              return (
+                <Link
+                  key={s.workspaceId}
+                  href={`/dashboard/workspaces/${s.workspaceId}`}
+                  className="block min-w-[200px] max-w-[280px] rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 hover:border-[var(--app-gold)]/30 hover:bg-[var(--app-bg)]"
+                >
+                  <p className="font-medium text-[var(--app-fg)]">{s.workspaceTitle}</p>
+                  {hasContent ? (
+                    <ul className="mt-2 space-y-1 text-sm text-[var(--app-fg)]/80">
+                      {groups.map((g) => (
+                        <li key={g.title || "g"}>
+                          {g.title && <span className="font-medium">{g.title}</span>}
+                          {g.items?.slice(0, 3).map((it, i) => (
+                            <span key={i}> · {it.content || "—"}</span>
+                          ))}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-1 text-sm text-[var(--app-fg)]/50">Sin rutina para hoy</p>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
       )}
 
       {data && dayMap && (

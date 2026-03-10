@@ -8,7 +8,13 @@ import { useAuth } from "../../../../../providers/auth-provider";
 import { getWorkspace } from "../../../../../lib/workspaces-api";
 import { getSpaces, createSpace, type SpaceApi } from "../../../../../lib/spaces-api";
 import { getRootPages, createPage, type PageApi } from "../../../../../lib/pages-api";
-import { hasRoutineCapability } from "../../../../../lib/workspace-type-registry";
+import {
+  hasRoutineCapability,
+  hasProductVaultCapability,
+  hasCheckinsCapability,
+  hasProgressPhotosCapability,
+  hasInsightsCapability,
+} from "../../../../../lib/workspace-type-registry";
 import type { WorkspaceApi } from "../../../../../lib/workspaces-api";
 
 export default function WorkspaceDetailPage() {
@@ -76,6 +82,12 @@ export default function WorkspaceDetailPage() {
   }
 
   const hasRoutine = hasRoutineCapability(workspace.workspaceType);
+  const hasProductVault = hasProductVaultCapability(workspace.workspaceType);
+  const hasCheckins = hasCheckinsCapability(workspace.workspaceType);
+  const hasProgressPhotos = hasProgressPhotosCapability(workspace.workspaceType);
+  const hasInsights = hasInsightsCapability(workspace.workspaceType);
+  const hasSectionNav =
+    hasRoutine || hasProductVault || hasCheckins || hasProgressPhotos || hasInsights;
 
   return (
     <div>
@@ -83,7 +95,7 @@ export default function WorkspaceDetailPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
           {workspace.name}
         </h1>
-        {hasRoutine && (
+        {!hasSectionNav && hasRoutine && (
           <Link
             href={`/dashboard/workspaces/${workspaceId}/routine`}
             className="rounded-lg border border-[var(--app-border)] px-3 py-1.5 text-sm text-[var(--app-fg)] hover:bg-[var(--app-bg)] hover:text-[var(--app-gold)]"
@@ -92,6 +104,27 @@ export default function WorkspaceDetailPage() {
           </Link>
         )}
       </div>
+
+      {hasSectionNav && (
+        <section className="mb-8">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
+            Hoy
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {hasRoutine && (
+              <Link
+                href={`/dashboard/workspaces/${workspaceId}/routine`}
+                className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[var(--app-fg)] hover:border-[var(--app-gold)]/30 hover:bg-[var(--app-bg)] min-w-[140px]"
+              >
+                <span className="block text-sm font-medium">Rutina de hoy</span>
+                <span className="block text-xs text-[var(--app-fg)]/60 mt-0.5">
+                  AM y PM
+                </span>
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
 
       {error && (
         <p className="mb-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">

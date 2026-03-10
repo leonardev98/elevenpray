@@ -15,7 +15,7 @@ Esta guía explica cómo crear la base de datos para ElevenPray con PostgreSQL, 
    - Clic derecho en el servidor → "Create" → "Database".
    - Nombre: `elevenpray`.
 
-3. **Ejecutar el DDL del proyecto:** en la raíz del repo está `docs/ddl-supabase.sql`. Copia su contenido y ejecútalo en el SQL Editor de Supabase (o en DBeaver) para crear las tablas `users` y `routines`.
+3. **Ejecutar el DDL del proyecto:** usa el archivo único `docs/ddl-completo-elevenpray.sql`. Copia todo su contenido y ejecútalo en el SQL Editor de Supabase (o en DBeaver) para crear todas las tablas. Ver `docs/DDL-ORDEN-EJECUCION.md`.
 
 ## Usar Supabase para compartir la BD
 
@@ -47,9 +47,7 @@ El schema está versionado en la carpeta **`/database/migrations/`** para que t�
 - `004_alter_routines_add_topic_id.sql` – columna `topic_id` en `routines`.
 - `005_create_topic_entries.sql` – tabla `topic_entries` (entradas por fecha).
 
-Si la BD está vacía, ejecutad las migraciones en orden (001, luego 002) en el SQL Editor de Supabase. Si ya tenéis las tablas creadas con `docs/ddl-supabase.sql`, no hace falta volver a ejecutarlas.
-
-Para el esquema de workspaces (block system), ejecutad `docs/ddl-workspaces-create.sql` después de tener `users`. Para el registro de tipos y subtipos, ejecutad `docs/ddl-workspace-types.sql`. Para preferencias y estado UI del dashboard, ejecutad `docs/ddl-workspace-preferences.sql`. Para soporte de subtipos en workspaces, ejecutad `docs/ddl-workspaces-add-subtype.sql`. Resumen de la arquitectura type-driven en `docs/type-driven-architecture.md`.
+Si la BD está vacía, ejecutad `docs/ddl-completo-elevenpray.sql` (incluye users, routines, topics, workspaces, tipos, preferencias y todo lo demás). Las migraciones numeradas en `database/migrations/` son una alternativa legacy; el DDL recomendado es el archivo único. Resumen de la arquitectura type-driven en `docs/type-driven-architecture.md`.
 
 ## Backend con TypeORM
 

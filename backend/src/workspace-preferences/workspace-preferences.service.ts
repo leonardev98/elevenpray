@@ -43,6 +43,12 @@ export class WorkspacePreferencesService {
     if (dto.favorite !== undefined) pref.favorite = dto.favorite;
     if (dto.visibleOnDashboard !== undefined) pref.visibleOnDashboard = dto.visibleOnDashboard;
     if (dto.sortOrder !== undefined) pref.sortOrder = dto.sortOrder;
+    if (dto.completeOnboarding === true) {
+      pref.onboardingCompletedAt = new Date();
+      pref.onboardingAnswers = dto.onboardingAnswers ?? pref.onboardingAnswers;
+    } else if (dto.onboardingAnswers !== undefined) {
+      pref.onboardingAnswers = dto.onboardingAnswers;
+    }
     return this.prefRepo.save(pref);
   }
 
