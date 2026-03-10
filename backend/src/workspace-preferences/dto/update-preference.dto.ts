@@ -22,4 +22,8 @@ export class UpdateWorkspacePreferenceDto {
   @IsObject()
   @IsOptional()
   onboardingAnswers?: Record<string, unknown> | null;
+
+  @IsObject()
+  @IsOptional()
+  skincareProfile?: Record<string, unknown> | null;
 }

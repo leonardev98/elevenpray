@@ -16,6 +16,8 @@ import {
   hasInsightsCapability,
 } from "../../../../../lib/workspace-type-registry";
 import type { WorkspaceApi } from "../../../../../lib/workspaces-api";
+import { WeekScheduleCard } from "./components/week-schedule-card";
+import { SkincareDashboardCards } from "./components/skincare-dashboard-cards";
 
 export default function WorkspaceDetailPage() {
   const params = useParams();
@@ -88,75 +90,88 @@ export default function WorkspaceDetailPage() {
   const hasInsights = hasInsightsCapability(workspace.workspaceType);
   const hasSectionNav =
     hasRoutine || hasProductVault || hasCheckins || hasProgressPhotos || hasInsights;
+  const isSkincare = workspace.workspaceType === "skincare";
 
   return (
-    <div>
-      <div className="mb-6 flex flex-wrap items-center gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--app-fg)]">
           {workspace.name}
         </h1>
         {!hasSectionNav && hasRoutine && (
           <Link
             href={`/dashboard/workspaces/${workspaceId}/routine`}
-            className="rounded-lg border border-[var(--app-border)] px-3 py-1.5 text-sm text-[var(--app-fg)] hover:bg-[var(--app-bg)] hover:text-[var(--app-gold)]"
+            className="rounded-xl border border-[var(--app-gold)]/50 bg-[var(--app-gold)]/10 px-4 py-2.5 text-sm font-medium text-[var(--app-gold)] hover:bg-[var(--app-gold)]/20"
           >
             {t("weeklyRoutine")}
           </Link>
         )}
       </div>
 
-      {hasSectionNav && (
-        <section className="mb-8">
+      {isSkincare && (
+        <SkincareDashboardCards workspaceId={workspaceId} />
+      )}
+
+      {hasRoutine && (
+        <WeekScheduleCard workspaceId={workspaceId} />
+      )}
+
+      {hasProductVault && (
+        <Link
+          href={`/dashboard/workspaces/${workspaceId}/products`}
+          className="flex items-center justify-between rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition hover:border-[var(--app-gold)]/40 hover:shadow-md lg:hidden"
+        >
+          <span className="font-medium text-[var(--app-fg)]">Ver productos</span>
+          <span className="text-[var(--app-gold)]">→</span>
+        </Link>
+      )}
+
+      {hasSectionNav && hasRoutine && (
+        <section className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
             Hoy
           </h2>
-          <div className="flex flex-wrap gap-3">
-            {hasRoutine && (
-              <Link
-                href={`/dashboard/workspaces/${workspaceId}/routine`}
-                className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[var(--app-fg)] hover:border-[var(--app-gold)]/30 hover:bg-[var(--app-bg)] min-w-[140px]"
-              >
-                <span className="block text-sm font-medium">Rutina de hoy</span>
-                <span className="block text-xs text-[var(--app-fg)]/60 mt-0.5">
-                  AM y PM
-                </span>
-              </Link>
-            )}
-          </div>
+          <Link
+            href={`/dashboard/workspaces/${workspaceId}/routine`}
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-[var(--app-fg)] transition hover:border-[var(--app-gold)]/40 hover:bg-[var(--app-gold)]/5"
+          >
+            <span className="font-medium">Rutina de hoy</span>
+            <span className="text-xs text-[var(--app-fg)]/60">AM y PM</span>
+          </Link>
         </section>
       )}
 
       {error && (
-        <p className="mb-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
+        <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
           {error}
         </p>
       )}
 
-      <section className="mb-8">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
+      <section className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
           {t("spaces")}
         </h2>
         <div className="flex flex-wrap gap-2">
           {spaces.map((s) => (
             <span
               key={s.id}
-              className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-sm text-[var(--app-fg)]"
+              className="rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm font-medium text-[var(--app-fg)]"
             >
               {s.title}
             </span>
           ))}
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <input
               type="text"
               value={newSpaceTitle}
               onChange={(e) => setNewSpaceTitle(e.target.value)}
               placeholder={t("newSpacePlaceholder")}
-              className="w-36 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50"
+              className="w-40 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20"
             />
             <button
               type="button"
               onClick={handleCreateSpace}
-              className="rounded-lg bg-[var(--app-navy)] px-2.5 py-1.5 text-sm text-white hover:opacity-90"
+              className="rounded-xl bg-[var(--app-navy)] px-4 py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90"
             >
               {t("add")}
             </button>
@@ -164,8 +179,8 @@ export default function WorkspaceDetailPage() {
         </div>
       </section>
 
-      <section>
-        <div className="mb-3 flex items-center justify-between">
+      <section className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
             {t("pages")}
           </h2>
@@ -173,22 +188,22 @@ export default function WorkspaceDetailPage() {
             type="button"
             onClick={handleCreatePage}
             disabled={creatingPage}
-            className="rounded-lg bg-[var(--app-gold)] px-3 py-1.5 text-sm font-medium text-[var(--app-black)] hover:opacity-90 disabled:opacity-50"
+            className="rounded-xl bg-[var(--app-gold)] px-4 py-2 text-sm font-medium text-[var(--app-navy)] hover:opacity-90 disabled:opacity-50"
           >
             {creatingPage ? t("creatingPage") : t("newPage")}
           </button>
         </div>
         {rootPages.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-[var(--app-border)] py-8 text-center text-sm text-[var(--app-fg)]/50">
+          <p className="rounded-xl border border-dashed border-[var(--app-border)] py-10 text-center text-sm text-[var(--app-fg)]/50">
             {t("noPagesYet")}
           </p>
         ) : (
-          <ul className="space-y-1">
+          <ul className="space-y-2">
             {rootPages.map((p) => (
               <li key={p.id}>
                 <Link
                   href={`/dashboard/workspaces/${workspaceId}/pages/${p.id}`}
-                  className="block rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[var(--app-fg)] hover:border-[var(--app-gold)]/30 hover:bg-[var(--app-bg)]"
+                  className="block rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 font-medium text-[var(--app-fg)] transition hover:border-[var(--app-gold)]/40 hover:bg-[var(--app-gold)]/5"
                 >
                   {p.title}
                 </Link>

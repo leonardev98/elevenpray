@@ -35,6 +35,14 @@ export class UserUiState {
   @Column({ name: 'sidebar_collapsed', type: 'boolean', default: false })
   sidebarCollapsed: boolean;
 
+  /** Workspace whose routine is shown on the weekly dashboard; only one can be active. */
+  @Column({ name: 'active_routine_workspace_id', type: 'uuid', nullable: true })
+  activeRoutineWorkspaceId: string | null;
+
+  @ManyToOne(() => Workspace, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'active_routine_workspace_id' })
+  activeRoutineWorkspace?: Workspace | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

@@ -16,6 +16,16 @@ export interface DayItem {
 }
 
 export type RoutineSlot = "am" | "pm";
+export type SkinType = "oily" | "dry" | "combination" | "sensitive" | "acne-prone";
+export type RoutineComplexity = "minimal" | "balanced" | "advanced";
+export type WeeklyIntent = "recovery" | "retinoid" | "exfoliation" | "hydration" | "rest";
+
+export interface RoutineMetadata {
+  skinType?: SkinType;
+  goals?: string[];
+  complexity?: RoutineComplexity;
+  weeklyIntents?: Partial<Record<string, WeeklyIntent>>;
+}
 
 export interface DayGroup {
   id: string;
@@ -40,6 +50,7 @@ export interface Routine {
   year: number;
   weekNumber: number;
   days: Record<string, DayContent>;
+  metadata?: RoutineMetadata | null;
 }
 
 export async function getRoutinesByTopic(token: string, topicId: string): Promise<Routine[]> {
@@ -55,6 +66,7 @@ export interface CreateRoutineDto {
   year: number;
   weekNumber: number;
   days: Record<string, DayContent>;
+  metadata?: RoutineMetadata | null;
 }
 
 export interface UpdateRoutineDto {
@@ -62,6 +74,7 @@ export interface UpdateRoutineDto {
   year?: number;
   weekNumber?: number;
   days?: Record<string, DayContent>;
+  metadata?: RoutineMetadata | null;
 }
 
 export async function getRoutines(token: string, topicId?: string): Promise<Routine[]> {

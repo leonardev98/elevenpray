@@ -63,8 +63,13 @@ export class DashboardService {
   ): Promise<DashboardWeekDto> {
     const { from, to } = getWeekDateRange(year, weekNumber);
     const resolvedIds = await this.resolveWorkspaceIds(userId, scope, workspaceIds);
+    const uiState = await this.workspacePreferencesService.getUiState(userId);
+    const routineWorkspaceIds =
+      uiState.activeRoutineWorkspaceId && resolvedIds.includes(uiState.activeRoutineWorkspaceId)
+        ? [uiState.activeRoutineWorkspaceId]
+        : resolvedIds;
     const [routineDays, entries, workspaceSummaries] = await Promise.all([
-      this.routineProvider.getRoutineDays(userId, year, weekNumber, resolvedIds),
+      this.routineProvider.getRoutineDays(userId, year, weekNumber, routineWorkspaceIds),
       this.entriesProvider.getEntries(userId, from, to, resolvedIds),
       this.workspaceSummaryProvider.getSummaries(userId, resolvedIds),
     ]);

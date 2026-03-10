@@ -89,6 +89,7 @@ export class RoutineTemplatesService {
       year: dto.year,
       weekNumber: dto.weekNumber,
       days: (dto.days ?? {}) as Record<string, DayContent>,
+      metadata: (dto.metadata ?? null) as RoutineTemplate['metadata'],
     });
     return this.repo.save(template);
   }
@@ -103,6 +104,8 @@ export class RoutineTemplatesService {
     if (dto.year !== undefined) template.year = dto.year;
     if (dto.weekNumber !== undefined) template.weekNumber = dto.weekNumber;
     if (dto.days !== undefined) template.days = dto.days as Record<string, DayContent>;
+    if (dto.metadata !== undefined)
+      template.metadata = dto.metadata as RoutineTemplate['metadata'];
     return this.repo.save(template);
   }
 

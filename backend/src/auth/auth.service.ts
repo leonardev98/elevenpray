@@ -6,7 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import type { JwtPayload } from '../common/decorators/current-user.decorator';
 
-const SEED_EMAIL = 'admin';
+const SEED_EMAIL = 'admin@localhost';
 const SEED_PASSWORD = 'admin';
 const SEED_NAME = 'Admin';
 
@@ -60,7 +60,12 @@ export class AuthService implements OnModuleInit {
   }
 
   private toPublic(user: User): PublicUser {
-    return { id: user.id, email: user.email, name: user.name };
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role ?? 'user',
+    };
   }
 
   private async hashPassword(password: string): Promise<string> {
@@ -78,4 +83,5 @@ export interface PublicUser {
   id: string;
   email: string;
   name: string;
+  role: 'user' | 'platform_admin';
 }

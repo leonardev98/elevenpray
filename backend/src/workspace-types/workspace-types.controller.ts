@@ -12,6 +12,11 @@ export class WorkspaceTypesController {
     return this.workspaceTypesService.getAll();
   }
 
+  @Get('domains')
+  async getDomains() {
+    return this.workspaceTypesService.getAllDomains();
+  }
+
   @Get(':code')
   async getByCode(@Param('code') code: string) {
     const type = await this.workspaceTypesService.getByCode(code);

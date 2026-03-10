@@ -27,9 +27,11 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   password_hash TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'platform_admin')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users (role);
 
 CREATE TABLE IF NOT EXISTS routines (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -171,8 +173,22 @@ CREATE TRIGGER tr_routine_templates_updated_at BEFORE UPDATE ON routine_template
 -- 4. TIPOS Y SUBTIPOS DE WORKSPACE
 -- =============================================================================
 
+CREATE TABLE IF NOT EXISTS workspace_type_domains (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  code TEXT NOT NULL UNIQUE,
+  label TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_workspace_type_domains_code ON workspace_type_domains (code);
+DROP TRIGGER IF EXISTS tr_workspace_type_domains_updated_at ON workspace_type_domains;
+CREATE TRIGGER tr_workspace_type_domains_updated_at
+  BEFORE UPDATE ON workspace_type_domains FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
+
 CREATE TABLE IF NOT EXISTS workspace_types (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  domain_id UUID REFERENCES workspace_type_domains (id) ON DELETE SET NULL,
   code TEXT NOT NULL UNIQUE,
   label TEXT NOT NULL,
   capabilities JSONB NOT NULL DEFAULT '{}',
@@ -183,6 +199,7 @@ CREATE TABLE IF NOT EXISTS workspace_types (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_workspace_types_code ON workspace_types (code);
+CREATE INDEX IF NOT EXISTS idx_workspace_types_domain_id ON workspace_types (domain_id);
 
 CREATE TABLE IF NOT EXISTS workspace_subtypes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -286,6 +303,7 @@ CREATE INDEX IF NOT EXISTS idx_user_workspace_preferences_workspace_id ON user_w
 -- Si la tabla ya existía sin onboarding, añadir columnas
 ALTER TABLE user_workspace_preferences ADD COLUMN IF NOT EXISTS onboarding_completed_at TIMESTAMPTZ;
 ALTER TABLE user_workspace_preferences ADD COLUMN IF NOT EXISTS onboarding_answers JSONB;
+ALTER TABLE user_workspace_preferences ADD COLUMN IF NOT EXISTS skincare_profile JSONB;
 
 CREATE TABLE IF NOT EXISTS user_ui_state (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -293,6 +311,7 @@ CREATE TABLE IF NOT EXISTS user_ui_state (
   current_workspace_id UUID REFERENCES workspaces (id) ON DELETE SET NULL,
   selected_workspace_ids UUID[] NOT NULL DEFAULT '{}',
   sidebar_collapsed BOOLEAN NOT NULL DEFAULT false,
+  active_routine_workspace_id UUID REFERENCES workspaces (id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

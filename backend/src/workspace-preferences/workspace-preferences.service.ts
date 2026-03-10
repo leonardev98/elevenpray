@@ -49,6 +49,9 @@ export class WorkspacePreferencesService {
     } else if (dto.onboardingAnswers !== undefined) {
       pref.onboardingAnswers = dto.onboardingAnswers;
     }
+    if (dto.skincareProfile !== undefined) {
+      pref.skincareProfile = dto.skincareProfile;
+    }
     return this.prefRepo.save(pref);
   }
 
@@ -80,6 +83,12 @@ export class WorkspacePreferencesService {
       state.selectedWorkspaceIds = dto.selectedWorkspaceIds;
     }
     if (dto.sidebarCollapsed !== undefined) state.sidebarCollapsed = dto.sidebarCollapsed;
+    if (dto.activeRoutineWorkspaceId !== undefined) {
+      if (dto.activeRoutineWorkspaceId !== null) {
+        await this.workspacesService.findOne(dto.activeRoutineWorkspaceId, userId);
+      }
+      state.activeRoutineWorkspaceId = dto.activeRoutineWorkspaceId;
+    }
     return this.uiStateRepo.save(state);
   }
 

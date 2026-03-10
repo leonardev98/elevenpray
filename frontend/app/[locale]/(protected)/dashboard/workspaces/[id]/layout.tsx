@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useAuth } from "../../../../../providers/auth-provider";
 import { getWorkspace } from "../../../../../lib/workspaces-api";
-import { getWorkspacePreference, updateWorkspacePreference } from "../../../../../lib/workspace-preferences-api";
+import {
+  getWorkspacePreference,
+  getPreferences,
+  updateWorkspacePreference,
+} from "../../../../../lib/workspace-preferences-api";
 import {
   hasRoutineCapability,
   hasProductVaultCapability,
@@ -13,65 +16,21 @@ import {
   hasProgressPhotosCapability,
   hasInsightsCapability,
   hasExpertConsultationCapability,
+  hasKnowledgeHubCapability,
+  hasVideoGuidesCapability,
 } from "../../../../../lib/workspace-type-registry";
+import { getWorkspaceNavSections, getActiveSection } from "../../../../../lib/workspace-navigation";
 import type { WorkspaceApi } from "../../../../../lib/workspaces-api";
+import type { WorkspacePreferenceApi } from "../../../../../lib/workspace-preferences-api";
+import { WorkspaceNav } from "./components/workspace-nav";
+import { WorkspaceSubNav } from "./components/workspace-sub-nav";
+import { WorkspaceProductsAside } from "./components/workspace-products-aside";
+import {
+  SkinProfileOnboarding,
+  parseSkinProfileFromPreference,
+} from "./components/skin-profile-onboarding";
 
-function WorkspaceNav({
-  workspaceId,
-  workspace,
-}: {
-  workspaceId: string;
-  workspace: WorkspaceApi;
-}) {
-  const pathname = usePathname();
-  const base = `/dashboard/workspaces/${workspaceId}`;
-  const hasRoutine = hasRoutineCapability(workspace.workspaceType);
-  const hasProductVault = hasProductVaultCapability(workspace.workspaceType);
-  const hasCheckins = hasCheckinsCapability(workspace.workspaceType);
-  const hasProgressPhotos = hasProgressPhotosCapability(workspace.workspaceType);
-  const hasInsights = hasInsightsCapability(workspace.workspaceType);
-  const hasExpertConsultation = hasExpertConsultationCapability(workspace.workspaceType);
-  const hasSectionNav =
-    hasRoutine || hasProductVault || hasCheckins || hasProgressPhotos || hasInsights || hasExpertConsultation;
-
-  if (!hasSectionNav) return null;
-
-  const navItems: { href: string; label: string }[] = [{ href: base, label: "Overview" }];
-  if (hasRoutine) navItems.push({ href: `${base}/routine`, label: "Rutina" });
-  if (hasProductVault) navItems.push({ href: `${base}/products`, label: "Productos" });
-  if (hasCheckins) navItems.push({ href: `${base}/journal`, label: "Journal" });
-  if (hasProgressPhotos) navItems.push({ href: `${base}/photos`, label: "Fotos" });
-  navItems.push({ href: `${base}/library`, label: "Library" });
-  if (hasInsights) navItems.push({ href: `${base}/insights`, label: "Insights" });
-  if (hasExpertConsultation) navItems.push({ href: `${base}/experts`, label: "Expertos" });
-
-  return (
-    <nav
-      className="mb-6 flex flex-wrap gap-1 border-b border-[var(--app-border)] pb-4"
-      aria-label="Workspace sections"
-    >
-      {navItems.map(({ href, label }) => {
-        const isActive =
-          href === base ? pathname === base : pathname.startsWith(href + "/") || pathname === href;
-        return (
-          <Link
-            key={href}
-            href={href}
-            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-              isActive
-                ? "bg-[var(--app-navy)] text-white"
-                : "text-[var(--app-fg)] hover:bg-[var(--app-surface)] hover:text-[var(--app-gold)]"
-            }`}
-          >
-            {label}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
-
-function OnboardingModal({
+function GenericOnboardingModal({
   workspaceId,
   onComplete,
 }: {
@@ -137,21 +96,58 @@ function OnboardingModal({
   );
 }
 
+/** Normaliza preferencia por si el backend devuelve snake_case */
+function normalizePreference(p: WorkspacePreferenceApi | Record<string, unknown>): WorkspacePreferenceApi {
+  const raw = p as Record<string, unknown>;
+  return {
+    ...(p as WorkspacePreferenceApi),
+    onboardingCompletedAt:
+      (p as WorkspacePreferenceApi).onboardingCompletedAt ?? (raw.onboarding_completed_at as string) ?? null,
+    onboardingAnswers:
+      (p as WorkspacePreferenceApi).onboardingAnswers ?? (raw.onboarding_answers as Record<string, unknown>) ?? null,
+    skincareProfile:
+      (p as WorkspacePreferenceApi).skincareProfile ?? (raw.skincare_profile as Record<string, unknown>) ?? null,
+  };
+}
+
+const SKIN_ONBOARDING_STORAGE_KEY = (workspaceId: string) =>
+  `elevenpray_skin_onboarding_done_${workspaceId}`;
+
+function hasExistingSkinProfile(pref: WorkspacePreferenceApi | null): boolean {
+  if (!pref) return false;
+  const answers = pref.onboardingAnswers;
+  if (answers && typeof answers === "object") {
+    if (answers.skinType || (answers as Record<string, unknown>).skin_type) return true;
+    if (answers.sensitivityLevel || (answers as Record<string, unknown>).sensitivity_level) return true;
+  }
+  const skin = pref.skincareProfile;
+  if (skin && typeof skin === "object" && Object.keys(skin).length > 0) return true;
+  return false;
+}
+
 export default function WorkspaceIdLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const params = useParams();
+  const pathname = usePathname();
   const workspaceId = params.id as string;
   const { token } = useAuth();
   const [workspace, setWorkspace] = useState<WorkspaceApi | null>(null);
-  const [preference, setPreference] = useState<{ onboardingCompletedAt: string | null } | null>(
-    null
-  );
+  const [preference, setPreference] = useState<WorkspacePreferenceApi | null>(null);
   const [preferenceLoaded, setPreferenceLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [onboardingClosed, setOnboardingClosed] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [localStorageSaysOnboardingDone, setLocalStorageSaysOnboardingDone] = useState(false);
+
+  useEffect(() => {
+    if (!workspaceId || typeof window === "undefined") return;
+    setLocalStorageSaysOnboardingDone(
+      localStorage.getItem(SKIN_ONBOARDING_STORAGE_KEY(workspaceId)) === "1"
+    );
+  }, [workspaceId]);
 
   useEffect(() => {
     if (!token || !workspaceId) return;
@@ -168,19 +164,35 @@ export default function WorkspaceIdLayout({
       hasCheckinsCapability(workspace.workspaceType) ||
       hasProgressPhotosCapability(workspace.workspaceType) ||
       hasInsightsCapability(workspace.workspaceType) ||
-      hasExpertConsultationCapability(workspace.workspaceType);
+      hasExpertConsultationCapability(workspace.workspaceType) ||
+      hasKnowledgeHubCapability(workspace.workspaceType) ||
+      hasVideoGuidesCapability(workspace.workspaceType);
     if (!hasSectionNav) {
       setPreferenceLoaded(true);
       return;
     }
+    function setPreferenceFromList(list: WorkspacePreferenceApi[]) {
+      const found = list.find((pr) => pr.workspaceId === workspaceId);
+      setPreference(found ? normalizePreference(found) : null);
+    }
+
     getWorkspacePreference(token, workspaceId)
       .then((p) => {
-        setPreference(p);
-        setPreferenceLoaded(true);
+        if (p) {
+          setPreference(normalizePreference(p));
+          setPreferenceLoaded(true);
+        } else {
+          getPreferences(token)
+            .then(setPreferenceFromList)
+            .catch(() => setPreference(null))
+            .finally(() => setPreferenceLoaded(true));
+        }
       })
       .catch(() => {
-        setPreference(null);
-        setPreferenceLoaded(true);
+        getPreferences(token)
+          .then(setPreferenceFromList)
+          .catch(() => setPreference(null))
+          .finally(() => setPreferenceLoaded(true));
       });
   }, [token, workspaceId, workspace]);
 
@@ -191,12 +203,30 @@ export default function WorkspaceIdLayout({
       hasCheckinsCapability(workspace.workspaceType) ||
       hasProgressPhotosCapability(workspace.workspaceType) ||
       hasInsightsCapability(workspace.workspaceType) ||
-      hasExpertConsultationCapability(workspace.workspaceType));
+      hasExpertConsultationCapability(workspace.workspaceType) ||
+      hasKnowledgeHubCapability(workspace.workspaceType) ||
+      hasVideoGuidesCapability(workspace.workspaceType));
+  const hasCompletedOrExistingProfile =
+    preference?.onboardingCompletedAt || hasExistingSkinProfile(preference);
   const showOnboarding =
     hasSectionNav &&
     preferenceLoaded &&
     !onboardingClosed &&
-    (preference === null || !preference.onboardingCompletedAt);
+    !hasCompletedOrExistingProfile &&
+    !localStorageSaysOnboardingDone;
+  const isSkincareWorkspace = workspace?.workspaceType === "skincare";
+
+  useEffect(() => {
+    if (
+      isSkincareWorkspace &&
+      workspaceId &&
+      hasCompletedOrExistingProfile &&
+      typeof window !== "undefined"
+    ) {
+      localStorage.setItem(SKIN_ONBOARDING_STORAGE_KEY(workspaceId), "1");
+      setLocalStorageSaysOnboardingDone(true);
+    }
+  }, [isSkincareWorkspace, workspaceId, hasCompletedOrExistingProfile]);
 
   if (loading) {
     return (
@@ -214,19 +244,109 @@ export default function WorkspaceIdLayout({
     );
   }
 
+  const isSkincareWithProducts =
+    workspace.workspaceType === "skincare" && hasProductVaultCapability(workspace.workspaceType);
+
+  const base = `/dashboard/workspaces/${workspaceId}`;
+  const sections = getWorkspaceNavSections(workspace.workspaceType);
+  const activeSection = getActiveSection(sections, pathname, base);
+  const isCatalogPage = pathname.endsWith("/products") || pathname.endsWith("/library");
+
   return (
-    <div>
-      {showOnboarding && (
-        <OnboardingModal
+    <div className="flex flex-col lg:flex-row lg:gap-6">
+      {showOnboarding &&
+        (isSkincareWorkspace ? (
+          <SkinProfileOnboarding
+            workspaceId={workspaceId}
+            onComplete={async () => {
+              setOnboardingClosed(true);
+              if (workspaceId && typeof window !== "undefined") {
+                localStorage.setItem(SKIN_ONBOARDING_STORAGE_KEY(workspaceId), "1");
+                setLocalStorageSaysOnboardingDone(true);
+              }
+              if (token) {
+                const updated = await getWorkspacePreference(token, workspaceId);
+                if (updated) setPreference(normalizePreference(updated));
+              }
+            }}
+            onAlreadyDone={() => {
+              setOnboardingClosed(true);
+              if (workspaceId && typeof window !== "undefined") {
+                localStorage.setItem(SKIN_ONBOARDING_STORAGE_KEY(workspaceId), "1");
+                setLocalStorageSaysOnboardingDone(true);
+              }
+            }}
+          />
+        ) : (
+          <GenericOnboardingModal
+            workspaceId={workspaceId}
+            onComplete={async () => {
+              setOnboardingClosed(true);
+              if (token) {
+                const updated = await getWorkspacePreference(token, workspaceId);
+                if (updated) setPreference(updated);
+              }
+            }}
+          />
+        ))}
+      {editProfileOpen && isSkincareWorkspace && (
+        <SkinProfileOnboarding
           workspaceId={workspaceId}
-          onComplete={() => {
-            setPreference({ onboardingCompletedAt: new Date().toISOString() });
-            setOnboardingClosed(true);
+          mode="edit"
+          initialData={parseSkinProfileFromPreference(
+            (preference?.onboardingAnswers ?? preference?.skincareProfile) as
+              | Record<string, unknown>
+              | null
+              | undefined
+          )}
+          onComplete={async () => {
+            setEditProfileOpen(false);
+            if (token) {
+              const updated = await getWorkspacePreference(token, workspaceId);
+              if (updated) setPreference(updated);
+            }
           }}
+          onClose={() => setEditProfileOpen(false)}
         />
       )}
-      <WorkspaceNav workspaceId={workspaceId} workspace={workspace} />
-      {children}
+      {/* Contenedor principal: pestañas + contenido */}
+      <div className="min-w-0 flex-1 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm overflow-hidden flex flex-col">
+        {/* Pestañas principales (siempre visibles) */}
+        <div className="flex-shrink-0 border-b border-[var(--app-border)] bg-[var(--app-bg)]/80">
+          <div className="p-3 sm:p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <WorkspaceNav workspaceId={workspaceId} workspace={workspace} />
+                {activeSection?.children?.length ? (
+                  <WorkspaceSubNav workspaceId={workspaceId} section={activeSection} />
+                ) : null}
+              </div>
+              {isSkincareWorkspace ? (
+                <button
+                  type="button"
+                  onClick={() => setEditProfileOpen(true)}
+                  className="shrink-0 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-xs font-medium text-[var(--app-fg)]/80 transition hover:border-[var(--app-gold)]/50 hover:text-[var(--app-gold)]"
+                >
+                  Editar perfil de piel
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+        {/* Contenido de la sección (scroll independiente) */}
+        <div
+          className={`flex-1 min-h-0 overflow-auto ${
+            isCatalogPage ? "px-3 py-5 sm:px-4 lg:px-5 lg:py-6" : "p-5 lg:p-6"
+          }`}
+        >
+          {children}
+        </div>
+      </div>
+      {isSkincareWithProducts && (
+        <aside className="hidden lg:block lg:w-72 lg:flex-shrink-0 xl:w-80">
+          <WorkspaceProductsAside />
+        </aside>
+      )}
     </div>
   );
 }

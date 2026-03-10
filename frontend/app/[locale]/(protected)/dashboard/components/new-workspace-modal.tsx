@@ -20,7 +20,6 @@ export function NewWorkspaceModal({
   onSubmit,
   error,
 }: NewWorkspaceModalProps) {
-  const nameRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const { token } = useAuth();
   const [submitting, setSubmitting] = useState(false);
@@ -47,10 +46,6 @@ export function NewWorkspaceModal({
     document.body.style.overflow = "";
   }
 
-  useEffect(() => {
-    if (isOpen) nameRef.current?.focus();
-  }, [isOpen]);
-
   const loadSubtypes = useCallback(
     async (typeCode: WorkspaceTypeId) => {
       if (!token) return;
@@ -76,14 +71,11 @@ export function NewWorkspaceModal({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = e.currentTarget;
-    const name = (form.elements.namedItem("name") as HTMLInputElement).value.trim();
-    const typeRadio = form.querySelector<HTMLInputElement>('input[name="workspaceType"]:checked');
+    const typeRadio = e.currentTarget.querySelector<HTMLInputElement>('input[name="workspaceType"]:checked');
     const workspaceType = (typeRadio?.value ?? "general") as WorkspaceTypeId;
-    if (!name) return;
     setSubmitting(true);
     try {
-      await onSubmit(name, workspaceType, selectedSubtypeId ?? undefined);
+      await onSubmit("", workspaceType, selectedSubtypeId ?? undefined);
       onClose();
     } finally {
       setSubmitting(false);
@@ -122,23 +114,6 @@ export function NewWorkspaceModal({
               {t("newWorkspace")}
             </h2>
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-              <div>
-                <label
-                  htmlFor="new-workspace-name"
-                  className="mb-1 block text-sm font-medium text-[var(--app-fg)]/80"
-                >
-                  {tCommon("name")}
-                </label>
-                <input
-                  ref={nameRef}
-                  id="new-workspace-name"
-                  name="name"
-                  type="text"
-                  required
-                  placeholder={t("namePlaceholder")}
-                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
-                />
-              </div>
               <div>
                 <span className="mb-2 block text-sm font-medium text-[var(--app-fg)]/80">
                   {t("type")}

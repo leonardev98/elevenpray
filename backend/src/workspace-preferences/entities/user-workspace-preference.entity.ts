@@ -44,6 +44,9 @@ export class UserWorkspacePreference {
   @Column({ name: 'onboarding_answers', type: 'jsonb', nullable: true })
   onboardingAnswers: Record<string, unknown> | null;
 
+  @Column({ name: 'skincare_profile', type: 'jsonb', nullable: true })
+  skincareProfile: Record<string, unknown> | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

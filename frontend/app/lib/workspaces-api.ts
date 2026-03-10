@@ -34,10 +34,11 @@ export async function createWorkspace(
   workspaceType: WorkspaceTypeId,
   workspaceSubtypeId?: string | null
 ): Promise<WorkspaceApi> {
-  const body: { name: string; workspaceType: WorkspaceTypeId; workspaceSubtypeId?: string } = {
-    name: name.trim() || "Sin nombre",
+  const body: { name?: string; workspaceType: WorkspaceTypeId; workspaceSubtypeId?: string } = {
     workspaceType,
   };
+  const trimmed = name?.trim();
+  if (trimmed) body.name = trimmed;
   if (workspaceSubtypeId) body.workspaceSubtypeId = workspaceSubtypeId;
   const res = await fetch(WORKSPACES_URL(), {
     method: "POST",

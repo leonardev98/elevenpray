@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { WorkspaceTypeDomain } from './workspace-type-domain.entity';
 
 export interface WorkspaceTypeCapabilities {
   hasRoutine?: boolean;
@@ -16,6 +19,13 @@ export interface WorkspaceTypeCapabilities {
 export class WorkspaceType {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'domain_id', type: 'uuid', nullable: true })
+  domainId: string | null;
+
+  @ManyToOne(() => WorkspaceTypeDomain, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'domain_id' })
+  domain?: WorkspaceTypeDomain | null;
 
   @Column({ type: 'text', unique: true })
   code: string;

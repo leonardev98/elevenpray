@@ -19,6 +19,8 @@ import { WorkspaceProductsModule } from './workspace-products/workspace-products
 import { WorkspaceCheckinsModule } from './workspace-checkins/workspace-checkins.module';
 import { WorkspacePhotosModule } from './workspace-photos/workspace-photos.module';
 import { ExpertConsultationModule } from './expert-consultation/expert-consultation.module';
+import { CatalogProductsModule } from './catalog-products/catalog-products.module';
+import { IngredientConflictsModule } from './ingredient-conflicts/ingredient-conflicts.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { ExpertConsultationModule } from './expert-consultation/expert-consultat
     WorkspaceCheckinsModule,
     WorkspacePhotosModule,
     ExpertConsultationModule,
+    CatalogProductsModule,
+    IngredientConflictsModule,
     RoutineTemplatesModule,
     SpacesModule,
     PagesModule,

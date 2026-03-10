@@ -29,11 +29,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const u = localStorage.getItem(USER_KEY);
     if (t && u) {
       try {
-        const parsed = JSON.parse(u) as PublicUser;
         const valid = await me(t);
-        setUser(valid);
+        const userWithRole: PublicUser = { ...valid, role: valid.role ?? "user" };
+        setUser(userWithRole);
         setToken(t);
-        localStorage.setItem(USER_KEY, JSON.stringify(valid));
+        localStorage.setItem(USER_KEY, JSON.stringify(userWithRole));
       } catch {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USER_KEY);

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { getRoutineTemplatesByWorkspace } from "../../../../../../lib/workspaces-api";
+import { RoutineLoadingState } from "../../../components/routine-loading-state";
 
 export default function WorkspaceRoutinePage() {
   const params = useParams();
@@ -29,11 +30,7 @@ export default function WorkspaceRoutinePage() {
   }, [token, workspaceId, router]);
 
   if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <p className="text-[var(--app-fg)]/60">Cargando plantilla…</p>
-      </div>
-    );
+    return <RoutineLoadingState />;
   }
 
   if (status === "error") {
@@ -51,9 +48,5 @@ export default function WorkspaceRoutinePage() {
     );
   }
 
-  return (
-    <div className="flex items-center justify-center p-8">
-      <p className="text-[var(--app-fg)]/60">Redirigiendo al editor…</p>
-    </div>
-  );
+  return <RoutineLoadingState />;
 }

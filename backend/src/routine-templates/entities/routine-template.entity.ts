@@ -39,6 +39,18 @@ export interface DayContent {
   groups?: DayGroup[];
 }
 
+export interface RoutineMetadata {
+  skinType?: 'oily' | 'dry' | 'combination' | 'sensitive' | 'acne-prone';
+  goals?: string[];
+  complexity?: 'minimal' | 'balanced' | 'advanced';
+  weeklyIntents?: Partial<
+    Record<
+      'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday',
+      'recovery' | 'retinoid' | 'exfoliation' | 'hydration' | 'rest'
+    >
+  >;
+}
+
 export const DAY_KEYS = [
   'monday',
   'tuesday',
@@ -79,6 +91,9 @@ export class RoutineTemplate {
 
   @Column({ type: 'jsonb', default: {} })
   days: Record<string, DayContent>;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: RoutineMetadata | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

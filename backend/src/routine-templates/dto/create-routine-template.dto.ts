@@ -24,6 +24,10 @@ export class CreateRoutineTemplateDto {
   @IsObject()
   @IsOptional()
   days?: Record<string, unknown>;
+
+  @IsObject()
+  @IsOptional()
+  metadata?: Record<string, unknown> | null;
 }
 
 export class UpdateRoutineTemplateDto {
@@ -48,4 +52,8 @@ export class UpdateRoutineTemplateDto {
   @IsObject()
   @IsOptional()
   days?: Record<string, unknown>;
+
+  @IsObject()
+  @IsOptional()
+  metadata?: Record<string, unknown> | null;
 }

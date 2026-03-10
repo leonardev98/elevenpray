@@ -15,6 +15,14 @@ export interface WorkspaceTypeCapabilities {
   hasRoutineSlots?: boolean;
   /** Expert/mentor/coach consultation (reusable across skincare, fitness, career, etc.). */
   hasExpertConsultation?: boolean;
+  /** Educational articles and guides (knowledge hub). */
+  hasKnowledgeHub?: boolean;
+  /** Video tutorials and guides. */
+  hasVideoGuides?: boolean;
+  /** Routine/product reminders (morning, night, reapply). */
+  hasReminders?: boolean;
+  /** Community insights: popular routines, trending products. */
+  hasCommunityInsights?: boolean;
 }
 
 export interface WorkspaceTypeDefinition {
@@ -37,6 +45,10 @@ const DEFINITIONS: WorkspaceTypeDefinition[] = [
       hasInsights: true,
       hasRoutineSlots: true,
       hasExpertConsultation: true,
+      hasKnowledgeHub: true,
+      hasVideoGuides: true,
+      hasReminders: true,
+      hasCommunityInsights: true,
     },
     sortOrder: 0,
   },

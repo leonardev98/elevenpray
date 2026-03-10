@@ -9,6 +9,7 @@ export interface WorkspacePreferenceApi {
   sortOrder: number;
   onboardingCompletedAt: string | null;
   onboardingAnswers: Record<string, unknown> | null;
+  skincareProfile: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -19,9 +20,45 @@ export interface UpdateWorkspacePreferenceDto {
   sortOrder?: number;
   completeOnboarding?: boolean;
   onboardingAnswers?: Record<string, unknown> | null;
+  skincareProfile?: Record<string, unknown> | null;
 }
 
 const BASE = () => `${getBaseUrl()}/workspace-preferences`;
+
+export interface UserUiStateApi {
+  id: string;
+  userId: string;
+  currentWorkspaceId: string | null;
+  selectedWorkspaceIds: string[];
+  sidebarCollapsed: boolean;
+  activeRoutineWorkspaceId: string | null;
+}
+
+export interface UpdateUiStateDto {
+  currentWorkspaceId?: string | null;
+  selectedWorkspaceIds?: string[];
+  sidebarCollapsed?: boolean;
+  activeRoutineWorkspaceId?: string | null;
+}
+
+export async function getUiState(token: string): Promise<UserUiStateApi> {
+  const res = await fetch(`${BASE()}/ui-state`, { headers: getAuthHeaders(token) });
+  if (!res.ok) throw new Error("Error al cargar estado de la interfaz");
+  return res.json();
+}
+
+export async function updateUiState(
+  token: string,
+  dto: UpdateUiStateDto
+): Promise<UserUiStateApi> {
+  const res = await fetch(`${BASE()}/ui-state`, {
+    method: "PATCH",
+    headers: { ...getAuthHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify(dto),
+  });
+  if (!res.ok) throw new Error("Error al actualizar estado");
+  return res.json();
+}
 
 export async function getWorkspacePreference(
   token: string,

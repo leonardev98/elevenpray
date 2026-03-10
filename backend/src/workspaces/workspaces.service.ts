@@ -6,7 +6,7 @@ import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/create-workspace.dto';
 import { RoutineTemplatesService } from '../routine-templates/routine-templates.service';
 import { WorkspaceSubtypesService } from '../workspace-subtypes/workspace-subtypes.service';
-import { hasRoutineCapability } from '../workspace-types/workspace-type.registry';
+import { hasRoutineCapability, getWorkspaceType } from '../workspace-types/workspace-type.registry';
 import { Page } from '../pages/entities/page.entity';
 
 @Injectable()
@@ -34,11 +34,23 @@ export class WorkspacesService {
     return workspace;
   }
 
+  private async deriveWorkspaceName(dto: CreateWorkspaceDto): Promise<string> {
+    const trimmed = dto.name?.trim();
+    if (trimmed) return trimmed;
+    const typeDef = getWorkspaceType(dto.workspaceType);
+    const typeLabel = typeDef?.label ?? dto.workspaceType;
+    if (!dto.workspaceSubtypeId) return typeLabel;
+    const subtype = await this.workspaceSubtypesService.findOne(dto.workspaceSubtypeId);
+    const subtypeLabel = subtype?.label;
+    return subtypeLabel ? `${typeLabel} – ${subtypeLabel}` : typeLabel;
+  }
+
   async create(userId: string, dto: CreateWorkspaceDto): Promise<Workspace> {
     const count = await this.workspaceRepository.count({ where: { userId } });
+    const name = await this.deriveWorkspaceName(dto);
     const workspace = this.workspaceRepository.create({
       userId,
-      name: dto.name,
+      name,
       workspaceType: dto.workspaceType as Workspace['workspaceType'],
       workspaceSubtypeId: dto.workspaceSubtypeId ?? null,
       sortOrder: count,

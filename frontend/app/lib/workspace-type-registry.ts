@@ -15,19 +15,46 @@ export interface WorkspaceTypeCapabilities {
   hasRoutineSlots?: boolean;
   /** Expert/mentor/coach consultation (reusable across skincare, fitness, career, etc.). */
   hasExpertConsultation?: boolean;
+  /** Educational articles and guides (knowledge hub). */
+  hasKnowledgeHub?: boolean;
+  /** Video tutorials and guides. */
+  hasVideoGuides?: boolean;
+  /** Routine/product reminders (morning, night, reapply). */
+  hasReminders?: boolean;
+  /** Community insights: popular routines, trending products. */
+  hasCommunityInsights?: boolean;
 }
+
+export type WorkspaceCategoryId = "vida_personal" | "trabajo" | "estudios";
+
+/** Dominio (padre) que agrupa tipos. Alineado con BD workspace_type_domains. */
+export type WorkspaceDomainId = "wellness" | "work" | "studies" | "general";
 
 export interface WorkspaceTypeDefinition {
   id: string;
   label: string;
+  /** Categoría para el aside: Vida personal, Trabajo, Estudios */
+  category: WorkspaceCategoryId;
+  /** Dominio para agrupar en UI (Salud y bienestar, Trabajo, etc.) */
+  domain: WorkspaceDomainId;
   capabilities: WorkspaceTypeCapabilities;
   sortOrder: number;
 }
+
+const CATEGORY_LABELS: Record<WorkspaceCategoryId, string> = {
+  vida_personal: "Vida personal",
+  trabajo: "Trabajo",
+  estudios: "Estudios",
+};
+
+export const WORKSPACE_DOMAIN_IDS: WorkspaceDomainId[] = ["wellness", "work", "studies", "general"];
 
 const DEFINITIONS: WorkspaceTypeDefinition[] = [
   {
     id: "skincare",
     label: "Skincare",
+    category: "vida_personal",
+    domain: "wellness",
     capabilities: {
       hasRoutine: true,
       hasProductVault: true,
@@ -36,13 +63,17 @@ const DEFINITIONS: WorkspaceTypeDefinition[] = [
       hasInsights: true,
       hasRoutineSlots: true,
       hasExpertConsultation: true,
+      hasKnowledgeHub: true,
+      hasVideoGuides: true,
+      hasReminders: true,
+      hasCommunityInsights: true,
     },
     sortOrder: 0,
   },
-  { id: "university", label: "Universidad", capabilities: { hasRoutine: false }, sortOrder: 1 },
-  { id: "work", label: "Trabajo", capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 2 },
-  { id: "fitness", label: "Fitness", capabilities: { hasRoutine: true }, sortOrder: 3 },
-  { id: "general", label: "General", capabilities: { hasRoutine: true }, sortOrder: 4 },
+  { id: "university", label: "Universidad", category: "estudios", domain: "studies", capabilities: { hasRoutine: false }, sortOrder: 1 },
+  { id: "work", label: "Trabajo", category: "trabajo", domain: "work", capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 2 },
+  { id: "fitness", label: "Fitness", category: "vida_personal", domain: "wellness", capabilities: { hasRoutine: true }, sortOrder: 3 },
+  { id: "general", label: "General", category: "vida_personal", domain: "general", capabilities: { hasRoutine: true }, sortOrder: 4 },
 ];
 
 export const WORKSPACE_TYPE_IDS = DEFINITIONS.map((d) => d.id) as readonly string[];
@@ -52,6 +83,16 @@ const byId = new Map<string, WorkspaceTypeDefinition>(DEFINITIONS.map((d) => [d.
 
 export function getWorkspaceType(id: string): WorkspaceTypeDefinition | undefined {
   return byId.get(id);
+}
+
+export function getWorkspaceCategoryLabel(categoryId: WorkspaceCategoryId): string {
+  return CATEGORY_LABELS[categoryId] ?? categoryId;
+}
+
+/** Returns domain code for a workspace type (for grouping in sidebar). */
+export function getWorkspaceDomain(typeId: string): WorkspaceDomainId {
+  const def = byId.get(typeId);
+  return def?.domain ?? "general";
 }
 
 export function getAllWorkspaceTypes(): WorkspaceTypeDefinition[] {
@@ -92,4 +133,24 @@ export function hasRoutineSlotsCapability(typeId: string): boolean {
 export function hasExpertConsultationCapability(typeId: string): boolean {
   const def = byId.get(typeId);
   return def?.capabilities?.hasExpertConsultation === true;
+}
+
+export function hasKnowledgeHubCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasKnowledgeHub === true;
+}
+
+export function hasVideoGuidesCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasVideoGuides === true;
+}
+
+export function hasRemindersCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasReminders === true;
+}
+
+export function hasCommunityInsightsCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasCommunityInsights === true;
 }

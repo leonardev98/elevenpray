@@ -4,7 +4,8 @@ import { getValidTypeIds } from '../../workspace-types/workspace-type.registry';
 
 export class CreateWorkspaceDto {
   @IsString()
-  name: string;
+  @IsOptional()
+  name?: string;
 
   @IsString()
   @IsIn([...getValidTypeIds()])

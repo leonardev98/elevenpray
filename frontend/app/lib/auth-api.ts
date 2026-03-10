@@ -1,9 +1,13 @@
 import { getBaseUrl, getAuthHeaders } from "./api";
 
+export type UserRole = 'user' | 'platform_admin';
+
 export interface PublicUser {
   id: string;
   email: string;
   name: string;
+  /** Present from backend when role column exists; default 'user' on frontend if missing. */
+  role?: UserRole;
 }
 
 export interface AuthResponse {

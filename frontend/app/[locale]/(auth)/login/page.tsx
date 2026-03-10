@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "../../../providers/auth-provider";
@@ -60,11 +61,21 @@ function ProviderIcon({ id }: { id: (typeof MOCK_PROVIDERS)[number]["id"] }) {
   }
 }
 
+function getAllowedNext(next: string | null): string {
+  if (!next || typeof next !== "string") return "/dashboard";
+  const path = next.startsWith("/") ? next : `/${next}`;
+  if (path === "/dashboard" || path.startsWith("/dashboard/")) return path;
+  if (path === "/admin" || path.startsWith("/admin/")) return path;
+  return "/dashboard";
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const next = getAllowedNext(searchParams.get("next"));
   const { login } = useAuth();
   const router = useRouter();
   const t = useTranslations("auth");
@@ -77,7 +88,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/dashboard");
+      router.push(next);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("errorSignIn"));

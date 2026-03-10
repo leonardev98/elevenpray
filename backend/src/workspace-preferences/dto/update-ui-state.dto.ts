@@ -13,4 +13,8 @@ export class UpdateUiStateDto {
   @IsBoolean()
   @IsOptional()
   sidebarCollapsed?: boolean;
+
+  @IsUUID()
+  @IsOptional()
+  activeRoutineWorkspaceId?: string | null;
 }
