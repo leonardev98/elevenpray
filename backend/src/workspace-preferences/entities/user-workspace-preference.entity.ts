@@ -38,6 +38,12 @@ export class UserWorkspacePreference {
   @Column({ name: 'sort_order', type: 'int', default: 0 })
   sortOrder: number;
 
+  @Column({ name: 'onboarding_completed_at', type: 'timestamptz', nullable: true })
+  onboardingCompletedAt: Date | null;
+
+  @Column({ name: 'onboarding_answers', type: 'jsonb', nullable: true })
+  onboardingAnswers: Record<string, unknown> | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

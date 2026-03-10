@@ -63,15 +63,18 @@ export function WorkspacesProvider({ children, token }: { children: React.ReactN
     async (id: string) => {
       if (!token) return;
       setError(null);
+      const previous = workspaces;
+      setWorkspaces((prev) => prev.filter((w) => w.id !== id));
       try {
         await deleteWorkspace(token, id);
-        setWorkspaces((prev) => prev.filter((w) => w.id !== id));
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Error al eliminar workspace");
+        setWorkspaces(previous);
+        const message = e instanceof Error ? e.message : "Error al eliminar workspace";
+        setError(message);
         throw e;
       }
     },
-    [token]
+    [token, workspaces]
   );
 
   return (

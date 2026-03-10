@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards, NotFoundException } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { WorkspacePreferencesService } from './workspace-preferences.service';
@@ -13,6 +13,16 @@ export class WorkspacePreferencesController {
   @Get()
   async getPreferences(@CurrentUser('id') userId: string) {
     return this.service.getPreferences(userId);
+  }
+
+  @Get('workspaces/:workspaceId')
+  async getPreference(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    const pref = await this.service.getPreference(userId, workspaceId);
+    if (!pref) throw new NotFoundException('Preference not found');
+    return pref;
   }
 
   @Patch('workspaces/:workspaceId')

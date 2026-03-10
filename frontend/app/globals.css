@@ -17,6 +17,10 @@
   --app-border: #e5e5e5;
   --app-accent: #0f1e33;
   --app-highlight: #c8a96a;
+  /* Optional: workspace sections (e.g. skincare) – softer surfaces, AM/PM */
+  --app-surface-soft: #f5f5f4;
+  --app-slot-am: #e8f0fe;
+  --app-slot-pm: #f3e8f6;
 }
 
 .dark {
@@ -26,6 +30,9 @@
   --app-border: #262626;
   --app-accent: #1a3050;
   --app-highlight: #c8a96a;
+  --app-surface-soft: #1c1c1c;
+  --app-slot-am: #1a2744;
+  --app-slot-pm: #2a1f3d;
 }
 
 /* Tipografía */

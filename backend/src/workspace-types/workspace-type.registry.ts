@@ -8,6 +8,13 @@ export interface WorkspaceTypeCapabilities {
   hasRoutine: boolean;
   hasDashboardWidgets?: boolean;
   hasEntries?: boolean;
+  hasProductVault?: boolean;
+  hasCheckins?: boolean;
+  hasProgressPhotos?: boolean;
+  hasInsights?: boolean;
+  hasRoutineSlots?: boolean;
+  /** Expert/mentor/coach consultation (reusable across skincare, fitness, career, etc.). */
+  hasExpertConsultation?: boolean;
 }
 
 export interface WorkspaceTypeDefinition {
@@ -19,7 +26,20 @@ export interface WorkspaceTypeDefinition {
 }
 
 const DEFINITIONS: WorkspaceTypeDefinition[] = [
-  { id: 'skincare', label: 'Skincare', capabilities: { hasRoutine: true }, sortOrder: 0 },
+  {
+    id: 'skincare',
+    label: 'Skincare',
+    capabilities: {
+      hasRoutine: true,
+      hasProductVault: true,
+      hasCheckins: true,
+      hasProgressPhotos: true,
+      hasInsights: true,
+      hasRoutineSlots: true,
+      hasExpertConsultation: true,
+    },
+    sortOrder: 0,
+  },
   { id: 'university', label: 'Universidad', capabilities: { hasRoutine: false }, sortOrder: 1 },
   { id: 'work', label: 'Trabajo', capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 2 },
   { id: 'fitness', label: 'Fitness', capabilities: { hasRoutine: true }, sortOrder: 3 },
@@ -42,6 +62,36 @@ export function getAllWorkspaceTypes(): WorkspaceTypeDefinition[] {
 export function hasRoutineCapability(typeId: string): boolean {
   const def = byId.get(typeId);
   return def?.capabilities?.hasRoutine === true;
+}
+
+export function hasProductVaultCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasProductVault === true;
+}
+
+export function hasCheckinsCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasCheckins === true;
+}
+
+export function hasProgressPhotosCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasProgressPhotos === true;
+}
+
+export function hasInsightsCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasInsights === true;
+}
+
+export function hasRoutineSlotsCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasRoutineSlots === true;
+}
+
+export function hasExpertConsultationCapability(typeId: string): boolean {
+  const def = byId.get(typeId);
+  return def?.capabilities?.hasExpertConsultation === true;
 }
 
 export function getValidTypeIds(): readonly string[] {

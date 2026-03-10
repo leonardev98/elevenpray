@@ -20,7 +20,7 @@ El comportamiento (¿tiene rutina?, ¿aparece en dashboard?) se decide consultan
 1. **Solo código (sin tocar BD)**  
    - Backend: en `workspace-type.registry.ts` añade una entrada en `DEFINITIONS` con `id`, `label`, `capabilities`, `sortOrder`.  
    - Frontend: añade la misma entrada en `frontend/app/lib/workspace-type-registry.ts`.  
-   - Si usas la BD: inserta una fila en `workspace_types` (o ejecuta/amplía el seed en `docs/ddl-workspace-types.sql`).
+   - Si usas la BD: inserta una fila en `workspace_types` (el seed está en `docs/ddl-completo-elevenpray.sql`; puedes ampliarlo ahí).
 
 2. **Comportamiento**  
    - Rutina: `capabilities.hasRoutine: true` hace que el workspace tenga plantilla de rutina y enlace en la UI.  
@@ -36,7 +36,7 @@ No hace falta añadir `if (type === 'nuevo_tipo')` en ningún sitio; basta con r
 
 ## Cómo añadir un subtipo
 
-1. Insertar en `workspace_subtypes` (o ampliar el seed en `docs/ddl-workspace-types.sql`): `workspace_type_id`, `code`, `label`, `default_pages` (array de `{ "title": "...", "position": 0 }`), `sort_order`.
+1. Insertar en `workspace_subtypes` (o ampliar el seed en `docs/ddl-completo-elevenpray.sql`): `workspace_type_id`, `code`, `label`, `default_pages` (array de `{ "title": "...", "position": 0 }`), `sort_order`.
 2. El frontend obtiene la lista vía `GET /workspace-subtypes?workspaceTypeCode=...`; no hace falta cambiar código para que aparezca en el modal.
 
 ## Dashboard: alcance y query
@@ -57,12 +57,6 @@ No hace falta añadir `if (type === 'nuevo_tipo')` en ningún sitio; basta con r
 - **user_ui_state**: por usuario: `current_workspace_id`, `selected_workspace_ids`, `sidebar_collapsed`.  
   - `GET/PATCH /workspace-preferences/ui-state` para leer y actualizar.
 
-## DDL y orden de migraciones
+## DDL
 
-1. `docs/ddl-supabase.sql` (users, routines, topics, topic_entries si aplica).  
-2. `docs/ddl-workspaces-create.sql` (workspaces, spaces, pages, containers, blocks, routine_templates).  
-3. `docs/ddl-workspace-types.sql` (workspace_types, workspace_subtypes y seed).  
-4. `docs/ddl-workspace-preferences.sql` (user_workspace_preferences, user_ui_state).  
-5. `docs/ddl-workspaces-add-subtype.sql` (columna `workspace_subtype_id` en workspaces).
-
-Detalle en `docs/database-setup.md`.
+Todo el esquema (users, routines, topics, workspaces, tipos, preferencias, etc.) está en **un solo archivo**: `docs/ddl-completo-elevenpray.sql`. Orden y uso en `docs/DDL-ORDEN-EJECUCION.md`. Detalle de setup en `docs/database-setup.md`.

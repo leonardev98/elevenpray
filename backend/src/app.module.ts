@@ -15,6 +15,10 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { WorkspaceTypesModule } from './workspace-types/workspace-types.module';
 import { WorkspaceSubtypesModule } from './workspace-subtypes/workspace-subtypes.module';
 import { WorkspacePreferencesModule } from './workspace-preferences/workspace-preferences.module';
+import { WorkspaceProductsModule } from './workspace-products/workspace-products.module';
+import { WorkspaceCheckinsModule } from './workspace-checkins/workspace-checkins.module';
+import { WorkspacePhotosModule } from './workspace-photos/workspace-photos.module';
+import { ExpertConsultationModule } from './expert-consultation/expert-consultation.module';
 
 @Module({
   imports: [
@@ -31,6 +35,10 @@ import { WorkspacePreferencesModule } from './workspace-preferences/workspace-pr
     WorkspaceSubtypesModule,
     WorkspacesModule,
     WorkspacePreferencesModule,
+    WorkspaceProductsModule,
+    WorkspaceCheckinsModule,
+    WorkspacePhotosModule,
+    ExpertConsultationModule,
     RoutineTemplatesModule,
     SpacesModule,
     PagesModule,

@@ -24,6 +24,13 @@ export interface DashboardEntry {
   imageUrl: string | null;
 }
 
+export interface DashboardWorkspaceSummary {
+  workspaceId: string;
+  workspaceTitle: string;
+  kind: string;
+  data: unknown;
+}
+
 export interface DashboardWeekResponse {
   year: number;
   weekNumber: number;
@@ -31,6 +38,7 @@ export interface DashboardWeekResponse {
   to: string;
   routineDays: DashboardRoutineDay[];
   entries: DashboardEntry[];
+  workspaceSummaries?: DashboardWorkspaceSummary[];
 }
 
 export type DashboardScope = "all" | "favorites" | "selected" | "current";

@@ -29,7 +29,9 @@ import {
   type DayContent,
   type UpdateRoutineDto,
 } from "../../../../../lib/routine-templates-api";
-import type { DayItem, DayGroup } from "../../../../../lib/routines-api";
+import type { DayItem, DayGroup, RoutineSlot } from "../../../../../lib/routines-api";
+import { hasRoutineSlotsCapability } from "../../../../../lib/workspace-type-registry";
+import { getWorkspace } from "../../../../../lib/workspaces-api";
 import { TimePicker } from "../../components/time-picker";
 
 const DAY_KEYS = [
@@ -140,6 +142,7 @@ function SortableDayItem({
 function SortableDayGroup({
   dayKey,
   group,
+  hasRoutineSlots,
   onUpdateGroup,
   onRemoveGroup,
   onUpdateItems,
@@ -149,7 +152,8 @@ function SortableDayGroup({
 }: {
   dayKey: string;
   group: DayGroup;
-  onUpdateGroup: (updates: Partial<Pick<DayGroup, "title" | "time">>) => void;
+  hasRoutineSlots: boolean;
+  onUpdateGroup: (updates: Partial<Pick<DayGroup, "title" | "time" | "slot">>) => void;
   onRemoveGroup: () => void;
   onUpdateItems: (items: DayItem[]) => void;
   onAddItem: () => void;
@@ -199,6 +203,18 @@ function SortableDayGroup({
             placeholder={t("placeholderTitle")}
             className="min-w-0 flex-1 rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-2 py-1.5 text-sm font-medium text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
           />
+          {hasRoutineSlots && (
+            <select
+              value={group.slot ?? ""}
+              onChange={(e) => onUpdateGroup({ slot: (e.target.value || undefined) as RoutineSlot | undefined })}
+              className="rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-2 py-1.5 text-xs text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+              title="Momento del día"
+            >
+              <option value="">—</option>
+              <option value="am">AM</option>
+              <option value="pm">PM</option>
+            </select>
+          )}
           <TimePicker
             value={group.time}
             onChange={(v) => onUpdateGroup({ time: v })}
@@ -251,6 +267,7 @@ export default function RoutineEditorPage() {
   const tCommon = useTranslations("common");
   const tDays = useTranslations("days");
   const [routine, setRoutine] = useState<Routine | null>(null);
+  const [workspaceType, setWorkspaceType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -258,13 +275,24 @@ export default function RoutineEditorPage() {
   useEffect(() => {
     if (!token || !id) return;
     getRoutineTemplate(token, id)
-      .then((r) => {
+      .then(async (r) => {
         const days: Routine["days"] = {};
         for (const key of DAY_KEYS) {
           const groups = normalizeDayToGroups(r.days[key]);
           days[key] = { groups };
         }
         setRoutine({ ...r, days });
+        const workspaceId = (r as { workspaceId?: string }).workspaceId;
+        if (workspaceId) {
+          try {
+            const ws = await getWorkspace(token, workspaceId);
+            setWorkspaceType(ws.workspaceType);
+          } catch {
+            setWorkspaceType(null);
+          }
+        } else {
+          setWorkspaceType(null);
+        }
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -290,7 +318,7 @@ export default function RoutineEditorPage() {
     });
   }
 
-  function updateGroup(dayKey: string, groupId: string, updates: Partial<Pick<DayGroup, "title" | "time">>) {
+  function updateGroup(dayKey: string, groupId: string, updates: Partial<Pick<DayGroup, "title" | "time" | "slot">>) {
     const groups = getDayGroups(dayKey).map((g) =>
       g.id === groupId ? { ...g, ...updates } : g
     );
@@ -413,6 +441,13 @@ export default function RoutineEditorPage() {
   }
 
   const todayKey = getTodayDayKey();
+  const hasRoutineSlots = workspaceType ? hasRoutineSlotsCapability(workspaceType) : false;
+
+  function sortGroupsBySlot(groups: DayGroup[]): DayGroup[] {
+    if (!hasRoutineSlots) return groups;
+    const order = (g: DayGroup) => (g.slot === "am" ? 0 : g.slot === "pm" ? 1 : 2);
+    return [...groups].sort((a, b) => order(a) - order(b));
+  }
 
   function scrollToDay(dayKey: string) {
     document.getElementById(`day-${dayKey}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -473,7 +508,7 @@ export default function RoutineEditorPage() {
         <div className="mt-6 overflow-x-auto">
           <div className="grid min-w-[max-content] grid-cols-7 gap-3">
             {DAY_KEYS.map((dayKey) => {
-              const groups = getDayGroups(dayKey);
+              const groups = sortGroupsBySlot(getDayGroups(dayKey));
               const groupIds = groups.map((g) => g.id);
               const isToday = dayKey === todayKey;
               return (
@@ -506,6 +541,7 @@ export default function RoutineEditorPage() {
                           key={group.id}
                           dayKey={dayKey}
                           group={group}
+                          hasRoutineSlots={hasRoutineSlots}
                           onUpdateGroup={(updates) => updateGroup(dayKey, group.id, updates)}
                           onRemoveGroup={() => removeGroup(dayKey, group.id)}
                           onUpdateItems={(items) => updateGroupItems(dayKey, group.id, items)}

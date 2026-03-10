@@ -6,7 +6,13 @@ import { Link } from "@/i18n/navigation";
 import { useWorkspaces } from "./workspaces-provider";
 import { NewWorkspaceModal } from "./new-workspace-modal";
 import type { WorkspaceTypeId } from "./topic-types";
-import { hasRoutineCapability } from "../../../../lib/workspace-type-registry";
+import {
+  hasRoutineCapability,
+  hasProductVaultCapability,
+  hasCheckinsCapability,
+  hasProgressPhotosCapability,
+  hasInsightsCapability,
+} from "../../../../lib/workspace-type-registry";
 
 interface AsideTopicsProps {
   /** En móvil: drawer abierto y callback para cerrar */
@@ -20,6 +26,7 @@ function WorkspacesContent({ error }: { error: string | null }) {
   const t = useTranslations("workspace");
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
+  const tTypes = useTranslations("workspaceTypes");
 
   async function handleCreateWorkspace(
     name: string,
@@ -68,21 +75,33 @@ function WorkspacesContent({ error }: { error: string | null }) {
         <ul className="space-y-0.5">
           {workspaces.map((w) => {
             const hasRoutine = hasRoutineCapability(w.workspaceType);
-            const href = hasRoutine ? `/dashboard/workspaces/${w.id}/routine` : `/dashboard/workspaces/${w.id}`;
+            const hasSectionNav =
+              hasProductVaultCapability(w.workspaceType) ||
+              hasCheckinsCapability(w.workspaceType) ||
+              hasProgressPhotosCapability(w.workspaceType) ||
+              hasInsightsCapability(w.workspaceType);
+            const href =
+              hasSectionNav ? `/dashboard/workspaces/${w.id}` : hasRoutine ? `/dashboard/workspaces/${w.id}/routine` : `/dashboard/workspaces/${w.id}`;
+            const typeLabel = tTypes(w.workspaceType);
             return (
               <li
                 key={w.id}
                 className="group flex items-center gap-2 rounded-lg px-2.5 py-2 hover:bg-[var(--app-bg)] focus-within:bg-[var(--app-bg)]"
               >
                 <span
-                  className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--app-gold)]/70"
+                  className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--app-gold)]/70 mt-0.5 self-start"
                   aria-hidden
                 />
                 <Link
                   href={href}
-                  className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--app-fg)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)] focus:ring-offset-2 focus:ring-offset-[var(--app-surface)] rounded min-h-[44px] flex items-center"
+                  className="min-w-0 flex-1 min-h-[44px] flex flex-col justify-center py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)] focus:ring-offset-2 focus:ring-offset-[var(--app-surface)]"
                 >
-                  {w.name}
+                  <span className="truncate text-sm font-medium text-[var(--app-fg)] hover:underline">
+                    {w.name}
+                  </span>
+                  <span className="truncate text-xs text-[var(--app-fg)]/50">
+                    {typeLabel}
+                  </span>
                 </Link>
                 <button
                   type="button"

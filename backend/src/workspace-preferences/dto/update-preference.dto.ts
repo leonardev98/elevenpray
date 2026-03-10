@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsInt } from 'class-validator';
+import { IsBoolean, IsOptional, IsInt, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class UpdateWorkspacePreferenceDto {
@@ -14,4 +14,12 @@ export class UpdateWorkspacePreferenceDto {
   @IsOptional()
   @Type(() => Number)
   sortOrder?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  completeOnboarding?: boolean;
+
+  @IsObject()
+  @IsOptional()
+  onboardingAnswers?: Record<string, unknown> | null;
 }
