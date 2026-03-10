@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Dark mode por clase (toggle), no por preferencia del sistema */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Paleta ElevenPray */
 :root {
   --app-black: #0a0a0a;

@@ -1,11 +1,36 @@
 "use client";
 
 import { useEffect } from "react";
+import Lenis from "lenis";
 import { useTranslations } from "next-intl";
+import "lenis/dist/lenis.css";
+import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "../providers/auth-provider";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
+
+// Imágenes referenciales Unsplash (productividad, estudios, bienestar, plantillas)
+const UNSPLASH = {
+  domainWork:
+    "https://images.unsplash.com/photo-1600585154340-be4d9c8b8c84?w=600&h=420&fit=crop",
+  domainStudy:
+    "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=420&fit=crop",
+  domainHealth:
+    "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=420&fit=crop",
+  templateGym:
+    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=120&fit=crop",
+  templateBook:
+    "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=200&h=120&fit=crop",
+  templateSprint:
+    "https://images.unsplash.com/photo-1552664730-d307ca884978?w=200&h=120&fit=crop",
+  templateFood:
+    "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=200&h=120&fit=crop",
+  templateChart:
+    "https://images.unsplash.com/photo-1611974789853-9e2b8c23843e?w=200&h=120&fit=crop",
+  heroMockup:
+    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=960&h=600&fit=crop",
+} as const;
 
 function IconWork() {
   return (
@@ -83,6 +108,17 @@ export function Landing() {
     if (token && user) router.replace("/dashboard");
   }, [isLoading, token, user, router]);
 
+  // Lenis: scroll suave solo en la landing
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - 2 ** (-10 * t)),
+      orientation: "vertical",
+      autoRaf: true,
+    });
+    return () => lenis.destroy();
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--app-bg)]">
@@ -92,9 +128,9 @@ export function Landing() {
   }
 
   return (
-    <div className="relative min-h-screen bg-white text-[var(--app-fg)]">
+    <div className="relative min-h-screen bg-white text-[var(--app-fg)] dark:bg-[var(--app-bg)]">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[var(--app-border)] bg-[var(--app-surface)]/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b border-[var(--app-border)] bg-white backdrop-blur-sm dark:bg-[var(--app-surface)]/95">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="text-lg font-semibold text-[var(--app-fg)]">
             {t("title")}
@@ -124,7 +160,7 @@ export function Landing() {
             </Link>
             <Link
               href="/register"
-              className="rounded-lg bg-[var(--app-fg)] px-4 py-2.5 text-sm font-medium text-[var(--app-bg)] transition hover:opacity-90"
+              className="rounded-lg bg-[var(--app-fg)] px-4 py-2.5 text-sm font-medium text-[var(--app-bg)] transition hover:opacity-90 dark:bg-white dark:text-[var(--app-black)] dark:border dark:border-[var(--app-border)] dark:hover:bg-white/90"
             >
               {t("startFree")}
             </Link>
@@ -133,8 +169,9 @@ export function Landing() {
       </header>
 
       <main>
-      <div
-          className="absolute top-0 left-0 right-0 pointer-events-none h-[100vh] w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#333333_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,white,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,white,transparent)]"
+      {/* Patrón de puntos: negros en modo claro, claros en modo oscuro */}
+        <div
+          className="absolute top-0 left-0 right-0 pointer-events-none h-[100vh] w-full [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,white,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,white,transparent)] bg-[radial-gradient(#6b7280_1px,transparent_1px)] dark:bg-[radial-gradient(#555555_1px,transparent_1px)]"
           aria-hidden="true"
         />
         {/* Hero */}
@@ -146,7 +183,7 @@ export function Landing() {
           />
           <div className="mx-auto max-w-3xl">
             <h1
-              className="leading-tight tracking-tight text-[#1a1a1a] sm:leading-[1.1]"
+              className="leading-tight tracking-tight text-[#1a1a1a] dark:text-[var(--app-fg)] sm:leading-[1.1]"
               style={{
                 fontFamily: "var(--font-hero), system-ui, sans-serif",
                 fontSize: "clamp(2rem, 5vw, 3.25rem)",
@@ -164,7 +201,7 @@ export function Landing() {
               aria-hidden="true"
             />
             <p
-              className="relative text-base text-[#4a4a4a] sm:text-lg"
+              className="relative text-base text-[#4a4a4a] dark:text-[var(--app-fg)]/90 sm:text-lg"
               style={{
                 fontFamily: "var(--font-hero), system-ui, sans-serif",
                 fontWeight: 400,
@@ -178,66 +215,86 @@ export function Landing() {
           <div className="mt-8 flex justify-center">
             <Link
               href="/register"
-              className="w-full min-w-[200px] rounded-lg bg-[var(--app-fg)] px-6 py-3.5 text-center font-medium text-[var(--app-bg)] transition hover:opacity-90 sm:w-auto sm:min-w-[240px]"
+              className="w-full min-w-[200px] rounded-lg border border-transparent bg-[var(--app-fg)] px-6 py-3.5 text-center font-medium text-[var(--app-bg)] transition hover:opacity-90 dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white/10 sm:w-auto sm:min-w-[240px]"
             >
               {t("ctaPrimary")}
             </Link>
           </div>
-          {/* Glow + placeholder imagen */}
+          {/* Imagen referencial: interfaz tipo app / workspace */}
           <div className="relative mx-auto mt-12 max-w-4xl" aria-hidden>
             <div
               className="absolute inset-0 -z-10 rounded-2xl bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.06),transparent_65%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.06),transparent_65%)]"
               aria-hidden
             />
-            <div
-              className="overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[#F9FAFB] shadow-sm dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]"
-              title="Espacio reservado para imagen de la aplicación"
-            >
-              <div className="aspect-[16/10] w-full" />
+            <div className="relative overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[#F9FAFB] shadow-sm dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]">
+              <div className="relative aspect-[16/10] w-full">
+                <Image
+                  src={UNSPLASH.heroMockup}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:896px) 100vw, 896px"
+                />
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Organización por dominios - Bento grid */}
-        <section id="domains" className="border-t border-[var(--app-border)] bg-[var(--app-surface)]/50 py-16">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <h2 className="text-center text-2xl font-bold text-[var(--app-fg)] sm:text-3xl">
+        {/* Organización por dominios - Bento grid (bloques compactos) */}
+        <section id="domains" className="border-t border-[var(--app-border)] bg-white py-10 dark:bg-[#111111]">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6">
+            <h2 className="text-center text-xl font-bold text-[var(--app-fg)] sm:text-2xl">
               {t("domainsTitle")}
             </h2>
-            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:grid-rows-2">
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:grid-rows-2">
               <div
-                className="flex flex-col justify-center rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-8 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.3)] sm:row-span-2 sm:justify-center sm:p-10"
+                className="flex flex-col overflow-hidden rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_12px_-3px_rgba(0,0,0,0.08)] dark:border-[var(--app-fg)]/15 dark:hover:border-[var(--app-fg)]/35 dark:hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)] sm:row-span-2"
               >
-                <span className="mx-auto text-[var(--app-fg)]">
-                  <IconWork />
-                </span>
-                <span className="mt-4 text-lg font-semibold text-[var(--app-fg)] sm:text-xl">{t("domainWork")}</span>
-                <p className="mt-3 text-sm text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainWorkDesc")}</p>
+                <div className="relative h-28 w-full shrink-0 sm:h-32">
+                  <Image src={UNSPLASH.domainWork} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 50vw" />
+                </div>
+                <div className="flex flex-1 flex-col justify-center p-4 sm:p-5">
+                  <span className="mx-auto text-[var(--app-fg)]">
+                    <IconWork />
+                  </span>
+                  <span className="mt-2 text-base font-semibold text-[var(--app-fg)] sm:text-lg">{t("domainWork")}</span>
+                  <p className="mt-1.5 text-xs text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainWorkDesc")}</p>
+                </div>
               </div>
               <div
-                className="flex flex-col justify-center rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-8 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.3)] sm:p-10"
+                className="flex flex-col overflow-hidden rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_12px_-3px_rgba(0,0,0,0.08)] dark:border-[var(--app-fg)]/15 dark:hover:border-[var(--app-fg)]/35 dark:hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)]"
               >
-                <span className="mx-auto text-[var(--app-fg)]">
-                  <IconStudy />
-                </span>
-                <span className="mt-4 text-lg font-semibold text-[var(--app-fg)] sm:text-xl">{t("domainStudy")}</span>
-                <p className="mt-3 text-sm text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainStudyDesc")}</p>
+                <div className="relative h-32 w-full shrink-0">
+                  <Image src={UNSPLASH.domainStudy} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 50vw" />
+                </div>
+                <div className="flex flex-1 flex-col justify-center p-4 sm:p-5">
+                  <span className="mx-auto text-[var(--app-fg)]">
+                    <IconStudy />
+                  </span>
+                  <span className="mt-2 text-base font-semibold text-[var(--app-fg)] sm:text-lg">{t("domainStudy")}</span>
+                  <p className="mt-1.5 text-xs text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainStudyDesc")}</p>
+                </div>
               </div>
               <div
-                className="flex flex-col justify-center rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-8 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.3)] sm:p-10"
+                className="flex flex-col overflow-hidden rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_12px_-3px_rgba(0,0,0,0.08)] dark:border-[var(--app-fg)]/15 dark:hover:border-[var(--app-fg)]/35 dark:hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)]"
               >
-                <span className="mx-auto text-[var(--app-fg)]">
-                  <IconHealth />
-                </span>
-                <span className="mt-4 text-lg font-semibold text-[var(--app-fg)] sm:text-xl">{t("domainHealth")}</span>
-                <p className="mt-3 text-sm text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainHealthDesc")}</p>
+                <div className="relative h-32 w-full shrink-0">
+                  <Image src={UNSPLASH.domainHealth} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 50vw" />
+                </div>
+                <div className="flex flex-1 flex-col justify-center p-4 sm:p-5">
+                  <span className="mx-auto text-[var(--app-fg)]">
+                    <IconHealth />
+                  </span>
+                  <span className="mt-2 text-base font-semibold text-[var(--app-fg)] sm:text-lg">{t("domainHealth")}</span>
+                  <p className="mt-1.5 text-xs text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainHealthDesc")}</p>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Plantillas + Tu nueva rutina - fondo gris para color blocking */}
-        <section className="border-t border-[var(--app-border)] bg-[#F9FAFB] py-16 dark:bg-[var(--app-bg)]">
+        {/* Plantillas + Tu nueva rutina */}
+        <section className="border-t border-[var(--app-border)] bg-white py-16 dark:bg-[#0d0d0d]">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="grid gap-12 lg:grid-cols-[1fr,340px]">
               <div>
@@ -247,18 +304,18 @@ export function Landing() {
                 <p className="mt-2 text-[var(--app-fg)]/80">{t("templatesSubtitle")}</p>
                 <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
                   {[
-                    { name: t("templateWorkout"), icon: "gym" },
-                    { name: t("templateResearch"), icon: "book" },
-                    { name: t("templateSprint"), icon: "sprint" },
-                    { name: t("templateNutrition"), icon: "food" },
-                    { name: t("templateMarket"), icon: "chart" },
-                  ].map(({ name, icon }) => (
+                    { name: t("templateWorkout"), icon: "gym", src: UNSPLASH.templateGym },
+                    { name: t("templateResearch"), icon: "book", src: UNSPLASH.templateBook },
+                    { name: t("templateSprint"), icon: "sprint", src: UNSPLASH.templateSprint },
+                    { name: t("templateNutrition"), icon: "food", src: UNSPLASH.templateFood },
+                    { name: t("templateMarket"), icon: "chart", src: UNSPLASH.templateChart },
+                  ].map(({ name, icon, src }) => (
                     <div
                       key={name}
-                      className="flex flex-col rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--app-fg)]/20 hover:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.25)]"
+                      className="flex flex-col rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--app-fg)]/20 hover:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.1)] dark:border-[var(--app-fg)]/15 dark:hover:border-[var(--app-fg)]/35 dark:hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.06)]"
                     >
-                      <div className="mb-3 flex min-h-[48px] items-center justify-center rounded-lg bg-[var(--app-bg)] dark:bg-[var(--app-fg)]/10">
-                        <TemplateIcon type={icon} />
+                      <div className="relative mb-3 aspect-[5/3] w-full overflow-hidden rounded-lg bg-[var(--app-bg)] dark:bg-[var(--app-fg)]/10">
+                        <Image src={src} alt="" fill className="object-cover" sizes="(max-width:768px) 50vw, 200px" />
                       </div>
                       <span className="text-center text-sm font-medium text-[var(--app-fg)]">{name}</span>
                     </div>
@@ -271,13 +328,13 @@ export function Landing() {
                   {t("exploreRoutines")} →
                 </Link>
               </div>
-              <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm transition-all duration-200 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_8px_28px_-8px_rgba(0,0,0,0.3)]">
+              <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm transition-all duration-200 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)] dark:border-[var(--app-fg)]/15 dark:hover:border-[var(--app-fg)]/35 dark:hover:shadow-[0_8px_28px_-8px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)]">
                 <h3 className="text-xl font-bold text-[var(--app-fg)]">{t("newRoutineTitle")}</h3>
                 <p className="mt-2 text-sm text-[var(--app-fg)]/80">{t("newRoutineSubtitle")}</p>
                 <div className="mt-6 flex flex-col items-center">
                   <Link
                     href="/register"
-                    className="inline-flex rounded-lg bg-[var(--app-fg)] px-8 py-4 text-center font-medium text-[var(--app-bg)] transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_6px_16px_-2px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_6px_20px_-2px_rgba(0,0,0,0.4)]"
+                    className="inline-flex rounded-lg border border-[var(--app-border)] bg-[var(--app-fg)] px-8 py-4 text-center font-medium text-[var(--app-bg)] transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_6px_16px_-2px_rgba(0,0,0,0.2)] dark:border-[var(--app-border)] dark:bg-transparent dark:text-[var(--app-fg)] dark:hover:bg-[var(--app-surface)]"
                   >
                     {t("createFirstWorkspace")}
                   </Link>
@@ -290,13 +347,13 @@ export function Landing() {
           </div>
         </section>
 
-        {/* Contactos */}
-        <section className="border-t border-[var(--app-border)] py-12">
+        {/* Contactos + Footer: claro = negro y blanco; oscuro = gris oscuro y letras blancas */}
+        <section className="border-t border-white/20 bg-black py-12 dark:border-white/10 dark:bg-[#262626]">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <h2 className="text-xl font-semibold text-[var(--app-fg)]">{t("contactTitle")}</h2>
+            <h2 className="text-xl font-semibold text-white">{t("contactTitle")}</h2>
             <a
               href={`mailto:${t("contactEmail")}`}
-              className="mt-2 inline-block text-[var(--app-fg)]/80 underline-offset-2 hover:underline"
+              className="mt-2 inline-block text-white/80 underline-offset-2 hover:underline hover:text-white"
             >
               {t("contactEmail")}
             </a>
@@ -304,32 +361,32 @@ export function Landing() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-[var(--app-border)] bg-[var(--app-surface)]/50 py-12">
+        <footer className="border-t border-white/20 bg-black py-12 dark:border-white/10 dark:bg-[#262626]">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
               <div>
-                <h4 className="font-semibold text-[var(--app-fg)]">{t("footerProduct")}</h4>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--app-fg)]/80">
-                  <li><Link href="/register" className="hover:underline">{t("navTemplates")}</Link></li>
-                  <li><Link href="/register" className="hover:underline">{t("navPricing")}</Link></li>
+                <h4 className="font-semibold text-white">{t("footerProduct")}</h4>
+                <ul className="mt-3 space-y-2 text-sm text-white/80">
+                  <li><Link href="/register" className="hover:underline hover:text-white">{t("navTemplates")}</Link></li>
+                  <li><Link href="/register" className="hover:underline hover:text-white">{t("navPricing")}</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-[var(--app-fg)]">{t("footerResources")}</h4>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--app-fg)]/80">
-                  <li><Link href="/login" className="hover:underline">{t("signIn")}</Link></li>
-                  <li><Link href="/register" className="hover:underline">{t("signUp")}</Link></li>
+                <h4 className="font-semibold text-white">{t("footerResources")}</h4>
+                <ul className="mt-3 space-y-2 text-sm text-white/80">
+                  <li><Link href="/login" className="hover:underline hover:text-white">{t("signIn")}</Link></li>
+                  <li><Link href="/register" className="hover:underline hover:text-white">{t("signUp")}</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-[var(--app-fg)]">{t("footerCompany")}</h4>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--app-fg)]/80">
+                <h4 className="font-semibold text-white">{t("footerCompany")}</h4>
+                <ul className="mt-3 space-y-2 text-sm text-white/80">
                   <li><span className="cursor-default">ElevenPray</span></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-[var(--app-fg)]">{t("title")}</h4>
-                <p className="mt-3 text-sm text-[var(--app-fg)]/80">{t("footerDescription")}</p>
+                <h4 className="font-semibold text-white">{t("title")}</h4>
+                <p className="mt-3 text-sm text-white/80">{t("footerDescription")}</p>
               </div>
             </div>
           </div>
