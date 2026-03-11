@@ -175,7 +175,7 @@ export default function WorkspaceProductsPage() {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="min-h-[44px] flex-1 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2.5 text-base text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20 sm:min-w-[160px] sm:flex-none"
+          className="min-h-[44px] flex-1 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2.5 text-base text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20 sm:min-w-[160px] sm:flex-none"
         >
           {CATEGORIES.map((c) => (
             <option key={c.value || "all"} value={c.value}>
@@ -186,7 +186,7 @@ export default function WorkspaceProductsPage() {
         <select
           value={concern}
           onChange={(e) => setConcern(e.target.value)}
-          className="min-h-[44px] flex-1 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2.5 text-base text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20 sm:min-w-[180px] sm:flex-none"
+          className="min-h-[44px] flex-1 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2.5 text-base text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20 sm:min-w-[180px] sm:flex-none"
         >
           {CONCERNS.map((c) => (
             <option key={c.value || "all"} value={c.value}>
@@ -199,7 +199,7 @@ export default function WorkspaceProductsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por nombre o marca"
-          className="min-h-[44px] w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2.5 text-base text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20 sm:min-w-[220px]"
+          className="min-h-[44px] w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2.5 text-base text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20 sm:min-w-[220px]"
         />
       </div>
 
@@ -264,7 +264,7 @@ export default function WorkspaceProductsPage() {
       <p className="mt-10">
         <Link
           href={`/dashboard/workspaces/${workspaceId}`}
-          className="text-sm font-medium text-[var(--app-gold)] hover:underline"
+          className="text-sm font-medium text-[var(--app-navy)] hover:underline"
         >
           Volver al overview
         </Link>

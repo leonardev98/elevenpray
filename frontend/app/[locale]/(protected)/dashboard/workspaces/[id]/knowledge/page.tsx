@@ -24,7 +24,7 @@ export default function WorkspaceKnowledgePage() {
       </div>
       <Link
         href={base}
-        className="inline-block text-sm font-medium text-[var(--app-gold)] hover:underline"
+        className="inline-block text-sm font-medium text-[var(--app-navy)] hover:underline"
       >
         Volver al overview
       </Link>

@@ -67,7 +67,7 @@ export function RoutineAddProductModal({
                   <button
                     type="button"
                     onClick={() => onSelect(product)}
-                    className="flex w-full items-center gap-3 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)]/50 px-3 py-2.5 text-left transition hover:border-[var(--app-gold)]/40 hover:bg-[var(--app-gold)]/5"
+                    className="flex w-full items-center gap-3 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)]/50 px-3 py-2.5 text-left transition hover:border-[var(--app-navy)]/40 hover:bg-[var(--app-navy)]/5"
                   >
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-[var(--app-surface)]">
                       {product.imageUrl ? (

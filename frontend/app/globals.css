@@ -3,20 +3,18 @@
 /* Dark mode por clase (toggle), no por preferencia del sistema */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Paleta ElevenPray */
+/* Paleta ElevenPray: negro, blanco, azul marino */
 :root {
   --app-black: #0a0a0a;
   --app-white: #f9f9f9;
   --app-navy: #0f1e33;
-  --app-gold: #c8a96a;
   --app-navy-muted: #1a3050;
-  --app-gold-muted: #b8985c;
   --app-bg: #f9f9f9;
   --app-fg: #0a0a0a;
   --app-surface: #ffffff;
   --app-border: #e5e5e5;
   --app-accent: #0f1e33;
-  --app-highlight: #c8a96a;
+  --app-highlight: #0f1e33;
   /* Optional: workspace sections (e.g. skincare) – softer surfaces, AM/PM */
   --app-surface-soft: #f5f5f4;
   --app-slot-am: #e8f0fe;
@@ -29,7 +27,7 @@
   --app-surface: #141414;
   --app-border: #262626;
   --app-accent: #1a3050;
-  --app-highlight: #c8a96a;
+  --app-highlight: #2a3f5f;
   --app-surface-soft: #1c1c1c;
   --app-slot-am: #1a2744;
   --app-slot-pm: #2a1f3d;
@@ -57,7 +55,6 @@
   --color-app-black: var(--app-black);
   --color-app-white: var(--app-white);
   --color-app-navy: var(--app-navy);
-  --color-app-gold: var(--app-gold);
   --color-app-bg: var(--app-bg);
   --color-app-fg: var(--app-fg);
   --color-app-surface: var(--app-surface);
@@ -105,7 +102,7 @@ body {
   width: 40px;
   height: 40px;
   border: 3px solid var(--app-border);
-  border-top-color: var(--app-gold);
+  border-top-color: var(--app-navy);
   border-radius: 50%;
   animation: app-spin 0.8s linear infinite;
 }

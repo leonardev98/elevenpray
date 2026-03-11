@@ -35,7 +35,7 @@ export function RoutineHeader({
         <div>
           <Link
             href="/dashboard/routines"
-            className="text-xs font-medium uppercase tracking-[0.15em] text-[var(--app-fg)]/55 hover:text-[var(--app-gold)]"
+            className="text-xs font-medium uppercase tracking-[0.15em] text-[var(--app-fg)]/55 hover:text-[var(--app-navy)]"
           >
             {t("backToRoutines")}
           </Link>
@@ -48,21 +48,21 @@ export function RoutineHeader({
           <button
             type="button"
             onClick={onOpenPreview}
-            className="rounded-lg border border-[var(--app-border)] bg-transparent px-3 py-2 text-sm text-[var(--app-fg)] transition hover:border-[var(--app-gold)]/50 hover:text-[var(--app-gold)]"
+            className="rounded-lg border border-[var(--app-border)] bg-transparent px-3 py-2 text-sm text-[var(--app-fg)] transition hover:border-[var(--app-navy)]/50 hover:text-[var(--app-navy)]"
           >
             {t("previewWeek")}
           </button>
           <button
             type="button"
             onClick={onOpenAutoBuild}
-            className="rounded-lg border border-[var(--app-gold)]/40 bg-[var(--app-gold)]/10 px-3 py-2 text-sm font-medium text-[var(--app-gold)] transition hover:bg-[var(--app-gold)]/20"
+            className="rounded-lg border border-[var(--app-navy)]/40 bg-[var(--app-navy)]/10 px-3 py-2 text-sm font-medium text-[var(--app-navy)] transition hover:bg-[var(--app-navy)]/20"
           >
             {t("autoBuildRoutine")}
           </button>
           <button
             type="button"
             onClick={onSave}
-            className="rounded-lg bg-[var(--app-gold)] px-4 py-2 text-sm font-semibold text-[var(--app-black)] transition hover:opacity-90"
+            className="rounded-lg bg-[var(--app-navy)] px-4 py-2 text-sm font-semibold text-[var(--app-white)] transition hover:opacity-90"
           >
             {t("save")}
           </button>

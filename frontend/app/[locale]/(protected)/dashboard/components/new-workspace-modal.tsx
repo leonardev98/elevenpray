@@ -122,7 +122,7 @@ export function NewWorkspaceModal({
                   {WORKSPACE_TYPES.map((type) => (
                     <label
                       key={type.id}
-                      className="cursor-pointer rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-[var(--app-gold)] has-[:checked]:bg-[var(--app-gold)]/15 border-[var(--app-border)] text-[var(--app-fg)]/90 hover:border-[var(--app-gold)]/50 hover:bg-[var(--app-bg)]"
+                      className="cursor-pointer rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-[var(--app-navy)] has-[:checked]:bg-[var(--app-navy)]/15 border-[var(--app-border)] text-[var(--app-fg)]/90 hover:border-[var(--app-navy)]/50 hover:bg-[var(--app-bg)]"
                     >
                       <input
                         type="radio"
@@ -145,7 +145,7 @@ export function NewWorkspaceModal({
                   <select
                     value={selectedSubtypeId ?? ""}
                     onChange={(e) => setSelectedSubtypeId(e.target.value || null)}
-                    className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+                    className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
                   >
                     <option value="">{tCommon("none")}</option>
                     {subtypes.map((s) => (

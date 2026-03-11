@@ -50,7 +50,7 @@ export default function RoutinesPage() {
         await updateUiState(token, { activeRoutineWorkspaceId: workspaceId });
         setActiveRoutineWorkspaceId(workspaceId);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Error al activar");
+        setError(e instanceof Error ? e.message : t("errorActivating"));
       } finally {
         setActivatingId(null);
       }
@@ -73,12 +73,12 @@ export default function RoutinesPage() {
         await refreshWorkspaces();
         setEditId(null);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Error al guardar nombre");
+        setError(e instanceof Error ? e.message : t("errorSavingName"));
       } finally {
         setSaving(false);
       }
     },
-    [token, editName, refreshWorkspaces]
+    [token, editName, refreshWorkspaces, t]
   );
 
   const handleEditCancel = useCallback(() => {
@@ -99,7 +99,7 @@ export default function RoutinesPage() {
         }
         await removeWorkspace(w.id);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Error al eliminar");
+        setError(e instanceof Error ? e.message : t("errorDeleting"));
       } finally {
         setDeletingId(null);
       }
@@ -148,7 +148,7 @@ export default function RoutinesPage() {
             <article
               key={w.id}
               className={`flex flex-col rounded-2xl border bg-[var(--app-surface)] p-5 shadow-sm transition hover:shadow-md ${
-                isActive ? "border-[var(--app-gold)] ring-1 ring-[var(--app-gold)]/30" : "border-[var(--app-border)] hover:border-[var(--app-gold)]/30"
+                isActive ? "border-[var(--app-navy)] ring-1 ring-[var(--app-navy)]/30" : "border-[var(--app-border)] hover:border-[var(--app-navy)]/30"
               }`}
             >
               <div className="min-w-0 flex-1">
@@ -163,7 +163,7 @@ export default function RoutinesPage() {
                           if (e.key === "Enter") handleEditSave(w.id);
                           if (e.key === "Escape") handleEditCancel();
                         }}
-                        className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-lg font-semibold text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+                        className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-lg font-semibold text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
                         autoFocus
                         aria-label={t("editName")}
                       />
@@ -172,7 +172,7 @@ export default function RoutinesPage() {
                           type="button"
                           onClick={() => handleEditSave(w.id)}
                           disabled={saving || !editName.trim()}
-                          className="rounded-lg bg-[var(--app-gold)] px-3 py-1.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+                          className="rounded-lg bg-[var(--app-navy)] px-3 py-1.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
                         >
                           {saving ? t("saving") : t("save")}
                         </button>
@@ -237,8 +237,8 @@ export default function RoutinesPage() {
                       disabled={isActive || isActivating}
                       className={`inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition ${
                         isActive
-                          ? "cursor-default border border-[var(--app-gold)] bg-[var(--app-gold)]/10 text-[var(--app-gold)]"
-                          : "border border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg)] hover:border-[var(--app-gold)]/50 hover:bg-[var(--app-gold)]/10 hover:text-[var(--app-gold)]"
+                          ? "cursor-default border border-[var(--app-navy)] bg-[var(--app-navy)]/10 text-[var(--app-navy)]"
+                          : "border border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg)] hover:border-[var(--app-navy)]/50 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-navy)]"
                       }`}
                     >
                       {isActivating ? (
@@ -251,7 +251,7 @@ export default function RoutinesPage() {
                     </button>
                     <Link
                       href={`/dashboard/workspaces/${w.id}/routine`}
-                      className="inline-flex w-full flex-1 items-center justify-center rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-2.5 text-sm font-medium text-[var(--app-fg)] transition hover:border-[var(--app-gold)]/50 hover:bg-[var(--app-gold)]/10 hover:text-[var(--app-gold)] sm:w-auto"
+                      className="inline-flex w-full flex-1 items-center justify-center rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-2.5 text-sm font-medium text-[var(--app-fg)] transition hover:border-[var(--app-navy)]/50 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-navy)] sm:w-auto"
                     >
                       {t("openRoutine")}
                     </Link>

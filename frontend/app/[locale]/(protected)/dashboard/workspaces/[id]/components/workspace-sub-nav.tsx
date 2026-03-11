@@ -35,7 +35,7 @@ export function WorkspaceSubNav({ workspaceId, section }: WorkspaceSubNavProps) 
             className={`
               rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors
               ${isActive
-                ? "bg-[var(--app-gold)]/15 text-[var(--app-gold)] ring-1 ring-[var(--app-gold)]/25"
+                ? "bg-[var(--app-navy)]/15 text-[var(--app-navy)] ring-1 ring-[var(--app-navy)]/25"
                 : "text-[var(--app-fg)]/55 hover:text-[var(--app-fg)] hover:bg-[var(--app-bg)]"
               }
             `}

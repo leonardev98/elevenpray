@@ -99,7 +99,7 @@ export default function WorkspaceInsightsPage() {
       <p className="mt-4">
         <Link
           href={`/dashboard/workspaces/${workspaceId}`}
-          className="text-sm text-[var(--app-gold)] hover:underline"
+          className="text-sm text-[var(--app-navy)] hover:underline"
         >
           Volver al overview
         </Link>

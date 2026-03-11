@@ -78,7 +78,7 @@ export function TimePicker({
         onChange={(e) =>
           handleChange(Number(e.target.value), minutes, period)
         }
-        className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+        className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
         aria-label="Hora"
       >
         {HOURS.map((h) => (
@@ -93,7 +93,7 @@ export function TimePicker({
           onChange={(e) =>
             handleChange(hour, e.target.value as (typeof MINUTES)[number], period)
           }
-          className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+          className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
           aria-label="Minutos"
         >
           {MINUTES.map((m) => (
@@ -108,7 +108,7 @@ export function TimePicker({
         onChange={(e) =>
           handleChange(hour, minutes, e.target.value as "am" | "pm")
         }
-        className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-sm font-medium text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+        className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-1.5 text-sm font-medium text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
         aria-label="AM/PM"
       >
         {PERIODS.map((p) => (

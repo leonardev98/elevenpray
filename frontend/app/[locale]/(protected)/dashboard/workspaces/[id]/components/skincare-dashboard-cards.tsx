@@ -52,15 +52,15 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* Rutina de hoy + racha */}
       <section
-        className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition hover:border-[var(--app-gold)]/30 hover:shadow-md"
+        className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition hover:border-[var(--app-navy)]/30 hover:shadow-md"
         aria-labelledby="skincare-today-heading"
       >
         <h2 id="skincare-today-heading" className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
           Hoy
         </h2>
         <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[var(--app-gold)]/40 bg-[var(--app-gold)]/5">
-            <span className="text-lg font-bold text-[var(--app-gold)]">—</span>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[var(--app-navy)]/40 bg-[var(--app-navy)]/5">
+            <span className="text-lg font-bold text-[var(--app-navy)]">—</span>
           </div>
           <div>
             <p className="font-medium text-[var(--app-fg)]">Rutina mañana y noche</p>
@@ -84,7 +84,7 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
           Racha
         </h2>
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold tracking-tight text-[var(--app-gold)]">—</span>
+          <span className="text-3xl font-bold tracking-tight text-[var(--app-navy)]">—</span>
           <span className="text-sm text-[var(--app-fg)]/60">días seguidos</span>
         </div>
         <p className="mt-2 text-xs text-[var(--app-fg)]/60">
@@ -94,7 +94,7 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
 
       {/* Progreso / Journal */}
       <section
-        className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition hover:border-[var(--app-gold)]/30"
+        className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition hover:border-[var(--app-navy)]/30"
         aria-labelledby="skincare-progress-heading"
       >
         <h2 id="skincare-progress-heading" className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
@@ -126,7 +126,7 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
 
       {/* Recomendaciones */}
       <section
-        className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition hover:border-[var(--app-gold)]/30"
+        className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition hover:border-[var(--app-navy)]/30"
         aria-labelledby="skincare-recs-heading"
       >
         <h2 id="skincare-recs-heading" className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
@@ -137,7 +137,7 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
         </p>
         <Link
           href={`${base}/library`}
-          className="mt-3 inline-block text-sm font-medium text-[var(--app-gold)] hover:underline"
+          className="mt-3 inline-block text-sm font-medium text-[var(--app-navy)] hover:underline"
         >
           Ver catálogo →
         </Link>
@@ -154,13 +154,13 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
             <Link
               key={href}
               href={`${base}/${href}`}
-              className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition hover:border-[var(--app-gold)]/30 hover:shadow-md"
+              className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition hover:border-[var(--app-navy)]/30 hover:shadow-md"
             >
               <h3 className="font-medium text-[var(--app-fg)]">{t(labelKey)}</h3>
               <p className="mt-1 text-sm text-[var(--app-fg)]/70">
                 {t(descKey)}
               </p>
-              <span className="mt-2 inline-block text-sm font-medium text-[var(--app-gold)]">
+              <span className="mt-2 inline-block text-sm font-medium text-[var(--app-navy)]">
                 Ir →
               </span>
             </Link>

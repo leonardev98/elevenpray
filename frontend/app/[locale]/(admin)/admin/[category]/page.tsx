@@ -46,7 +46,7 @@ export default function AdminCategoryPage() {
         <p className="text-[var(--app-fg)]/70">Categoría no encontrada.</p>
         <I18nLink
           href="/admin"
-          className="mt-4 inline-block text-[var(--app-gold)] hover:underline"
+          className="mt-4 inline-block text-[var(--app-navy)] hover:underline"
         >
           Volver a categorías
         </I18nLink>
@@ -93,7 +93,7 @@ export default function AdminCategoryPage() {
             className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm transition dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]"
           >
             <div className="mb-5 flex items-center gap-4">
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--app-navy)]/10 text-2xl dark:bg-[var(--app-gold)]/10" aria-hidden>
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--app-navy)]/10 text-2xl dark:bg-[var(--app-navy)]/10" aria-hidden>
                 {section.icon}
               </span>
               <div>
@@ -109,7 +109,7 @@ export default function AdminCategoryPage() {
               <textarea
                 readOnly
                 placeholder={section.placeholder}
-                className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20 dark:bg-[var(--app-surface-soft)]"
+                className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20 dark:bg-[var(--app-surface-soft)]"
                 rows={2}
               />
               <button

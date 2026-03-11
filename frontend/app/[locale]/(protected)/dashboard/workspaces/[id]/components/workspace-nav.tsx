@@ -72,7 +72,7 @@ export function WorkspaceNav({ workspaceId, workspace }: WorkspaceNavProps) {
               flex items-center gap-2 rounded-t-lg px-4 py-3 text-sm font-medium transition-colors
               border-b-2 border-transparent -mb-[2px]
               ${isActive
-                ? "border-[var(--app-gold)] text-[var(--app-fg)] bg-[var(--app-gold)]/5"
+                ? "border-[var(--app-navy)] text-[var(--app-fg)] bg-[var(--app-navy)]/5"
                 : "text-[var(--app-fg)]/55 hover:text-[var(--app-fg)]/85 hover:bg-[var(--app-bg)]/80"
               }
             `}

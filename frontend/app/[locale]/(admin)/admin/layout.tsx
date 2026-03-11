@@ -59,7 +59,7 @@ export default function AdminLayout({
               href="/admin"
               className={`rounded-md px-3 py-2 text-sm font-medium transition ${
                 isAdminRoot
-                  ? "bg-[var(--app-gold)]/20 text-[var(--app-gold)]"
+                  ? "bg-[var(--app-navy)]/20 text-[var(--app-navy)]"
                   : "text-[var(--app-white)]/80 hover:bg-white/10 hover:text-[var(--app-white)]"
               }`}
             >
@@ -69,7 +69,7 @@ export default function AdminLayout({
               href="/admin/usuarios"
               className={`rounded-md px-3 py-2 text-sm font-medium transition ${
                 pathname?.includes("/admin/usuarios")
-                  ? "bg-[var(--app-gold)]/20 text-[var(--app-gold)]"
+                  ? "bg-[var(--app-navy)]/20 text-[var(--app-navy)]"
                   : "text-[var(--app-white)]/80 hover:bg-white/10 hover:text-[var(--app-white)]"
               }`}
             >
@@ -83,7 +83,7 @@ export default function AdminLayout({
           </span>
           <Link
             href="/dashboard"
-            className="rounded-lg border border-[var(--app-gold)]/50 px-3 py-2 text-sm text-[var(--app-gold)] hover:bg-[var(--app-gold)]/10"
+            className="rounded-lg border border-[var(--app-navy)]/50 px-3 py-2 text-sm text-[var(--app-navy)] hover:bg-[var(--app-navy)]/10"
           >
             Ir a la app
           </Link>

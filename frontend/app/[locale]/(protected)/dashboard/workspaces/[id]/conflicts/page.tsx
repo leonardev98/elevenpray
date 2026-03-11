@@ -65,7 +65,7 @@ export default function WorkspaceConflictsPage() {
         </div>
         <Link
           href={`${base}/products`}
-          className="inline-block text-sm font-medium text-[var(--app-gold)] hover:underline"
+          className="inline-block text-sm font-medium text-[var(--app-navy)] hover:underline"
         >
           ← Volver a Productos
         </Link>
@@ -95,7 +95,7 @@ export default function WorkspaceConflictsPage() {
           </p>
           <Link
             href={`${base}/products`}
-            className="mt-4 inline-block text-sm font-medium text-[var(--app-gold)] hover:underline"
+            className="mt-4 inline-block text-sm font-medium text-[var(--app-navy)] hover:underline"
           >
             Ir a Mis productos →
           </Link>
@@ -136,7 +136,7 @@ export default function WorkspaceConflictsPage() {
 
       <Link
         href={`${base}/products`}
-        className="inline-block text-sm font-medium text-[var(--app-gold)] hover:underline"
+        className="inline-block text-sm font-medium text-[var(--app-navy)] hover:underline"
       >
         ← Volver a Productos
       </Link>

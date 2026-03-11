@@ -72,7 +72,7 @@ function QuickCheckinForm({
           value={skinFeeling}
           onChange={(e) => setSkinFeeling(e.target.value)}
           placeholder="Ej. Hidratada, algo tirante…"
-          className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+          className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
         />
       </div>
       <div className="mb-3">
@@ -82,13 +82,13 @@ function QuickCheckinForm({
           onChange={(e) => setFreeNotes(e.target.value)}
           rows={2}
           placeholder="Lo que quieras anotar…"
-          className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+          className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
         />
       </div>
       <button
         type="submit"
         disabled={saving}
-        className="w-full rounded-lg bg-[var(--app-gold)] py-2 text-sm font-medium text-[var(--app-black)] hover:opacity-90 disabled:opacity-50"
+        className="w-full rounded-lg bg-[var(--app-navy)] py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
       >
         {saving ? "Guardando…" : "Guardar"}
       </button>
@@ -192,7 +192,7 @@ export default function WorkspaceJournalPage() {
       <p className="mt-4">
         <Link
           href={`/dashboard/workspaces/${workspaceId}`}
-          className="text-sm text-[var(--app-gold)] hover:underline"
+          className="text-sm text-[var(--app-navy)] hover:underline"
         >
           Volver al overview
         </Link>

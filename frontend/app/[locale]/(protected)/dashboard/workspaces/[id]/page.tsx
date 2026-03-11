@@ -101,7 +101,7 @@ export default function WorkspaceDetailPage() {
         {!hasSectionNav && hasRoutine && (
           <Link
             href={`/dashboard/workspaces/${workspaceId}/routine`}
-            className="rounded-xl border border-[var(--app-gold)]/50 bg-[var(--app-gold)]/10 px-4 py-2.5 text-sm font-medium text-[var(--app-gold)] hover:bg-[var(--app-gold)]/20"
+            className="rounded-xl border border-[var(--app-navy)]/50 bg-[var(--app-navy)]/10 px-4 py-2.5 text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/20"
           >
             {t("weeklyRoutine")}
           </Link>
@@ -119,10 +119,10 @@ export default function WorkspaceDetailPage() {
       {hasProductVault && (
         <Link
           href={`/dashboard/workspaces/${workspaceId}/products`}
-          className="flex items-center justify-between rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition hover:border-[var(--app-gold)]/40 hover:shadow-md lg:hidden"
+          className="flex items-center justify-between rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition hover:border-[var(--app-navy)]/40 hover:shadow-md lg:hidden"
         >
           <span className="font-medium text-[var(--app-fg)]">Ver productos</span>
-          <span className="text-[var(--app-gold)]">→</span>
+          <span className="text-[var(--app-navy)]">→</span>
         </Link>
       )}
 
@@ -133,7 +133,7 @@ export default function WorkspaceDetailPage() {
           </h2>
           <Link
             href={`/dashboard/workspaces/${workspaceId}/routine`}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-[var(--app-fg)] transition hover:border-[var(--app-gold)]/40 hover:bg-[var(--app-gold)]/5"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-[var(--app-fg)] transition hover:border-[var(--app-navy)]/40 hover:bg-[var(--app-navy)]/5"
           >
             <span className="font-medium">Rutina de hoy</span>
             <span className="text-xs text-[var(--app-fg)]/60">AM y PM</span>
@@ -166,7 +166,7 @@ export default function WorkspaceDetailPage() {
               value={newSpaceTitle}
               onChange={(e) => setNewSpaceTitle(e.target.value)}
               placeholder={t("newSpacePlaceholder")}
-              className="w-40 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20"
+              className="w-40 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
             />
             <button
               type="button"
@@ -188,7 +188,7 @@ export default function WorkspaceDetailPage() {
             type="button"
             onClick={handleCreatePage}
             disabled={creatingPage}
-            className="rounded-xl bg-[var(--app-gold)] px-4 py-2 text-sm font-medium text-[var(--app-navy)] hover:opacity-90 disabled:opacity-50"
+            className="rounded-xl bg-[var(--app-navy)] px-4 py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
           >
             {creatingPage ? t("creatingPage") : t("newPage")}
           </button>
@@ -203,7 +203,7 @@ export default function WorkspaceDetailPage() {
               <li key={p.id}>
                 <Link
                   href={`/dashboard/workspaces/${workspaceId}/pages/${p.id}`}
-                  className="block rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 font-medium text-[var(--app-fg)] transition hover:border-[var(--app-gold)]/40 hover:bg-[var(--app-gold)]/5"
+                  className="block rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 font-medium text-[var(--app-fg)] transition hover:border-[var(--app-navy)]/40 hover:bg-[var(--app-navy)]/5"
                 >
                   {p.title}
                 </Link>

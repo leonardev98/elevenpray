@@ -69,7 +69,7 @@ export function WeekScheduleCard({ workspaceId }: WeekScheduleCardProps) {
           </p>
           <Link
             href={`/dashboard/workspaces/${workspaceId}/routine`}
-            className="mt-4 inline-block rounded-xl bg-[var(--app-gold)]/15 px-5 py-2.5 text-sm font-medium text-[var(--app-gold)] transition hover:bg-[var(--app-gold)]/25"
+            className="mt-4 inline-block rounded-xl bg-[var(--app-navy)]/15 px-5 py-2.5 text-sm font-medium text-[var(--app-navy)] transition hover:bg-[var(--app-navy)]/25"
           >
             Armar rutina
           </Link>
@@ -86,7 +86,7 @@ export function WeekScheduleCard({ workspaceId }: WeekScheduleCardProps) {
               <Link
                 key={day.key}
                 href={`/dashboard/workspaces/${workspaceId}/routine`}
-                className="flex flex-col items-center rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] py-5 transition hover:border-[var(--app-gold)]/40 hover:bg-[var(--app-gold)]/5"
+                className="flex flex-col items-center rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] py-5 transition hover:border-[var(--app-navy)]/40 hover:bg-[var(--app-navy)]/5"
               >
                 <span className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg)]/60">
                   {day.short}

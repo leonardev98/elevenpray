@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { getCatalogProducts, type CatalogProductApi } from "@/app/lib/catalog-api";
 import { recommendProductsForContext } from "@/app/lib/routine-builder";
@@ -73,6 +74,10 @@ export function AddProductDrawer({
     [products, recentIds]
   );
 
+  const t = useTranslations("routineBuilder");
+  const tCommon = useTranslations("common");
+  const tCatalog = useTranslations("catalog");
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -100,13 +105,13 @@ export function AddProductDrawer({
           >
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-[var(--app-fg)]">Add product</h3>
+            <h3 className="text-lg font-semibold text-[var(--app-fg)]">{t("addProductDrawerTitle")}</h3>
             <p className="text-xs text-[var(--app-fg)]/60">
-              Context-aware suggestions for your {slot === "am" ? "morning" : "night"} flow.
+              {t("contextAwareSuggestions")}
             </p>
           </div>
           <button type="button" onClick={onClose} className="rounded-lg px-2 py-1 text-sm text-[var(--app-fg)]/60 hover:bg-[var(--app-bg)]">
-            Close
+            {tCommon("close")}
           </button>
         </div>
 
@@ -114,7 +119,7 @@ export function AddProductDrawer({
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search product or brand"
+            placeholder={t("searchProductOrBrand")}
             className="rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)]"
           />
           <select
@@ -122,21 +127,21 @@ export function AddProductDrawer({
             onChange={(event) => setCategory(event.target.value)}
             className="rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)]"
           >
-            <option value="">All categories</option>
-            <option value="cleanser">Cleanser</option>
-            <option value="toner">Toner</option>
-            <option value="serum">Serum</option>
-            <option value="treatment">Treatment</option>
-            <option value="retinoid">Retinoid</option>
-            <option value="exfoliant">Exfoliant</option>
-            <option value="moisturizer">Moisturizer</option>
-            <option value="sunscreen">Sunscreen</option>
-            <option value="mask">Mask</option>
+            <option value="">{tCatalog("all")}</option>
+            <option value="cleanser">{tCatalog("categories.cleanser")}</option>
+            <option value="toner">{tCatalog("categories.toner")}</option>
+            <option value="serum">{tCatalog("categories.serum")}</option>
+            <option value="spot_treatment">{tCatalog("categories.spot_treatment")}</option>
+            <option value="retinoid">{tCatalog("categories.retinoid")}</option>
+            <option value="exfoliant">{tCatalog("categories.exfoliant")}</option>
+            <option value="moisturizer">{tCatalog("categories.moisturizer")}</option>
+            <option value="sunscreen">{tCatalog("categories.sunscreen")}</option>
+            <option value="mask">{tCatalog("categories.mask")}</option>
           </select>
         </div>
 
         {loading ? (
-          <p className="text-sm text-[var(--app-fg)]/60">Loading catalog...</p>
+          <p className="text-sm text-[var(--app-fg)]/60">{tCommon("loading")}</p>
         ) : (
           <div className="space-y-2">
             {recommended.map(({ product, reason }) => (
@@ -151,25 +156,25 @@ export function AddProductDrawer({
                   }
                   await onSelect(product);
                 }}
-                className="block w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] p-3 text-left transition hover:border-[var(--app-gold)]/50"
+                className="block w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] p-3 text-left transition hover:border-[var(--app-navy)]/50"
               >
                 <p className="text-sm font-semibold text-[var(--app-fg)]">{product.name}</p>
                 <p className="text-xs text-[var(--app-fg)]/60">
                   {product.brand ?? "No brand"} · {product.category}
                 </p>
-                <p className="mt-1 text-xs text-[var(--app-gold)]">{reason}</p>
+                <p className="mt-1 text-xs text-[var(--app-navy)]">{reason}</p>
               </button>
             ))}
             {recentProducts.length ? (
               <div className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--app-fg)]/55">Recently used</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--app-fg)]/55">{t("recentlyUsed")}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {recentProducts.map((product) => (
                     <button
                       key={product.id}
                       type="button"
                       onClick={async () => onSelect(product)}
-                      className="rounded-full border border-[var(--app-border)] px-2.5 py-1 text-[11px] text-[var(--app-fg)]/75 hover:border-[var(--app-gold)]/50 hover:text-[var(--app-gold)]"
+                      className="rounded-full border border-[var(--app-border)] px-2.5 py-1 text-[11px] text-[var(--app-fg)]/75 hover:border-[var(--app-navy)]/50 hover:text-[var(--app-navy)]"
                     >
                       {product.name}
                     </button>
@@ -179,7 +184,7 @@ export function AddProductDrawer({
             ) : null}
             {!recommended.length ? (
               <div className="rounded-2xl border border-dashed border-[var(--app-border)] p-4 text-xs text-[var(--app-fg)]/60">
-                No products found. Try adjusting search or category.
+                {tCatalog("noProducts")}
               </div>
             ) : null}
           </div>

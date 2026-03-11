@@ -110,7 +110,7 @@ export default function DashboardLayout({
                 id="global-search"
                 type="search"
                 placeholder="Buscar…"
-                className="w-full max-w-md rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-2.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20"
+                className="w-full max-w-md rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-2.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
               />
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -129,7 +129,7 @@ export default function DashboardLayout({
               {isPlatformAdmin && (
                 <Link
                   href="/admin"
-                  className="hidden rounded-xl bg-[var(--app-gold)]/15 px-3 py-2 text-sm font-medium text-[var(--app-gold)] hover:bg-[var(--app-gold)]/25 sm:inline-flex"
+                  className="hidden rounded-xl bg-[var(--app-navy)]/15 px-3 py-2 text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/25 sm:inline-flex"
                 >
                   Panel Admin
                 </Link>

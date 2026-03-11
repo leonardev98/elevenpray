@@ -54,7 +54,7 @@ export function WorkspaceProductsAside() {
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
               filter === "all"
                 ? "bg-[var(--app-navy)] text-[var(--app-white)]"
-                : "bg-[var(--app-bg)] text-[var(--app-fg)]/80 hover:bg-[var(--app-gold)]/10 hover:text-[var(--app-fg)]"
+                : "bg-[var(--app-bg)] text-[var(--app-fg)]/80 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-fg)]"
             }`}
           >
             Todos
@@ -67,7 +67,7 @@ export function WorkspaceProductsAside() {
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 filter === cat
                   ? "bg-[var(--app-navy)] text-[var(--app-white)]"
-                  : "bg-[var(--app-bg)] text-[var(--app-fg)]/80 hover:bg-[var(--app-gold)]/10 hover:text-[var(--app-fg)]"
+                  : "bg-[var(--app-bg)] text-[var(--app-fg)]/80 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-fg)]"
               }`}
             >
               {PRODUCT_CATEGORY_LABELS[cat as ProductCategory] ?? cat}
@@ -86,7 +86,7 @@ export function WorkspaceProductsAside() {
               </p>
               <Link
                 href={`/dashboard/workspaces/${workspaceId}/products`}
-                className="mt-2 inline-block text-xs font-medium text-[var(--app-gold)] hover:underline"
+                className="mt-2 inline-block text-xs font-medium text-[var(--app-navy)] hover:underline"
               >
                 Añadir productos
               </Link>
@@ -96,7 +96,7 @@ export function WorkspaceProductsAside() {
             <ul className="space-y-2">
               {filtered.slice(0, 12).map((p) => (
                 <li key={p.id}>
-                  <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)]/50 p-3 shadow-sm transition hover:border-[var(--app-gold)]/30 hover:shadow">
+                  <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)]/50 p-3 shadow-sm transition hover:border-[var(--app-navy)]/30 hover:shadow">
                     <div className="flex gap-3">
                       {p.imageUrl ? (
                         <img
@@ -105,7 +105,7 @@ export function WorkspaceProductsAside() {
                           className="h-12 w-12 rounded-lg object-cover flex-shrink-0"
                         />
                       ) : (
-                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--app-navy)]/10 text-[var(--app-gold)] text-lg font-semibold">
+                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--app-navy)]/10 text-[var(--app-navy)] text-lg font-semibold">
                           {p.name.charAt(0)}
                         </div>
                       )}
@@ -118,7 +118,7 @@ export function WorkspaceProductsAside() {
                         )}
                         <Link
                           href={`/dashboard/workspaces/${workspaceId}/routine`}
-                          className="mt-2 inline-block rounded-lg bg-[var(--app-gold)]/15 px-2.5 py-1.5 text-xs font-medium text-[var(--app-gold)] hover:bg-[var(--app-gold)]/25 transition"
+                          className="mt-2 inline-block rounded-lg bg-[var(--app-navy)]/15 px-2.5 py-1.5 text-xs font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/25 transition"
                         >
                           Añadir a rutina
                         </Link>
@@ -132,7 +132,7 @@ export function WorkspaceProductsAside() {
           {!loading && filtered.length > 12 && (
             <Link
               href={`/dashboard/workspaces/${workspaceId}/products`}
-              className="mt-3 block rounded-xl border border-[var(--app-border)] py-2.5 text-center text-sm font-medium text-[var(--app-gold)] hover:bg-[var(--app-gold)]/5 hover:border-[var(--app-gold)]/30 transition"
+              className="mt-3 block rounded-xl border border-[var(--app-border)] py-2.5 text-center text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/5 hover:border-[var(--app-navy)]/30 transition"
             >
               Ver todos los productos
             </Link>

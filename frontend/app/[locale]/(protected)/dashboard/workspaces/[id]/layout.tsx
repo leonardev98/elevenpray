@@ -77,7 +77,7 @@ function GenericOnboardingModal({
           <select
             value={level}
             onChange={(e) => setLevel(e.target.value)}
-            className="mb-4 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+            className="mb-4 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
           >
             <option value="beginner">Principiante</option>
             <option value="intermediate">Intermedio</option>
@@ -86,7 +86,7 @@ function GenericOnboardingModal({
           <button
             type="submit"
             disabled={saving}
-            className="w-full rounded-lg bg-[var(--app-gold)] py-2 text-sm font-medium text-[var(--app-black)] hover:opacity-90 disabled:opacity-50"
+            className="w-full rounded-lg bg-[var(--app-navy)] py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
           >
             {saving ? "Guardando…" : "Empezar"}
           </button>
@@ -325,7 +325,7 @@ export default function WorkspaceIdLayout({
                 <button
                   type="button"
                   onClick={() => setEditProfileOpen(true)}
-                  className="shrink-0 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-xs font-medium text-[var(--app-fg)]/80 transition hover:border-[var(--app-gold)]/50 hover:text-[var(--app-gold)]"
+                  className="shrink-0 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-xs font-medium text-[var(--app-fg)]/80 transition hover:border-[var(--app-navy)]/50 hover:text-[var(--app-navy)]"
                 >
                   Editar perfil de piel
                 </button>

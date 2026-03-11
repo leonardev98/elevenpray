@@ -90,7 +90,7 @@ export function CatalogProductCard({
           aria-pressed={isBookmarked}
           aria-label={isBookmarked ? "Quitar de guardados" : "Guardar producto"}
         >
-          <span className={isBookmarked ? "text-[#C8A76C]" : "text-[var(--app-fg)]/50 group-hover:text-[var(--app-fg)]/80"}>
+          <span className={isBookmarked ? "text-[var(--app-navy)]" : "text-[var(--app-fg)]/50 group-hover:text-[var(--app-fg)]/80"}>
             <BookmarkIcon filled={isBookmarked} />
           </span>
         </button>
@@ -145,15 +145,14 @@ export function CatalogProductCard({
         <button
           type="button"
           onClick={onOpenDetail}
-          className="min-h-[44px] min-w-[100px] flex-1 rounded-xl border border-[var(--app-border)] px-5 py-2.5 text-sm font-medium text-[var(--app-fg)] transition-colors hover:border-[var(--app-gold)]/50 hover:bg-[var(--app-gold)]/10"
+          className="min-h-[44px] min-w-[100px] flex-1 rounded-xl border border-[var(--app-border)] px-5 py-2.5 text-sm font-medium text-[var(--app-fg)] transition-colors hover:border-[var(--app-navy)]/50 hover:bg-[var(--app-navy)]/10"
         >
           Info
         </button>
         <button
           type="button"
           onClick={onAddToRoutine}
-          className="min-h-[44px] min-w-[120px] flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-[var(--app-navy)] transition-colors hover:bg-[#B89657]"
-          style={{ backgroundColor: "#C8A76C" }}
+          className="min-h-[44px] min-w-[120px] flex-1 rounded-xl bg-[var(--app-navy)] px-5 py-2.5 text-sm font-medium text-[var(--app-white)] transition-colors hover:opacity-90"
         >
           Añadir a rutina
         </button>

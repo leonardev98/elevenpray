@@ -69,7 +69,7 @@ function SortableBlockRow({
     >
       <button
         type="button"
-        className="cursor-grab touch-none rounded p-1.5 text-[var(--app-fg)]/40 hover:bg-[var(--app-gold)]/10 hover:text-[var(--app-gold)] active:cursor-grabbing"
+        className="cursor-grab touch-none rounded p-1.5 text-[var(--app-fg)]/40 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-navy)] active:cursor-grabbing"
         {...attributes}
         {...listeners}
         aria-label={t("moveBlock")}
@@ -224,7 +224,7 @@ export default function PageEditorPage() {
       <div className="mb-4">
         <Link
           href={`/dashboard/workspaces/${workspaceId}`}
-          className="text-sm font-medium text-[var(--app-fg)]/70 hover:text-[var(--app-gold)]"
+          className="text-sm font-medium text-[var(--app-fg)]/70 hover:text-[var(--app-navy)]"
         >
           {t("backToWorkspace")}
         </Link>
@@ -241,7 +241,7 @@ export default function PageEditorPage() {
           onChange={(e) => setTitle(e.target.value)}
           onBlur={handleSaveTitle}
           disabled={saving}
-          className="mb-4 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-lg font-semibold text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)] disabled:opacity-50"
+          className="mb-4 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-lg font-semibold text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)] disabled:opacity-50"
           placeholder={t("pageTitlePlaceholder")}
         />
 
@@ -277,7 +277,7 @@ export default function PageEditorPage() {
                   key={type}
                   type="button"
                   onClick={() => handleAddBlock(type)}
-                  className="block w-full px-4 py-2 text-left text-sm text-[var(--app-fg)] hover:bg-[var(--app-gold)]/10"
+                  className="block w-full px-4 py-2 text-left text-sm text-[var(--app-fg)] hover:bg-[var(--app-navy)]/10"
                 >
                   {t(labelKey)}
                 </button>
@@ -287,7 +287,7 @@ export default function PageEditorPage() {
           <button
             type="button"
             onClick={() => setSlashOpen((o) => !o)}
-            className="rounded-lg border border-dashed border-[var(--app-border)] py-2 px-3 text-sm text-[var(--app-fg)]/50 hover:border-[var(--app-gold)]/50 hover:text-[var(--app-gold)]"
+            className="rounded-lg border border-dashed border-[var(--app-border)] py-2 px-3 text-sm text-[var(--app-fg)]/50 hover:border-[var(--app-navy)]/50 hover:text-[var(--app-navy)]"
           >
             + {t("addBlock")}
           </button>

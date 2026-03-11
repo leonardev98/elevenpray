@@ -56,7 +56,7 @@ export function BlockRenderer({
           onKeyDown={onKeyDown}
           autoFocus={autoFocus}
           placeholder={t("placeholderTitle")}
-          className="min-w-0 flex-1 rounded border-0 bg-transparent px-1 py-0.5 text-lg font-semibold text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+          className="min-w-0 flex-1 rounded border-0 bg-transparent px-1 py-0.5 text-lg font-semibold text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
         />
         {onDelete && (
           <button
@@ -103,7 +103,7 @@ export function BlockRenderer({
                   );
                   onContentChange({ ...block.content, items: next });
                 }}
-                className="h-4 w-4 rounded border-[var(--app-border)] text-[var(--app-gold)] focus:ring-[var(--app-gold)]"
+                className="h-4 w-4 rounded border-[var(--app-border)] text-[var(--app-navy)] focus:ring-[var(--app-navy)]"
               />
               <input
                 type="text"
@@ -115,7 +115,7 @@ export function BlockRenderer({
                   onContentChange({ ...block.content, items: next });
                 }}
                 placeholder={t("placeholderElement")}
-                className="min-w-0 flex-1 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+                className="min-w-0 flex-1 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
               />
             </li>
           ))}
@@ -126,7 +126,7 @@ export function BlockRenderer({
             const next = [...items, { id: crypto.randomUUID(), text: "", checked: false }];
             onContentChange({ ...block.content, items: next });
           }}
-          className="mt-2 text-xs text-[var(--app-fg)]/50 hover:text-[var(--app-gold)]"
+          className="mt-2 text-xs text-[var(--app-fg)]/50 hover:text-[var(--app-navy)]"
         >
           + {t("addItem")}
         </button>
@@ -146,7 +146,7 @@ export function BlockRenderer({
         autoFocus={autoFocus}
         placeholder={place}
         rows={1}
-        className="min-w-0 flex-1 resize-none rounded border-0 bg-transparent px-1 py-0.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+        className="min-w-0 flex-1 resize-none rounded border-0 bg-transparent px-1 py-0.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
         style={{ minHeight: "1.5rem" }}
       />
       {onDelete && (

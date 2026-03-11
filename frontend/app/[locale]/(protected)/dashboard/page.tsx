@@ -204,7 +204,7 @@ export default function DashboardPage() {
               ? formatDateRange(data.from, data.to, dayLabels, monthShort)
               : "—"}
             {loading && (
-              <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-[var(--app-gold)] border-t-transparent" aria-hidden />
+              <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-[var(--app-navy)] border-t-transparent" aria-hidden />
             )}
           </p>
         </div>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
             onClick={() => {
               if (todayKey) setSelectedDayKey(todayKey);
             }}
-            className="min-h-[44px] rounded-lg border border-[var(--app-gold)] bg-[var(--app-gold)]/10 px-3 py-2 text-sm font-medium text-[var(--app-fg)] hover:bg-[var(--app-gold)]/20 disabled:opacity-50"
+            className="min-h-[44px] rounded-lg border border-[var(--app-navy)] bg-[var(--app-navy)]/10 px-3 py-2 text-sm font-medium text-[var(--app-fg)] hover:bg-[var(--app-navy)]/20 disabled:opacity-50"
             disabled={!todayKey}
           >
             {t("myDayToday")}
@@ -285,7 +285,7 @@ export default function DashboardPage() {
                 <Link
                   key={s.workspaceId}
                   href={`/dashboard/workspaces/${s.workspaceId}`}
-                  className="block min-w-[200px] max-w-[280px] rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 hover:border-[var(--app-gold)]/30 hover:bg-[var(--app-bg)]"
+                  className="block min-w-[200px] max-w-[280px] rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 hover:border-[var(--app-navy)]/30 hover:bg-[var(--app-bg)]"
                 >
                   <p className="font-medium text-[var(--app-fg)]">{s.workspaceTitle}</p>
                   {hasContent ? (
@@ -338,11 +338,11 @@ export default function DashboardPage() {
                     key={dayKey}
                     type="button"
                     onClick={() => setSelectedDayKey(dayKey)}
-                    className={`flex flex-col items-center rounded-xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)] focus:ring-offset-2 ${
+                    className={`flex flex-col items-center rounded-xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)] focus:ring-offset-2 ${
                       isSelected
-                        ? "border-[var(--app-gold)] bg-[var(--app-gold)]/10"
+                        ? "border-[var(--app-navy)] bg-[var(--app-navy)]/10"
                         : isToday
-                          ? "border-[var(--app-gold)]/70 bg-[var(--app-surface)] hover:bg-[var(--app-bg)]"
+                          ? "border-[var(--app-navy)]/70 bg-[var(--app-surface)] hover:bg-[var(--app-bg)]"
                           : "border-[var(--app-border)] bg-[var(--app-surface)] hover:bg-[var(--app-bg)]"
                     }`}
                   >
@@ -351,14 +351,14 @@ export default function DashboardPage() {
                     </span>
                     <span
                       className={`mt-1 text-2xl font-semibold tabular-nums tracking-tight ${
-                        isToday ? "text-[var(--app-gold)]" : "text-[var(--app-fg)]"
+                        isToday ? "text-[var(--app-navy)]" : "text-[var(--app-fg)]"
                       }`}
                     >
                       {dayNum}
                     </span>
                     {hasContent && (
                       <span
-                        className="mt-2 h-1.5 w-1.5 rounded-full bg-[var(--app-gold)]"
+                        className="mt-2 h-1.5 w-1.5 rounded-full bg-[var(--app-navy)]"
                         aria-hidden
                       />
                     )}

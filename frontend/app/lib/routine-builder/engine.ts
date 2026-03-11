@@ -92,6 +92,34 @@ export function mapCategoryToStepType(category: ProductCategory | string): Routi
   }
 }
 
+/** Map stepType to catalog API category for getCatalogProducts. */
+export function stepTypeToCategory(stepType: RoutineStepType): string {
+  switch (stepType) {
+    case "cleanser":
+      return "cleanser";
+    case "toner":
+      return "toner";
+    case "serum":
+      return "serum";
+    case "treatment":
+      return "spot_treatment";
+    case "eye":
+      return "eye_care";
+    case "moisturizer":
+      return "moisturizer";
+    case "sunscreen":
+      return "sunscreen";
+    case "mask":
+      return "mask";
+    case "exfoliant":
+      return "exfoliant";
+    case "retinoid":
+      return "retinoid";
+    default:
+      return "serum";
+  }
+}
+
 export function normalizeRoutineDays(days: Record<string, DayContent> | undefined): Record<string, DayContent> {
   const next: Record<string, DayContent> = {};
   for (const dayKey of DAY_KEYS) {
@@ -322,6 +350,60 @@ function starterItems(slot: RoutineSlot): DayItem[] {
   ];
 }
 
+type SkinType = RoutineMetadata["skinType"];
+
+function smartStarterItems(slot: RoutineSlot, skinType?: SkinType, goals?: string[]): DayItem[] {
+  const hasAcne = goals?.some((g) => g.toLowerCase().includes("acne"));
+  const hasHydration = goals?.some((g) => g.toLowerCase().includes("hydration"));
+  if (slot === "am") {
+    const cleanser =
+      skinType === "sensitive" || skinType === "dry"
+        ? "Gentle Cleanser"
+        : skinType === "oily" || skinType === "acne-prone"
+          ? "Foaming Cleanser"
+          : "Gentle Cleanser";
+    const serum =
+      skinType === "oily" || skinType === "acne-prone" || hasAcne
+        ? "Niacinamide Serum"
+        : skinType === "dry" || hasHydration
+          ? "Hydrating Serum"
+          : "Vitamin C Serum";
+    const moisturizer =
+      skinType === "oily" || skinType === "acne-prone"
+        ? "Light Moisturizer"
+        : skinType === "dry"
+          ? "Barrier Moisturizer"
+          : "Moisturizer";
+    return [
+      { id: crypto.randomUUID(), type: "text", content: cleanser, stepType: "cleanser" },
+      { id: crypto.randomUUID(), type: "text", content: serum, stepType: "serum" },
+      { id: crypto.randomUUID(), type: "text", content: moisturizer, stepType: "moisturizer" },
+      { id: crypto.randomUUID(), type: "text", content: "Daily Sunscreen SPF50", stepType: "sunscreen" },
+    ];
+  }
+  const cleanser =
+    skinType === "sensitive" || skinType === "dry"
+      ? "Gentle Cleanser"
+      : skinType === "oily" || skinType === "acne-prone"
+        ? "Foaming Cleanser"
+        : "Gentle Cleanser";
+  const treatment =
+    skinType === "oily" || skinType === "acne-prone" || hasAcne
+      ? "Niacinamide or Treatment"
+      : "Retinol or Niacinamide";
+  const moisturizer =
+    skinType === "oily" || skinType === "acne-prone"
+      ? "Light Moisturizer"
+      : skinType === "dry"
+        ? "Barrier Moisturizer"
+        : "Moisturizer";
+  return [
+    { id: crypto.randomUUID(), type: "text", content: cleanser, stepType: "cleanser" },
+    { id: crypto.randomUUID(), type: "text", content: treatment, stepType: "treatment" },
+    { id: crypto.randomUUID(), type: "text", content: moisturizer, stepType: "moisturizer" },
+  ];
+}
+
 export function buildStarterRoutine(options: AutoBuildOptions): BuildTemplateResult {
   const metadata: RoutineMetadata = {
     skinType: options.skinType,
@@ -331,8 +413,13 @@ export function buildStarterRoutine(options: AutoBuildOptions): BuildTemplateRes
   };
   const days: Record<string, DayContent> = {};
   for (const dayKey of DAY_KEYS) {
-    const amItems = starterItems("am");
-    const pmItems = starterItems("pm");
+    const useSmart = options.mode === "smart-starter";
+    const amItems = useSmart
+      ? smartStarterItems("am", options.skinType, options.goals)
+      : starterItems("am");
+    const pmItems = useSmart
+      ? smartStarterItems("pm", options.skinType, options.goals)
+      : starterItems("pm");
     if (options.mode === "skin-cycling") {
       const intentSequence: Array<RoutineMetadata["weeklyIntents"][string]> = [
         "exfoliation",
@@ -412,6 +499,22 @@ export function rebuildRoutineForBuilder(routine: Routine): Routine {
     };
   }
   return { ...routine, days };
+}
+
+/** Returns true if the given product (by id or by name) is already in the specified day and slot. */
+export function isProductInDaySlot(
+  routine: Routine,
+  dayKey: string,
+  slot: RoutineSlot,
+  productIdOrName: string
+): boolean {
+  const day = routine.days[dayKey];
+  if (!day?.groups) return false;
+  const group = day.groups.find((g) => g.slot === slot);
+  if (!group?.items?.length) return false;
+  return group.items.some(
+    (item) => item.productId === productIdOrName || item.content === productIdOrName
+  );
 }
 
 export function upsertCatalogProductInRoutine(

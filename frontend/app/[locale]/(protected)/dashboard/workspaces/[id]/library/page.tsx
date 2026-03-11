@@ -114,7 +114,7 @@ export default function WorkspaceLibraryPage() {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20"
+          className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
         >
           {CATEGORIES.map((c) => (
             <option key={c.value || "all"} value={c.value}>
@@ -125,7 +125,7 @@ export default function WorkspaceLibraryPage() {
         <select
           value={concern}
           onChange={(e) => setConcern(e.target.value)}
-          className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20"
+          className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
         >
           {CONCERNS.map((c) => (
             <option key={c.value || "all"} value={c.value}>
@@ -138,7 +138,7 @@ export default function WorkspaceLibraryPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por nombre o marca"
-          className="min-w-[200px] rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20"
+          className="min-w-[200px] rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
         />
       </div>
 
@@ -202,7 +202,7 @@ export default function WorkspaceLibraryPage() {
       <p className="pt-4">
         <Link
           href={`/dashboard/workspaces/${workspaceId}`}
-          className="text-sm font-medium text-[var(--app-gold)] hover:underline"
+          className="text-sm font-medium text-[var(--app-navy)] hover:underline"
         >
           Volver al overview
         </Link>

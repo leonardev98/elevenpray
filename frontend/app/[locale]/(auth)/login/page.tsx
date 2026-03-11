@@ -116,7 +116,7 @@ export default function LoginPage() {
         <main className="w-full max-w-[400px]">
           {/* Marca y título */}
           <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-gold)] shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-white)] shadow-sm">
               <span className="text-xl font-bold tracking-tight">E</span>
             </div>
             <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
@@ -139,7 +139,7 @@ export default function LoginPage() {
                   type="button"
                   disabled
                   aria-label={label}
-                  className="flex flex-col items-center gap-1.5 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] py-3 text-[var(--app-fg)]/70 opacity-75 transition hover:border-[var(--app-gold)]/30 hover:bg-[var(--app-gold)]/5 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/40 focus:ring-offset-2 focus:ring-offset-[var(--app-bg)] disabled:cursor-not-allowed disabled:opacity-70"
+                  className="flex flex-col items-center gap-1.5 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] py-3 text-[var(--app-fg)]/70 opacity-75 transition hover:border-[var(--app-navy)]/30 hover:bg-[var(--app-navy)]/5 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/40 focus:ring-offset-2 focus:ring-offset-[var(--app-bg)] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <ProviderIcon id={id} />
                   <span className="text-[10px] font-medium sm:text-xs">{label}</span>
@@ -178,7 +178,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder={t("emailPlaceholder")}
-                className="mt-1.5 w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-3.5 py-2.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:border-[var(--app-gold)]/80 focus:bg-[var(--app-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20 min-h-[48px] transition"
+                className="mt-1.5 w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-3.5 py-2.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:border-[var(--app-navy)]/80 focus:bg-[var(--app-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20 min-h-[48px] transition"
               />
             </div>
             <div>
@@ -194,7 +194,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="mt-1.5 w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-3.5 py-2.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:border-[var(--app-gold)]/80 focus:bg-[var(--app-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20 min-h-[48px] transition"
+                className="mt-1.5 w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-3.5 py-2.5 text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/40 focus:border-[var(--app-navy)]/80 focus:bg-[var(--app-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20 min-h-[48px] transition"
               />
             </div>
             <button
@@ -211,7 +211,7 @@ export default function LoginPage() {
             {t("noAccount")}{" "}
             <Link
               href="/register"
-              className="font-medium text-[var(--app-gold)] underline-offset-2 hover:underline"
+              className="font-medium text-[var(--app-navy)] underline-offset-2 hover:underline"
             >
               {t("signUp")}
             </Link>

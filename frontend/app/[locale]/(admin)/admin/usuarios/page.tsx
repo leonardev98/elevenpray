@@ -24,7 +24,7 @@ export default function AdminUsuariosPage() {
       <div className="mb-8 flex justify-end">
         <button
           type="button"
-          className="rounded-xl bg-[var(--app-gold)] px-5 py-2.5 text-sm font-semibold text-[var(--app-navy)] transition hover:opacity-90"
+          className="rounded-xl bg-[var(--app-navy)] px-5 py-2.5 text-sm font-semibold text-[var(--app-white)] transition hover:opacity-90"
         >
           Crear usuario (mock)
         </button>
@@ -63,8 +63,8 @@ export default function AdminUsuariosPage() {
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                       u.role === "platform_admin"
-                        ? "bg-[var(--app-gold)]/20 text-[var(--app-gold)]"
-                        : "bg-[var(--app-navy)]/10 text-[var(--app-navy)] dark:bg-[var(--app-navy)]/30 dark:text-[var(--app-gold)]"
+                        ? "bg-[var(--app-navy)]/20 text-[var(--app-navy)]"
+                        : "bg-[var(--app-navy)]/10 text-[var(--app-navy)] dark:bg-[var(--app-navy)]/30 dark:text-[var(--app-navy)]"
                     }`}
                   >
                     {u.role === "platform_admin" ? "Admin maestro" : "Editor"}
@@ -76,7 +76,7 @@ export default function AdminUsuariosPage() {
                 <td className="px-6 py-4">
                   <button
                     type="button"
-                    className="font-medium text-[var(--app-gold)] hover:underline"
+                    className="font-medium text-[var(--app-navy)] hover:underline"
                   >
                     Editar (mock)
                   </button>

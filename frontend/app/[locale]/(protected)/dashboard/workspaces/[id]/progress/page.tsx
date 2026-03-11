@@ -113,7 +113,7 @@ export default function WorkspaceProgressPage() {
         )}
         <Link
           href={`${base}/journal`}
-          className="mt-4 inline-block text-sm font-medium text-[var(--app-gold)] hover:underline"
+          className="mt-4 inline-block text-sm font-medium text-[var(--app-navy)] hover:underline"
         >
           Ir al Journal →
         </Link>
@@ -128,7 +128,7 @@ export default function WorkspaceProgressPage() {
         </p>
         <Link
           href={`${base}/photos`}
-          className="mt-4 inline-block text-sm font-medium text-[var(--app-gold)] hover:underline"
+          className="mt-4 inline-block text-sm font-medium text-[var(--app-navy)] hover:underline"
         >
           Ver fotos →
         </Link>

@@ -269,7 +269,7 @@ export function ProductDetailModal({
                 <button
                   type="button"
                   onClick={onToggleBookmark}
-                  className="min-h-[48px] min-w-[140px] flex-1 rounded-xl border border-[var(--app-border)] px-6 py-3 text-sm font-medium text-[var(--app-fg)] transition-colors hover:border-[var(--app-gold)]/40 hover:bg-[var(--app-gold)]/10"
+                  className="min-h-[48px] min-w-[140px] flex-1 rounded-xl border border-[var(--app-border)] px-6 py-3 text-sm font-medium text-[var(--app-fg)] transition-colors hover:border-[var(--app-navy)]/40 hover:bg-[var(--app-navy)]/10"
                   aria-pressed={isBookmarked}
                 >
                   {isBookmarked ? "Guardado" : "Guardar producto"}
@@ -277,8 +277,7 @@ export function ProductDetailModal({
                 <button
                   type="button"
                   onClick={() => onAddToRoutine(product)}
-                  className="min-h-[48px] min-w-[160px] flex-1 rounded-xl px-6 py-3 text-sm font-medium text-[var(--app-navy)] transition-colors hover:bg-[#B89657]"
-                  style={{ backgroundColor: "#C8A76C" }}
+                  className="min-h-[48px] min-w-[160px] flex-1 rounded-xl bg-[var(--app-navy)] px-6 py-3 text-sm font-medium text-[var(--app-white)] transition-colors hover:opacity-90"
                 >
                   Añadir a rutina
                 </button>

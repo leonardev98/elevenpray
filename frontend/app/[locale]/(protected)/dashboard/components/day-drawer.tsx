@@ -81,7 +81,7 @@ export function DayDrawer({ isOpen, onClose, day }: DayDrawerProps) {
             <div className="space-y-6">
               {day.routines.length > 0 && (
                 <section>
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-gold)]">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-navy)]">
                     {t("routines")}
                   </h3>
                   <ul className="space-y-4">
@@ -129,7 +129,7 @@ export function DayDrawer({ isOpen, onClose, day }: DayDrawerProps) {
               )}
               {day.entries.length > 0 && (
                 <section>
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-gold)]">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-navy)]">
                     {t("entries")}
                   </h3>
                   <ul className="space-y-3">

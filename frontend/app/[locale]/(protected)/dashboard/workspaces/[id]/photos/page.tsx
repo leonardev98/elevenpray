@@ -100,7 +100,7 @@ export default function WorkspacePhotosPage() {
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="rounded-lg bg-[var(--app-gold)] px-3 py-1.5 text-sm font-medium text-[var(--app-black)] hover:opacity-90"
+          className="rounded-lg bg-[var(--app-navy)] px-3 py-1.5 text-sm font-medium text-[var(--app-white)] hover:opacity-90"
         >
           Añadir foto
         </button>
@@ -171,7 +171,7 @@ export default function WorkspacePhotosPage() {
       <p className="mt-4">
         <Link
           href={`/dashboard/workspaces/${workspaceId}`}
-          className="text-sm text-[var(--app-gold)] hover:underline"
+          className="text-sm text-[var(--app-navy)] hover:underline"
         >
           Volver al overview
         </Link>
@@ -195,7 +195,7 @@ export default function WorkspacePhotosPage() {
                   type="date"
                   value={photoDate}
                   onChange={(e) => setPhotoDate(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
                 />
               </div>
               <div>
@@ -203,7 +203,7 @@ export default function WorkspacePhotosPage() {
                 <select
                   value={angle}
                   onChange={(e) => setAngle(e.target.value as PhotoAngle)}
-                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
                 >
                   {ANGLES.map((a) => (
                     <option key={a} value={a}>
@@ -220,7 +220,7 @@ export default function WorkspacePhotosPage() {
                   onChange={(e) => setImageUrl(e.target.value)}
                   placeholder="https://…"
                   required
-                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
                 />
               </div>
               <div>
@@ -229,7 +229,7 @@ export default function WorkspacePhotosPage() {
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-1 focus:ring-[var(--app-gold)]"
+                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
@@ -243,7 +243,7 @@ export default function WorkspacePhotosPage() {
                 <button
                   type="submit"
                   disabled={saving || !imageUrl.trim()}
-                  className="rounded-lg bg-[var(--app-gold)] px-4 py-2 text-sm font-medium text-[var(--app-black)] hover:opacity-90 disabled:opacity-50"
+                  className="rounded-lg bg-[var(--app-navy)] px-4 py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
                 >
                   {saving ? "Guardando…" : "Añadir"}
                 </button>

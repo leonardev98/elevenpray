@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Droplet,
   Wine,
@@ -14,7 +15,10 @@ import {
   TestTube,
   Pencil,
   Trash2,
+  GripVertical,
 } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import type { DayItem } from "@/app/lib/routines-api";
 import type { RoutineStepType } from "@/app/lib/routine-builder";
 
@@ -51,36 +55,46 @@ const STEP_TYPE_ICON: Record<RoutineStepType, React.ComponentType<{ className?: 
   mask: Moon,
 };
 
-function stepTypeLabel(stepType: string): string {
-  if (stepType === "eye") return "Eye care";
-  return stepType.charAt(0).toUpperCase() + stepType.slice(1);
-}
-
 export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProps) {
+  const t = useTranslations("routineBuilder");
   const [editing, setEditing] = useState(false);
   const stepType = (item.stepType as RoutineStepType) ?? "treatment";
-  const Icon = STEP_TYPE_ICON[stepType] ?? TestTube;
+  const stepTypeLabel = (st: string) => t(`stepTypes.${st}` as keyof IntlMessages["routineBuilder"] & string);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   if (editing) {
     return (
-      <article className="flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-3 dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]">
+      <article className="flex flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3 dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]">
         <div className="flex items-center justify-between gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--app-gold)]/15 text-xs font-semibold text-[var(--app-gold)]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--app-navy)]/15 text-xs font-semibold text-[var(--app-navy)]">
             {index + 1}
           </span>
           <input
             type="text"
             value={item.content}
             onChange={(e) => onChange({ ...item, content: e.target.value })}
-            placeholder="Product or step name"
+            placeholder={t("productOrStepName")}
             className="min-w-0 flex-1 rounded border border-[var(--app-border)] bg-[var(--app-bg)] px-2 py-1.5 text-sm outline-none"
           />
           <button
             type="button"
             onClick={() => setEditing(false)}
-            className="text-xs text-[var(--app-fg)]/60 hover:text-[var(--app-gold)]"
+            className="text-xs text-[var(--app-fg)]/60 hover:text-[var(--app-navy)]"
           >
-            Done
+            {t("done")}
           </button>
         </div>
         <select
@@ -88,7 +102,7 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
           onChange={(e) => onChange({ ...item, stepType: e.target.value })}
           className="w-full rounded border border-[var(--app-border)] bg-[var(--app-bg)] px-2 py-1.5 text-xs text-[var(--app-fg)]"
         >
-          <option value="">Step type</option>
+          <option value="">{t("stepType")}</option>
           {STEP_TYPES.map((step) => (
             <option key={step} value={step}>
               {stepTypeLabel(step)}
@@ -100,33 +114,43 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
           onClick={onRemove}
           className="self-start text-xs text-red-500/80 hover:text-red-500"
         >
-          Remove
+          {t("remove")}
         </button>
       </article>
     );
   }
 
   return (
-    <article className="flex min-w-0 items-center gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2 transition hover:border-[var(--app-gold)]/30 dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--app-gold)]/15 text-xs font-semibold text-[var(--app-gold)]">
-        {index + 1}
-      </span>
-      <Icon className="h-4 w-4 shrink-0 text-[var(--app-fg)]/60" />
-      <div className="min-w-0 flex-1">
-        <span className="text-xs font-medium capitalize text-[var(--app-fg)]/70">
-          {stepTypeLabel(stepType)}
-        </span>
-        <span className="mx-1.5 text-[var(--app-fg)]/40">–</span>
-        <span className="truncate text-sm text-[var(--app-fg)]">
-          {item.content || "Unnamed step"}
-        </span>
+    <article
+      ref={setNodeRef}
+      style={style}
+      className={`flex min-w-0 items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 transition shadow-sm hover:shadow-md dark:border-[var(--app-border)] dark:bg-[var(--app-bg)] ${isDragging ? "opacity-50" : ""}`}
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <button
+          type="button"
+          className="touch-none cursor-grab rounded p-1 text-[var(--app-fg)]/50 transition hover:text-[var(--app-fg)] active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+          aria-label={t("dragToReorder")}
+        >
+          <GripVertical className="h-4 w-4 shrink-0 [color:currentColor]" />
+        </button>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-[var(--app-fg)]">
+            {item.content || t("unnamedStep")}
+          </p>
+          <p className="text-xs text-[var(--app-fg)]/60">
+            {stepTypeLabel(stepType)}
+          </p>
+        </div>
       </div>
       <div className="flex shrink-0 items-center gap-0.5">
         <button
           type="button"
           onClick={() => setEditing(true)}
           className="rounded p-1 text-[var(--app-fg)]/40 transition hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
-          aria-label="Edit step"
+          aria-label={t("editStep")}
         >
           <Pencil className="h-4 w-4" />
         </button>
@@ -134,9 +158,9 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
           type="button"
           onClick={onRemove}
           className="rounded p-1 text-[var(--app-fg)]/40 transition hover:bg-red-500/10 hover:text-red-500"
-          aria-label="Remove step"
+          aria-label={t("removeStep")}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4 [color:currentColor]" />
         </button>
       </div>
     </article>

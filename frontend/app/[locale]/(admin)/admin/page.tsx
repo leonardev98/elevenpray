@@ -23,18 +23,18 @@ export default function AdminHomePage() {
           <Link
             key={cat.id}
             href={`/admin/${cat.id}`}
-            className="group flex flex-col rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm transition-all duration-200 hover:border-[var(--app-gold)]/40 hover:shadow-lg hover:shadow-[var(--app-gold)]/5 dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]"
+            className="group flex flex-col rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm transition-all duration-200 hover:border-[var(--app-navy)]/40 hover:shadow-lg hover:shadow-[var(--app-navy)]/5 dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]"
           >
-            <span className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--app-gold)]">
+            <span className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--app-navy)]">
               Categoría
             </span>
-            <span className="text-xl font-bold text-[var(--app-fg)] group-hover:text-[var(--app-navy)] dark:group-hover:text-[var(--app-gold)]">
+            <span className="text-xl font-bold text-[var(--app-fg)] group-hover:text-[var(--app-navy)] dark:group-hover:text-[var(--app-navy)]">
               {cat.label}
             </span>
             <p className="mt-3 text-sm leading-relaxed text-[var(--app-fg)]/60">
               Gestionar contenido curado para workspaces de tipo {cat.label}.
             </p>
-            <span className="mt-5 inline-flex items-center text-sm font-semibold text-[var(--app-gold)]">
+            <span className="mt-5 inline-flex items-center text-sm font-semibold text-[var(--app-navy)]">
               Abrir
               <svg
                 className="ml-1.5 h-4 w-4 transition group-hover:translate-x-1"

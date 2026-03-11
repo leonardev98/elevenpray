@@ -189,8 +189,8 @@ export function SkinProfileOnboarding({
                   onClick={() => setSkinType(t.value)}
                   className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
                     skinType === t.value
-                      ? "border-[var(--app-gold)] bg-[var(--app-gold)]/15 text-[var(--app-gold)]"
-                      : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg)] hover:border-[var(--app-gold)]/40"
+                      ? "border-[var(--app-navy)] bg-[var(--app-navy)]/15 text-[var(--app-navy)]"
+                      : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg)] hover:border-[var(--app-navy)]/40"
                   }`}
                 >
                   {t.label}
@@ -211,8 +211,8 @@ export function SkinProfileOnboarding({
                   onClick={() => toggleConcern(c.value)}
                   className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
                     mainConcerns.includes(c.value)
-                      ? "border-[var(--app-gold)] bg-[var(--app-gold)]/15 text-[var(--app-gold)]"
-                      : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg)] hover:border-[var(--app-gold)]/40"
+                      ? "border-[var(--app-navy)] bg-[var(--app-navy)]/15 text-[var(--app-navy)]"
+                      : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg)] hover:border-[var(--app-navy)]/40"
                   }`}
                 >
                   {c.label}
@@ -233,8 +233,8 @@ export function SkinProfileOnboarding({
                   onClick={() => setSensitivityLevel(s.value)}
                   className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
                     sensitivityLevel === s.value
-                      ? "border-[var(--app-gold)] bg-[var(--app-gold)]/15 text-[var(--app-gold)]"
-                      : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg)] hover:border-[var(--app-gold)]/40"
+                      ? "border-[var(--app-navy)] bg-[var(--app-navy)]/15 text-[var(--app-navy)]"
+                      : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg)] hover:border-[var(--app-navy)]/40"
                   }`}
                 >
                   {s.label}
@@ -250,7 +250,7 @@ export function SkinProfileOnboarding({
             <select
               value={ageRange}
               onChange={(e) => setAgeRange(e.target.value)}
-              className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20"
+              className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
             >
               {AGE_RANGES.map((a) => (
                 <option key={a.value || "none"} value={a.value}>
@@ -267,7 +267,7 @@ export function SkinProfileOnboarding({
             <select
               value={experienceLevel}
               onChange={(e) => setExperienceLevel(e.target.value)}
-              className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)]/20"
+              className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
             >
               {EXPERIENCE_LEVELS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -295,7 +295,7 @@ export function SkinProfileOnboarding({
               <button
                 type="button"
                 onClick={onAlreadyDone}
-                className="text-sm text-[var(--app-fg)]/60 underline hover:text-[var(--app-gold)]"
+                className="text-sm text-[var(--app-fg)]/60 underline hover:text-[var(--app-navy)]"
               >
                 Ya completé esto antes
               </button>

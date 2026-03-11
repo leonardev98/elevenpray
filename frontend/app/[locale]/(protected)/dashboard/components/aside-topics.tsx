@@ -48,7 +48,7 @@ function WorkspacesContent({ error }: { error: string | null }) {
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="mt-3 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-[var(--app-navy)] py-2.5 text-sm font-medium text-[var(--app-white)] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)] focus:ring-offset-2 focus:ring-offset-[var(--app-surface)]"
+          className="mt-3 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-[var(--app-navy)] py-2.5 text-sm font-medium text-[var(--app-white)] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)] focus:ring-offset-2 focus:ring-offset-[var(--app-surface)]"
         >
           {t("newWorkspace")}
         </button>
@@ -89,12 +89,12 @@ function WorkspacesContent({ error }: { error: string | null }) {
                 className="group flex items-center gap-2 rounded-lg px-2.5 py-2 hover:bg-[var(--app-bg)] focus-within:bg-[var(--app-bg)]"
               >
                 <span
-                  className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--app-gold)]/70 mt-0.5 self-start"
+                  className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--app-navy)]/70 mt-0.5 self-start"
                   aria-hidden
                 />
                 <Link
                   href={href}
-                  className="min-w-0 flex-1 min-h-[44px] flex flex-col justify-center py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--app-gold)] focus:ring-offset-2 focus:ring-offset-[var(--app-surface)]"
+                  className="min-w-0 flex-1 min-h-[44px] flex flex-col justify-center py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)] focus:ring-offset-2 focus:ring-offset-[var(--app-surface)]"
                 >
                   <span className="truncate text-sm font-medium text-[var(--app-fg)] hover:underline">
                     {w.name}

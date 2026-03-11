@@ -122,7 +122,7 @@ export function DashboardSidebar({
             onClick={isMobileDrawer ? onCloseMobile : undefined}
             className="flex items-center gap-3"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-gold)] font-bold text-lg shadow-sm">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-white)] font-bold text-lg shadow-sm">
               E
             </span>
             <span className="text-lg font-semibold tracking-tight text-[var(--app-fg)]">
@@ -158,7 +158,7 @@ export function DashboardSidebar({
                 <Link
                   href="/admin"
                   onClick={isMobileDrawer ? onCloseMobile : undefined}
-                  className="flex min-h-[44px] items-center rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--app-gold)] hover:bg-[var(--app-gold)]/10 transition"
+                  className="flex min-h-[44px] items-center rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/10 transition"
                 >
                   Panel Admin
                 </Link>
@@ -269,7 +269,7 @@ export function DashboardSidebar({
                       <li key={w.id}>
                         <div
                           className={`group flex items-center gap-2 rounded-xl px-3 py-2 transition ${
-                            isActive ? "bg-[var(--app-gold)]/10" : "hover:bg-[var(--app-bg)]"
+                            isActive ? "bg-[var(--app-navy)]/10" : "hover:bg-[var(--app-bg)]"
                           }`}
                         >
                           <Link
@@ -277,7 +277,7 @@ export function DashboardSidebar({
                             onClick={isMobileDrawer ? onCloseMobile : undefined}
                             className="min-w-0 flex-1 py-1.5"
                           >
-                            <span className={`block truncate text-sm font-medium ${isActive ? "text-[var(--app-gold)]" : "text-[var(--app-fg)]"}`}>
+                            <span className={`block truncate text-sm font-medium ${isActive ? "text-[var(--app-navy)]" : "text-[var(--app-fg)]"}`}>
                               {typeLabel}
                             </span>
                             {categoryLabel && (

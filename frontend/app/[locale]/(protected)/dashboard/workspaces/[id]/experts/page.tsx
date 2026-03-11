@@ -64,7 +64,7 @@ export default function WorkspaceExpertsPage() {
             {experts.map((expert) => (
               <li key={expert.id}>
                 <article
-                  className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 transition hover:border-[var(--app-gold)]/40"
+                  className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 transition hover:border-[var(--app-navy)]/40"
                   aria-labelledby={`expert-${expert.id}-name`}
                 >
                   <div className="flex gap-3">
@@ -76,7 +76,7 @@ export default function WorkspaceExpertsPage() {
                       />
                     ) : (
                       <div
-                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--app-navy)]/20 text-lg font-medium text-[var(--app-gold)]"
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--app-navy)]/20 text-lg font-medium text-[var(--app-navy)]"
                         aria-hidden
                       >
                         {expert.name.charAt(0)}
@@ -93,7 +93,7 @@ export default function WorkspaceExpertsPage() {
                         <p className="text-sm text-[var(--app-fg)]/70">{expert.title}</p>
                       )}
                       {expert.specialties?.length ? (
-                        <p className="mt-1 text-xs text-[var(--app-gold)]">
+                        <p className="mt-1 text-xs text-[var(--app-navy)]">
                           {expert.specialties
                             .map((s) => s.specialty?.label)
                             .filter(Boolean)

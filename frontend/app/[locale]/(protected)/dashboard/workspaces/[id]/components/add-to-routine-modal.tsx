@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { CatalogProductApi } from "../../../../../../lib/catalog-api";
 import type { DayContent, DayGroup, DayItem, RoutineSlot } from "../../../../../../lib/routines-api";
 import {
@@ -10,17 +11,7 @@ import {
 } from "../../../../../../lib/routine-templates-api";
 import { createWorkspaceProduct } from "../../../../../../lib/workspace-products-api";
 import type { ProductCategory } from "../../../../../../lib/workspace-products-api";
-
-const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
-const DAY_LABELS: Record<string, string> = {
-  monday: "Lun",
-  tuesday: "Mar",
-  wednesday: "Mié",
-  thursday: "Jue",
-  friday: "Vie",
-  saturday: "Sáb",
-  sunday: "Dom",
-};
+import { DAY_KEYS } from "../../../../../../lib/routine-builder";
 
 export function AddToRoutineModal({
   product,
@@ -35,6 +26,9 @@ export function AddToRoutineModal({
   onClose: () => void;
   onSuccess?: () => void;
 }) {
+  const tDays = useTranslations("days");
+  const tBuilder = useTranslations("routineBuilder");
+  const tCommon = useTranslations("common");
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
   const [slot, setSlot] = useState<RoutineSlot>("am");
   const [saving, setSaving] = useState(false);
@@ -154,22 +148,22 @@ export function AddToRoutineModal({
                 onClick={() => setSlot("am")}
                 className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition ${
                   slot === "am"
-                    ? "border-[var(--app-gold)] bg-[var(--app-gold)]/15 text-[var(--app-gold)]"
-                    : "border-[var(--app-border)] text-[var(--app-fg)]/80 hover:border-[var(--app-gold)]/40"
+                    ? "border-[var(--app-navy)] bg-[var(--app-navy)]/15 text-[var(--app-navy)]"
+                    : "border-[var(--app-border)] text-[var(--app-fg)]/80 hover:border-[var(--app-navy)]/40"
                 }`}
               >
-                Mañana
+                {tBuilder("morning")}
               </button>
               <button
                 type="button"
                 onClick={() => setSlot("pm")}
                 className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition ${
                   slot === "pm"
-                    ? "border-[var(--app-gold)] bg-[var(--app-gold)]/15 text-[var(--app-gold)]"
-                    : "border-[var(--app-border)] text-[var(--app-fg)]/80 hover:border-[var(--app-gold)]/40"
+                    ? "border-[var(--app-navy)] bg-[var(--app-navy)]/15 text-[var(--app-navy)]"
+                    : "border-[var(--app-border)] text-[var(--app-fg)]/80 hover:border-[var(--app-navy)]/40"
                 }`}
               >
-                Noche
+                {tBuilder("night")}
               </button>
             </div>
           </div>
@@ -183,11 +177,11 @@ export function AddToRoutineModal({
                   onClick={() => toggleDay(dayKey)}
                   className={`min-w-[2.5rem] rounded-lg border px-3 py-2 text-sm font-medium transition ${
                     selectedDays.has(dayKey)
-                      ? "border-[var(--app-gold)] bg-[var(--app-gold)]/15 text-[var(--app-gold)]"
-                      : "border-[var(--app-border)] text-[var(--app-fg)]/80 hover:border-[var(--app-gold)]/40"
+                      ? "border-[var(--app-navy)] bg-[var(--app-navy)]/15 text-[var(--app-navy)]"
+                      : "border-[var(--app-border)] text-[var(--app-fg)]/80 hover:border-[var(--app-navy)]/40"
                   }`}
                 >
-                  {DAY_LABELS[dayKey]}
+                  {tDays(dayKey)}
                 </button>
               ))}
             </div>
@@ -202,13 +196,13 @@ export function AddToRoutineModal({
             onClick={onClose}
             className="flex-1 rounded-xl border border-[var(--app-border)] py-2.5 text-sm font-medium text-[var(--app-fg)] hover:bg-[var(--app-bg)]"
           >
-            Cancelar
+            {tCommon("cancel")}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             disabled={saving || selectedDays.size === 0}
-            className="flex-1 rounded-xl bg-[var(--app-gold)] py-2.5 text-sm font-medium text-[var(--app-navy)] hover:opacity-90 disabled:opacity-50"
+            className="flex-1 rounded-xl bg-[var(--app-navy)] py-2.5 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
           >
             {saving ? "Añadiendo…" : "Añadir"}
           </button>
