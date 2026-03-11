@@ -129,8 +129,8 @@ export function Landing() {
 
   return (
     <div className="relative min-h-screen bg-white text-[var(--app-fg)] dark:bg-[var(--app-bg)]">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[var(--app-border)] bg-white backdrop-blur-sm dark:bg-[var(--app-surface)]/95">
+      {/* Header fijo para que esté siempre accesible (fixed evita que Lenis rompa el sticky) */}
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--app-border)] bg-white/90 backdrop-blur-md dark:bg-[var(--app-surface)]/95 dark:bg-[var(--app-bg)]/90">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="text-lg font-semibold text-[var(--app-fg)]">
             {t("title")}
@@ -167,6 +167,9 @@ export function Landing() {
           </div>
         </div>
       </header>
+
+      {/* Espaciador para que el contenido no quede bajo el header fijo */}
+      <div className="h-14 shrink-0" aria-hidden="true" />
 
       <main>
       {/* Patrón de puntos: negros en modo claro, claros en modo oscuro */}
@@ -241,8 +244,10 @@ export function Landing() {
         </section>
 
         {/* Organización por dominios - Bento grid (bloques compactos) */}
-        <section id="domains" className="border-t border-[var(--app-border)] bg-white py-10 dark:bg-[#111111]">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6">
+        <section id="domains" className="relative border-t border-[var(--app-border)] bg-white py-10 dark:bg-[#111111]">
+          <div className="dominios-topo-pattern dominios-topo-pattern--light" aria-hidden />
+          <div className="dominios-topo-pattern dominios-topo-pattern--dark" aria-hidden />
+          <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6">
             <h2 className="text-center text-xl font-bold text-[var(--app-fg)] sm:text-2xl">
               {t("domainsTitle")}
             </h2>
