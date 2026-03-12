@@ -10,6 +10,21 @@ import { getDashboardWeek } from "../../../lib/dashboard-api";
 import type { DashboardWeekResponse } from "../../../lib/dashboard-api";
 import { DayDrawer } from "./components/day-drawer";
 
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? "100%" : "-100%",
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? "100%" : "-100%",
+    opacity: 0,
+  }),
+};
+
 const DAY_KEYS = [
   "monday",
   "tuesday",
@@ -318,20 +333,19 @@ export default function DashboardPage() {
       )}
 
       {data && dayMap && (
-        <div className="mt-6 overflow-hidden">
-          <AnimatePresence mode="wait" initial={false}>
+        <div className="relative mt-6 w-full overflow-hidden">
+          <AnimatePresence mode="popLayout" custom={slideDirection} initial={false}>
             <motion.div
               key={`${year}-W${week}`}
-              initial={{
-                x: slideDirection === 0 ? 0 : slideDirection > 0 ? "100%" : "-100%",
-                opacity: slideDirection === 0 ? 1 : 0.85,
+              custom={slideDirection}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "tween", duration: 0.25, ease: "easeOut" },
+                opacity: { duration: 0.2 },
               }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{
-                x: slideDirection === 0 ? 0 : slideDirection > 0 ? "100%" : "-100%",
-                opacity: slideDirection === 0 ? 1 : 0.85,
-              }}
-              transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
               className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7"
             >
               {DAY_KEYS.map((dayKey) => {
