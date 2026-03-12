@@ -14,7 +14,6 @@ import {
   hasProgressPhotosCapability,
   hasInsightsCapability,
   getWorkspaceType,
-  getWorkspaceCategoryLabel,
   getWorkspaceDomain,
   WORKSPACE_DOMAIN_IDS,
   type WorkspaceDomainId,
@@ -49,6 +48,7 @@ export function DashboardSidebar({
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("workspaceTypes");
   const tDomains = useTranslations("workspaceDomains");
+  const tCategories = useTranslations("workspaceCategories");
   const { workspaces, isLoading, addWorkspace, removeWorkspace, error } = useWorkspaces();
 
   const workspacesByDomain = useMemo(() => {
@@ -160,7 +160,7 @@ export function DashboardSidebar({
                   onClick={isMobileDrawer ? onCloseMobile : undefined}
                   className="flex min-h-[44px] items-center rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/10 transition"
                 >
-                  Panel Admin
+                  {t("adminPanel")}
                 </Link>
               </li>
             )}
@@ -263,7 +263,7 @@ export function DashboardSidebar({
                           : `/dashboard/workspaces/${w.id}`;
                     const typeDef = getWorkspaceType(w.workspaceType);
                     const typeLabel = typeDef ? tTypes(w.workspaceType) : w.workspaceType;
-                    const categoryLabel = typeDef ? getWorkspaceCategoryLabel(typeDef.category) : "";
+                    const categoryLabel = typeDef ? tCategories(typeDef.category) : "";
                     const isActive = pathname?.startsWith(`/dashboard/workspaces/${w.id}`);
                     return (
                       <li key={w.id}>
@@ -307,7 +307,7 @@ export function DashboardSidebar({
         {/* Footer */}
         <div className="border-t border-[var(--app-border)] p-4">
           <div className="rounded-xl bg-[var(--app-navy)]/5 border border-[var(--app-border)]/50 p-3 text-center">
-            <p className="text-xs font-medium text-[var(--app-fg)]/70">Tu espacio, tu ritmo.</p>
+            <p className="text-xs font-medium text-[var(--app-fg)]/70">{tWorkspace("tagline")}</p>
           </div>
         </div>
       </div>

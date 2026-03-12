@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
   getWorkspaceNavSections,
@@ -59,7 +59,7 @@ export function WorkspaceNav({ workspaceId, workspace }: WorkspaceNavProps) {
   return (
     <nav
       className="flex flex-wrap gap-1 border-b border-[var(--app-border)] -mb-px"
-      aria-label="Secciones del espacio"
+      aria-label={t("sectionsAriaLabel")}
     >
       {sections.map((section) => {
         const href = section.href ? `${base}/${section.href}` : base;

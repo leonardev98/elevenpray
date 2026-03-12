@@ -95,10 +95,17 @@ export function DayDrawer({ isOpen, onClose, day }: DayDrawerProps) {
                         </p>
                         {r.groups?.length ? (
                           <div className="mt-3 space-y-3">
-                            {r.groups.map((g, gi) => (
+                            {r.groups.map((g, gi) => {
+                              const displayTitle =
+                                g.title === "Morning Routine"
+                                  ? t("morningRoutine")
+                                  : g.title === "Night Routine"
+                                    ? t("nightRoutine")
+                                    : g.title || tCommon("noTitle");
+                              return (
                               <div key={gi}>
                                 <p className="text-xs font-medium text-[var(--app-fg)]/80">
-                                  {g.title || tCommon("noTitle")}
+                                  {displayTitle}
                                   {g.time ? ` · ${g.time}` : ""}
                                 </p>
                                 <ul className="mt-1 space-y-1 pl-0 text-sm text-[var(--app-fg)]/90">
@@ -110,7 +117,8 @@ export function DayDrawer({ isOpen, onClose, day }: DayDrawerProps) {
                                   ))}
                                 </ul>
                               </div>
-                            ))}
+                            );
+                            })}
                           </div>
                         ) : (
                           <ul className="mt-2 space-y-1 pl-0 text-sm text-[var(--app-fg)]/90">

@@ -17,7 +17,9 @@
     "empty": "(vacío)",
     "noText": "(sin texto)",
     "none": "Ninguno",
-    "language": "Idioma"
+    "language": "Idioma",
+    "search": "Buscar",
+    "searchPlaceholder": "Buscar…"
   },
   "landing": {
     "title": "ElevenPray",
@@ -85,7 +87,8 @@
     "logout": "Salir",
     "navigation": "Navegación",
     "settings": "Configuración",
-    "publicRoutines": "Rutinas públicas"
+    "publicRoutines": "Rutinas públicas",
+    "adminPanel": "Panel Admin"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -100,7 +103,12 @@
     "selectDay": "Selecciona un día.",
     "routines": "Rutinas",
     "entries": "Cursos / entradas",
-    "nothingScheduled": "Nada programado este día."
+    "nothingScheduled": "Nada programado este día.",
+    "today": "Hoy",
+    "todayRoutineAriaLabel": "Rutina de hoy",
+    "morningRoutine": "Rutina mañana",
+    "nightRoutine": "Rutina noche",
+    "noRoutineForToday": "Sin rutina para hoy"
   },
   "routines": {
     "myRoutines": "Mis rutinas",
@@ -295,7 +303,13 @@
     "workspaceNotFound": "Workspace no encontrado",
     "errorCreatePage": "Error al crear página",
     "errorCreateSpace": "Error al crear space",
-    "backToWorkspace": "Volver al workspace"
+    "backToWorkspace": "Volver al workspace",
+    "tagline": "Tu espacio, tu ritmo."
+  },
+  "workspaceCategories": {
+    "vida_personal": "Vida personal",
+    "trabajo": "Trabajo",
+    "estudios": "Estudios"
   },
   "workspaceTypes": {
     "skincare": "Skincare",
@@ -310,11 +324,26 @@
     "studies": "Estudios",
     "general": "General"
   },
+  "productCategories": {
+    "cleanser": "Limpiador",
+    "moisturizer": "Hidratante",
+    "sunscreen": "Protector solar",
+    "serum": "Sérum",
+    "retinoid": "Retinoide",
+    "exfoliant": "Exfoliante",
+    "toner": "Tónico",
+    "eye_care": "Contorno de ojos",
+    "spot_treatment": "Tratamiento local",
+    "mask": "Mascarilla",
+    "oil": "Aceite",
+    "essence": "Esencia",
+    "balm": "Bálsamo"
+  },
   "workspaceNav": {
-    "overview": "Overview",
+    "overview": "Vista general",
     "routine": "Rutina",
     "skin": "Piel",
-    "journal": "Journal",
+    "journal": "Diario",
     "photos": "Fotos",
     "progress": "Progreso",
     "products": "Productos",
@@ -325,8 +354,33 @@
     "articles": "Artículos",
     "videos": "Vídeos",
     "experts": "Expertos",
-    "insights": "Insights",
+    "insights": "Tendencias",
     "subNavLabel": "Sub-secciones",
+    "today": "Hoy",
+    "hubRoutineMorningNight": "Rutina mañana y noche",
+    "hubMarkCompleteInRoutine": "Marca completado en Rutina",
+    "goToMyRoutine": "Ir a mi rutina",
+    "streak": "Racha",
+    "daysInARow": "días seguidos",
+    "completeAmPmToAddDays": "Completa rutina AM o PM para sumar días.",
+    "lastJournal": "Último journal",
+    "noted": "Anotado",
+    "noJournalEntriesYet": "Aún no hay entradas en el journal.",
+    "progressPhotosCount": "{count} fotos de progreso",
+    "forYou": "Para ti",
+    "productsAndArticlesByProfile": "Productos y artículos según tu perfil de piel.",
+    "viewCatalog": "Ver catálogo →",
+    "quickAccess": "Accesos rápidos",
+    "go": "Ir →",
+    "yourProducts": "Tus productos",
+    "fromThisSpaceAddToRoutine": "De este espacio. Añádelos a la rutina desde aquí.",
+    "all": "Todos",
+    "noProductsInSpace": "No hay productos en este espacio.",
+    "addProducts": "Añadir productos",
+    "addToRoutine": "Añadir a rutina",
+    "viewAllProducts": "Ver todos los productos",
+    "editSkinProfile": "Editar perfil de piel",
+    "sectionsAriaLabel": "Secciones del espacio",
     "hubRoutineDesc": "Builder de rutina AM/PM e historial.",
     "hubSkinDesc": "Journal, fotos y progreso de tu piel.",
     "hubProductsDesc": "Mis productos, catálogo y conflictos.",

@@ -104,12 +104,12 @@ export default function DashboardLayout({
             </button>
             <div className="flex flex-1 items-center justify-center">
               <label htmlFor="global-search" className="sr-only">
-                Buscar
+                {tCommon("search")}
               </label>
               <input
                 id="global-search"
                 type="search"
-                placeholder="Buscar…"
+                placeholder={tCommon("searchPlaceholder")}
                 className="w-full max-w-md rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-2.5 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg)]/50 focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
               />
             </div>

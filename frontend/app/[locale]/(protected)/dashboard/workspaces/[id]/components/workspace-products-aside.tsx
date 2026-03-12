@@ -2,21 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import {
   getWorkspaceProducts,
   type WorkspaceProductApi,
-  PRODUCT_CATEGORY_LABELS,
   type ProductCategory,
 } from "../../../../../../lib/workspace-products-api";
 
-const CATEGORIES = Object.keys(PRODUCT_CATEGORY_LABELS) as ProductCategory[];
+const PRODUCT_CATEGORY_IDS: ProductCategory[] = [
+  "cleanser", "moisturizer", "sunscreen", "serum", "retinoid", "exfoliant",
+  "toner", "eye_care", "spot_treatment", "mask", "oil", "essence", "balm",
+];
 
 export function WorkspaceProductsAside() {
   const params = useParams();
   const workspaceId = params?.id as string;
   const { token } = useAuth();
+  const t = useTranslations("workspaceNav");
+  const tCat = useTranslations("productCategories");
+  const tCommon = useTranslations("common");
   const [products, setProducts] = useState<WorkspaceProductApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ProductCategory | "all">("all");
@@ -35,15 +41,15 @@ export function WorkspaceProductsAside() {
   return (
     <aside
       className="w-full flex-shrink-0 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm"
-      aria-label="Productos de este espacio"
+      aria-label={t("yourProducts")}
     >
       <div className="sticky top-0 flex h-full flex-col overflow-hidden rounded-2xl">
         <div className="border-b border-[var(--app-border)] bg-[var(--app-bg)]/50 px-4 py-4 rounded-t-2xl">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/80">
-            Tus productos
+            {t("yourProducts")}
           </h2>
           <p className="mt-0.5 text-xs text-[var(--app-fg)]/50">
-            De este espacio. Añádelos a la rutina desde aquí.
+            {t("fromThisSpaceAddToRoutine")}
           </p>
         </div>
 
@@ -57,9 +63,9 @@ export function WorkspaceProductsAside() {
                 : "bg-[var(--app-bg)] text-[var(--app-fg)]/80 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-fg)]"
             }`}
           >
-            Todos
+            {t("all")}
           </button>
-          {CATEGORIES.slice(0, 6).map((cat) => (
+          {PRODUCT_CATEGORY_IDS.slice(0, 6).map((cat) => (
             <button
               key={cat}
               type="button"
@@ -70,25 +76,25 @@ export function WorkspaceProductsAside() {
                   : "bg-[var(--app-bg)] text-[var(--app-fg)]/80 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-fg)]"
               }`}
             >
-              {PRODUCT_CATEGORY_LABELS[cat as ProductCategory] ?? cat}
+              {tCat(cat)}
             </button>
           ))}
         </div>
 
         <div className="flex-1 overflow-y-auto p-3">
           {loading && (
-            <p className="py-4 text-center text-xs text-[var(--app-fg)]/50">Cargando…</p>
+            <p className="py-4 text-center text-xs text-[var(--app-fg)]/50">{tCommon("loading")}</p>
           )}
           {!loading && filtered.length === 0 && (
             <div className="rounded-xl border border-dashed border-[var(--app-border)] bg-[var(--app-bg)]/30 py-8 text-center">
               <p className="text-xs text-[var(--app-fg)]/50">
-                No hay productos en este espacio.
+                {t("noProductsInSpace")}
               </p>
               <Link
                 href={`/dashboard/workspaces/${workspaceId}/products`}
                 className="mt-2 inline-block text-xs font-medium text-[var(--app-navy)] hover:underline"
               >
-                Añadir productos
+                {t("addProducts")}
               </Link>
             </div>
           )}
@@ -120,7 +126,7 @@ export function WorkspaceProductsAside() {
                           href={`/dashboard/workspaces/${workspaceId}/routine`}
                           className="mt-2 inline-block rounded-lg bg-[var(--app-navy)]/15 px-2.5 py-1.5 text-xs font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/25 transition"
                         >
-                          Añadir a rutina
+                          {t("addToRoutine")}
                         </Link>
                       </div>
                     </div>
@@ -134,7 +140,7 @@ export function WorkspaceProductsAside() {
               href={`/dashboard/workspaces/${workspaceId}/products`}
               className="mt-3 block rounded-xl border border-[var(--app-border)] py-2.5 text-center text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/5 hover:border-[var(--app-navy)]/30 transition"
             >
-              Ver todos los productos
+              {t("viewAllProducts")}
             </Link>
           )}
         </div>

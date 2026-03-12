@@ -272,9 +272,9 @@ export default function DashboardPage() {
       )}
 
       {routineTodaySummaries.length > 0 && (
-        <section className="mt-4" aria-label="Rutina de hoy">
+        <section className="mt-4" aria-label={t("todayRoutineAriaLabel")}>
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-            Hoy
+            {t("today")}
           </h2>
           <div className="flex flex-wrap gap-3">
             {routineTodaySummaries.map((s) => {
@@ -290,17 +290,25 @@ export default function DashboardPage() {
                   <p className="font-medium text-[var(--app-fg)]">{s.workspaceTitle}</p>
                   {hasContent ? (
                     <ul className="mt-2 space-y-1 text-sm text-[var(--app-fg)]/80">
-                      {groups.map((g) => (
-                        <li key={g.title || "g"}>
-                          {g.title && <span className="font-medium">{g.title}</span>}
-                          {g.items?.slice(0, 3).map((it, i) => (
-                            <span key={i}> · {it.content || "—"}</span>
-                          ))}
-                        </li>
-                      ))}
+                      {groups.map((g) => {
+                        const displayTitle =
+                          g.title === "Morning Routine"
+                            ? t("morningRoutine")
+                            : g.title === "Night Routine"
+                              ? t("nightRoutine")
+                              : g.title;
+                        return (
+                          <li key={g.title || "g"}>
+                            {displayTitle && <span className="font-medium">{displayTitle}</span>}
+                            {g.items?.slice(0, 3).map((it, i) => (
+                              <span key={i}> · {it.content || "—"}</span>
+                            ))}
+                          </li>
+                        );
+                      })}
                     </ul>
                   ) : (
-                    <p className="mt-1 text-sm text-[var(--app-fg)]/50">Sin rutina para hoy</p>
+                    <p className="mt-1 text-sm text-[var(--app-fg)]/50">{t("noRoutineForToday")}</p>
                   )}
                 </Link>
               );

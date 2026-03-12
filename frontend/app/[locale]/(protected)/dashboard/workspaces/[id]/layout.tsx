@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAuth } from "../../../../../providers/auth-provider";
 import { getWorkspace } from "../../../../../lib/workspaces-api";
 import {
@@ -141,6 +142,7 @@ export default function WorkspaceIdLayout({
   const [onboardingClosed, setOnboardingClosed] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [localStorageSaysOnboardingDone, setLocalStorageSaysOnboardingDone] = useState(false);
+  const tWorkspaceNav = useTranslations("workspaceNav");
 
   useEffect(() => {
     if (!workspaceId || typeof window === "undefined") return;
@@ -327,7 +329,7 @@ export default function WorkspaceIdLayout({
                   onClick={() => setEditProfileOpen(true)}
                   className="shrink-0 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-xs font-medium text-[var(--app-fg)]/80 transition hover:border-[var(--app-navy)]/50 hover:text-[var(--app-navy)]"
                 >
-                  Editar perfil de piel
+                  {tWorkspaceNav("editSkinProfile")}
                 </button>
               ) : null}
             </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { getWorkspaceCheckins } from "../../../../../../lib/workspace-checkins-api";
 import { getWorkspacePhotos } from "../../../../../../lib/workspace-photos-api";
@@ -56,22 +56,22 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
         aria-labelledby="skincare-today-heading"
       >
         <h2 id="skincare-today-heading" className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-          Hoy
+          {t("today")}
         </h2>
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[var(--app-navy)]/40 bg-[var(--app-navy)]/5">
             <span className="text-lg font-bold text-[var(--app-navy)]">—</span>
           </div>
           <div>
-            <p className="font-medium text-[var(--app-fg)]">Rutina mañana y noche</p>
-            <p className="text-xs text-[var(--app-fg)]/60">Marca completado en Rutina</p>
+            <p className="font-medium text-[var(--app-fg)]">{t("hubRoutineMorningNight")}</p>
+            <p className="text-xs text-[var(--app-fg)]/60">{t("hubMarkCompleteInRoutine")}</p>
           </div>
         </div>
         <Link
           href={`${base}/routine`}
           className="block rounded-xl bg-[var(--app-navy)] py-2.5 text-center text-sm font-medium text-[var(--app-white)] transition hover:opacity-90"
         >
-          Ir a mi rutina
+          {t("goToMyRoutine")}
         </Link>
       </section>
 
@@ -81,14 +81,14 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
         aria-labelledby="skincare-streak-heading"
       >
         <h2 id="skincare-streak-heading" className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-          Racha
+          {t("streak")}
         </h2>
         <div className="flex items-baseline gap-2">
           <span className="text-3xl font-bold tracking-tight text-[var(--app-navy)]">—</span>
-          <span className="text-sm text-[var(--app-fg)]/60">días seguidos</span>
+          <span className="text-sm text-[var(--app-fg)]/60">{t("daysInARow")}</span>
         </div>
         <p className="mt-2 text-xs text-[var(--app-fg)]/60">
-          Completa rutina AM o PM para sumar días.
+          {t("completeAmPmToAddDays")}
         </p>
       </section>
 
@@ -98,28 +98,28 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
         aria-labelledby="skincare-progress-heading"
       >
         <h2 id="skincare-progress-heading" className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-          Progreso
+          {t("progress")}
         </h2>
         {recentCheckin ? (
           <p className="text-sm text-[var(--app-fg)]">
-            Último journal: <span className="font-medium">{recentCheckin.feeling || "Anotado"}</span>
+            {t("lastJournal")}: <span className="font-medium">{recentCheckin.feeling || t("noted")}</span>
           </p>
         ) : (
-          <p className="text-sm text-[var(--app-fg)]/60">Aún no hay entradas en el journal.</p>
+          <p className="text-sm text-[var(--app-fg)]/60">{t("noJournalEntriesYet")}</p>
         )}
-        <p className="mt-1 text-xs text-[var(--app-fg)]/50">{photosCount} fotos de progreso</p>
+        <p className="mt-1 text-xs text-[var(--app-fg)]/50">{t("progressPhotosCount", { count: photosCount })}</p>
         <div className="mt-3 flex gap-2">
           <Link
             href={`${base}/journal`}
             className="rounded-lg border border-[var(--app-border)] px-3 py-1.5 text-xs font-medium text-[var(--app-fg)] hover:bg-[var(--app-bg)]"
           >
-            Journal
+            {t("journal")}
           </Link>
           <Link
             href={`${base}/photos`}
             className="rounded-lg border border-[var(--app-border)] px-3 py-1.5 text-xs font-medium text-[var(--app-fg)] hover:bg-[var(--app-bg)]"
           >
-            Fotos
+            {t("photos")}
           </Link>
         </div>
       </section>
@@ -130,16 +130,16 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
         aria-labelledby="skincare-recs-heading"
       >
         <h2 id="skincare-recs-heading" className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-          Para ti
+          {t("forYou")}
         </h2>
         <p className="text-sm text-[var(--app-fg)]/80">
-          Productos y artículos según tu perfil de piel.
+          {t("productsAndArticlesByProfile")}
         </p>
         <Link
           href={`${base}/library`}
           className="mt-3 inline-block text-sm font-medium text-[var(--app-navy)] hover:underline"
         >
-          Ver catálogo →
+          {t("viewCatalog")}
         </Link>
       </section>
       </div>
@@ -147,7 +147,7 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
       {/* Hub: acceso rápido a secciones principales */}
       <section aria-labelledby="skincare-hub-heading">
         <h2 id="skincare-hub-heading" className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-          Accesos rápidos
+          {t("quickAccess")}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {HUB_CARDS.map(({ href, labelKey, descKey }) => (
@@ -161,7 +161,7 @@ export function SkincareDashboardCards({ workspaceId }: SkincareDashboardCardsPr
                 {t(descKey)}
               </p>
               <span className="mt-2 inline-block text-sm font-medium text-[var(--app-navy)]">
-                Ir →
+                {t("go")}
               </span>
             </Link>
           ))}
