@@ -1,6 +1,6 @@
 import type { CatalogProductApi } from "../catalog-api";
 import type { ConflictResultApi } from "../ingredient-conflicts-api";
-import type { DayContent, DayGroup, DayItem, Routine, RoutineMetadata, RoutineSlot } from "../routines-api";
+import type { Block, DayContent, DayGroup, DayItem, Routine, RoutineMetadata, RoutineSlot, WeeklyIntent } from "../routines-api";
 import type { ProductCategory, WorkspaceProductApi } from "../workspace-products-api";
 import type {
   AddProductInput,
@@ -140,7 +140,7 @@ export function normalizeRoutineDays(days: Record<string, DayContent> | undefine
     const items = day.items?.length
       ? day.items
       : (day.blocks ?? []).map((block, index) => ({
-          id: block.id ?? `${dayKey}-legacy-${index}`,
+          id: (block as Block & { id?: string }).id ?? `${dayKey}-legacy-${index}`,
           type: block.type,
           content: block.content,
         }));
@@ -421,7 +421,7 @@ export function buildStarterRoutine(options: AutoBuildOptions): BuildTemplateRes
       ? smartStarterItems("pm", options.skinType, options.goals)
       : starterItems("pm");
     if (options.mode === "skin-cycling") {
-      const intentSequence: Array<RoutineMetadata["weeklyIntents"][string]> = [
+      const intentSequence: WeeklyIntent[] = [
         "exfoliation",
         "retinoid",
         "recovery",

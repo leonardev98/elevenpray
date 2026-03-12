@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "../../../providers/auth-provider";
 import { ThemeToggle } from "../../../components/theme-toggle";
+import { toast } from "../../../lib/toast";
 import { LocaleSwitcher } from "../../../components/locale-switcher";
 
 const MOCK_PROVIDERS = [
@@ -88,10 +89,13 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
+      toast.success("Sesión iniciada", "Bienvenido de nuevo");
       router.push(next);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorSignIn"));
+      const msg = err instanceof Error ? err.message : t("errorSignIn");
+      setError(msg);
+      toast.error("Error al iniciar sesión", msg);
     } finally {
       setLoading(false);
     }

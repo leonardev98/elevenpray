@@ -1,10 +1,18 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 /* Dark mode por clase (toggle), no por preferencia del sistema */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Paleta ElevenPray: negro, blanco, azul marino */
+/* Tipografía: Montserrat para todo el proyecto (https://fonts.google.com/specimen/Montserrat) */
+/* Pesos usados: 300 (light), 400 (normal), 500 (medium), 600 (semibold), 700 (bold), 800 (extrabold) */
+
+/* Paleta Mitsyy: negro, blanco, azul marino */
 :root {
+  --font-sans: var(--font-montserrat), system-ui, sans-serif;
+  --font-hero: var(--font-montserrat), system-ui, sans-serif;
+  --font-montserrat-fallback: system-ui, -apple-system, sans-serif;
   --app-black: #0a0a0a;
   --app-white: #f9f9f9;
   --app-navy: #0f1e33;
@@ -19,6 +27,38 @@
   --app-surface-soft: #f5f5f4;
   --app-slot-am: #e8f0fe;
   --app-slot-pm: #f3e8f6;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
@@ -31,6 +71,64 @@
   --app-surface-soft: #1c1c1c;
   --app-slot-am: #1a2744;
   --app-slot-pm: #2a1f3d;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Toasts (Sileo): paleta del sistema — tema claro: azul marino; tema oscuro: blanco */
+:root {
+  --toast-fill: var(--app-navy);
+  --toast-text: var(--app-white);
+}
+.dark {
+  --toast-fill: var(--app-white);
+  --toast-text: var(--app-black);
+}
+
+/* Forzar paleta en todos los estados del toast (success, error, etc.) */
+[data-sileo-viewport] {
+  --sileo-state-success: var(--toast-fill);
+  --sileo-state-error: var(--toast-fill);
+  --sileo-state-warning: var(--toast-fill);
+  --sileo-state-info: var(--toast-fill);
+  --sileo-state-loading: var(--toast-fill);
+  --sileo-state-action: var(--toast-fill);
+}
+[data-sileo-viewport] [data-sileo-title],
+[data-sileo-viewport] [data-sileo-description] {
+  color: var(--toast-text) !important;
+}
+[data-sileo-viewport] [data-sileo-badge] {
+  color: var(--toast-text) !important;
 }
 
 /* Tipografía */
@@ -51,7 +149,53 @@
   --letter-spacing-wider: 0.05em;
 }
 
+/* Developer workspace — superficies, profundidad y tipografía editorial */
+:root {
+  --dev-surface-elevated: #ffffff;
+  --dev-surface-overlay: rgba(255, 255, 255, 0.85);
+  --dev-border-subtle: rgba(0, 0, 0, 0.06);
+  --dev-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --dev-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --dev-font-display: var(--font-weight-normal);
+  --dev-font-display-size: 1.5rem;
+  --dev-font-display-tracking: -0.03em;
+  --dev-font-body: var(--font-weight-normal);
+  --dev-font-body-size: 0.9375rem;
+  --dev-font-meta: var(--font-weight-normal);
+  --dev-font-meta-size: 0.8125rem;
+  --dev-font-meta-opacity: 0.6;
+  --dev-font-label: var(--font-weight-medium);
+  --dev-font-label-size: 0.6875rem;
+  --dev-font-label-tracking: 0.04em;
+}
+.dark {
+  --dev-surface-elevated: #161616;
+  --dev-surface-overlay: rgba(22, 22, 22, 0.9);
+  --dev-border-subtle: rgba(255, 255, 255, 0.06);
+  --dev-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --dev-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Aurora Background (Aceternity) */
 @theme inline {
+  --animate-aurora: aurora 60s linear infinite;
+  @keyframes aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+  }
+}
+
+@theme inline {
+  --color-dev-surface-elevated: var(--dev-surface-elevated);
+  --color-dev-border-subtle: var(--dev-border-subtle);
   --color-app-black: var(--app-black);
   --color-app-white: var(--app-white);
   --color-app-navy: var(--app-navy);
@@ -61,8 +205,46 @@
   --color-app-border: var(--app-border);
   --color-app-accent: var(--app-accent);
   --color-app-highlight: var(--app-highlight);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-montserrat), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 /* Mobile-first: tap targets mínimos y evitar zoom en inputs */
@@ -72,7 +254,7 @@ html {
 body {
   background: var(--app-bg);
   color: var(--app-fg);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-montserrat), var(--font-sans), var(--font-montserrat-fallback);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-normal);
   letter-spacing: var(--letter-spacing-normal);
@@ -86,15 +268,15 @@ body {
   }
 }
 
-/* Panel admin: tipografía destacada */
+/* Panel admin: Montserrat igual que el resto */
 .admin-panel {
-  font-family: var(--font-hero), system-ui, sans-serif;
+  font-family: var(--font-montserrat), var(--font-hero), var(--font-montserrat-fallback);
 }
 .admin-panel h1, .admin-panel h2 {
   letter-spacing: var(--letter-spacing-tight);
 }
 
-/* Loading spinner (ElevenPray) */
+/* Loading spinner (Mitsyy) */
 @keyframes app-spin {
   to { transform: rotate(360deg); }
 }
@@ -110,4 +292,16 @@ body {
   width: 24px;
   height: 24px;
   border-width: 2px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    font-family: var(--font-montserrat), var(--font-sans), var(--font-montserrat-fallback);
+  }
 }

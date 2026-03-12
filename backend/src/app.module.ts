@@ -21,6 +21,7 @@ import { WorkspacePhotosModule } from './workspace-photos/workspace-photos.modul
 import { ExpertConsultationModule } from './expert-consultation/expert-consultation.module';
 import { CatalogProductsModule } from './catalog-products/catalog-products.module';
 import { IngredientConflictsModule } from './ingredient-conflicts/ingredient-conflicts.module';
+import { PromptsModule } from './prompts/prompts.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { IngredientConflictsModule } from './ingredient-conflicts/ingredient-con
     ExpertConsultationModule,
     CatalogProductsModule,
     IngredientConflictsModule,
+    PromptsModule,
     RoutineTemplatesModule,
     SpacesModule,
     PagesModule,

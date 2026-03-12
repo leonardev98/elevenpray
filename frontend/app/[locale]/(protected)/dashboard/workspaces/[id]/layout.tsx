@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, usePathname } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "../../../../../providers/auth-provider";
 import { getWorkspace } from "../../../../../lib/workspaces-api";
@@ -133,6 +134,7 @@ export default function WorkspaceIdLayout({
 }) {
   const params = useParams();
   const pathname = usePathname();
+  const router = useRouter();
   const workspaceId = params.id as string;
   const { token } = useAuth();
   const [workspace, setWorkspace] = useState<WorkspaceApi | null>(null);
@@ -158,6 +160,16 @@ export default function WorkspaceIdLayout({
       .catch(() => setWorkspace(null))
       .finally(() => setLoading(false));
   }, [token, workspaceId]);
+
+  // Developer OS: redirect workspace "programador" to the premium developer dashboard
+  useEffect(() => {
+    if (!workspace || loading) return;
+    const subtype = workspace.workspaceSubtype ?? (workspace as { workspace_subtype?: { code?: string } }).workspace_subtype;
+    const code = subtype?.code?.toLowerCase();
+    if (code === "programador" || code === "programmer") {
+      router.replace("/workspace/developer");
+    }
+  }, [workspace, loading, router]);
 
   useEffect(() => {
     if (!token || !workspaceId || !workspace) return;

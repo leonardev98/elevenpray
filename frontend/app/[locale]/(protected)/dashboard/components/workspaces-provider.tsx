@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import type { WorkspaceApi } from "../../../../lib/workspaces-api";
 import { getWorkspaces, createWorkspace, deleteWorkspace } from "../../../../lib/workspaces-api";
 import type { WorkspaceTypeId } from "./topic-types";
+import { toast } from "../../../../lib/toast";
 
 interface WorkspacesContextValue {
   workspaces: WorkspaceApi[];
@@ -51,8 +52,11 @@ export function WorkspacesProvider({ children, token }: { children: React.ReactN
       try {
         const created = await createWorkspace(token, name, workspaceType, workspaceSubtypeId);
         setWorkspaces((prev) => [...prev, created]);
+        toast.success("Espacio creado", `"${name}" está listo para usar.`);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Error al crear workspace");
+        const msg = e instanceof Error ? e.message : "Error al crear workspace";
+        setError(msg);
+        toast.error("Error al crear espacio", msg);
         throw e;
       }
     },
@@ -67,10 +71,12 @@ export function WorkspacesProvider({ children, token }: { children: React.ReactN
       setWorkspaces((prev) => prev.filter((w) => w.id !== id));
       try {
         await deleteWorkspace(token, id);
+        toast.success("Espacio eliminado", "El workspace se ha eliminado.");
       } catch (e) {
         setWorkspaces(previous);
         const message = e instanceof Error ? e.message : "Error al eliminar workspace";
         setError(message);
+        toast.error("Error al eliminar", message);
         throw e;
       }
     },

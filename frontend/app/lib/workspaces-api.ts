@@ -3,11 +3,18 @@ import type { WorkspaceTypeId } from "./workspace-type-registry";
 
 export type WorkspaceType = WorkspaceTypeId;
 
+export interface WorkspaceSubtypeApi {
+  id: string;
+  code: string;
+  label: string;
+}
+
 export interface WorkspaceApi {
   id: string;
   name: string;
   workspaceType: WorkspaceType;
   workspaceSubtypeId?: string | null;
+  workspaceSubtype?: WorkspaceSubtypeApi | null;
   sortOrder?: number;
   createdAt: string;
   updatedAt: string;

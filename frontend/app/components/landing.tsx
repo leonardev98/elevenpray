@@ -9,6 +9,10 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "../providers/auth-provider";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
+import { AuroraBackground } from "@/components/ui/aurora-background";
+import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
+import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
+import { FloatingNav } from "@/components/ui/floating-navbar";
 
 // Imágenes referenciales Unsplash (productividad, estudios, bienestar, plantillas)
 const UNSPLASH = {
@@ -129,177 +133,194 @@ export function Landing() {
 
   return (
     <div className="relative min-h-screen bg-white text-[var(--app-fg)] dark:bg-[var(--app-bg)]">
-      {/* Header fijo para que esté siempre accesible (fixed evita que Lenis rompa el sticky) */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--app-border)] bg-white/90 backdrop-blur-md dark:bg-[var(--app-surface)]/95 dark:bg-[var(--app-bg)]/90">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <FloatingNav
+        alwaysVisible
+        linkComponent={Link}
+        logo={
           <Link href="/" className="text-lg font-semibold text-[var(--app-fg)]">
             {t("title")}
           </Link>
-          <nav className="hidden items-center gap-2 sm:flex" aria-label="Principal">
-            <span className="rounded-md px-3 py-2 text-sm text-[var(--app-fg)]/80 transition-shadow duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:text-[var(--app-fg)] dark:hover:shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
-              {t("navProduct")}
-            </span>
-            <span className="rounded-md px-3 py-2 text-sm text-[var(--app-fg)]/80 transition-shadow duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:text-[var(--app-fg)] dark:hover:shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
-              {t("navSolutions")}
-            </span>
-            <span className="rounded-md px-3 py-2 text-sm text-[var(--app-fg)]/80 transition-shadow duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:text-[var(--app-fg)] dark:hover:shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
-              {t("navTemplates")}
-            </span>
-            <span className="rounded-md px-3 py-2 text-sm text-[var(--app-fg)]/80 transition-shadow duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:text-[var(--app-fg)] dark:hover:shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
-              {t("navPricing")}
-            </span>
-          </nav>
-          <div className="flex items-center gap-5 sm:gap-6">
+        }
+        navItems={[
+          { name: t("navProduct"), link: "#domains" },
+          { name: t("navSolutions"), link: "#testimonials" },
+          { name: t("navTemplates"), link: "#plantillas" },
+          { name: t("navPricing"), link: "/register" },
+        ]}
+        rightContent={
+          <>
             <LocaleSwitcher />
             <ThemeToggle />
             <Link
               href="/login"
-              className="hidden text-sm font-medium text-[var(--app-fg)] hover:underline sm:inline"
+              className="hidden rounded-full px-4 py-2 text-sm font-medium text-[var(--app-fg)]/80 transition-colors hover:bg-[var(--app-fg)]/10 hover:text-[var(--app-fg)] sm:inline-block dark:hover:bg-white/10 dark:hover:text-[var(--app-fg)]"
             >
               {t("signIn")}
             </Link>
             <Link
               href="/register"
-              className="rounded-lg bg-[var(--app-fg)] px-4 py-2.5 text-sm font-medium text-[var(--app-bg)] transition hover:opacity-90 dark:bg-white dark:text-[var(--app-black)] dark:border dark:border-[var(--app-border)] dark:hover:bg-white/90"
+              className="rounded-full bg-[var(--app-fg)] px-4 py-2 text-sm font-medium text-[var(--app-bg)] transition hover:opacity-90 dark:bg-white dark:text-[var(--app-black)] dark:hover:bg-white/90"
             >
               {t("startFree")}
             </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Espaciador para que el contenido no quede bajo el header fijo */}
-      <div className="h-14 shrink-0" aria-hidden="true" />
+          </>
+        }
+      />
 
       <main>
-      {/* Patrón de puntos: negros en modo claro, claros en modo oscuro */}
-        <div
-          className="absolute top-0 left-0 right-0 pointer-events-none h-[100vh] w-full [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,white,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,white,transparent)] bg-[radial-gradient(#6b7280_1px,transparent_1px)] dark:bg-[radial-gradient(#555555_1px,transparent_1px)]"
-          aria-hidden="true"
-        />
-        {/* Hero */}
-        <section className="relative z-0 mx-auto max-w-4xl px-4 pt-12 pb-16 text-center sm:px-6 sm:pt-16 sm:pb-20">
-          {/* Resplandor para limpiar los puntos detrás del texto */}
-          <div
-            className="absolute left-1/2 top-8 -z-10 h-[140px] w-full max-w-2xl -translate-x-1/2 bg-white opacity-95 blur-[40px] dark:bg-[var(--app-bg)] dark:opacity-95"
-            aria-hidden="true"
-          />
-          <div className="mx-auto max-w-3xl">
-            <h1
-              className="leading-tight tracking-tight text-[#1a1a1a] dark:text-[var(--app-fg)] sm:leading-[1.1]"
-              style={{
-                fontFamily: "var(--font-hero), system-ui, sans-serif",
-                fontSize: "clamp(2rem, 5vw, 3.25rem)",
-                fontWeight: 800,
-                letterSpacing: "-0.03em",
-              }}
-            >
-              {t("heroTitle")}
-            </h1>
-          </div>
-          <div className="relative mx-auto mt-4 max-w-2xl">
-            {/* Resplandor detrás del subtítulo */}
-            <div
-              className="absolute left-1/2 top-1/2 -z-10 h-14 w-full -translate-x-1/2 -translate-y-1/2 bg-white opacity-95 blur-[32px] dark:bg-[var(--app-bg)] dark:opacity-95"
-              aria-hidden="true"
-            />
-            <p
-              className="relative text-base text-[#4a4a4a] dark:text-[var(--app-fg)]/90 sm:text-lg"
-              style={{
-                fontFamily: "var(--font-hero), system-ui, sans-serif",
-                fontWeight: 400,
-                letterSpacing: "-0.01em",
-                lineHeight: 1.6,
-              }}
-            >
-              {t("heroSubtitle")}
-            </p>
-          </div>
-          <div className="mt-8 flex justify-center">
-            <Link
-              href="/register"
-              className="w-full min-w-[200px] rounded-lg border border-transparent bg-[var(--app-fg)] px-6 py-3.5 text-center font-medium text-[var(--app-bg)] transition hover:opacity-90 dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white/10 sm:w-auto sm:min-w-[240px]"
-            >
-              {t("ctaPrimary")}
-            </Link>
-          </div>
-          {/* Imagen referencial: interfaz tipo app / workspace */}
-          <div className="relative mx-auto mt-12 max-w-4xl" aria-hidden>
-            <div
-              className="absolute inset-0 -z-10 rounded-2xl bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.06),transparent_65%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.06),transparent_65%)]"
-              aria-hidden
-            />
-            <div className="relative overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[#F9FAFB] shadow-sm dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]">
-              <div className="relative aspect-[16/10] w-full">
-                <Image
-                  src={UNSPLASH.heroMockup}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="(max-width:896px) 100vw, 896px"
-                />
+        {/* Hero con Aurora desde el top; el navbar flotante va por delante (z alto) */}
+        <section className="relative z-0 min-h-[85vh] w-full">
+          <AuroraBackground className="absolute inset-0 z-0 min-h-[85vh] w-full">
+            <span className="sr-only" aria-hidden>Background</span>
+          </AuroraBackground>
+          <div className="relative z-10 mx-auto flex min-h-[85vh] w-full max-w-6xl flex-col items-center justify-center px-4 pt-28 pb-16 text-center sm:px-6 sm:pt-32 sm:pb-20">
+            <div className="relative z-10 mx-auto max-w-3xl">
+              <h1
+                className="text-[var(--app-fg)] font-extrabold leading-tight tracking-tight sm:leading-[1.1]"
+                style={{
+                  fontSize: "clamp(2rem, 5vw, 3.25rem)",
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                {t("heroTitle")}
+              </h1>
+            </div>
+            <div className="relative z-10 mx-auto mt-4 max-w-2xl">
+              <p
+                className="relative text-base text-[var(--app-fg)]/90 sm:text-lg"
+                style={{
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.6,
+                }}
+              >
+                {t("heroSubtitle")}
+              </p>
+            </div>
+            <div className="relative z-10 mt-8 flex justify-center">
+              <Link
+                href="/register"
+                className="w-full min-w-[200px] rounded-lg border border-transparent bg-[var(--app-navy)] px-6 py-3.5 text-center font-medium text-[var(--app-white)] transition hover:opacity-90 dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white/10 sm:w-auto sm:min-w-[240px]"
+              >
+                {t("ctaPrimary")}
+              </Link>
+            </div>
+            <div className="relative z-10 mx-auto mt-12 max-w-4xl" aria-hidden>
+              <div className="relative overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-lg">
+                <div className="relative aspect-[16/10] w-full">
+                  <Image
+                    src={UNSPLASH.heroMockup}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(max-width:896px) 100vw, 896px"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Organización por dominios - Bento grid (bloques compactos) */}
-        <section id="domains" className="relative border-t border-[var(--app-border)] bg-white py-10 dark:bg-[#111111]">
-          <div className="dominios-topo-pattern dominios-topo-pattern--light" aria-hidden />
-          <div className="dominios-topo-pattern dominios-topo-pattern--dark" aria-hidden />
-          <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6">
+        {/* Organización por dominios - 3D Cards (Aceternity) */}
+        <section id="domains" className="relative border-t border-[var(--app-border)] bg-[var(--app-bg)] py-16 dark:bg-[#0d0d0d]">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-center text-xl font-bold text-[var(--app-fg)] sm:text-2xl">
               {t("domainsTitle")}
             </h2>
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:grid-rows-2">
-              <div
-                className="flex flex-col overflow-hidden rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_12px_-3px_rgba(0,0,0,0.08)] dark:border-[var(--app-fg)]/15 dark:hover:border-[var(--app-fg)]/35 dark:hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)] sm:row-span-2"
-              >
-                <div className="relative h-28 w-full shrink-0 sm:h-32">
-                  <Image src={UNSPLASH.domainWork} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 50vw" />
-                </div>
-                <div className="flex flex-1 flex-col justify-center p-4 sm:p-5">
-                  <span className="mx-auto text-[var(--app-fg)]">
-                    <IconWork />
-                  </span>
-                  <span className="mt-2 text-base font-semibold text-[var(--app-fg)] sm:text-lg">{t("domainWork")}</span>
-                  <p className="mt-1.5 text-xs text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainWorkDesc")}</p>
-                </div>
-              </div>
-              <div
-                className="flex flex-col overflow-hidden rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_12px_-3px_rgba(0,0,0,0.08)] dark:border-[var(--app-fg)]/15 dark:hover:border-[var(--app-fg)]/35 dark:hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)]"
-              >
-                <div className="relative h-32 w-full shrink-0">
-                  <Image src={UNSPLASH.domainStudy} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 50vw" />
-                </div>
-                <div className="flex flex-1 flex-col justify-center p-4 sm:p-5">
-                  <span className="mx-auto text-[var(--app-fg)]">
-                    <IconStudy />
-                  </span>
-                  <span className="mt-2 text-base font-semibold text-[var(--app-fg)] sm:text-lg">{t("domainStudy")}</span>
-                  <p className="mt-1.5 text-xs text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainStudyDesc")}</p>
-                </div>
-              </div>
-              <div
-                className="flex flex-col overflow-hidden rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_12px_-3px_rgba(0,0,0,0.08)] dark:border-[var(--app-fg)]/15 dark:hover:border-[var(--app-fg)]/35 dark:hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)]"
-              >
-                <div className="relative h-32 w-full shrink-0">
-                  <Image src={UNSPLASH.domainHealth} alt="" fill className="object-cover" sizes="(max-width:640px) 100vw, 50vw" />
-                </div>
-                <div className="flex flex-1 flex-col justify-center p-4 sm:p-5">
-                  <span className="mx-auto text-[var(--app-fg)]">
-                    <IconHealth />
-                  </span>
-                  <span className="mt-2 text-base font-semibold text-[var(--app-fg)] sm:text-lg">{t("domainHealth")}</span>
-                  <p className="mt-1.5 text-xs text-[#666666] dark:text-[var(--app-fg)]/60">{t("domainHealthDesc")}</p>
-                </div>
-              </div>
+            <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+              {[
+                {
+                  title: t("domainWork"),
+                  desc: t("domainWorkDesc"),
+                  src: UNSPLASH.domainWork,
+                  Icon: IconWork,
+                },
+                {
+                  title: t("domainStudy"),
+                  desc: t("domainStudyDesc"),
+                  src: UNSPLASH.domainStudy,
+                  Icon: IconStudy,
+                },
+                {
+                  title: t("domainHealth"),
+                  desc: t("domainHealthDesc"),
+                  src: UNSPLASH.domainHealth,
+                  Icon: IconHealth,
+                },
+              ].map(({ title, desc, src, Icon }) => (
+                <CardContainer
+                  key={title}
+                  className="w-full"
+                  containerClassName="w-full py-0"
+                >
+                  <CardBody className="h-[320px] w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-lg dark:border-[var(--app-fg)]/15">
+                    <CardItem
+                      translateZ="60"
+                      className="relative flex h-full w-full flex-col overflow-hidden rounded-xl"
+                    >
+                      <div className="relative h-36 w-full shrink-0">
+                        <Image
+                          src={src}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="(max-width:768px) 100vw, 33vw"
+                        />
+                      </div>
+                      <div className="flex flex-1 flex-col justify-center p-4 text-center">
+                        <span className="mx-auto text-[var(--app-fg)]">
+                          <Icon />
+                        </span>
+                        <span className="mt-2 text-base font-semibold text-[var(--app-fg)]">{title}</span>
+                        <p className="mt-1.5 text-xs text-[var(--app-fg)]/70">{desc}</p>
+                      </div>
+                    </CardItem>
+                  </CardBody>
+                </CardContainer>
+              ))}
             </div>
+          </div>
+        </section>
+
+        {/* Testimonios animados (Aceternity) */}
+        <section id="testimonials" className="relative border-t border-[var(--app-border)] bg-[var(--app-surface)] py-16 dark:bg-[#111111]">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <h2 className="text-center text-xl font-bold text-[var(--app-fg)] sm:text-2xl">
+            {t("testimonialsTitle")}
+          </h2>
+          <AnimatedTestimonials
+            autoplay
+            testimonials={[
+              {
+                quote: t("testimonial1Quote"),
+                name: t("testimonial1Name"),
+                designation: t("testimonial1Designation"),
+                src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
+              },
+              {
+                quote: t("testimonial2Quote"),
+                name: t("testimonial2Name"),
+                designation: t("testimonial2Designation"),
+                src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+              },
+              {
+                quote: t("testimonial3Quote"),
+                name: t("testimonial3Name"),
+                designation: t("testimonial3Designation"),
+                src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+              },
+              {
+                quote: t("testimonial4Quote"),
+                name: t("testimonial4Name"),
+                designation: t("testimonial4Designation"),
+                src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
+              },
+            ]}
+          />
           </div>
         </section>
 
         {/* Plantillas + Tu nueva rutina */}
-        <section className="border-t border-[var(--app-border)] bg-white py-16 dark:bg-[#0d0d0d]">
+        <section id="plantillas" className="border-t border-[var(--app-border)] bg-white py-16 dark:bg-[#0d0d0d]">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="grid gap-12 lg:grid-cols-[1fr,340px]">
               <div>
@@ -352,48 +373,51 @@ export function Landing() {
           </div>
         </section>
 
-        {/* Contactos + Footer: claro = negro y blanco; oscuro = gris oscuro y letras blancas */}
-        <section className="border-t border-white/20 bg-black py-12 dark:border-white/10 dark:bg-[#262626]">
+        {/* Footer único: paleta del sistema, grid con Producto, Recursos, Empresa, Contacto */}
+        <footer className="border-t border-[var(--app-border)] bg-[var(--app-navy)] py-16 dark:bg-[var(--app-surface)]">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <h2 className="text-xl font-semibold text-white">{t("contactTitle")}</h2>
-            <a
-              href={`mailto:${t("contactEmail")}`}
-              className="mt-2 inline-block text-white/80 underline-offset-2 hover:underline hover:text-white"
-            >
-              {t("contactEmail")}
-            </a>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-white/20 bg-black py-12 dark:border-white/10 dark:bg-[#262626]">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mb-10">
+              <Link href="/" className="text-xl font-bold text-white dark:text-[var(--app-fg)]">
+                {t("title")}
+              </Link>
+              <p className="mt-2 max-w-md text-sm text-white/80 dark:text-[var(--app-fg)]/80">
+                {t("footerDescription")}
+              </p>
+            </div>
             <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
               <div>
-                <h4 className="font-semibold text-white">{t("footerProduct")}</h4>
-                <ul className="mt-3 space-y-2 text-sm text-white/80">
-                  <li><Link href="/register" className="hover:underline hover:text-white">{t("navTemplates")}</Link></li>
-                  <li><Link href="/register" className="hover:underline hover:text-white">{t("navPricing")}</Link></li>
+                <h4 className="font-semibold text-white dark:text-[var(--app-fg)]">{t("footerProduct")}</h4>
+                <ul className="mt-3 space-y-2 text-sm text-white/80 dark:text-[var(--app-fg)]/80">
+                  <li><Link href="/register" className="hover:underline hover:text-white dark:hover:text-[var(--app-fg)]">{t("navTemplates")}</Link></li>
+                  <li><Link href="/register" className="hover:underline hover:text-white dark:hover:text-[var(--app-fg)]">{t("navPricing")}</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-white">{t("footerResources")}</h4>
-                <ul className="mt-3 space-y-2 text-sm text-white/80">
-                  <li><Link href="/login" className="hover:underline hover:text-white">{t("signIn")}</Link></li>
-                  <li><Link href="/register" className="hover:underline hover:text-white">{t("signUp")}</Link></li>
+                <h4 className="font-semibold text-white dark:text-[var(--app-fg)]">{t("footerResources")}</h4>
+                <ul className="mt-3 space-y-2 text-sm text-white/80 dark:text-[var(--app-fg)]/80">
+                  <li><Link href="/login" className="hover:underline hover:text-white dark:hover:text-[var(--app-fg)]">{t("signIn")}</Link></li>
+                  <li><Link href="/register" className="hover:underline hover:text-white dark:hover:text-[var(--app-fg)]">{t("signUp")}</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-white">{t("footerCompany")}</h4>
-                <ul className="mt-3 space-y-2 text-sm text-white/80">
-                  <li><span className="cursor-default">ElevenPray</span></li>
+                <h4 className="font-semibold text-white dark:text-[var(--app-fg)]">{t("footerCompany")}</h4>
+                <ul className="mt-3 space-y-2 text-sm text-white/80 dark:text-[var(--app-fg)]/80">
+                  <li><span className="cursor-default">{t("title")}</span></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-white">{t("title")}</h4>
-                <p className="mt-3 text-sm text-white/80">{t("footerDescription")}</p>
+                <h4 className="font-semibold text-white dark:text-[var(--app-fg)]">{t("contactTitle")}</h4>
+                <a
+                  href={`mailto:${t("contactEmail")}`}
+                  className="mt-3 inline-block text-sm text-white/80 underline-offset-2 hover:underline hover:text-white dark:text-[var(--app-fg)]/80 dark:hover:text-[var(--app-fg)]"
+                >
+                  {t("contactEmail")}
+                </a>
               </div>
             </div>
+            <p className="mt-12 border-t border-white/20 pt-8 text-center text-sm text-white/70 dark:border-[var(--app-border)] dark:text-[var(--app-fg)]/70">
+              © {new Date().getFullYear()} {t("title")}
+            </p>
           </div>
         </footer>
       </main>

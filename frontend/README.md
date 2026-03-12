@@ -1,11 +1,11 @@
-# ElevenPray — Frontend (Next.js)
+# Mitsyy — Frontend (Next.js)
 
 Aplicación web con login, registro y dashboard de rutinas semanales. Se comunica solo con el backend (no con la base de datos directamente).
 
 ## Requisitos
 
 - Node.js 18+
-- Backend de ElevenPray corriendo (por defecto en http://localhost:8080)
+- Backend de Mitsyy corriendo (por defecto en http://localhost:8080)
 
 ## Instalación
 

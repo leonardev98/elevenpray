@@ -18,6 +18,7 @@ import {
 import type { WorkspaceApi } from "../../../../../lib/workspaces-api";
 import { WeekScheduleCard } from "./components/week-schedule-card";
 import { SkincareDashboardCards } from "./components/skincare-dashboard-cards";
+import { toast } from "../../../../../lib/toast";
 
 export default function WorkspaceDetailPage() {
   const params = useParams();
@@ -56,8 +57,11 @@ export default function WorkspaceDetailPage() {
     try {
       const created = await createPage(token, workspaceId, { title: t("newPage") });
       setRootPages((prev) => [created, ...prev]);
+      toast.success("Página creada", t("newPage"));
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("errorCreatePage"));
+      const msg = e instanceof Error ? e.message : t("errorCreatePage");
+      setError(msg);
+      toast.error("Error al crear página", msg);
     } finally {
       setCreatingPage(false);
     }
@@ -70,8 +74,11 @@ export default function WorkspaceDetailPage() {
       const created = await createSpace(token, workspaceId, { title: newSpaceTitle.trim() });
       setSpaces((prev) => [...prev, created]);
       setNewSpaceTitle("");
+      toast.success("Espacio creado", newSpaceTitle.trim());
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("errorCreateSpace"));
+      const msg = e instanceof Error ? e.message : t("errorCreateSpace");
+      setError(msg);
+      toast.error("Error al crear espacio", msg);
     }
   }
 

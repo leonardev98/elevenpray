@@ -130,7 +130,7 @@ export default function RoutineEditorPage() {
       });
       if (routine.workspaceId && metadata) {
         await updateWorkspacePreference(token, routine.workspaceId, {
-          skincareProfile: metadata,
+          skincareProfile: metadata as Record<string, unknown>,
         });
       }
       setSaveStatus("saved");

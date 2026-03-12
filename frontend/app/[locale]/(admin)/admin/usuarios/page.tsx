@@ -1,6 +1,6 @@
 "use client";
 
-import { I18nLink } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 
 const MOCK_USERS = [
   { id: "1", name: "Admin Maestro", email: "admin@ejemplo.com", role: "platform_admin", categories: "Todas" },

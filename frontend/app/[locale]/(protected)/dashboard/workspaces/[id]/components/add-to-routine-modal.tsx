@@ -12,6 +12,7 @@ import {
 import { createWorkspaceProduct } from "../../../../../../lib/workspace-products-api";
 import type { ProductCategory } from "../../../../../../lib/workspace-products-api";
 import { DAY_KEYS } from "../../../../../../lib/routine-builder";
+import { toast } from "../../../../../../lib/toast";
 
 export function AddToRoutineModal({
   product,
@@ -115,10 +116,13 @@ export function AddToRoutineModal({
         weekNumber: full.weekNumber,
         days,
       });
+      toast.success("Añadido a la rutina", `${product.name} se ha añadido a los días seleccionados.`);
       onSuccess?.();
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al añadir a rutina");
+      const msg = e instanceof Error ? e.message : "Error al añadir a rutina";
+      setError(msg);
+      toast.error("Error", msg);
     } finally {
       setSaving(false);
     }

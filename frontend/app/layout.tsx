@@ -1,28 +1,23 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
 import "./domains-pattern.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-hero",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "ElevenPray",
-  description: "Rutinas semanales",
+  title: "Mitsyy",
+  description: "Organiza tu vida y rutinas en un solo lugar",
 };
 
 export const viewport = {
@@ -46,7 +41,8 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${plusJakarta.variable} antialiased`}
+        className={`${geistMono.variable} ${montserrat.variable} antialiased`}
+        style={{ fontFamily: "var(--font-montserrat), system-ui, sans-serif" }}
       >
         {children}
       </body>

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "../../../providers/auth-provider";
 import { ThemeToggle } from "../../../components/theme-toggle";
+import { toast } from "../../../lib/toast";
 import { LocaleSwitcher } from "../../../components/locale-switcher";
 
 export default function RegisterPage() {
@@ -25,10 +26,13 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(email, password, name);
-      router.push("/dashboard");
+      toast.success("Cuenta creada", "Te llevamos a configurar tus espacios");
+      router.push("/onboarding");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorSignUp"));
+      const msg = err instanceof Error ? err.message : t("errorSignUp");
+      setError(msg);
+      toast.error("Error al registrarse", msg);
     } finally {
       setLoading(false);
     }

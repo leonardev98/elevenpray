@@ -15,6 +15,7 @@ import { getWorkspacePreference } from "../../../../../../lib/workspace-preferen
 import { ProductDetailModal } from "../components/product-detail-modal";
 import { AddToRoutineModal } from "../components/add-to-routine-modal";
 import { CatalogProductCard } from "../components/catalog-product-card";
+import { toast } from "../../../../../../lib/toast";
 
 type SkinProfile = {
   skinType?: string;
@@ -151,12 +152,16 @@ export default function WorkspaceProductsPage() {
           next.delete(productId);
           return next;
         });
+        toast.success("Eliminado de guardados", "El producto se quitó de tu lista.");
       } else {
         await addCatalogBookmark(token, workspaceId, productId);
         setBookmarkIds((prev) => new Set(prev).add(productId));
+        toast.success("Guardado", "Añadido a tu lista de productos.");
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al actualizar");
+      const msg = e instanceof Error ? e.message : "Error al actualizar";
+      setError(msg);
+      toast.error("Error", msg);
     }
   }
 

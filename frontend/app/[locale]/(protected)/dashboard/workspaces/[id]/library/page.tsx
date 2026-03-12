@@ -14,6 +14,7 @@ import {
 import { ProductDetailModal } from "../components/product-detail-modal";
 import { AddToRoutineModal } from "../components/add-to-routine-modal";
 import { CatalogProductCard } from "../components/catalog-product-card";
+import { toast } from "../../../../../../lib/toast";
 
 const CATEGORIES = [
   { value: "", label: "Todas" },
@@ -92,12 +93,16 @@ export default function WorkspaceLibraryPage() {
           next.delete(productId);
           return next;
         });
+        toast.success("Eliminado de guardados", "El producto se quitó de tu lista.");
       } else {
         await addCatalogBookmark(token, workspaceId, productId);
         setBookmarkIds((prev) => new Set(prev).add(productId));
+        toast.success("Guardado", "Añadido a tu lista de productos.");
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al actualizar");
+      const msg = e instanceof Error ? e.message : "Error al actualizar";
+      setError(msg);
+      toast.error("Error", msg);
     }
   }
 

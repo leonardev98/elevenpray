@@ -95,7 +95,7 @@ export function RoutineDayCard({
 
     const overInAm = amItems.findIndex((i) => i.id === overId);
     const overInPm = pmItems.findIndex((i) => i.id === overId);
-    const targetSlot: "am" | "pm" = overInAm >= 0 ? "am" : overInPm >= 0 ? "pm" : null;
+    const targetSlot: "am" | "pm" | null = overInAm >= 0 ? "am" : overInPm >= 0 ? "pm" : null;
     if (targetSlot === null) return;
 
     if (sourceSlot === targetSlot) {

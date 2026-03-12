@@ -24,11 +24,15 @@ export class WorkspacesService {
     return this.workspaceRepository.find({
       where: { userId },
       order: { sortOrder: 'ASC', createdAt: 'ASC' },
+      relations: ['workspaceSubtype'],
     });
   }
 
   async findOne(id: string, userId: string): Promise<Workspace> {
-    const workspace = await this.workspaceRepository.findOne({ where: { id } });
+    const workspace = await this.workspaceRepository.findOne({
+      where: { id },
+      relations: ['workspaceSubtype'],
+    });
     if (!workspace) throw new NotFoundException('Workspace not found');
     if (workspace.userId !== userId) throw new ForbiddenException();
     return workspace;

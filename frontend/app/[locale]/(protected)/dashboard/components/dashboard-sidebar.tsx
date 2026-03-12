@@ -3,10 +3,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
+import { Plus } from "lucide-react";
 import { useWorkspaces } from "./workspaces-provider";
 import { NewWorkspaceModal } from "./new-workspace-modal";
 import type { WorkspaceTypeId } from "./topic-types";
 import type { WorkspaceApi } from "../../../../lib/workspaces-api";
+import { cn } from "@/lib/utils";
 import {
   hasRoutineCapability,
   hasProductVaultCapability,
@@ -102,12 +104,12 @@ export function DashboardSidebar({
     >
       {isMobileDrawer && (
         <div className="flex items-center justify-between border-b border-[var(--app-border)] px-4 py-3">
-          <span className="font-semibold text-[var(--app-fg)]">{tCommon("menu")}</span>
+          <span className="text-sm font-medium text-[var(--app-fg)]">{tCommon("menu")}</span>
           <button
             type="button"
             onClick={onCloseMobile}
             aria-label={tCommon("closeMenu")}
-            className="rounded-xl p-2 text-[var(--app-fg)]/70 hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)] transition"
+            className="rounded-lg p-2 text-[var(--app-fg)]/60 transition-colors hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
           >
             ×
           </button>
@@ -115,25 +117,25 @@ export function DashboardSidebar({
       )}
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Logo */}
-        <div className="border-b border-[var(--app-border)] px-4 py-5">
+        {/* Logo — zona marca */}
+        <div className="border-b border-[var(--dev-border-subtle)] px-4 py-5">
           <Link
             href="/dashboard"
             onClick={isMobileDrawer ? onCloseMobile : undefined}
-            className="flex items-center gap-3"
+            className="flex items-center gap-3 transition-opacity hover:opacity-90"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-white)] font-bold text-lg shadow-sm">
               E
             </span>
             <span className="text-lg font-semibold tracking-tight text-[var(--app-fg)]">
-              ElevenPray
+              Mitsyy
             </span>
           </Link>
         </div>
 
-        {/* Nav principal */}
-        <nav className="border-b border-[var(--app-border)] px-3 py-3">
-          <ul className="space-y-0.5">
+        {/* Nav principal — más aire */}
+        <nav className="border-b border-[var(--dev-border-subtle)] px-3 py-4" aria-label="Main">
+          <ul className="space-y-1">
             {navHrefs.map(({ href, key }) => {
               const isActive =
                 href === "/dashboard" ? pathname === "/dashboard" : pathname?.startsWith(href);
@@ -142,11 +144,12 @@ export function DashboardSidebar({
                   <Link
                     href={href}
                     onClick={isMobileDrawer ? onCloseMobile : undefined}
-                    className={`flex min-h-[44px] items-center rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+                    className={cn(
+                      "flex min-h-[42px] items-center rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-150",
                       isActive
                         ? "bg-[var(--app-navy)] text-[var(--app-white)] shadow-sm"
-                        : "text-[var(--app-fg)]/80 hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
-                    }`}
+                        : "text-[var(--app-fg)]/80 transition-colors hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
+                    )}
                   >
                     {t(key)}
                   </Link>
@@ -158,7 +161,7 @@ export function DashboardSidebar({
                 <Link
                   href="/admin"
                   onClick={isMobileDrawer ? onCloseMobile : undefined}
-                  className="flex min-h-[44px] items-center rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/10 transition"
+                  className="flex min-h-[42px] items-center rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--app-navy)] transition-colors hover:bg-[var(--app-navy)]/10"
                 >
                   {t("adminPanel")}
                 </Link>
@@ -167,17 +170,18 @@ export function DashboardSidebar({
           </ul>
         </nav>
 
-        {/* Mis espacios */}
-        <div className="flex-1 overflow-y-auto px-3 py-4">
-          <h2 className="mb-3 px-2 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/50">
+        {/* Mis espacios — label refinado, más jerarquía */}
+        <div className="flex-1 overflow-y-auto px-3 py-5">
+          <p className="mb-3 px-2 text-[length:var(--dev-font-label-size)] font-medium tracking-[var(--dev-font-label-tracking)] text-[var(--app-fg)]/55">
             {tWorkspace("mySpaces")}
-          </h2>
+          </p>
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="mb-4 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[var(--app-navy)] py-2.5 text-sm font-medium text-[var(--app-white)] shadow-sm transition hover:opacity-90"
+            className="mb-5 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[var(--app-navy)] py-2.5 text-sm font-medium text-[var(--app-white)] shadow-sm transition-all duration-200 hover:opacity-95 active:scale-[0.99]"
           >
-            + {tWorkspace("newWorkspace")}
+            <Plus className="h-4 w-4" strokeWidth={2.25} />
+            {tWorkspace("newWorkspace")}
           </button>
 
           <NewWorkspaceModal
@@ -206,7 +210,7 @@ export function DashboardSidebar({
                   {tWorkspace("confirmDeleteWorkspaceMessage")}
                 </p>
                 <p className="mt-2 text-sm font-medium text-[var(--app-fg)]">
-                  «{getWorkspaceType(deleteConfirmWorkspace.workspaceType) ? tTypes(deleteConfirmWorkspace.workspaceType) : deleteConfirmWorkspace.workspaceType}» — {deleteConfirmWorkspace.name}
+                  «{deleteConfirmWorkspace.name || (getWorkspaceType(deleteConfirmWorkspace.workspaceType) ? tTypes(deleteConfirmWorkspace.workspaceType) : deleteConfirmWorkspace.workspaceType)}»
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <button
@@ -243,11 +247,11 @@ export function DashboardSidebar({
             const list = workspacesByDomain.get(domainId) ?? [];
             if (list.length === 0) return null;
             return (
-              <div key={domainId} className="mb-4">
-                <h3 className="mb-1.5 px-2 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/50">
+              <div key={domainId} className="mb-6">
+                <h3 className="mb-2 px-2 text-[length:var(--dev-font-label-size)] font-medium tracking-[var(--dev-font-label-tracking)] text-[var(--app-fg)]/55">
                   {tDomains(domainId)}
                 </h3>
-                <ul className="space-y-1">
+                <ul className="space-y-0.5">
                   {list.map((w) => {
                     const hasRoutine = hasRoutineCapability(w.workspaceType);
                     const hasSectionNav =
@@ -262,23 +266,42 @@ export function DashboardSidebar({
                           ? `/dashboard/workspaces/${w.id}/routine`
                           : `/dashboard/workspaces/${w.id}`;
                     const typeDef = getWorkspaceType(w.workspaceType);
-                    const typeLabel = typeDef ? tTypes(w.workspaceType) : w.workspaceType;
                     const categoryLabel = typeDef ? tCategories(typeDef.category) : "";
-                    const isActive = pathname?.startsWith(`/dashboard/workspaces/${w.id}`);
+                    const displayName = w.name?.trim() || (typeDef ? tTypes(w.workspaceType) : w.workspaceType);
+                    const isDeveloperRoute = pathname?.startsWith?.("/workspace/developer") ?? false;
+                    const subtypeCode = (w.workspaceSubtype?.code ?? (w as { workspace_subtype?: { code?: string } }).workspace_subtype?.code)?.toLowerCase?.();
+                    const isDeveloperWorkspace = subtypeCode === "programador" || subtypeCode === "programmer";
+                    const isActive =
+                      pathname?.startsWith(`/dashboard/workspaces/${w.id}`) ||
+                      (isDeveloperRoute && isDeveloperWorkspace);
                     return (
                       <li key={w.id}>
                         <div
-                          className={`group flex items-center gap-2 rounded-xl px-3 py-2 transition ${
-                            isActive ? "bg-[var(--app-navy)]/10" : "hover:bg-[var(--app-bg)]"
-                          }`}
+                          className={cn(
+                            "group relative flex items-center gap-2 rounded-xl py-2 pl-3 pr-2 transition-all duration-150",
+                            isActive
+                              ? "bg-[var(--app-navy)]/10"
+                              : "hover:bg-[var(--app-bg)]"
+                          )}
                         >
+                          {isActive && (
+                            <span
+                              className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-[var(--app-navy)]"
+                              aria-hidden
+                            />
+                          )}
                           <Link
                             href={href}
                             onClick={isMobileDrawer ? onCloseMobile : undefined}
                             className="min-w-0 flex-1 py-1.5"
                           >
-                            <span className={`block truncate text-sm font-medium ${isActive ? "text-[var(--app-navy)]" : "text-[var(--app-fg)]"}`}>
-                              {typeLabel}
+                            <span
+                              className={cn(
+                                "block truncate text-sm",
+                                isActive ? "font-semibold text-[var(--app-navy)]" : "font-medium text-[var(--app-fg)]"
+                              )}
+                            >
+                              {displayName}
                             </span>
                             {categoryLabel && (
                               <span className="block truncate text-xs text-[var(--app-fg)]/50">
@@ -290,7 +313,7 @@ export function DashboardSidebar({
                             type="button"
                             onClick={() => setDeleteConfirmWorkspace(w)}
                             aria-label={tWorkspace("deleteWorkspace")}
-                            className="flex-shrink-0 rounded-lg p-1.5 text-[var(--app-fg)]/40 opacity-0 transition group-hover:opacity-100 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-fg)]"
+                            className="flex-shrink-0 rounded-lg p-1.5 text-[var(--app-fg)]/40 opacity-0 transition-all duration-150 hover:bg-[var(--app-navy)]/10 hover:text-[var(--app-fg)] group-hover:opacity-100"
                           >
                             ×
                           </button>
@@ -305,9 +328,9 @@ export function DashboardSidebar({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-[var(--app-border)] p-4">
-          <div className="rounded-xl bg-[var(--app-navy)]/5 border border-[var(--app-border)]/50 p-3 text-center">
-            <p className="text-xs font-medium text-[var(--app-fg)]/70">{tWorkspace("tagline")}</p>
+        <div className="border-t border-[var(--dev-border-subtle)] p-4">
+          <div className="rounded-xl border border-[var(--dev-border-subtle)] bg-[var(--app-navy)]/5 p-3 text-center">
+            <p className="text-xs font-medium text-[var(--app-fg)]/60">{tWorkspace("tagline")}</p>
           </div>
         </div>
       </div>

@@ -59,7 +59,7 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
   const t = useTranslations("routineBuilder");
   const [editing, setEditing] = useState(false);
   const stepType = (item.stepType as RoutineStepType) ?? "treatment";
-  const stepTypeLabel = (st: string) => t(`stepTypes.${st}` as keyof IntlMessages["routineBuilder"] & string);
+  const stepTypeLabel = (st: string) => t(`stepTypes.${st}` as Parameters<typeof t>[0]);
 
   const {
     attributes,
