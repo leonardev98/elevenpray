@@ -22,6 +22,7 @@ import { ExpertConsultationModule } from './expert-consultation/expert-consultat
 import { CatalogProductsModule } from './catalog-products/catalog-products.module';
 import { IngredientConflictsModule } from './ingredient-conflicts/ingredient-conflicts.module';
 import { PromptsModule } from './prompts/prompts.module';
+import { SkinFaceMappingModule } from './skin-face-mapping/skin-face-mapping.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { PromptsModule } from './prompts/prompts.module';
     CatalogProductsModule,
     IngredientConflictsModule,
     PromptsModule,
+    SkinFaceMappingModule,
     RoutineTemplatesModule,
     SpacesModule,
     PagesModule,

@@ -5,14 +5,14 @@
 /* Dark mode por clase (toggle), no por preferencia del sistema */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Tipografía: Montserrat para todo el proyecto (https://fonts.google.com/specimen/Montserrat) */
-/* Pesos usados: 300 (light), 400 (normal), 500 (medium), 600 (semibold), 700 (bold), 800 (extrabold) */
+/* Tipografía: Inter (SaaS/startup style — Stripe, Linear, Vercel) */
+/* Pesos: 400 (normal), 500 (medium), 600 (semibold), 700 (bold) */
 
 /* Paleta Mitsyy: negro, blanco, azul marino */
 :root {
-  --font-sans: var(--font-montserrat), system-ui, sans-serif;
-  --font-hero: var(--font-montserrat), system-ui, sans-serif;
-  --font-montserrat-fallback: system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-hero: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-fallback: system-ui, -apple-system, sans-serif;
   --app-black: #0a0a0a;
   --app-white: #f9f9f9;
   --app-navy: #0f1e33;
@@ -25,6 +25,15 @@
   --app-highlight: #0f1e33;
   /* Optional: workspace sections (e.g. skincare) – softer surfaces, AM/PM */
   --app-surface-soft: #f5f5f4;
+  --app-surface-elevated: #ffffff;
+  --app-fg-secondary: #6B7280;
+  --app-fg-muted: #9CA3AF;
+  --app-fg-title: #0a0a0a;
+  --app-primary: #0f1e33;
+  --app-primary-hover: #0a1628;
+  --app-primary-soft: #e8f0fe;
+  --app-routine-item-bg: #f9fafb;
+  --app-routine-item-border: #e5e7eb;
   --app-slot-am: #e8f0fe;
   --app-slot-pm: #f3e8f6;
   --background: oklch(1 0 0);
@@ -62,46 +71,77 @@
 }
 
 .dark {
-  --app-bg: #0a0a0a;
-  --app-fg: #f9f9f9;
-  --app-surface: #141414;
-  --app-border: #262626;
-  --app-accent: #1a3050;
-  --app-highlight: #2a3f5f;
-  --app-surface-soft: #1c1c1c;
+  /* Routine editor / modern dark dashboard palette (Linear, Vercel, Notion style) */
+  --app-navy: #4F8CFF;
+  --app-white: #ffffff;
+  --app-bg: #0B0F14;
+  --app-fg: #E6EDF3;
+  --app-fg-secondary: #B4BDC7;
+  --app-fg-muted: #CBD2D9;
+  --app-fg-title: #F1F5F9;
+  --app-surface: #111827;
+  --app-surface-elevated: #1A2233;
+  --app-border: #2A3446;
+  --app-primary: #4F8CFF;
+  --app-primary-hover: #3A78F6;
+  --app-primary-soft: #1F3A70;
+  --app-accent: #1F3A70;
+  --app-highlight: #2A3446;
+  --app-surface-soft: #1A2233;
+  --app-routine-item-bg: #0F1623;
+  --app-routine-item-border: #1F2937;
   --app-slot-am: #1a2744;
   --app-slot-pm: #2a1f3d;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #0B0F14;
+  --foreground: #E6EDF3;
+  --card: #111827;
+  --card-foreground: #E6EDF3;
+  --popover: #1A2233;
+  --popover-foreground: #E6EDF3;
+  --primary: #4F8CFF;
+  --primary-foreground: #ffffff;
+  --secondary: #1A2233;
+  --secondary-foreground: #E6EDF3;
+  --muted: #1A2233;
+  --muted-foreground: #CBD2D9;
+  --accent: #1A2233;
+  --accent-foreground: #E6EDF3;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: #2A3446;
+  --input: #2A3446;
+  --ring: #4F8CFF;
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: #111827;
+  --sidebar-foreground: #E6EDF3;
+  --sidebar-primary: #4F8CFF;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1A2233;
+  --sidebar-accent-foreground: #E6EDF3;
+  --sidebar-border: #2A3446;
+  --sidebar-ring: #4F8CFF;
+}
+
+/* Dark mode scrollbar */
+.dark {
+  scrollbar-color: #2A3446 #0B0F14;
+}
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #0B0F14;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #2A3446;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3A475D;
 }
 
 /* Toasts (Sileo): paleta del sistema — tema claro: azul marino; tema oscuro: blanco */
@@ -140,6 +180,7 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-weight-normal: 400;
+  --font-weight-body: 500;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
@@ -156,14 +197,14 @@
   --dev-border-subtle: rgba(0, 0, 0, 0.06);
   --dev-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
   --dev-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
-  --dev-font-display: var(--font-weight-normal);
+  --dev-font-display: var(--font-weight-semibold);
   --dev-font-display-size: 1.5rem;
-  --dev-font-display-tracking: -0.03em;
-  --dev-font-body: var(--font-weight-normal);
+  --dev-font-display-tracking: 0;
+  --dev-font-body: var(--font-weight-body);
   --dev-font-body-size: 0.9375rem;
-  --dev-font-meta: var(--font-weight-normal);
+  --dev-font-meta: var(--font-weight-medium);
   --dev-font-meta-size: 0.8125rem;
-  --dev-font-meta-opacity: 0.6;
+  --dev-font-meta-opacity: 0.7;
   --dev-font-label: var(--font-weight-medium);
   --dev-font-label-size: 0.6875rem;
   --dev-font-label-tracking: 0.04em;
@@ -205,7 +246,7 @@
   --color-app-border: var(--app-border);
   --color-app-accent: var(--app-accent);
   --color-app-highlight: var(--app-highlight);
-  --font-sans: var(--font-montserrat), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -254,9 +295,9 @@ html {
 body {
   background: var(--app-bg);
   color: var(--app-fg);
-  font-family: var(--font-montserrat), var(--font-sans), var(--font-montserrat-fallback);
+  font-family: var(--font-sans);
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-body);
   letter-spacing: var(--letter-spacing-normal);
   line-height: 1.5;
 }
@@ -268,12 +309,12 @@ body {
   }
 }
 
-/* Panel admin: Montserrat igual que el resto */
+/* Panel admin: misma fuente que el resto */
 .admin-panel {
-  font-family: var(--font-montserrat), var(--font-hero), var(--font-montserrat-fallback);
+  font-family: var(--font-sans);
 }
 .admin-panel h1, .admin-panel h2 {
-  letter-spacing: var(--letter-spacing-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 /* Loading spinner (Mitsyy) */
@@ -302,6 +343,6 @@ body {
     @apply bg-background text-foreground;
   }
   html {
-    font-family: var(--font-montserrat), var(--font-sans), var(--font-montserrat-fallback);
+    font-family: var(--font-sans);
   }
 }

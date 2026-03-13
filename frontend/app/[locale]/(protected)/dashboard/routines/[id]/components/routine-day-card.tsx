@@ -125,11 +125,11 @@ export function RoutineDayCard({
   }
 
   return (
-    <article className="flex w-full min-w-0 flex-col rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-200 hover:border-neutral-300 hover:shadow-md dark:border-[var(--app-border)] dark:bg-[var(--app-surface)] dark:hover:border-[var(--app-navy)]/30">
+    <article className="flex w-full min-w-0 flex-col rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition-all duration-200 hover:border-[var(--app-border)] hover:shadow-md dark:border-[var(--app-border)] dark:bg-[var(--app-surface)] dark:hover:border-[var(--app-fg-muted)]/50">
       <header className="mb-4">
-        <p className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg)]/60">{dayLabel}</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg-secondary)]">{dayLabel}</p>
         {intentLabel ? (
-          <span className="mt-1.5 inline-flex rounded-full border border-[var(--app-navy)]/35 bg-[var(--app-navy)]/10 px-2.5 py-1 text-[11px] text-[var(--app-navy)]">
+          <span className="mt-1.5 inline-flex rounded-full border border-[var(--app-primary)]/40 bg-[var(--app-primary-soft)] px-2.5 py-1 text-[11px] text-[var(--app-primary)]">
             {intentLabel}
           </span>
         ) : null}

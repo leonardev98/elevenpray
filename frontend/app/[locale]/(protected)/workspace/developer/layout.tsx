@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/providers/auth-provider";
+import { FocusModeProvider } from "./focus-mode-context";
 import { DeveloperHeader } from "./components/DeveloperHeader";
 import { DeveloperNavHorizontal } from "./components/DeveloperNavHorizontal";
 import { CommandPalette } from "./components/CommandPalette";
@@ -27,7 +28,7 @@ export default function DeveloperWorkspaceLayout({
   }
 
   return (
-    <>
+    <FocusModeProvider>
       <div className="flex min-w-0 flex-1 flex-col">
         <DeveloperHeader
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
@@ -45,6 +46,6 @@ export default function DeveloperWorkspaceLayout({
         open={commandPaletteOpen}
         onOpenChange={setCommandPaletteOpen}
       />
-    </>
+    </FocusModeProvider>
   );
 }

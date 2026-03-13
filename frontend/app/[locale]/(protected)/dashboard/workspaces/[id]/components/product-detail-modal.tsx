@@ -4,6 +4,8 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { getCatalogProduct, type CatalogProductApi } from "../../../../../../lib/catalog-api";
 import { checkIngredientConflicts, type ConflictResultApi } from "../../../../../../lib/ingredient-conflicts-api";
 import { useLocale } from "next-intl";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /** Estrellas de valoración para el modal (0–5). */
 function StarRatingDisplay({ rating }: { rating: number }) {
@@ -113,6 +115,15 @@ export function ProductDetailModal({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const experienceLabel = product?.experienceLevel
@@ -125,46 +136,35 @@ export function ProductDetailModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="product-detail-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4 bg-black/50"
       onKeyDown={handleKeyDown}
       onClick={handleOverlayClick}
     >
       <div
         ref={panelRef}
-        className="relative flex max-h-[90vh] w-full max-w-xl flex-col rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl"
+        className="relative flex max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 rounded-full p-2 text-[var(--app-fg)]/70 hover:bg-[var(--app-border)] hover:text-[var(--app-fg)]"
+          className="absolute right-3 top-3 z-10 size-9 rounded-full text-[var(--app-fg)]/70 hover:bg-[var(--app-border)] hover:text-[var(--app-fg)]"
           aria-label="Cerrar"
         >
-          <span className="text-xl leading-none">×</span>
-        </button>
+          <X className="size-5" />
+        </Button>
 
-        <div className="overflow-y-auto flex-1">
-          {loading ? (
-            <div className="p-8 text-center text-[var(--app-fg)]/60">Cargando producto…</div>
-          ) : !product ? (
-            <div className="p-8 text-center text-[var(--app-fg)]/60">No se pudo cargar el producto.</div>
-          ) : (
-            <>
-              {/* Header: imagen grande, marca, nombre */}
-              <div className="flex min-h-[280px] w-full max-h-96 shrink-0 items-center justify-center bg-[#F8F7F5] p-6">
-                {product.imageUrl ? (
-                  <img
-                    src={product.imageUrl}
-                    alt=""
-                    className="max-h-64 w-full object-contain"
-                  />
-                ) : (
-                  <span className="text-6xl font-light text-[var(--app-fg)]/20">
-                    {product.name.charAt(0)}
-                  </span>
-                )}
-              </div>
-              <div className="space-y-2 p-6 pt-4">
+        {loading ? (
+          <div className="flex min-h-[320px] items-center justify-center p-8 text-[var(--app-fg)]/60">Cargando producto…</div>
+        ) : !product ? (
+          <div className="flex min-h-[320px] items-center justify-center p-8 text-[var(--app-fg)]/60">No se pudo cargar el producto.</div>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
+            {/* Columna izquierda: texto (sin scroll; contenido compacto) */}
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto py-6 pl-6 pr-4 sm:max-w-[55%]">
+              <div className="space-y-2">
                 {product.brand && (
                   <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
                     {product.brand}
@@ -180,9 +180,8 @@ export function ProductDetailModal({
                 )}
               </div>
 
-              {/* 1. Para qué sirve */}
               {product.benefits?.length ? (
-                <div className="px-6 pb-4">
+                <div className="mt-4">
                   <h2 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Para qué sirve</h2>
                   <ul className="list-inside list-disc space-y-1 text-sm text-[var(--app-fg)]/80">
                     {product.benefits.map((b, i) => (
@@ -192,9 +191,8 @@ export function ProductDetailModal({
                 </div>
               ) : null}
 
-              {/* 2. Ingredientes clave */}
               {product.ingredients?.length ? (
-                <div className="px-6 pb-4">
+                <div className="mt-4">
                   <h2 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Ingredientes clave</h2>
                   <p className="text-sm text-[var(--app-fg)]/80">
                     {product.ingredients.join(" · ")}
@@ -202,9 +200,8 @@ export function ProductDetailModal({
                 </div>
               ) : null}
 
-              {/* 3. Tipo de piel recomendado */}
               {product.skinTypeCompatibility?.length ? (
-                <div className="px-6 pb-4">
+                <div className="mt-4">
                   <h2 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Tipo de piel recomendado</h2>
                   <p className="text-sm text-[var(--app-fg)]/80">
                     {product.skinTypeCompatibility.join(", ")}
@@ -212,9 +209,8 @@ export function ProductDetailModal({
                 </div>
               ) : null}
 
-              {/* 4. Preocupaciones que trata */}
               {product.concernTags?.length ? (
-                <div className="px-6 pb-4">
+                <div className="mt-4">
                   <h2 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Preocupaciones que trata</h2>
                   <p className="text-sm text-[var(--app-fg)]/80">
                     {product.concernTags.join(" · ")}
@@ -222,9 +218,8 @@ export function ProductDetailModal({
                 </div>
               ) : null}
 
-              {/* 5. Cómo usar */}
               {product.usageInstructions ? (
-                <div className="px-6 pb-4">
+                <div className="mt-4">
                   <h2 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Cómo usar</h2>
                   <p className="whitespace-pre-line text-sm text-[var(--app-fg)]/80">
                     {product.usageInstructions}
@@ -232,18 +227,16 @@ export function ProductDetailModal({
                 </div>
               ) : null}
 
-              {/* Nivel de uso (extra) */}
               {experienceLabel && (
-                <div className="px-6 pb-4">
+                <div className="mt-4">
                   <h2 className="mb-1 text-sm font-semibold text-[var(--app-fg)]">Nivel de uso</h2>
                   <p className="text-sm text-[var(--app-fg)]/80">{experienceLabel}</p>
                 </div>
               )}
 
-              {/* Compatibilidad / conflictos */}
               {(conflictsLoading || conflicts.length > 0) && (
-                <div className="px-6 pb-4">
-                  <h2 className="text-sm font-semibold text-[var(--app-fg)] mb-2">Compatibilidad con ingredientes</h2>
+                <div className="mt-4">
+                  <h2 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Compatibilidad con ingredientes</h2>
                   {conflictsLoading ? (
                     <p className="text-sm text-[var(--app-fg)]/60">Comprobando…</p>
                   ) : conflicts.length > 0 ? (
@@ -259,32 +252,61 @@ export function ProductDetailModal({
                       </ul>
                     </div>
                   ) : (
-                    <p className="text-sm text-[var(--app-fg)]/60">No se detectaron conflictos entre los ingredientes de este producto.</p>
+                    <p className="text-sm text-[var(--app-fg)]/60">No se detectaron conflictos.</p>
                   )}
                 </div>
               )}
 
-              {/* Botones rectangulares, ancho completo */}
-              <div className="flex flex-col gap-3 px-6 pb-6 pt-4 sm:flex-row">
-                <button
+              <div className="mt-6 flex flex-wrap gap-3">
+                {isBookmarked ? (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="default"
+                    onClick={onToggleBookmark}
+                    aria-pressed={true}
+                  >
+                    Quitar de guardados
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="default"
+                    onClick={onToggleBookmark}
+                    aria-pressed={false}
+                  >
+                    Guardar producto
+                  </Button>
+                )}
+                <Button
                   type="button"
-                  onClick={onToggleBookmark}
-                  className="min-h-[48px] min-w-[140px] flex-1 rounded-xl border border-[var(--app-border)] px-6 py-3 text-sm font-medium text-[var(--app-fg)] transition-colors hover:border-[var(--app-navy)]/40 hover:bg-[var(--app-navy)]/10"
-                  aria-pressed={isBookmarked}
-                >
-                  {isBookmarked ? "Guardado" : "Guardar producto"}
-                </button>
-                <button
-                  type="button"
+                  size="default"
                   onClick={() => onAddToRoutine(product)}
-                  className="min-h-[48px] min-w-[160px] flex-1 rounded-xl bg-[var(--app-navy)] px-6 py-3 text-sm font-medium text-[var(--app-white)] transition-colors hover:opacity-90"
                 >
                   Añadir a rutina
-                </button>
+                </Button>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+
+            {/* Columna derecha: foto */}
+            <div
+              className="flex shrink-0 items-center justify-center bg-[#F8F7F5] p-6 sm:w-[45%] sm:min-h-[400px]"
+            >
+              {product.imageUrl ? (
+                <img
+                  src={product.imageUrl}
+                  alt=""
+                  className="max-h-[320px] w-full object-contain sm:max-h-[min(70vh,420px)]"
+                />
+              ) : (
+                <span className="text-6xl font-light text-[var(--app-fg)]/20">
+                  {product.name.charAt(0)}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

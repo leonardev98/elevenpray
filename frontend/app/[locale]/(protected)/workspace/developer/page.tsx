@@ -12,6 +12,7 @@ import {
   CheckSquare,
   Timer,
 } from "lucide-react";
+import { useFocusMode } from "./focus-mode-context";
 import { FocusCard } from "./components/FocusCard";
 import { ProjectCard } from "./components/ProjectCard";
 import { QuickNotesCard } from "./components/QuickNotesCard";
@@ -38,6 +39,7 @@ function getGreeting(): string {
 
 export default function DeveloperWorkspaceDashboardPage() {
   const t = useTranslations("developerWorkspace.dashboard");
+  const { isFocusMode } = useFocusMode();
   const [time] = useState(() => new Date());
   const timeStr = `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}`;
   const dateStr = time.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
@@ -68,7 +70,7 @@ export default function DeveloperWorkspaceDashboardPage() {
               {t("heroTitle")}
             </h1>
             <div className="mt-3 flex items-baseline gap-3">
-              <span className="text-2xl font-light tabular-nums text-[var(--app-navy)] sm:text-3xl">
+              <span className="text-2xl font-medium tabular-nums text-[var(--app-navy)] sm:text-3xl tracking-normal">
                 {timeStr}
               </span>
               <span
@@ -138,7 +140,7 @@ export default function DeveloperWorkspaceDashboardPage() {
 
       <TodaySnapshot />
       </div>
-      <DeveloperContextPanel />
+      {!isFocusMode && <DeveloperContextPanel />}
     </div>
   );
 }

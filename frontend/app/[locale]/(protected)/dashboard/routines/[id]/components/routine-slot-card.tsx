@@ -43,18 +43,18 @@ export function RoutineSlotCard({ dayKey: _dayKey, group, slot, droppableId, onU
   const itemIds = items.map((i) => i.id);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl bg-neutral-50 p-3 transition-colors hover:bg-neutral-100/80 dark:bg-[var(--app-bg)] dark:hover:bg-[var(--app-bg)]/80">
+    <div className="flex flex-col gap-3 rounded-xl bg-[var(--app-routine-item-bg)] p-3 transition-colors dark:border dark:border-[var(--app-routine-item-border)]/50 dark:rounded-lg">
       <div className="flex items-center justify-between">
         <h4 className="flex items-center gap-1.5 text-sm font-medium text-[var(--app-fg)]">
           <SlotIcon className="size-4 shrink-0 [color:currentColor]" aria-hidden />
           {slot === "am" ? t("morning") : t("night")}
-          {group.time ? <span className="text-[var(--app-fg)]/60">({group.time})</span> : null}
+          {group.time ? <span className="text-[var(--app-fg-muted)]">({group.time})</span> : null}
         </h4>
         {!isEmpty ? (
           <button
             type="button"
             onClick={autoArrange}
-            className="text-xs text-[var(--app-fg)]/60 transition hover:text-[var(--app-navy)]"
+            className="text-xs text-[var(--app-fg-muted)] transition hover:text-[var(--app-primary)]"
           >
             {t("autoOptimize")}
           </button>
@@ -64,16 +64,16 @@ export function RoutineSlotCard({ dayKey: _dayKey, group, slot, droppableId, onU
       {isEmpty ? (
         <div
           ref={setNodeRef}
-          className={`rounded-lg border border-dashed py-6 text-center dark:border-[var(--app-border)] ${
-            isOver ? "border-[var(--app-navy)]/50 bg-[var(--app-navy)]/5" : "border-neutral-200"
+          className={`rounded-lg border border-dashed py-6 text-center border-[var(--app-border)] ${
+            isOver ? "border-[var(--app-primary)]/50 bg-[var(--app-primary-soft)]/30" : ""
           }`}
         >
-          <p className="text-sm text-[var(--app-fg)]/60">{t("noStepsYet")}</p>
+          <p className="text-sm text-[var(--app-fg-muted)]">{t("noStepsYet")}</p>
         </div>
       ) : (
         <div
           ref={setNodeRef}
-          className={`max-h-[220px] overflow-y-auto rounded-lg ${isOver ? "ring-1 ring-[var(--app-navy)]/30" : ""}`}
+          className={`max-h-[220px] overflow-y-auto rounded-lg ${isOver ? "ring-1 ring-[var(--app-primary)]/40" : ""}`}
         >
           <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
             <div className="flex flex-col gap-2">

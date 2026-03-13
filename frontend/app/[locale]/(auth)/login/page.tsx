@@ -121,9 +121,9 @@ export default function LoginPage() {
           {/* Marca y título */}
           <div className="text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-white)] shadow-sm">
-              <span className="text-xl font-bold tracking-tight">E</span>
+              <span className="text-xl font-bold tracking-normal">E</span>
             </div>
-            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
+            <h1 className="mt-4 text-2xl font-semibold tracking-normal text-[var(--app-fg)]">
               {tLanding("title")}
             </h1>
             <p className="mt-1.5 text-sm text-[var(--app-fg)]/60">

@@ -87,7 +87,7 @@ export function NewTopicModal({
           >
             <h2
               id="new-topic-title"
-              className="text-xl font-semibold tracking-tight text-[var(--app-fg)]"
+              className="text-xl font-semibold tracking-normal text-[var(--app-fg)]"
             >
               Nuevo tópico
             </h2>
@@ -132,7 +132,7 @@ export function NewTopicModal({
                 {TOPIC_TYPES.map((t) => (
                   <label
                     key={t.id}
-                    className="cursor-pointer rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-[var(--app-navy)] has-[:checked]:bg-[var(--app-navy)]/15 has-[:checked]:text-[var(--app-fg)] border-[var(--app-border)] text-[var(--app-fg)]/90 hover:border-[var(--app-navy)]/50 hover:bg-[var(--app-bg)]"
+                    className="cursor-pointer rounded-lg border px-3 py-2 text-sm font-medium transition has-[:checked]:border-[var(--app-navy)] has-[:checked]:bg-[var(--app-navy)]/15 has-[:checked]:text-[var(--app-fg)] border-[var(--app-border)] text-[var(--app-fg)]/90 hover:border-[var(--app-navy)]/50 hover:bg-[var(--app-bg)]"
                   >
                     <input
                       type="radio"

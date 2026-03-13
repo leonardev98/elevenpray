@@ -10,7 +10,7 @@ export default function WorkspaceKnowledgePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
+      <h1 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)]">
         Conocimiento
       </h1>
       <p className="text-[var(--app-fg)]/70">

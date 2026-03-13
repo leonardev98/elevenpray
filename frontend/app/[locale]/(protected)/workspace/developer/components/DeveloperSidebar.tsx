@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS: { href: string; key: string; icon: React.ElementType }[] = [
+const NAV_ITEMS: { href: string; key: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { href: "/workspace/developer", key: "dashboard", icon: LayoutDashboard },
   { href: "/workspace/developer", key: "today", icon: Sun },
   { href: "/workspace/developer/vault", key: "vault", icon: Lock },

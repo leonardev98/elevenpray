@@ -100,15 +100,15 @@ export default function WorkspaceDetailPage() {
   const isSkincare = workspace.workspaceType === "skincare";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight text-[var(--app-fg)]">
+        <h1 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)] dark:text-zinc-200">
           {workspace.name}
         </h1>
         {!hasSectionNav && hasRoutine && (
           <Link
             href={`/dashboard/workspaces/${workspaceId}/routine`}
-            className="rounded-xl border border-[var(--app-navy)]/50 bg-[var(--app-navy)]/10 px-4 py-2.5 text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/20"
+            className="rounded-xl border border-[var(--app-navy)]/50 bg-[var(--app-navy)]/10 px-4 py-2.5 text-sm font-medium text-[var(--app-navy)] hover:bg-[var(--app-navy)]/20 dark:text-sky-400"
           >
             {t("weeklyRoutine")}
           </Link>
@@ -123,29 +123,14 @@ export default function WorkspaceDetailPage() {
         <WeekScheduleCard workspaceId={workspaceId} />
       )}
 
-      {hasProductVault && (
+      {hasProductVault && !isSkincare && (
         <Link
           href={`/dashboard/workspaces/${workspaceId}/products`}
-          className="flex items-center justify-between rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition hover:border-[var(--app-navy)]/40 hover:shadow-md lg:hidden"
+          className="flex items-center justify-between rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition hover:border-[var(--app-navy)]/40 hover:shadow-md lg:hidden dark:border-zinc-700 dark:bg-zinc-900/50"
         >
-          <span className="font-medium text-[var(--app-fg)]">Ver productos</span>
-          <span className="text-[var(--app-navy)]">→</span>
+          <span className="font-medium text-[var(--app-fg)] dark:text-zinc-200">Ver productos</span>
+          <span className="text-[var(--app-navy)] dark:text-sky-400">→</span>
         </Link>
-      )}
-
-      {hasSectionNav && hasRoutine && (
-        <section className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-            Hoy
-          </h2>
-          <Link
-            href={`/dashboard/workspaces/${workspaceId}/routine`}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-[var(--app-fg)] transition hover:border-[var(--app-navy)]/40 hover:bg-[var(--app-navy)]/5"
-          >
-            <span className="font-medium">Rutina de hoy</span>
-            <span className="text-xs text-[var(--app-fg)]/60">AM y PM</span>
-          </Link>
-        </section>
       )}
 
       {error && (
@@ -154,8 +139,8 @@ export default function WorkspaceDetailPage() {
         </p>
       )}
 
-      <section className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
+      <section className="mt-10 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm dark:border-zinc-700">
+        <h2 className="mb-3 text-lg font-semibold text-[var(--app-fg)] dark:text-zinc-200">
           {t("spaces")}
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -186,9 +171,9 @@ export default function WorkspaceDetailPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
+      <section className="mt-10 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm dark:border-zinc-700">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
+          <h2 className="text-lg font-semibold text-[var(--app-fg)] dark:text-zinc-200">
             {t("pages")}
           </h2>
           <button

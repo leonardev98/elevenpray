@@ -141,6 +141,16 @@ export default function WorkspaceProductsPage() {
       .map((x) => x.product);
   }, [products, skinProfile]);
 
+  // Productos que NO están en "Recomendado para tu piel" para no duplicarlos en la lista principal
+  const recommendedIds = useMemo(
+    () => new Set(recommendedProducts.map((p) => p.id)),
+    [recommendedProducts]
+  );
+  const otherProducts = useMemo(
+    () => products.filter((p) => !recommendedIds.has(p.id)),
+    [products, recommendedIds]
+  );
+
   async function toggleBookmark(productId: string) {
     if (!token || !workspaceId) return;
     const isBookmarked = bookmarkIds.has(productId);
@@ -168,7 +178,7 @@ export default function WorkspaceProductsPage() {
   return (
     <div className="w-full px-3 sm:px-4 lg:px-5">
       <header className="mb-8">
-        <h2 className="text-2xl font-semibold tracking-tight text-[var(--app-fg)] sm:text-3xl">
+        <h2 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)] sm:text-3xl">
           Productos
         </h2>
         <p className="mt-2 text-sm text-[var(--app-fg)]/70 sm:text-base">
@@ -247,22 +257,29 @@ export default function WorkspaceProductsPage() {
               </ul>
             </section>
           )}
-          <ul
-            className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
-            role="list"
-          >
-            {products.map((product) => (
-              <li key={product.id}>
-                <CatalogProductCard
-                  product={product}
-                  isBookmarked={bookmarkIds.has(product.id)}
-                  onToggleBookmark={() => toggleBookmark(product.id)}
-                  onOpenDetail={() => setDetailProductId(product.id)}
-                  onAddToRoutine={() => setAddToRoutineProduct(product)}
-                />
-              </li>
-            ))}
-          </ul>
+          <section className={recommendedProducts.length > 0 ? "mt-10" : ""}>
+            {recommendedProducts.length > 0 && (
+              <h3 className="mb-4 text-lg font-semibold text-[var(--app-fg)]">
+                Resto del catálogo
+              </h3>
+            )}
+            <ul
+              className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
+              role="list"
+            >
+              {otherProducts.map((product) => (
+                <li key={product.id}>
+                  <CatalogProductCard
+                    product={product}
+                    isBookmarked={bookmarkIds.has(product.id)}
+                    onToggleBookmark={() => toggleBookmark(product.id)}
+                    onOpenDetail={() => setDetailProductId(product.id)}
+                    onAddToRoutine={() => setAddToRoutineProduct(product)}
+                  />
+                </li>
+              ))}
+            </ul>
+          </section>
         </>
       )}
 

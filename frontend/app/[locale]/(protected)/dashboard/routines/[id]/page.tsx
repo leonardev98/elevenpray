@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "../../../../../providers/auth-provider";
 import { getRoutineTemplate, updateRoutineTemplate, type Routine } from "../../../../../lib/routine-templates-api";
 import type { DayContent, RoutineMetadata } from "../../../../../lib/routines-api";
@@ -10,10 +10,10 @@ import { getWorkspaceProducts } from "../../../../../lib/workspace-products-api"
 import { getWorkspacePreference, updateWorkspacePreference } from "../../../../../lib/workspace-preferences-api";
 import { checkIngredientConflicts, type ConflictResultApi } from "../../../../../lib/ingredient-conflicts-api";
 import {
+  analyzeRoutine,
+  applySuggestionToRoutine,
   buildStarterRoutine,
   DAY_KEYS,
-  detectRoutineConflicts,
-  deriveRoutineInsights,
   ensureAMPMGroups,
   getWeeklyIntentSummary,
   rebuildRoutineForBuilder,
@@ -21,18 +21,18 @@ import {
   type DayKey,
 } from "../../../../../lib/routine-builder";
 import { getCatalogProducts } from "../../../../../lib/catalog-api";
+import { RoutineIntelligencePanel } from "@/components/routines/routine-intelligence-panel";
 import { RoutineHeader } from "./components/routine-header";
-import { RoutineContextPanel } from "./components/routine-context-panel";
 import { WeeklyRoutineGrid } from "./components/weekly-routine-grid";
 import { AddProductToRoutineModal } from "./components/add-product-to-routine-modal";
 import { AutoBuildRoutineDialog } from "./components/auto-build-routine-dialog";
 import { RoutinePreviewPanel } from "./components/routine-preview-panel";
-import { ConflictWarnings } from "./components/conflict-warnings";
-import { ClinicalInsights } from "./components/clinical-insights";
+import { ClearRoutineConfirmModal } from "./components/clear-routine-confirm-modal";
 
 export default function RoutineEditorPage() {
   const params = useParams();
   const id = params.id as string;
+  const locale = useLocale() as "es" | "en";
   const { token } = useAuth();
   const tDays = useTranslations("days");
   const tBuilder = useTranslations("routineBuilder");
@@ -48,6 +48,7 @@ export default function RoutineEditorPage() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isAutoBuildOpen, setIsAutoBuildOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [isClearRoutineModalOpen, setIsClearRoutineModalOpen] = useState(false);
 
   useEffect(() => {
     if (!token || !id) return;
@@ -70,20 +71,19 @@ export default function RoutineEditorPage() {
 
         const ingredients = [...new Set(products.flatMap((product) => product.mainIngredients ?? []))];
         if (ingredients.length > 0) {
-          const conflicts = await checkIngredientConflicts(token, ingredients, "en");
+          const conflicts = await checkIngredientConflicts(token, ingredients, locale);
           setIngredientConflicts(conflicts);
         }
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token, id]);
+  }, [token, id, locale]);
 
-  const insights = useMemo(() => (routine ? deriveRoutineInsights({ ...routine, metadata }) : []), [routine, metadata]);
-  const conflictReport = useMemo(
+  const routineAnalysis = useMemo(
     () =>
       routine
-        ? detectRoutineConflicts({ ...routine, metadata }, ingredientConflicts)
-        : { warnings: [], ingredientConflicts: [] },
+        ? analyzeRoutine({ ...routine, metadata }, ingredientConflicts, metadata)
+        : null,
     [routine, metadata, ingredientConflicts]
   );
   const intentLabelMap = useMemo(() => {
@@ -216,6 +216,23 @@ export default function RoutineEditorPage() {
     setSaveStatus("idle");
   };
 
+  const openClearRoutineModal = () => setIsClearRoutineModalOpen(true);
+
+  const doClearRoutine = () => {
+    if (!routine) return;
+    const emptyDays: Record<string, DayContent> = {};
+    for (const dayKey of DAY_KEYS) {
+      const day = routine.days[dayKey];
+      const groups = (day?.groups ?? []).map((group) => ({
+        ...group,
+        items: [] as typeof group.items,
+      }));
+      emptyDays[dayKey] = { groups };
+    }
+    setRoutine({ ...routine, days: emptyDays });
+    setSaveStatus("idle");
+  };
+
   if (loading || !routine) {
     return (
       <div className="flex justify-center py-8">
@@ -224,47 +241,8 @@ export default function RoutineEditorPage() {
     );
   }
 
-  if (isEmptyRoutine) {
-    return (
-      <div className="space-y-6">
-        <RoutineHeader
-          title={tBuilder("title")}
-          subtitle={tBuilder("subtitle")}
-          saveStatus={saveStatus}
-          onSave={handleSave}
-          onOpenPreview={() => setIsPreviewOpen(true)}
-          onOpenAutoBuild={() => setIsAutoBuildOpen(true)}
-        />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--app-border)] bg-[var(--app-bg)]/50 py-16 px-6 text-center">
-          <p className="text-lg font-medium text-[var(--app-fg)]">{tBuilder("noRoutineYet")}</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-            <button
-              type="button"
-              onClick={() => setIsAutoBuildOpen(true)}
-              className="rounded-xl border border-[var(--app-navy)]/40 bg-[var(--app-navy)]/10 px-5 py-3 text-sm font-medium text-[var(--app-navy)] transition hover:bg-[var(--app-navy)]/20"
-            >
-              {tBuilder("autoBuildRoutine")}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleAutoBuild("scratch")}
-              className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-3 text-sm font-medium text-[var(--app-fg)] transition hover:bg-[var(--app-bg)]"
-            >
-              {tBuilder("buildFromScratchCta")}
-            </button>
-          </div>
-        </div>
-        <AutoBuildRoutineDialog
-          isOpen={isAutoBuildOpen}
-          onClose={() => setIsAutoBuildOpen(false)}
-          onSelectMode={handleAutoBuild}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <RoutineHeader
         title={tBuilder("title")}
         subtitle={tBuilder("subtitle")}
@@ -272,13 +250,16 @@ export default function RoutineEditorPage() {
         onSave={handleSave}
         onOpenPreview={() => setIsPreviewOpen(true)}
         onOpenAutoBuild={() => setIsAutoBuildOpen(true)}
+        onClearRoutine={isEmptyRoutine ? undefined : openClearRoutineModal}
+        backHref={routine?.workspaceId ? `/dashboard/workspaces/${routine.workspaceId}` : undefined}
+        backLabel={routine?.workspaceId ? tBuilder("backToDashboard") : undefined}
       />
 
       <div className="flex flex-col gap-4">
         <button
           type="button"
           onClick={() => setIsAddProductModalOpen(true)}
-          className="w-fit rounded-xl border border-[var(--app-navy)]/40 bg-[var(--app-navy)]/10 px-4 py-2.5 text-sm font-medium text-[var(--app-navy)] transition hover:bg-[var(--app-navy)]/20"
+          className="w-fit rounded-[10px] border border-[var(--app-border)] bg-[var(--app-primary-soft)] px-4 py-2.5 text-sm font-medium text-[var(--app-primary)] transition hover:bg-[var(--app-primary-soft)]/80"
         >
           {tBuilder("addProductToRoutine")}
         </button>
@@ -290,16 +271,19 @@ export default function RoutineEditorPage() {
         />
       </div>
 
-      <RoutineContextPanel
-        metadata={metadata}
-        onMetadataChange={(next) => {
-          setMetadata(next);
-          setSaveStatus("idle");
-        }}
-      />
-
-      <ClinicalInsights insights={insights} />
-      <ConflictWarnings report={conflictReport} />
+      {routineAnalysis && (
+        <RoutineIntelligencePanel
+          analysis={routineAnalysis}
+          onApplySuggestion={(suggestion) => {
+            if (!routine) return;
+            const updated = applySuggestionToRoutine(routine, suggestion);
+            if (updated) {
+              setRoutine(updated);
+              setSaveStatus("idle");
+            }
+          }}
+        />
+      )}
 
       {error ? (
         <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">{error}</p>
@@ -329,6 +313,12 @@ export default function RoutineEditorPage() {
         onClose={() => setIsPreviewOpen(false)}
         days={routine.days}
         dayNameByKey={(day) => tDays(day)}
+      />
+
+      <ClearRoutineConfirmModal
+        isOpen={isClearRoutineModalOpen}
+        onClose={() => setIsClearRoutineModalOpen(false)}
+        onConfirm={doClearRoutine}
       />
     </div>
   );

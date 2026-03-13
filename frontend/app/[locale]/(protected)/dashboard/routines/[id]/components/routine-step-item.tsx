@@ -25,10 +25,10 @@ const STEP_TYPES: RoutineStepType[] = [
 
 export function RoutineStepItem({ index, item, onChange, onRemove }: RoutineStepItemProps) {
   return (
-    <article className="rounded-xl border border-[var(--app-border)] bg-white/95 p-3 transition hover:border-[var(--app-navy)]/40">
+    <article className="rounded-xl border border-[var(--app-routine-item-border)] bg-[var(--app-routine-item-bg)] p-3 transition hover:border-[var(--app-primary)]/40">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--app-navy)]/15 text-xs font-semibold text-[var(--app-navy)]">
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-xs font-semibold text-[var(--app-primary)]">
             {index + 1}
           </span>
           <input
@@ -42,7 +42,7 @@ export function RoutineStepItem({ index, item, onChange, onRemove }: RoutineStep
         <button
           type="button"
           onClick={onRemove}
-          className="rounded-lg px-2 py-1 text-xs text-[var(--app-fg)]/40 transition hover:bg-red-500/10 hover:text-red-500"
+          className="rounded-lg px-2 py-1 text-xs text-[var(--app-fg-muted)] transition hover:bg-red-500/10 hover:text-red-500"
         >
           Remove
         </button>

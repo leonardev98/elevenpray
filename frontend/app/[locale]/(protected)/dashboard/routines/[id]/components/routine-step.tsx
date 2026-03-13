@@ -77,9 +77,9 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
 
   if (editing) {
     return (
-      <article className="flex flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3 dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]">
+      <article className="flex flex-col gap-2 rounded-xl border border-[var(--app-routine-item-border)] bg-[var(--app-routine-item-bg)] p-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--app-navy)]/15 text-xs font-semibold text-[var(--app-navy)]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-xs font-semibold text-[var(--app-primary)]">
             {index + 1}
           </span>
           <input
@@ -92,7 +92,7 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
           <button
             type="button"
             onClick={() => setEditing(false)}
-            className="text-xs text-[var(--app-fg)]/60 hover:text-[var(--app-navy)]"
+            className="text-xs text-[var(--app-fg-muted)] hover:text-[var(--app-primary)]"
           >
             {t("done")}
           </button>
@@ -124,12 +124,12 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
     <article
       ref={setNodeRef}
       style={style}
-      className={`flex min-w-0 items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 transition shadow-sm hover:shadow-md dark:border-[var(--app-border)] dark:bg-[var(--app-bg)] ${isDragging ? "opacity-50" : ""}`}
+      className={`flex min-w-0 items-center justify-between gap-3 rounded-xl border border-[var(--app-routine-item-border)] bg-[var(--app-routine-item-bg)] p-3 transition shadow-sm hover:shadow-md ${isDragging ? "opacity-50" : ""}`}
     >
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <button
           type="button"
-          className="touch-none cursor-grab rounded p-1 text-[var(--app-fg)]/50 transition hover:text-[var(--app-fg)] active:cursor-grabbing"
+          className="touch-none cursor-grab rounded p-1 text-[var(--app-fg-muted)] transition hover:text-[var(--app-fg)] active:cursor-grabbing"
           {...attributes}
           {...listeners}
           aria-label={t("dragToReorder")}
@@ -140,7 +140,7 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
           <p className="truncate text-sm font-medium text-[var(--app-fg)]">
             {item.content || t("unnamedStep")}
           </p>
-          <p className="text-xs text-[var(--app-fg)]/60">
+          <p className="text-xs text-[var(--app-fg-muted)]">
             {stepTypeLabel(stepType)}
           </p>
         </div>
@@ -149,7 +149,7 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="rounded p-1 text-[var(--app-fg)]/40 transition hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
+          className="rounded p-1 text-[var(--app-fg-muted)] transition hover:bg-[var(--app-surface-elevated)] hover:text-[var(--app-fg)]"
           aria-label={t("editStep")}
         >
           <Pencil className="h-4 w-4" />
@@ -157,7 +157,7 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
         <button
           type="button"
           onClick={onRemove}
-          className="rounded p-1 text-[var(--app-fg)]/40 transition hover:bg-red-500/10 hover:text-red-500"
+          className="rounded p-1 text-[var(--app-fg-muted)] transition hover:bg-red-500/10 hover:text-red-500"
           aria-label={t("removeStep")}
         >
           <Trash2 className="h-4 w-4 [color:currentColor]" />

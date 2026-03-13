@@ -211,7 +211,7 @@ export default function DashboardPage() {
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
+          <h1 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)]">
             {t("title")}
           </h1>
           <p className="mt-1 text-sm text-[var(--app-fg)]/70">
@@ -372,7 +372,7 @@ export default function DashboardPage() {
                       {dayInfo.dayLabel}
                     </span>
                     <span
-                      className={`mt-1 text-2xl font-semibold tabular-nums tracking-tight ${
+                      className={`mt-1 text-2xl font-semibold tabular-nums tracking-normal ${
                         isToday ? "text-[var(--app-navy)]" : "text-[var(--app-fg)]"
                       }`}
                     >

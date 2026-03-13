@@ -129,7 +129,7 @@ export default function WorkspaceJournalPage() {
 
   return (
     <div>
-      <h2 className="mb-4 text-xl font-semibold tracking-tight text-[var(--app-fg)]">
+      <h2 className="mb-4 text-xl font-semibold tracking-normal text-[var(--app-fg)]">
         Skin Journal
       </h2>
 

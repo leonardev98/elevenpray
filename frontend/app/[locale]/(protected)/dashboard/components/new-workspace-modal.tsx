@@ -109,7 +109,7 @@ export function NewWorkspaceModal({
           >
             <h2
               id="new-workspace-title"
-              className="text-xl font-semibold tracking-tight text-[var(--app-fg)]"
+              className="text-xl font-semibold tracking-normal text-[var(--app-fg)]"
             >
               {t("newWorkspace")}
             </h2>

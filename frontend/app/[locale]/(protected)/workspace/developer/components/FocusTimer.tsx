@@ -58,7 +58,7 @@ export function FocusTimer({ className }: FocusTimerProps) {
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-navy)]/10">
           <span
-            className="text-2xl font-light tabular-nums text-[var(--app-navy)]"
+            className="text-2xl font-medium tabular-nums text-[var(--app-navy)] tracking-normal"
             style={{ letterSpacing: "var(--dev-font-display-tracking)" }}
           >
             {display}

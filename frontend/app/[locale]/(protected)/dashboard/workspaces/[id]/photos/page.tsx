@@ -94,7 +94,7 @@ export default function WorkspacePhotosPage() {
   return (
     <div>
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-xl font-semibold tracking-tight text-[var(--app-fg)]">
+        <h2 className="text-xl font-semibold tracking-normal text-[var(--app-fg)]">
           Progress Photos
         </h2>
         <button
@@ -236,7 +236,7 @@ export default function WorkspacePhotosPage() {
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="rounded-lg border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-fg)] hover:bg-[var(--app-bg)]"
+                  className="rounded-lg border border-[var(--app-border)] px-4 py-2 text-sm font-medium text-[var(--app-fg)] hover:bg-[var(--app-bg)]"
                 >
                   Cancelar
                 </button>

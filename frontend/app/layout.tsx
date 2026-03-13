@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Geist_Mono, Montserrat } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import "./domains-pattern.css";
 
@@ -9,10 +9,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -41,8 +41,8 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${geistMono.variable} ${montserrat.variable} antialiased`}
-        style={{ fontFamily: "var(--font-montserrat), system-ui, sans-serif" }}
+        className={`${geistMono.variable} ${inter.variable} antialiased`}
+        style={{ fontFamily: "var(--font-inter), system-ui, -apple-system, sans-serif" }}
       >
         {children}
       </body>

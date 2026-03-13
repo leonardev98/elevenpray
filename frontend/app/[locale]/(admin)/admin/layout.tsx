@@ -50,7 +50,7 @@ export default function AdminLayout({
         <div className="flex items-center gap-6">
           <Link
             href="/admin"
-            className="font-semibold tracking-tight text-[var(--app-white)]"
+            className="font-semibold tracking-normal text-[var(--app-white)]"
           >
             Panel Admin
           </Link>

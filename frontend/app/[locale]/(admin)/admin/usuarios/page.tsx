@@ -11,7 +11,7 @@ export default function AdminUsuariosPage() {
   return (
     <>
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight text-[var(--app-fg)]">
+        <h1 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)]">
           Usuarios del panel
         </h1>
         <p className="mt-2 text-[var(--app-fg)]/70 leading-relaxed">

@@ -118,7 +118,7 @@ export default function RoutinesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
+      <h1 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)]">
         {t("myRoutines")}
       </h1>
       <p className="mt-1 text-sm text-[var(--app-fg)]/60">
@@ -180,7 +180,7 @@ export default function RoutinesPage() {
                           type="button"
                           onClick={handleEditCancel}
                           disabled={saving}
-                          className="rounded-lg border border-[var(--app-border)] px-3 py-1.5 text-sm text-[var(--app-fg)] hover:bg-[var(--app-bg)]"
+                          className="rounded-lg border border-[var(--app-border)] px-3 py-1.5 text-sm font-medium text-[var(--app-fg)] hover:bg-[var(--app-bg)]"
                         >
                           {tCommon("cancel")}
                         </button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { getRoutineTemplatesByWorkspace } from "../../../../../../lib/workspaces-api";
 
@@ -30,6 +31,7 @@ function hasRoutineContent(days: Record<string, unknown> | undefined): boolean {
 
 export function WeekScheduleCard({ workspaceId }: WeekScheduleCardProps) {
   const { token } = useAuth();
+  const t = useTranslations("workspace");
   const [hasContent, setHasContent] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -47,51 +49,54 @@ export function WeekScheduleCard({ workspaceId }: WeekScheduleCardProps) {
 
   return (
     <section
-      className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm"
+      className="mt-12 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm dark:border-zinc-700"
       aria-labelledby="week-schedule-heading"
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <h2 id="week-schedule-heading" className="text-xl font-semibold tracking-tight text-[var(--app-fg)]">
-          Tu rutina semanal
+        <h2
+          id="week-schedule-heading"
+          className="text-lg font-semibold tracking-normal text-[var(--app-fg)] dark:text-zinc-200"
+        >
+          {t("weeklyRoutine")}
         </h2>
         <Link
           href={`/dashboard/workspaces/${workspaceId}/routine`}
-          className="rounded-xl bg-[var(--app-navy)] px-4 py-2.5 text-sm font-medium text-[var(--app-white)] shadow-sm transition hover:opacity-90"
+          className="rounded-xl bg-[var(--app-navy)] px-5 py-3 text-sm font-medium text-[var(--app-white)] shadow-sm transition-all hover:opacity-95 hover:shadow-md dark:bg-[var(--app-navy)]"
         >
-          Armar rutina
+          {t("buildRoutine")}
         </Link>
       </div>
 
       {!showGrid && (
-        <div className="rounded-xl border border-dashed border-[var(--app-border)] bg-[var(--app-bg)]/50 py-10 text-center">
-          <p className="text-[var(--app-fg)]/70">
-            Tu rutina está vacía. Organiza mañana y noche por día.
+        <div className="rounded-xl border border-dashed border-[var(--app-border)] bg-[var(--app-bg)]/50 py-10 text-center dark:border-zinc-600 dark:bg-zinc-800/30">
+          <p className="text-sm font-normal text-[var(--app-fg)]/80 dark:text-slate-300">
+            {t("weeklyRoutineEmpty")}
           </p>
           <Link
             href={`/dashboard/workspaces/${workspaceId}/routine`}
-            className="mt-4 inline-block rounded-xl bg-[var(--app-navy)]/15 px-5 py-2.5 text-sm font-medium text-[var(--app-navy)] transition hover:bg-[var(--app-navy)]/25"
+            className="mt-4 inline-block rounded-xl bg-[var(--app-navy)]/15 px-5 py-2.5 text-sm font-medium text-[var(--app-navy)] transition hover:bg-[var(--app-navy)]/25 dark:bg-sky-500/20 dark:text-sky-400 dark:hover:bg-sky-500/30"
           >
-            Armar rutina
+            {t("buildRoutine")}
           </Link>
         </div>
       )}
 
       {showGrid && (
         <>
-          <p className="mb-6 text-sm text-[var(--app-fg)]/60">
-            Organiza tu semana: mañana y noche. Edita los días y añade los pasos de tu rutina.
+          <p className="mb-6 text-sm font-normal text-[var(--app-fg)]/70 dark:text-slate-400">
+            {t("weeklyRoutineHint")}
           </p>
           <div className="grid grid-cols-7 gap-2">
             {DAYS.map((day) => (
               <Link
                 key={day.key}
                 href={`/dashboard/workspaces/${workspaceId}/routine`}
-                className="flex flex-col items-center rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] py-5 transition hover:border-[var(--app-navy)]/40 hover:bg-[var(--app-navy)]/5"
+                className="flex cursor-pointer flex-col items-center rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] py-5 transition-all hover:border-[var(--app-navy)]/40 hover:shadow-md hover:bg-[var(--app-navy)]/5 dark:border-zinc-700 dark:bg-zinc-800/50"
               >
-                <span className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg)]/60">
+                <span className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg)]/70 dark:text-slate-400">
                   {day.short}
                 </span>
-                <span className="mt-1 text-lg font-semibold text-[var(--app-fg)]">—</span>
+                <span className="mt-1 text-lg font-semibold text-[var(--app-fg)] dark:text-zinc-200">—</span>
               </Link>
             ))}
           </div>

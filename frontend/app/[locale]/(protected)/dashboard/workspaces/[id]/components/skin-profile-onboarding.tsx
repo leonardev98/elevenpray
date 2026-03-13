@@ -156,7 +156,7 @@ export function SkinProfileOnboarding({
         aria-describedby="skin-profile-desc"
       >
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h2 id="skin-profile-title" className="text-xl font-semibold tracking-tight text-[var(--app-fg)]">
+          <h2 id="skin-profile-title" className="text-xl font-semibold tracking-normal text-[var(--app-fg)]">
             Tu perfil de piel
           </h2>
           {isEdit && onClose ? (

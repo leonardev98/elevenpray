@@ -52,6 +52,39 @@ export interface RoutineInsight {
   slot?: RoutineSlot;
 }
 
+/** Single insight for Routine Intelligence (info | warning | tip). */
+export interface IntelligenceInsight {
+  id: string;
+  severity: "info" | "warning" | "tip";
+  message: string;
+  dayKey?: DayKey;
+  slot?: RoutineSlot;
+}
+
+/** Ingredient conflict from API. */
+export type IntelligenceConflict = ConflictResultApi;
+
+/** Optimization suggestion with optional apply action. */
+export interface RoutineSuggestion {
+  id: string;
+  message: string;
+  action: RoutineSuggestionAction | null;
+}
+
+export type RoutineSuggestionAction =
+  | { type: "move_item"; dayKey: DayKey; slot: RoutineSlot; itemId: string; toDayKey: DayKey; toSlot: RoutineSlot }
+  | { type: "remove_item"; dayKey: DayKey; slot: RoutineSlot; itemId: string }
+  | { type: "reduce_frequency"; stepType: RoutineStepType; keepDays: DayKey[] };
+
+/** Full analysis for Routine Intelligence panel. */
+export interface RoutineAnalysis {
+  score: number;
+  scoreLabel: string;
+  insights: IntelligenceInsight[];
+  conflicts: IntelligenceConflict[];
+  suggestions: RoutineSuggestion[];
+}
+
 export interface ConflictWarning {
   id: string;
   dayKey: DayKey;

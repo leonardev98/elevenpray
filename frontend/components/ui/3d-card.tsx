@@ -134,14 +134,10 @@ export const CardItem = ({
     }
   };
 
-  return (
-    <Tag
-      ref={ref}
-      className={cn("w-fit transition duration-200 ease-linear", className)}
-      {...rest}
-    >
-      {children}
-    </Tag>
+  return React.createElement(
+    Tag as React.ComponentType<{ ref?: React.Ref<HTMLDivElement>; className?: string; children?: React.ReactNode }>,
+    { ref, className: cn("w-fit transition duration-200 ease-linear", className), ...rest },
+    children
   );
 };
 

@@ -42,6 +42,7 @@ const SKINCARE_SECTIONS: NavSection[] = [
       { href: "journal", labelKey: "journal" },
       { href: "photos", labelKey: "photos" },
       { href: "progress", labelKey: "progress" },
+      { href: "face", labelKey: "faceMapping" },
     ],
   },
   {

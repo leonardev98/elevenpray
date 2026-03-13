@@ -61,7 +61,7 @@ export function DayDrawer({ isOpen, onClose, day }: DayDrawerProps) {
         <div className="flex flex-shrink-0 items-center justify-between border-b border-[var(--app-border)] px-4 py-4">
           <h2
             id="day-drawer-title"
-            className="text-base font-semibold tracking-tight text-[var(--app-fg)] capitalize sm:text-lg"
+            className="text-base font-semibold tracking-normal text-[var(--app-fg)] capitalize sm:text-lg"
           >
             {day ? formatDateLabel(day.dateStr, locale) : t("myDay")}
           </h2>

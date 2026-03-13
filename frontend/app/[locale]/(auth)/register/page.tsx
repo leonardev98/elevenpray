@@ -56,7 +56,7 @@ export default function RegisterPage() {
         <ThemeToggle />
       </div>
       <main className="w-full max-w-sm rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-lg sm:p-8">
-        <h1 className="text-xl font-semibold tracking-tight text-[var(--app-fg)]">
+        <h1 className="text-xl font-semibold tracking-normal text-[var(--app-fg)]">
           {t("createAccount")}
         </h1>
         <p className="mt-1 text-sm text-[var(--app-fg)]/60">{tLanding("title")}</p>

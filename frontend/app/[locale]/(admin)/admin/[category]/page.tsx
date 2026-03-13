@@ -77,7 +77,7 @@ export default function AdminCategoryPage() {
           </svg>
         </I18nLink>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[var(--app-fg)]">
+          <h1 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)]">
             {category.label}
           </h1>
           <p className="mt-1 text-[var(--app-fg)]/60">

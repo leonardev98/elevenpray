@@ -127,7 +127,7 @@ export function DashboardSidebar({
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-white)] font-bold text-lg shadow-sm">
               E
             </span>
-            <span className="text-lg font-semibold tracking-tight text-[var(--app-fg)]">
+            <span className="text-lg font-semibold tracking-normal text-[var(--app-fg)]">
               Mitsyy
             </span>
           </Link>
@@ -148,7 +148,7 @@ export function DashboardSidebar({
                       "flex min-h-[42px] items-center rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-150",
                       isActive
                         ? "bg-[var(--app-navy)] text-[var(--app-white)] shadow-sm"
-                        : "text-[var(--app-fg)]/80 transition-colors hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
+                        : "text-[var(--app-fg)]/80 transition-colors hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)] dark:text-zinc-200 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                     )}
                   >
                     {t(key)}
@@ -172,7 +172,7 @@ export function DashboardSidebar({
 
         {/* Mis espacios — label refinado, más jerarquía */}
         <div className="flex-1 overflow-y-auto px-3 py-5">
-          <p className="mb-3 px-2 text-[length:var(--dev-font-label-size)] font-medium tracking-[var(--dev-font-label-tracking)] text-[var(--app-fg)]/55">
+          <p className="mb-3 px-2 text-[length:var(--dev-font-label-size)] font-medium tracking-[var(--dev-font-label-tracking)] text-[var(--app-fg)]/55 dark:text-slate-400">
             {tWorkspace("mySpaces")}
           </p>
           <button
@@ -328,9 +328,9 @@ export function DashboardSidebar({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-[var(--dev-border-subtle)] p-4">
-          <div className="rounded-xl border border-[var(--dev-border-subtle)] bg-[var(--app-navy)]/5 p-3 text-center">
-            <p className="text-xs font-medium text-[var(--app-fg)]/60">{tWorkspace("tagline")}</p>
+        <div className="border-t border-[var(--dev-border-subtle)] p-4 dark:border-zinc-700">
+          <div className="rounded-xl border border-[var(--dev-border-subtle)] bg-[var(--app-navy)]/5 p-3 text-center dark:border-zinc-700 dark:bg-zinc-800/30">
+            <p className="text-xs font-medium text-[var(--app-fg)]/60 dark:text-slate-400">{tWorkspace("tagline")}</p>
           </div>
         </div>
       </div>

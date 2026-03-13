@@ -2,6 +2,8 @@
 
 App de rutinas semanales (estilo Notion) con **frontend** (Next.js) y **backend** (NestJS). La base de datos está en Supabase (PostgreSQL). Pensado para clonar y trabajar en equipo.
 
+**Frontend y backend son independientes:** no hay `package.json` en la raíz. Cada uno instala y corre en su carpeta (`frontend/` o `backend/`). Tras un `git pull`, basta con `cd frontend && npm install && npm run dev` (y lo mismo en `backend/`) sin instalar nada en la raíz.
+
 ## Arquitectura
 
 ```
@@ -84,6 +86,22 @@ npm run dev
 ```
 
 Abre **http://localhost:3000**. Ya puedes registrarte e iniciar sesión.
+
+## Después de `git pull`
+
+Si tras hacer pull algo falla (p. ej. frontend no arranca o falta un paquete):
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
+y en otra terminal, si usas el backend:
+
+```bash
+cd backend && npm install && npm run start:dev
+```
+
+Cada carpeta tiene sus propias dependencias; no hace falta instalar nada en la raíz del repo.
 
 ## Resumen para tu compañero
 

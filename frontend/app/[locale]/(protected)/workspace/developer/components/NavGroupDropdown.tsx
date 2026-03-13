@@ -13,7 +13,7 @@ import {
 export interface NavGroupItem {
   href: string;
   key: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 interface NavGroupDropdownProps {

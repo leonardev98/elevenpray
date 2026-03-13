@@ -67,7 +67,7 @@ export function WeeklyRoutineGrid({
           onClick={goPrev}
           disabled={scrollIndex === 0}
           aria-label={t("carouselPrevDay")}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-fg)] transition hover:bg-[var(--app-bg)] disabled:opacity-40 disabled:pointer-events-none"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--app-border)] bg-[var(--app-surface-elevated)] text-[var(--app-fg)] transition hover:bg-[var(--app-surface-elevated)]/80 disabled:opacity-40 disabled:pointer-events-none"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -79,8 +79,8 @@ export function WeeklyRoutineGrid({
               onClick={() => setScrollIndex(index)}
               className={`rounded-lg px-2 py-1.5 text-sm font-medium transition sm:px-3 ${
                 scrollIndex === index
-                  ? "bg-[var(--app-navy)]/15 text-[var(--app-navy)]"
-                  : "text-[var(--app-fg)]/70 hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)]"
+                  ? "bg-[var(--app-primary-soft)] text-[var(--app-primary)]"
+                  : "text-[var(--app-fg-secondary)] hover:bg-[var(--app-surface-elevated)] hover:text-[var(--app-fg)]"
               }`}
             >
               {tDays(dayKey)}
@@ -92,7 +92,7 @@ export function WeeklyRoutineGrid({
           onClick={goNext}
           disabled={scrollIndex === DAY_KEYS.length - 1}
           aria-label={t("carouselNextDay")}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-fg)] transition hover:bg-[var(--app-bg)] disabled:opacity-40 disabled:pointer-events-none"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--app-border)] bg-[var(--app-surface-elevated)] text-[var(--app-fg)] transition hover:bg-[var(--app-surface-elevated)]/80 disabled:opacity-40 disabled:pointer-events-none"
         >
           <ChevronRight className="h-5 w-5" />
         </button>

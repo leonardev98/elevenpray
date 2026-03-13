@@ -65,7 +65,7 @@ export default function OnboardingPage() {
             <div className="mb-6 flex justify-center">
               <MitsyyPlaceholder />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
+            <h1 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)]">
               {t("welcomeTitle")}
             </h1>
             <p className="mt-2 text-[var(--app-fg)]/70">
@@ -93,7 +93,7 @@ export default function OnboardingPage() {
             <div className="mb-4 flex justify-center">
               <MitsyyPlaceholder className="h-20 w-20 opacity-90" />
             </div>
-            <h2 className="text-center text-xl font-semibold tracking-tight text-[var(--app-fg)]">
+            <h2 className="text-center text-xl font-semibold tracking-normal text-[var(--app-fg)]">
               {t("chooseTitle")}
             </h2>
             <p className="mt-1 text-center text-sm text-[var(--app-fg)]/70">
