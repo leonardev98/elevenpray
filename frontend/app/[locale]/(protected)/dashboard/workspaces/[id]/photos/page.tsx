@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { UnderConstructionOverlay } from "../components/under-construction-overlay";
 import {
@@ -34,6 +35,7 @@ function formatDate(s: string) {
 export default function WorkspacePhotosPage() {
   const params = useParams();
   const workspaceId = params.id as string;
+  const tCommon = useTranslations("common");
   const { token } = useAuth();
   const [photos, setPhotos] = useState<WorkspacePhotoApi[]>([]);
   const [loading, setLoading] = useState(true);
@@ -255,7 +257,7 @@ export default function WorkspacePhotosPage() {
                   disabled={saving || !imageUrl.trim()}
                   className="rounded-lg bg-[var(--app-navy)] px-4 py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
                 >
-                  {saving ? "Guardando…" : "Añadir"}
+                  {saving ? tCommon("saving") : tCommon("add")}
                 </button>
               </div>
             </form>

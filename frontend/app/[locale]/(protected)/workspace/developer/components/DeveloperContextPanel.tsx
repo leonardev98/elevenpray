@@ -8,6 +8,7 @@ import { MOCK_TECH_FEED } from "@/app/lib/developer-workspace";
 
 export function DeveloperContextPanel() {
   const t = useTranslations("developerWorkspace.dashboard");
+  const tCommon = useTranslations("common");
   const recentProjects = MOCK_PROJECTS.filter((p) => p.status === "active")
     .slice(0, 3);
   const feedItems = MOCK_TECH_FEED.slice(0, 4);
@@ -75,7 +76,7 @@ export function DeveloperContextPanel() {
             href="/workspace/developer/tech-feed"
             className="mt-3 block text-[length:var(--dev-font-meta-size)] font-medium text-[var(--app-navy)] hover:underline"
           >
-            Ver todo →
+            {tCommon("viewAll")} →
           </Link>
         </section>
       </div>

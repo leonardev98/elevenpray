@@ -6,6 +6,7 @@
     "name": "Name",
     "cancel": "Cancel",
     "create": "Create",
+    "add": "Add",
     "creating": "Creating…",
     "close": "Close",
     "backToHome": "Back to home",
@@ -19,7 +20,11 @@
     "none": "None",
     "language": "Language",
     "search": "Search",
-    "searchPlaceholder": "Search…"
+    "searchPlaceholder": "Search…",
+    "saving": "Saving…",
+    "save": "Save",
+    "viewAll": "View all",
+    "viewAllNotes": "View all notes"
   },
   "landing": {
     "title": "Mitsyy",
@@ -393,6 +398,16 @@
     "errorCreateSpace": "Error creating space",
     "backToWorkspace": "Back to workspace",
     "tagline": "Your space, your pace.",
+    "onboardingTitle": "Set up your space",
+    "onboardingDescription": "Introduce one new product at a time and patch test when possible.",
+    "level": "Level",
+    "selectLevel": "Select level",
+    "experienceBeginner": "Beginner",
+    "experienceIntermediate": "Intermediate",
+    "experienceAdvanced": "Advanced",
+    "start": "Start",
+    "saving": "Saving…",
+    "alreadyDoneBefore": "I've already done this before",
     "buildRoutine": "Build routine",
     "weeklyRoutineEmpty": "Your routine is empty. Organize morning and night by day.",
     "weeklyRoutineHint": "Organize your week: morning and night. Edit days and add your routine steps."
@@ -414,6 +429,12 @@
     "work": "Work",
     "studies": "Studies",
     "general": "General"
+  },
+  "workspaceSubtypes": {
+    "programmer": "Programmer",
+    "programador": "Programmer",
+    "remote_worker": "Remote work",
+    "trabajo_remoto": "Remote work"
   },
   "productCategories": {
     "cleanser": "Cleanser",
@@ -841,6 +862,7 @@
     },
     "notes": {
       "title": "Notes",
+      "sendToAI": "Send to AI",
       "convertToTask": "Convert to task",
       "saveAsPrompt": "Save as prompt",
       "turnIntoSnippet": "Turn into snippet",

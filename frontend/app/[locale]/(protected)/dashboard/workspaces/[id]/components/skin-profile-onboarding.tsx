@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { updateWorkspacePreference } from "../../../../../../lib/workspace-preferences-api";
 import {
@@ -89,6 +90,8 @@ export function SkinProfileOnboarding({
   onAlreadyDone,
 }: SkinProfileOnboardingProps) {
   const { token } = useAuth();
+  const tWorkspace = useTranslations("workspace");
+  const tCommon = useTranslations("common");
   const [skinType, setSkinType] = useState<string>(initialData?.skinType ?? "");
   const [mainConcerns, setMainConcerns] = useState<string[]>(initialData?.mainConcerns ?? []);
   const [sensitivityLevel, setSensitivityLevel] = useState<string>(initialData?.sensitivityLevel ?? "");
@@ -271,7 +274,7 @@ export function SkinProfileOnboarding({
             disabled={saving}
             className="w-full rounded-xl bg-[var(--app-navy)] py-3 text-sm font-medium text-[var(--app-white)] shadow-sm transition hover:opacity-90 disabled:opacity-50"
           >
-            {saving ? "Guardando…" : isEdit ? "Guardar" : "Empezar"}
+            {saving ? tWorkspace("saving") : isEdit ? tCommon("save") : tWorkspace("start")}
           </button>
           {!isEdit && onAlreadyDone && (
             <p className="mt-3 text-center">
@@ -280,7 +283,7 @@ export function SkinProfileOnboarding({
                 onClick={onAlreadyDone}
                 className="text-sm text-[var(--app-fg)]/60 underline hover:text-[var(--app-navy)]"
               >
-                Ya completé esto antes
+                {tWorkspace("alreadyDoneBefore")}
               </button>
             </p>
           )}

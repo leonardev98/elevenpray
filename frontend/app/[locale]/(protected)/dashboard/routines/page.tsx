@@ -5,11 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "../../../../providers/auth-provider";
 import { useWorkspaces } from "../components/workspaces-provider";
-import {
-  getWorkspaceType,
-  getWorkspaceCategoryLabel,
-  hasRoutineCapability,
-} from "../../../../lib/workspace-type-registry";
+import { getWorkspaceType, hasRoutineCapability } from "../../../../lib/workspace-type-registry";
 import { updateWorkspace } from "../../../../lib/workspaces-api";
 import type { WorkspaceApi } from "../../../../lib/workspaces-api";
 import { getUiState, updateUiState } from "../../../../lib/workspace-preferences-api";
@@ -28,6 +24,7 @@ export default function RoutinesPage() {
   const t = useTranslations("routines");
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("workspaceTypes");
+  const tCategories = useTranslations("workspaceCategories");
 
   const workspacesWithRoutine = workspaces.filter((w) =>
     hasRoutineCapability(w.workspaceType)
@@ -138,7 +135,7 @@ export default function RoutinesPage() {
         {workspacesWithRoutine.map((w) => {
           const typeDef = getWorkspaceType(w.workspaceType);
           const typeLabel = typeDef ? tTypes(w.workspaceType) : w.workspaceType;
-          const categoryLabel = typeDef ? getWorkspaceCategoryLabel(typeDef.category) : "";
+          const categoryLabel = typeDef ? tCategories(typeDef.category) : "";
           const isActive = activeRoutineWorkspaceId === w.id;
           const isEditing = editId === w.id;
           const isDeleting = deletingId === w.id;

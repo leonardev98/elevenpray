@@ -1,14 +1,32 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CatalogProduct } from './entities/catalog-product.entity';
 import { CatalogProductBookmark } from './entities/catalog-product-bookmark.entity';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { translateToEnglish, translateToSpanish } from '../common/translate';
+
+export type CatalogLocale = 'es' | 'en';
 
 export interface CatalogListFilters {
   category?: string;
   concern?: string;
   search?: string;
+}
+
+async function resolveDescription(
+  product: CatalogProduct,
+  locale?: string,
+): Promise<string | null> {
+  const useEn = locale === 'en';
+  if (useEn) {
+    if (product.descriptionEn?.trim()) return product.descriptionEn;
+    if (product.description?.trim()) return translateToEnglish(product.description);
+  } else {
+    if (product.description?.trim()) return product.description;
+    if (product.descriptionEn?.trim()) return translateToSpanish(product.descriptionEn);
+  }
+  return product.description ?? product.descriptionEn ?? null;
 }
 
 @Injectable()
@@ -25,18 +43,31 @@ export class CatalogProductsService {
     workspaceId: string,
     userId: string,
     filters?: CatalogListFilters,
+    locale?: string,
   ): Promise<CatalogProduct[]> {
     await this.workspacesService.findOne(workspaceId, userId);
-    return this.findPublished(filters);
+    const list = await this.findPublished(filters);
+    const effectiveLocale = locale === 'en' ? 'en' : 'es';
+    const results = await Promise.all(
+      list.map(async (p) => ({
+        ...p,
+        description: await resolveDescription(p, effectiveLocale),
+      })),
+    );
+    return results;
   }
 
   async findOneForWorkspace(
     workspaceId: string,
     userId: string,
     productId: string,
+    locale?: string,
   ): Promise<CatalogProduct> {
     await this.workspacesService.findOne(workspaceId, userId);
-    return this.findOne(productId);
+    const product = await this.findOne(productId);
+    const effectiveLocale = locale === 'en' ? 'en' : 'es';
+    const description = await resolveDescription(product, effectiveLocale);
+    return { ...product, description };
   }
 
   private async findPublished(filters?: CatalogListFilters): Promise<CatalogProduct[]> {

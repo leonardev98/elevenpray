@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { getCatalogProducts, type CatalogProductApi } from "@/app/lib/catalog-api";
 import { recommendProductsForContext } from "@/app/lib/routine-builder";
@@ -26,6 +26,7 @@ export function AddProductDrawer({
   onClose,
   onSelect,
 }: AddProductDrawerProps) {
+  const locale = useLocale() as "es" | "en";
   const recentStorageKey = `routine-recent-catalog-${workspaceId}`;
   const [products, setProducts] = useState<CatalogProductApi[]>([]);
   const [search, setSearch] = useState("");
@@ -53,6 +54,7 @@ export function AddProductDrawer({
       category: category || undefined,
       search: search || undefined,
       concern: metadata?.goals?.[0],
+      locale,
     })
       .then((items) => {
         if (!cancelled) setProducts(items);
@@ -63,7 +65,7 @@ export function AddProductDrawer({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, token, workspaceId, category, search, metadata?.goals]);
+  }, [isOpen, token, workspaceId, category, search, metadata?.goals, locale]);
 
   const recommended = useMemo(
     () => recommendProductsForContext(products, slot, metadata?.skinType).slice(0, 8),

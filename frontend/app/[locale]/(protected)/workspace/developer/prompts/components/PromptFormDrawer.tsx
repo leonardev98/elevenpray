@@ -32,6 +32,7 @@ export function PromptFormDrawer({
   onSuccess,
 }: PromptFormDrawerProps) {
   const t = useTranslations("developerWorkspace.prompts");
+  const tCommon = useTranslations("common");
   const [values, setValues] = useState<PromptFormValues>(() =>
     getDefaultValues(prompt)
   );
@@ -171,7 +172,7 @@ export function PromptFormDrawer({
             disabled={saving}
             className="rounded-lg bg-[var(--app-navy)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
-            {saving ? "Guardando…" : "Guardar"}
+            {saving ? tCommon("saving") : tCommon("save")}
           </button>
         </div>
           </motion.div>

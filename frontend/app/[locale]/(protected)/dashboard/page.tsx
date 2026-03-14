@@ -45,6 +45,48 @@ function getCurrentWeek(): { year: number; week: number } {
   return { year: now.getFullYear(), week };
 }
 
+/** Rango de fechas (lun–dom) para una semana ISO dada. */
+function getWeekDateRange(
+  year: number,
+  week: number
+): { from: string; to: string } {
+  const jan1 = new Date(year, 0, 1);
+  const dayOfWeek = jan1.getDay() || 7;
+  const mondayWeek1 = new Date(year, 0, 2 - dayOfWeek);
+  const monday = new Date(mondayWeek1);
+  monday.setDate(mondayWeek1.getDate() + (week - 1) * 7);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  return {
+    from: toLocalDateString(monday),
+    to: toLocalDateString(sunday),
+  };
+}
+
+/** Info de cada día de la semana calculada en cliente (sin API) para mostrar al instante. */
+function buildWeekDaysInstant(
+  year: number,
+  week: number,
+  dayLabels: Record<string, string>
+): { dayKey: (typeof DAY_KEYS)[number]; dateStr: string; dayLabel: string; dayNum: string; isToday: boolean }[] {
+  const { from } = getWeekDateRange(year, week);
+  const [y, m, d] = from.split("-").map(Number);
+  const start = new Date(y, m - 1, d);
+  const todayStr = toLocalDateString(new Date());
+  return DAY_KEYS.map((dayKey, i) => {
+    const dayDate = new Date(start);
+    dayDate.setDate(start.getDate() + i);
+    const dateStr = toLocalDateString(dayDate);
+    return {
+      dayKey,
+      dateStr,
+      dayLabel: dayLabels[dayKey],
+      dayNum: dateStr.slice(8, 10),
+      isToday: dateStr === todayStr,
+    };
+  });
+}
+
 function formatDateRange(
   from: string,
   to: string,
@@ -66,6 +108,14 @@ function formatDateRange(
 function hasRoutineContent(r: DashboardWeekResponse["routineDays"][0]): boolean {
   if (r.groups?.some((g) => g.items.length > 0)) return true;
   return (r.items?.length ?? 0) > 0;
+}
+
+/** Fecha en YYYY-MM-DD en hora local (evita desfase con UTC). */
+function toLocalDateString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 function buildDayMap(
@@ -92,7 +142,7 @@ function buildDayMap(
     const dayKey = DAY_KEYS[i];
     const dayDate = new Date(start);
     dayDate.setDate(start.getDate() + i);
-    const dateStr = dayDate.toISOString().slice(0, 10);
+    const dateStr = toLocalDateString(dayDate);
     const routines = data.routineDays
       .filter((r) => r.dayKey === dayKey && hasRoutineContent(r))
       .map((r) => {
@@ -128,13 +178,13 @@ function buildDayMap(
 
 function getTodayDayKey(data: DashboardWeekResponse | null): string | null {
   if (!data) return null;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toLocalDateString(new Date());
   const [y, m, d] = data.from.split("-").map(Number);
   const start = new Date(y, m - 1, d);
   for (let i = 0; i < DAY_KEYS.length; i++) {
     const dayDate = new Date(start);
     dayDate.setDate(start.getDate() + i);
-    if (dayDate.toISOString().slice(0, 10) === today) return DAY_KEYS[i];
+    if (toLocalDateString(dayDate) === today) return DAY_KEYS[i];
   }
   return null;
 }
@@ -147,6 +197,9 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [year, setYear] = useState(() => getCurrentWeek().year);
   const [week, setWeek] = useState(() => getCurrentWeek().week);
+  /** Año/semana a los que pertenece `data` (para saber si mostrar contenido real o skeleton). */
+  const [dataYear, setDataYear] = useState<number | null>(null);
+  const [dataWeek, setDataWeek] = useState<number | null>(null);
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
   const [slideDirection, setSlideDirection] = useState(0);
   const t = useTranslations("dashboard");
@@ -172,7 +225,11 @@ export default function DashboardPage() {
     setError("");
     getDashboardWeek(token, year, week, ac.signal)
       .then((res) => {
-        if (!ac.signal.aborted) setData(res);
+        if (!ac.signal.aborted) {
+          setData(res);
+          setDataYear(year);
+          setDataWeek(week);
+        }
       })
       .catch((e) => {
         if (ac.signal.aborted) return;
@@ -189,15 +246,24 @@ export default function DashboardPage() {
     return () => ac.abort();
   }, [token, year, week, logout, router, tErrors]);
 
-  const dayMap = data ? buildDayMap(data, dayLabels) : null;
-  const todayKey = getTodayDayKey(data);
+  const dataMatchesView = dataYear === year && dataWeek === week;
+  const dayMap = data && dataMatchesView ? buildDayMap(data, dayLabels) : null;
+  const todayKey = data && dataMatchesView ? getTodayDayKey(data) : null;
   const selectedDay = selectedDayKey && dayMap ? dayMap.get(selectedDayKey) ?? null : null;
+
+  /** Días de la semana calculados en cliente para mostrar al instante (sin esperar API). */
+  const weekDaysInstant = useMemo(
+    () => buildWeekDaysInstant(year, week, dayLabels),
+    [year, week, dayLabels]
+  );
 
   const isCurrentWeek =
     year === getCurrentWeek().year && week === getCurrentWeek().week;
-
+  const currWeek = getCurrentWeek();
   const routineTodaySummaries =
-    data?.workspaceSummaries?.filter((s) => s.kind === "routine_today") ?? [];
+    dataYear === currWeek.year && dataWeek === currWeek.week
+      ? (data?.workspaceSummaries?.filter((s) => s.kind === "routine_today") ?? [])
+      : [];
 
   if (loading && !data) {
     return (
@@ -215,9 +281,16 @@ export default function DashboardPage() {
             {t("title")}
           </h1>
           <p className="mt-1 text-sm text-[var(--app-fg)]/70">
-            {data
+            {dataMatchesView && data
               ? formatDateRange(data.from, data.to, dayLabels, monthShort)
-              : "—"}
+              : dataYear !== null && dataWeek !== null
+                ? formatDateRange(
+                    getWeekDateRange(year, week).from,
+                    getWeekDateRange(year, week).to,
+                    dayLabels,
+                    monthShort
+                  )
+                : "—"}
             {loading && (
               <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-[var(--app-navy)] border-t-transparent" aria-hidden />
             )}
@@ -237,6 +310,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => {
+              setSelectedDayKey(null);
               setSlideDirection(-1);
               if (week <= 1) {
                 setYear((y) => y - 1);
@@ -265,6 +339,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => {
+              setSelectedDayKey(null);
               setSlideDirection(1);
               if (week >= 52) {
                 setYear((y) => y + 1);
@@ -332,7 +407,7 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {data && dayMap && (
+      {data && (
         <div className="relative mt-6 w-full overflow-hidden">
           <AnimatePresence mode="popLayout" custom={slideDirection} initial={false}>
             <motion.div
@@ -348,35 +423,36 @@ export default function DashboardPage() {
               }}
               className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7"
             >
-              {DAY_KEYS.map((dayKey) => {
-                const dayInfo = dayMap.get(dayKey)!;
+              {weekDaysInstant.map((day) => {
                 const hasContent =
-                  dayInfo.routines.length > 0 || dayInfo.entries.length > 0;
-                const dayNum = dayInfo.dateStr.slice(8, 10);
-                const isToday = dayKey === todayKey;
-                const isSelected = selectedDayKey === dayKey;
+                  dataMatchesView && dayMap
+                    ? (dayMap.get(day.dayKey)?.routines.length ?? 0) > 0 ||
+                      (dayMap.get(day.dayKey)?.entries.length ?? 0) > 0
+                    : false;
+                const isSelected = selectedDayKey === day.dayKey;
                 return (
                   <button
-                    key={dayKey}
+                    key={day.dayKey}
                     type="button"
-                    onClick={() => setSelectedDayKey(dayKey)}
-                    className={`flex flex-col items-center rounded-xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)] focus:ring-offset-2 ${
+                    onClick={() => dataMatchesView && setSelectedDayKey(day.dayKey)}
+                    disabled={!dataMatchesView}
+                    className={`flex flex-col items-center rounded-xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)] focus:ring-offset-2 disabled:opacity-100 disabled:cursor-default ${
                       isSelected
                         ? "border-[var(--app-navy)] bg-[var(--app-navy)]/10"
-                        : isToday
+                        : day.isToday
                           ? "border-[var(--app-navy)]/70 bg-[var(--app-surface)] hover:bg-[var(--app-bg)]"
                           : "border-[var(--app-border)] bg-[var(--app-surface)] hover:bg-[var(--app-bg)]"
                     }`}
                   >
                     <span className="text-xs font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
-                      {dayInfo.dayLabel}
+                      {day.dayLabel}
                     </span>
                     <span
                       className={`mt-1 text-2xl font-semibold tabular-nums tracking-normal ${
-                        isToday ? "text-[var(--app-navy)]" : "text-[var(--app-fg)]"
+                        day.isToday ? "text-[var(--app-navy)]" : "text-[var(--app-fg)]"
                       }`}
                     >
-                      {dayNum}
+                      {day.dayNum}
                     </span>
                     {hasContent && (
                       <span

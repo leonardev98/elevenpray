@@ -3,7 +3,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { getCatalogProduct, type CatalogProductApi } from "../../../../../../lib/catalog-api";
 import { checkIngredientConflicts, type ConflictResultApi } from "../../../../../../lib/ingredient-conflicts-api";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,12 +31,6 @@ function StarRatingDisplay({ rating }: { rating: number }) {
   );
 }
 
-const EXPERIENCE_LABELS: Record<string, string> = {
-  beginner: "Principiante",
-  intermediate: "Intermedio",
-  advanced: "Avanzado",
-};
-
 export function ProductDetailModal({
   productId,
   initialProduct,
@@ -59,6 +53,7 @@ export function ProductDetailModal({
   workspaceId: string;
 }) {
   const locale = useLocale() as "es" | "en";
+  const tWorkspace = useTranslations("workspace");
   const [product, setProduct] = useState<CatalogProductApi | null>(initialProduct);
   const [conflicts, setConflicts] = useState<ConflictResultApi[]>([]);
   const [loading, setLoading] = useState(false);
@@ -74,12 +69,12 @@ export function ProductDetailModal({
       setLoading(true);
       setProduct(null);
       if (!token || !workspaceId) return;
-      getCatalogProduct(token, workspaceId, productId)
+      getCatalogProduct(token, workspaceId, productId, locale)
         .then(setProduct)
         .catch(() => setProduct(null))
         .finally(() => setLoading(false));
     }
-  }, [isOpen, productId, initialProduct?.id, token, workspaceId]);
+  }, [isOpen, productId, initialProduct?.id, token, workspaceId, locale]);
 
   useEffect(() => {
     if (!isOpen || !product?.ingredients?.length || !token) {
@@ -126,9 +121,10 @@ export function ProductDetailModal({
     };
   }, [isOpen]);
 
-  const experienceLabel = product?.experienceLevel
-    ? EXPERIENCE_LABELS[product.experienceLevel] ?? product.experienceLevel
+  const experienceKey = product?.experienceLevel
+    ? { beginner: "experienceBeginner", intermediate: "experienceIntermediate", advanced: "experienceAdvanced" }[product.experienceLevel]
     : null;
+  const experienceLabel = experienceKey ? tWorkspace(experienceKey as "experienceBeginner" | "experienceIntermediate" | "experienceAdvanced") : product?.experienceLevel ?? null;
 
   return (
     <AnimatePresence>

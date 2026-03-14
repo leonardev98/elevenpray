@@ -29,6 +29,7 @@ export function NewWorkspaceModal({
   const t = useTranslations("workspace");
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("workspaceTypes");
+  const tSubtypes = useTranslations("workspaceSubtypes");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -148,11 +149,18 @@ export function NewWorkspaceModal({
                     className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
                   >
                     <option value="">{tCommon("none")}</option>
-                    {subtypes.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.label}
-                      </option>
-                    ))}
+                    {subtypes.map((s) => {
+                      const code = (s.code ?? "").toLowerCase().replace(/-/g, "_");
+                      const knownCodes = ["programmer", "programador", "remote_worker", "trabajo_remoto"] as const;
+                      const label = code && knownCodes.includes(code as (typeof knownCodes)[number])
+                        ? tSubtypes(code as (typeof knownCodes)[number])
+                        : s.label;
+                      return (
+                        <option key={s.id} value={s.id}>
+                          {label}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               )}

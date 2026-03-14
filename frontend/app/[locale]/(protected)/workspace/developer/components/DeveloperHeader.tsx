@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/app/providers/auth-provider";
 import { ThemeToggle } from "@/app/components/theme-toggle";
@@ -37,6 +37,7 @@ export function DeveloperHeader({
   onOpenMobileNav,
   showFocusBreak = true,
 }: DeveloperHeaderProps) {
+  const locale = useLocale();
   const t = useTranslations("developerWorkspace");
   const tCommon = useTranslations("common");
   const tNav = useTranslations("nav");
@@ -59,10 +60,11 @@ export function DeveloperHeader({
     return () => clearInterval(interval);
   }, []);
 
+  const localeTag = locale === "en" ? "en-US" : locale === "es" ? "es-ES" : locale;
   const hours = time.getHours();
   const minutes = time.getMinutes();
   const timeStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-  const dateStr = time.toLocaleDateString(undefined, {
+  const dateStr = time.toLocaleDateString(localeTag, {
     weekday: "long",
     month: "long",
     day: "numeric",

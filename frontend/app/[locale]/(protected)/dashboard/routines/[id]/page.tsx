@@ -220,6 +220,7 @@ export default function RoutineEditorPage() {
         try {
           const list = await getCatalogProducts(token, routine.workspaceId, {
             category: stepTypeToCategory(stepType as "cleanser" | "toner" | "serum" | "treatment" | "eye" | "moisturizer" | "sunscreen" | "mask" | "exfoliant" | "retinoid"),
+            locale,
           });
           if (list.length) categoryToProduct[stepType] = { id: list[0].id, name: list[0].name };
         } catch {

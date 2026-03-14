@@ -6,6 +6,7 @@
     "name": "Nombre",
     "cancel": "Cancelar",
     "create": "Crear",
+    "add": "Añadir",
     "creating": "Creando…",
     "close": "Cerrar",
     "backToHome": "Volver al inicio",
@@ -19,7 +20,11 @@
     "none": "Ninguno",
     "language": "Idioma",
     "search": "Buscar",
-    "searchPlaceholder": "Buscar…"
+    "searchPlaceholder": "Buscar…",
+    "saving": "Guardando…",
+    "save": "Guardar",
+    "viewAll": "Ver todo",
+    "viewAllNotes": "Ver todas las notas"
   },
   "landing": {
     "title": "Mitsyy",
@@ -393,6 +398,16 @@
     "errorCreateSpace": "Error al crear space",
     "backToWorkspace": "Volver al workspace",
     "tagline": "Tu espacio, tu ritmo.",
+    "onboardingTitle": "Configura tu espacio",
+    "onboardingDescription": "Introduce un producto nuevo a la vez y haz patch test cuando sea posible.",
+    "level": "Nivel",
+    "selectLevel": "Selecciona nivel",
+    "experienceBeginner": "Principiante",
+    "experienceIntermediate": "Intermedio",
+    "experienceAdvanced": "Avanzado",
+    "start": "Empezar",
+    "saving": "Guardando…",
+    "alreadyDoneBefore": "Ya completé esto antes",
     "buildRoutine": "Armar rutina",
     "weeklyRoutineEmpty": "Tu rutina está vacía. Organiza mañana y noche por día.",
     "weeklyRoutineHint": "Organiza tu semana: mañana y noche. Edita los días y añade los pasos de tu rutina."
@@ -414,6 +429,12 @@
     "work": "Trabajo",
     "studies": "Estudios",
     "general": "General"
+  },
+  "workspaceSubtypes": {
+    "programmer": "Programador",
+    "programador": "Programador",
+    "remote_worker": "Trabajo remoto",
+    "trabajo_remoto": "Trabajo remoto"
   },
   "productCategories": {
     "cleanser": "Limpiador",
@@ -841,6 +862,7 @@
     },
     "notes": {
       "title": "Notas",
+      "sendToAI": "Enviar a IA",
       "convertToTask": "Convertir en tarea",
       "saveAsPrompt": "Guardar como prompt",
       "turnIntoSnippet": "Convertir en snippet",

@@ -28,12 +28,13 @@ const base = (workspaceId: string) =>
 export async function getCatalogProducts(
   token: string,
   workspaceId: string,
-  params?: { category?: string; concern?: string; search?: string }
+  params?: { category?: string; concern?: string; search?: string; locale?: string }
 ): Promise<CatalogProductApi[]> {
   const search = new URLSearchParams();
   if (params?.category) search.set("category", params.category);
   if (params?.concern) search.set("concern", params.concern);
   if (params?.search) search.set("search", params.search);
+  if (params?.locale) search.set("locale", params.locale);
   const url = search.toString() ? `${base(workspaceId)}/products?${search}` : `${base(workspaceId)}/products`;
   const res = await fetch(url, { headers: getAuthHeaders(token) });
   if (!res.ok) throw new Error("Error al cargar catálogo");
@@ -43,9 +44,11 @@ export async function getCatalogProducts(
 export async function getCatalogProduct(
   token: string,
   workspaceId: string,
-  productId: string
+  productId: string,
+  locale?: string
 ): Promise<CatalogProductApi> {
-  const res = await fetch(`${base(workspaceId)}/products/${productId}`, {
+  const query = locale ? `?locale=${encodeURIComponent(locale)}` : "";
+  const res = await fetch(`${base(workspaceId)}/products/${productId}${query}`, {
     headers: getAuthHeaders(token),
   });
   if (!res.ok) throw new Error("Error al cargar producto");

@@ -13,6 +13,7 @@ interface QuickNotesCardProps {
 
 export function QuickNotesCard({ className }: QuickNotesCardProps) {
   const t = useTranslations("developerWorkspace.dashboard");
+  const tCommon = useTranslations("common");
   const [value, setValue] = useState("");
 
   return (
@@ -43,7 +44,7 @@ export function QuickNotesCard({ className }: QuickNotesCardProps) {
           className="text-[length:var(--dev-font-meta-size)] font-medium text-[var(--app-fg)] transition-colors hover:text-[var(--app-navy)]"
           style={{ opacity: 0.7 }}
         >
-          Ver todas las notas →
+          {tCommon("viewAllNotes")} →
         </Link>
       </div>
     </motion.section>

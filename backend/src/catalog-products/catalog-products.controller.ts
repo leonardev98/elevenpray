@@ -41,8 +41,9 @@ export class CatalogProductsController {
     @Query('category') category?: string,
     @Query('concern') concern?: string,
     @Query('search') search?: string,
+    @Query('locale') locale?: string,
   ) {
-    return this.service.findPublishedForWorkspace(workspaceId, userId, { category, concern, search });
+    return this.service.findPublishedForWorkspace(workspaceId, userId, { category, concern, search }, locale);
   }
 
   @Get('products/:productId')
@@ -50,7 +51,8 @@ export class CatalogProductsController {
     @Param('workspaceId') workspaceId: string,
     @Param('productId') productId: string,
     @CurrentUser('id') userId: string,
+    @Query('locale') locale?: string,
   ) {
-    return this.service.findOneForWorkspace(workspaceId, userId, productId);
+    return this.service.findOneForWorkspace(workspaceId, userId, productId, locale);
   }
 }

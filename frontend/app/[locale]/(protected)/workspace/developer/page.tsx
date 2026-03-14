@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { motion } from "framer-motion";
 import {
@@ -38,11 +38,13 @@ function getGreeting(): string {
 }
 
 export default function DeveloperWorkspaceDashboardPage() {
+  const locale = useLocale();
   const t = useTranslations("developerWorkspace.dashboard");
   const { isFocusMode } = useFocusMode();
   const [time] = useState(() => new Date());
+  const localeTag = locale === "en" ? "en-US" : locale === "es" ? "es-ES" : locale;
   const timeStr = `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}`;
-  const dateStr = time.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+  const dateStr = time.toLocaleDateString(localeTag, { weekday: "long", month: "long", day: "numeric" });
   const activeProjects = MOCK_PROJECTS.filter((p) => p.status === "active").slice(0, 4);
   const tasksTodayCount = MOCK_TASKS.filter((x) => x.dueToday && x.status !== "done").length;
 

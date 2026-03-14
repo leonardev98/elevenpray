@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useLocale } from "next-intl";
 import { motion } from "framer-motion";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { staggerContainer, staggerItem } from "@/lib/animations";
@@ -53,6 +54,7 @@ const CONCERNS = [
 export default function WorkspaceLibraryPage() {
   const params = useParams();
   const workspaceId = params.id as string;
+  const locale = useLocale() as "es" | "en";
   const { token } = useAuth();
   const [products, setProducts] = useState<CatalogProductApi[]>([]);
   const [bookmarkIds, setBookmarkIds] = useState<Set<string>>(new Set());
@@ -73,6 +75,7 @@ export default function WorkspaceLibraryPage() {
         category: category || undefined,
         concern: concern || undefined,
         search: search.trim() || undefined,
+        locale,
       }),
       getCatalogBookmarks(token, workspaceId),
     ])
@@ -89,7 +92,7 @@ export default function WorkspaceLibraryPage() {
 
   useEffect(() => {
     loadCatalog();
-  }, [token, workspaceId, category, concern, search]);
+  }, [token, workspaceId, category, concern, search, locale]);
 
   async function toggleBookmark(productId: string) {
     if (!token || !workspaceId) return;

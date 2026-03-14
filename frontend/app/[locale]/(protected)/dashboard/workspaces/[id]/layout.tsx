@@ -49,6 +49,7 @@ function GenericOnboardingModal({
   onComplete: () => void;
 }) {
   const { token } = useAuth();
+  const t = useTranslations("workspace");
   const [level, setLevel] = useState<string>("beginner");
   const [saving, setSaving] = useState(false);
 
@@ -84,23 +85,23 @@ function GenericOnboardingModal({
         {...modalPanel}
       >
         <h2 id="onboarding-title" className="mb-2 text-lg font-semibold text-[var(--app-fg)]">
-          Configura tu espacio
+          {t("onboardingTitle")}
         </h2>
         <p className="mb-4 text-sm text-[var(--app-fg)]/70">
-          Introduce un producto nuevo a la vez y haz patch test cuando sea posible.
+          {t("onboardingDescription")}
         </p>
         <form onSubmit={handleSubmit}>
           <label className="mb-1 block text-xs font-medium text-[var(--app-fg)]/70">
-            Nivel
+            {t("level")}
           </label>
           <Select value={level} onValueChange={setLevel}>
             <SelectTrigger className="mb-4 w-full">
-              <SelectValue placeholder="Selecciona nivel" />
+              <SelectValue placeholder={t("selectLevel")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="beginner">Principiante</SelectItem>
-              <SelectItem value="intermediate">Intermedio</SelectItem>
-              <SelectItem value="advanced">Avanzado</SelectItem>
+              <SelectItem value="beginner">{t("experienceBeginner")}</SelectItem>
+              <SelectItem value="intermediate">{t("experienceIntermediate")}</SelectItem>
+              <SelectItem value="advanced">{t("experienceAdvanced")}</SelectItem>
             </SelectContent>
           </Select>
           <button
@@ -108,7 +109,7 @@ function GenericOnboardingModal({
             disabled={saving}
             className="w-full rounded-lg bg-[var(--app-navy)] py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
           >
-            {saving ? "Guardando…" : "Empezar"}
+            {saving ? t("saving") : t("start")}
           </button>
         </form>
       </motion.div>

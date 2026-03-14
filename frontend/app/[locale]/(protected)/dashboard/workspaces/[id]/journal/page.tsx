@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { UnderConstructionOverlay } from "../components/under-construction-overlay";
 import {
@@ -31,6 +32,7 @@ function QuickCheckinForm({
   onSaved: () => void;
 }) {
   const { token } = useAuth();
+  const tCommon = useTranslations("common");
   const today = new Date().toISOString().slice(0, 10);
   const [skinFeeling, setSkinFeeling] = useState("");
   const [freeNotes, setFreeNotes] = useState("");
@@ -91,7 +93,7 @@ function QuickCheckinForm({
         disabled={saving}
         className="w-full rounded-lg bg-[var(--app-navy)] py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
       >
-        {saving ? "Guardando…" : "Guardar"}
+        {saving ? tCommon("saving") : tCommon("save")}
       </button>
     </form>
   );

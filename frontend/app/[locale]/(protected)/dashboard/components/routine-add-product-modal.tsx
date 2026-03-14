@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { getCatalogProducts, type CatalogProductApi } from "../../../../lib/catalog-api";
 import { modalBackdrop, modalPanel } from "@/lib/animations";
@@ -29,16 +30,17 @@ export function RoutineAddProductModal({
   onSelect: (product: CatalogProductApi) => void;
   onClose: () => void;
 }) {
+  const locale = useLocale() as "es" | "en";
   const [products, setProducts] = useState<CatalogProductApi[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token || !workspaceId) return;
-    getCatalogProducts(token, workspaceId)
+    getCatalogProducts(token, workspaceId, { locale })
       .then(setProducts)
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
-  }, [token, workspaceId]);
+  }, [token, workspaceId, locale]);
 
   return (
     <AnimatePresence>

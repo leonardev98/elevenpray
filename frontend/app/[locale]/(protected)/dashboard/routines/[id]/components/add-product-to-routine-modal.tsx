@@ -129,6 +129,7 @@ export function AddProductToRoutineModal({
     getCatalogProducts(token, workspaceId, {
       category: effectiveCategory || undefined,
       search: search || undefined,
+      locale,
     })
       .then((list) => {
         if (!cancelled) setProducts(list);
@@ -139,7 +140,7 @@ export function AddProductToRoutineModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, token, workspaceId, effectiveCategory, search]);
+  }, [isOpen, token, workspaceId, effectiveCategory, search, locale]);
 
   const ingredientsInRoutine = useMemo(() => {
     const ids = new Set<string>();

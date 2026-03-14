@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import type {
   CreateMarkerDto,
   FaceMarkerApi,
@@ -64,6 +65,7 @@ export function FaceMapIssueForm({
   onCancel,
   saving = false,
 }: FaceMapIssueFormProps) {
+  const tCommon = useTranslations("common");
   const isCreate = mode.type === "create";
   const [issueType, setIssueType] = useState<IssueType>(
     isCreate ? "acne" : (mode.marker.issueType as IssueType)
@@ -217,7 +219,7 @@ export function FaceMapIssueForm({
           disabled={saving}
           className="flex-1 rounded-lg bg-[var(--app-navy)] py-2 text-sm font-medium text-[var(--app-white)] hover:opacity-90 disabled:opacity-50"
         >
-          {saving ? "Guardando…" : "Guardar"}
+          {saving ? tCommon("saving") : tCommon("save")}
         </button>
       </div>
     </form>

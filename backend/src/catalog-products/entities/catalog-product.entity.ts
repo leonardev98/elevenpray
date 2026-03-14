@@ -38,6 +38,9 @@ export class CatalogProduct {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
+  @Column({ name: 'description_en', type: 'text', nullable: true, select: false })
+  descriptionEn: string | null;
+
   @Column({ type: 'jsonb', nullable: true })
   benefits: string[] | null;
 
