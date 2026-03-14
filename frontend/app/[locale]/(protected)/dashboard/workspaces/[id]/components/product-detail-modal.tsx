@@ -4,8 +4,10 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { getCatalogProduct, type CatalogProductApi } from "../../../../../../lib/catalog-api";
 import { checkIngredientConflicts, type ConflictResultApi } from "../../../../../../lib/ingredient-conflicts-api";
 import { useLocale } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { modalBackdrop, modalPanel } from "@/lib/animations";
 
 /** Estrellas de valoración para el modal (0–5). */
 function StarRatingDisplay({ rating }: { rating: number }) {
@@ -124,27 +126,29 @@ export function ProductDetailModal({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const experienceLabel = product?.experienceLevel
     ? EXPERIENCE_LABELS[product.experienceLevel] ?? product.experienceLevel
     : null;
 
   return (
-    <div
-      ref={overlayRef}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="product-detail-title"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4 bg-black/50"
-      onKeyDown={handleKeyDown}
-      onClick={handleOverlayClick}
-    >
-      <div
-        ref={panelRef}
-        className="relative flex max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          ref={overlayRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="product-detail-title"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4 bg-black/50"
+          onKeyDown={handleKeyDown}
+          onClick={handleOverlayClick}
+          {...modalBackdrop}
+        >
+          <motion.div
+            ref={panelRef}
+            className="relative flex max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+            {...modalPanel}
+          >
         <Button
           type="button"
           variant="ghost"
@@ -307,7 +311,9 @@ export function ProductDetailModal({
             </div>
           </div>
         )}
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

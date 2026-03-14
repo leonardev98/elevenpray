@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import Lenis from "lenis";
+import { pageTransition } from "@/lib/animations";
 import "lenis/dist/lenis.css";
 import { useAuth } from "../../providers/auth-provider";
 import { WorkspacesProvider } from "./dashboard/components/workspaces-provider";
@@ -141,7 +143,18 @@ export default function ProtectedLayout({
                 openWorkspacesDrawer: () => setWorkspacesDrawerOpen(true),
               }}
             >
-              {content}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={pathname ?? "default"}
+                  className="min-h-0 min-w-0 flex flex-1 flex-col"
+                  initial={pageTransition.initial}
+                  animate={pageTransition.animate}
+                  exit={pageTransition.exit}
+                  transition={pageTransition.transition}
+                >
+                  {content}
+                </motion.div>
+              </AnimatePresence>
             </SidebarProvider>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useAuth } from "../../../../../../providers/auth-provider";
+import { UnderConstructionOverlay } from "../components/under-construction-overlay";
 import {
   getWorkspaceCheckins,
   createWorkspaceCheckin,
@@ -128,6 +129,7 @@ export default function WorkspaceJournalPage() {
   }
 
   return (
+    <UnderConstructionOverlay>
     <div>
       <h2 className="mb-4 text-xl font-semibold tracking-normal text-[var(--app-fg)]">
         Skin Journal
@@ -198,5 +200,6 @@ export default function WorkspaceJournalPage() {
         </Link>
       </p>
     </div>
+    </UnderConstructionOverlay>
   );
 }

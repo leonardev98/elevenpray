@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -28,6 +28,28 @@ export class UsersService {
       ...data,
       role: data.role ?? 'user',
     });
+    return this.userRepository.save(user);
+  }
+
+  async update(
+    id: string,
+    data: { name?: string; email?: string; passwordHash?: string },
+  ): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) return null as unknown as User;
+
+    if (data.email !== undefined) {
+      const existing = await this.userRepository.findOne({
+        where: { email: data.email },
+      });
+      if (existing && existing.id !== id) {
+        throw new ConflictException('Email already in use');
+      }
+      user.email = data.email;
+    }
+    if (data.name !== undefined) user.name = data.name;
+    if (data.passwordHash !== undefined) user.passwordHash = data.passwordHash;
+
     return this.userRepository.save(user);
   }
 }

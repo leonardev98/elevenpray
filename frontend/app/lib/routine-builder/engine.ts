@@ -362,89 +362,67 @@ export function deriveRoutineScore(
 
 const MAX_INTELLIGENCE_INSIGHTS = 6;
 
-/** Insights for Routine Intelligence panel (info | warning | tip). */
+/** Insights for Routine Intelligence panel (info | warning). Only positive or educational; one per topic. */
 export function deriveRoutineInsightsForIntelligence(routine: Routine): IntelligenceInsight[] {
   const raw: IntelligenceInsight[] = [];
-  for (const dayKey of DAY_KEYS) {
-    const groups = routine.days[dayKey]?.groups ?? [];
-    const amGroup = groups.find((g) => g.slot === "am");
-    const pmGroup = groups.find((g) => g.slot === "pm");
 
-    if (amGroup?.items?.length) {
-      const hasSunscreen = amGroup.items.some((i) => i.stepType === "sunscreen");
-      if (hasSunscreen) {
-        raw.push({
-          id: `am-sunscreen-ok-${dayKey}`,
-          severity: "info",
-          message: "Sunscreen closes your morning routine correctly.",
-          dayKey,
-          slot: "am",
-        });
-      } else {
-        raw.push({
-          id: `am-sunscreen-miss-${dayKey}`,
-          severity: "warning",
-          message: "Add sunscreen to close your morning routine.",
-          dayKey,
-          slot: "am",
-        });
-      }
-    }
-
-    if (pmGroup?.items?.length) {
-      if (!pmGroup.items.some((i) => i.stepType === "cleanser")) {
-        raw.push({
-          id: `pm-cleanser-${dayKey}`,
-          severity: "info",
-          message: "A gentle cleanser usually starts the night routine.",
-          dayKey,
-          slot: "pm",
-        });
-      }
-      const exfoliants = pmGroup.items.filter((i) => i.stepType === "exfoliant");
-      if (exfoliants.length >= 2) {
-        raw.push({
-          id: `pm-double-exfoliant-${dayKey}`,
-          severity: "warning",
-          message: "Two exfoliating products appear in the same night.",
-          dayKey,
-          slot: "pm",
-        });
-      }
-      const hasRetinoid = pmGroup.items.some((i) => i.stepType === "retinoid");
-      const hasExfoliant = pmGroup.items.some((i) => i.stepType === "exfoliant");
-      if (hasRetinoid && hasExfoliant) {
-        raw.push({
-          id: `pm-retinoid-exfoliant-${dayKey}`,
-          severity: "warning",
-          message: "Consider separating retinoid and exfoliant nights.",
-          dayKey,
-          slot: "pm",
-        });
-      }
-    }
-  }
-
-  // Tip: consider antioxidant in AM if no serum
-  const anyAmWithoutSerum = DAY_KEYS.some((dayKey) => {
+  const anyAmWithSunscreen = DAY_KEYS.some((dayKey) => {
     const amGroup = routine.days[dayKey]?.groups?.find((g) => g.slot === "am");
-    return amGroup?.items?.length && !amGroup.items.some((i) => i.stepType === "serum");
+    return !!amGroup?.items?.length && amGroup.items.some((i) => i.stepType === "sunscreen");
   });
-  if (anyAmWithoutSerum) {
+  if (anyAmWithSunscreen) {
     raw.push({
-      id: "tip-antioxidant-am",
-      severity: "tip",
-      message: "Consider adding an antioxidant serum in the morning.",
+      id: "am-sunscreen-ok",
+      severity: "info",
+      message: "Sunscreen closes your morning routine correctly.",
+      slot: "am",
     });
   }
 
-  const seen = new Set<string>();
-  const deduped = raw.filter((i) => {
-    if (seen.has(i.message)) return false;
-    seen.add(i.message);
-    return true;
+  const anyPmWithCleanser = DAY_KEYS.some((dayKey) => {
+    const pmGroup = routine.days[dayKey]?.groups?.find((g) => g.slot === "pm");
+    return !!pmGroup?.items?.length && pmGroup.items.some((i) => i.stepType === "cleanser");
   });
-  return deduped.slice(0, MAX_INTELLIGENCE_INSIGHTS);
+  if (anyPmWithCleanser) {
+    raw.push({
+      id: "pm-cleanser-ok",
+      severity: "info",
+      message: "A gentle cleanser is a great start to your night routine.",
+      slot: "pm",
+    });
+  }
+
+  const anyDayDoubleExfoliant = DAY_KEYS.some((dayKey) => {
+    const pmGroup = routine.days[dayKey]?.groups?.find((g) => g.slot === "pm");
+    const exfoliants = pmGroup?.items?.filter((i) => i.stepType === "exfoliant") ?? [];
+    return exfoliants.length >= 2;
+  });
+  if (anyDayDoubleExfoliant) {
+    raw.push({
+      id: "pm-double-exfoliant",
+      severity: "warning",
+      message: "Two exfoliating products appear in the same night.",
+      slot: "pm",
+    });
+  }
+
+  const anyDayRetinoidAndExfoliant = DAY_KEYS.some((dayKey) => {
+    const pmGroup = routine.days[dayKey]?.groups?.find((g) => g.slot === "pm");
+    if (!pmGroup?.items?.length) return false;
+    const hasRetinoid = pmGroup.items.some((i) => i.stepType === "retinoid");
+    const hasExfoliant = pmGroup.items.some((i) => i.stepType === "exfoliant");
+    return hasRetinoid && hasExfoliant;
+  });
+  if (anyDayRetinoidAndExfoliant) {
+    raw.push({
+      id: "pm-retinoid-exfoliant",
+      severity: "warning",
+      message: "Consider separating retinoid and exfoliant nights.",
+      slot: "pm",
+    });
+  }
+
+  return raw.slice(0, MAX_INTELLIGENCE_INSIGHTS);
 }
 
 /** Conflicts from API are passed through as-is. */
@@ -500,19 +478,27 @@ export function generateRoutineSuggestions(
     });
   }
 
-  for (const dayKey of DAY_KEYS) {
+  const serumDayKeys = DAY_KEYS.filter((dayKey) => {
     const groups = routine.days[dayKey]?.groups ?? [];
     const amGroup = groups.find((g) => g.slot === "am");
-    if (amGroup?.items?.length && !amGroup.items.some((i) => i.stepType === "serum")) {
-      const hasCleanser = amGroup.items.some((i) => i.stepType === "cleanser");
-      if (hasCleanser) {
-        suggestions.push({
-          id: `add-hydrating-serum-${dayKey}`,
-          message: "Add hydrating serum after cleanser",
-          action: null,
-        });
-      }
-    }
+    return !!(
+      amGroup?.items?.length &&
+      !amGroup.items.some((i) => i.stepType === "serum") &&
+      amGroup.items.some((i) => i.stepType === "cleanser")
+    );
+  });
+  if (serumDayKeys.length > 0) {
+    suggestions.push({
+      id: "add-hydrating-serum-am",
+      message: "Add hydrating serum after cleanser",
+      messageKey: "suggestionAddHydratingSerum",
+      action: {
+        type: "open_add_product",
+        slot: "am",
+        suggestedStepType: "serum",
+        dayKeys: serumDayKeys,
+      },
+    });
   }
 
   return suggestions.slice(0, MAX_SUGGESTIONS);
@@ -540,15 +526,17 @@ export function applySuggestionToRoutine(
   if (!action) return null;
 
   if (action.type === "move_item") {
+    const toDay = routine.days[action.toDayKey] ?? { groups: [] };
+    const toGroup = toDay.groups?.find((g) => g.slot === action.toSlot);
+    if (!toGroup) return null;
+    if (toGroup.items.some((i) => i.id === action.itemId)) return null;
+
     const fromDay = routine.days[action.dayKey];
     const fromGroup = fromDay?.groups?.find(
       (g) => g.slot === action.slot && g.items?.some((i) => i.id === action.itemId)
     );
     const item = fromGroup?.items?.find((i) => i.id === action.itemId);
     if (!fromDay || !fromGroup || !item) return null;
-    const toDay = routine.days[action.toDayKey] ?? { groups: [] };
-    const toGroup = toDay.groups?.find((g) => g.slot === action.toSlot);
-    if (!toGroup) return null;
 
     const nextFromItems = fromGroup.items.filter((i) => i.id !== action.itemId);
     const nextToItems = [...toGroup.items, { ...item }];
@@ -556,16 +544,26 @@ export function applySuggestionToRoutine(
     const nextToGroup = autoArrangeGroupByDermOrder({ ...toGroup, items: nextToItems });
 
     const nextDays = { ...routine.days };
-    nextDays[action.dayKey] = {
-      groups: (fromDay.groups ?? []).map((g) =>
-        g.id === fromGroup.id ? nextFromGroup : g
-      ),
-    };
-    nextDays[action.toDayKey] = {
-      groups: (toDay.groups ?? []).map((g) =>
-        g.id === toGroup.id ? nextToGroup : g
-      ),
-    };
+    if (action.dayKey === action.toDayKey) {
+      nextDays[action.dayKey] = {
+        groups: (fromDay.groups ?? []).map((g) => {
+          if (g.id === fromGroup.id) return nextFromGroup;
+          if (g.id === toGroup.id) return nextToGroup;
+          return g;
+        }),
+      };
+    } else {
+      nextDays[action.dayKey] = {
+        groups: (fromDay.groups ?? []).map((g) =>
+          g.id === fromGroup.id ? nextFromGroup : g
+        ),
+      };
+      nextDays[action.toDayKey] = {
+        groups: (toDay.groups ?? []).map((g) =>
+          g.id === toGroup.id ? nextToGroup : g
+        ),
+      };
+    }
     return { ...routine, days: nextDays };
   }
 
@@ -813,6 +811,115 @@ export function rebuildRoutineForBuilder(routine: Routine): Routine {
   return { ...routine, days };
 }
 
+/** Returns the item at the given day, slot and itemId, or null if not found. */
+export function getItemInRoutine(
+  routine: Routine,
+  dayKey: DayKey,
+  slot: RoutineSlot,
+  itemId: string
+): DayItem | null {
+  const day = routine.days[dayKey];
+  if (!day?.groups) return null;
+  const group = day.groups.find((g) => g.slot === slot);
+  if (!group?.items?.length) return null;
+  const item = group.items.find((i) => i.id === itemId) ?? null;
+  return item ?? null;
+}
+
+export interface ProductOccurrence {
+  dayKey: DayKey;
+  slot: RoutineSlot;
+  itemId: string;
+}
+
+/** Returns all (dayKey, slot, itemId) where the product appears in the routine (by productId or content name). */
+export function getProductOccurrencesInRoutine(
+  routine: Routine,
+  productIdOrName: string
+): ProductOccurrence[] {
+  const result: ProductOccurrence[] = [];
+  for (const dayKey of DAY_KEYS) {
+    const day = routine.days[dayKey];
+    if (!day?.groups) continue;
+    for (const group of day.groups) {
+      if (!group.slot || !group.items?.length) continue;
+      for (const item of group.items) {
+        if (item.productId === productIdOrName || item.content === productIdOrName) {
+          result.push({ dayKey, slot: group.slot, itemId: item.id });
+        }
+      }
+    }
+  }
+  return result;
+}
+
+export interface DaySlotTarget {
+  dayKey: DayKey;
+  slot: RoutineSlot;
+}
+
+/** Removes the product from all current slots and adds it only to the given slots. */
+export function applyProductFrequency(
+  routine: Routine,
+  productId: string,
+  productName: string,
+  stepType: string,
+  slots: DaySlotTarget[]
+): Routine {
+  const productIdOrName = productId || productName;
+  const occurrences = getProductOccurrencesInRoutine(routine, productIdOrName);
+  const daysWithSlots = ensureAMPMGroups(routine.days);
+
+  let nextRoutine: Routine = { ...routine, days: daysWithSlots };
+
+  for (const { dayKey, slot, itemId } of occurrences) {
+    const day = nextRoutine.days[dayKey];
+    if (!day?.groups) continue;
+    const groupIndex = day.groups.findIndex((g) => g.slot === slot);
+    if (groupIndex === -1) continue;
+    const group = day.groups[groupIndex];
+    const nextItems = (group.items ?? []).filter((i) => i.id !== itemId);
+    const nextGroup = { ...group, items: nextItems };
+    const nextGroups = day.groups.map((g, i) => (i === groupIndex ? nextGroup : g));
+    nextRoutine = {
+      ...nextRoutine,
+      days: {
+        ...nextRoutine.days,
+        [dayKey]: { groups: nextGroups },
+      },
+    };
+  }
+
+  for (const { dayKey, slot } of slots) {
+    const newItem: DayItem = {
+      id: crypto.randomUUID(),
+      type: "text",
+      content: productName,
+      productId,
+      stepType,
+    };
+    const day = nextRoutine.days[dayKey] ?? { groups: [] };
+    const groups = day.groups ?? [];
+    const groupIndex = groups.findIndex((g) => g.slot === slot);
+    if (groupIndex === -1) continue;
+    const group = groups[groupIndex];
+    const nextGroup = autoArrangeGroupByDermOrder({
+      ...group,
+      items: [...(group.items ?? []), newItem],
+    });
+    const nextGroups = groups.map((g, i) => (i === groupIndex ? nextGroup : g));
+    nextRoutine = {
+      ...nextRoutine,
+      days: {
+        ...nextRoutine.days,
+        [dayKey]: { groups: nextGroups },
+      },
+    };
+  }
+
+  return nextRoutine;
+}
+
 /** Returns true if the given product (by id or by name) is already in the specified day and slot. */
 export function isProductInDaySlot(
   routine: Routine,
@@ -846,6 +953,40 @@ export function upsertCatalogProductInRoutine(
       [input.dayKey]: {
         groups: autoArrangeDayGroups(nextGroups),
       },
+    },
+  };
+}
+
+export function replaceItemInRoutine(
+  routine: Routine,
+  dayKey: DayKey,
+  slot: RoutineSlot,
+  itemId: string,
+  product: CatalogProductApi
+): Routine {
+  const day = routine.days[dayKey] ?? { groups: [] };
+  const groups = day.groups ?? [];
+  const groupIndex = groups.findIndex((g) => g.slot === slot);
+  if (groupIndex === -1) return routine;
+  const group = groups[groupIndex];
+  const itemIndex = group.items.findIndex((i) => i.id === itemId);
+  if (itemIndex === -1) return routine;
+  const stepType = mapCategoryToStepType(product.category);
+  const newItem: DayItem = {
+    id: crypto.randomUUID(),
+    type: "text",
+    content: product.name,
+    productId: product.id,
+    stepType,
+  };
+  const nextItems = group.items.map((item, i) => (i === itemIndex ? newItem : item));
+  const nextGroup = { ...group, items: nextItems };
+  const nextGroups = groups.map((g, i) => (i === groupIndex ? nextGroup : g));
+  return {
+    ...routine,
+    days: {
+      ...routine.days,
+      [dayKey]: { groups: nextGroups },
     },
   };
 }

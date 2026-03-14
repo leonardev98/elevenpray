@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
+import { modalBackdrop, modalPanel } from "@/lib/animations";
 import type { CatalogProductApi } from "../../../../../../lib/catalog-api";
 import type { DayContent, DayGroup, DayItem, RoutineSlot } from "../../../../../../lib/routines-api";
 import {
@@ -129,15 +131,22 @@ export function AddToRoutineModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="add-to-routine-title"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="w-full max-w-md rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl">
-        <div className="border-b border-[var(--app-border)] px-4 py-3">
+    <AnimatePresence>
+      {product && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-to-routine-title"
+          onClick={(e) => e.target === e.currentTarget && onClose()}
+          {...modalBackdrop}
+        >
+          <motion.div
+            className="w-full max-w-md rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            {...modalPanel}
+          >
+            <div className="border-b border-[var(--app-border)] px-4 py-3">
           <h2 id="add-to-routine-title" className="text-lg font-semibold text-[var(--app-fg)]">
             Añadir a rutina
           </h2>
@@ -211,7 +220,9 @@ export function AddToRoutineModal({
             {saving ? "Añadiendo…" : "Añadir"}
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

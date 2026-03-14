@@ -99,6 +99,22 @@ export default function WorkspaceDetailPage() {
     hasRoutine || hasProductVault || hasCheckins || hasProgressPhotos || hasInsights;
   const isSkincare = workspace.workspaceType === "skincare";
 
+  if (isSkincare) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-semibold tracking-normal text-[var(--app-fg)] dark:text-zinc-200">
+          {workspace.name}
+        </h1>
+        {error && (
+          <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            {error}
+          </p>
+        )}
+        <SkincareDashboardCards workspaceId={workspaceId} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -115,15 +131,11 @@ export default function WorkspaceDetailPage() {
         )}
       </div>
 
-      {isSkincare && (
-        <SkincareDashboardCards workspaceId={workspaceId} />
-      )}
-
       {hasRoutine && (
         <WeekScheduleCard workspaceId={workspaceId} />
       )}
 
-      {hasProductVault && !isSkincare && (
+      {hasProductVault && (
         <Link
           href={`/dashboard/workspaces/${workspaceId}/products`}
           className="flex items-center justify-between rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition hover:border-[var(--app-navy)]/40 hover:shadow-md lg:hidden dark:border-zinc-700 dark:bg-zinc-900/50"

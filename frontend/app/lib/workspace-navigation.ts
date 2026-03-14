@@ -37,8 +37,9 @@ const SKINCARE_SECTIONS: NavSection[] = [
     id: "skin",
     labelKey: "skin",
     icon: "scan",
-    href: "journal",
+    href: "skin",
     children: [
+      { href: "skin", labelKey: "skinToday" },
       { href: "journal", labelKey: "journal" },
       { href: "photos", labelKey: "photos" },
       { href: "progress", labelKey: "progress" },

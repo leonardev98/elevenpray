@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
+import { modalBackdrop, modalPanel } from "@/lib/animations";
 
 interface ClearRoutineConfirmModalProps {
   isOpen: boolean;
@@ -42,11 +44,21 @@ export function ClearRoutineConfirmModal({ isOpen, onClose, onConfirm }: ClearRo
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-3xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-xl">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => e.target === e.currentTarget && onClose()}
+          {...modalBackdrop}
+        >
+          <motion.div
+            className="w-full max-w-md rounded-3xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            {...modalPanel}
+          >
         <h3 className="text-lg font-semibold text-[var(--app-fg)]">{t("clearRoutineModalTitle")}</h3>
         <p className="mt-3 text-sm text-[var(--app-fg)]/80">{t("confirmClearRoutine")}</p>
         <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
@@ -73,7 +85,9 @@ export function ClearRoutineConfirmModal({ isOpen, onClose, onConfirm }: ClearRo
             {t("clearRoutineConfirmButton")}
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

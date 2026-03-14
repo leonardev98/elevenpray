@@ -11,6 +11,7 @@ import { getWorkspacePreference, updateWorkspacePreference } from "../../../../.
 import { checkIngredientConflicts, type ConflictResultApi } from "../../../../../lib/ingredient-conflicts-api";
 import {
   analyzeRoutine,
+  analyzeRoutineIntelligence,
   applySuggestionToRoutine,
   buildStarterRoutine,
   DAY_KEYS,
@@ -24,7 +25,7 @@ import { getCatalogProducts } from "../../../../../lib/catalog-api";
 import { RoutineIntelligencePanel } from "@/components/routines/routine-intelligence-panel";
 import { RoutineHeader } from "./components/routine-header";
 import { WeeklyRoutineGrid } from "./components/weekly-routine-grid";
-import { AddProductToRoutineModal } from "./components/add-product-to-routine-modal";
+import { AddProductToRoutineModal, type ReplaceStepTarget } from "./components/add-product-to-routine-modal";
 import { AutoBuildRoutineDialog } from "./components/auto-build-routine-dialog";
 import { RoutinePreviewPanel } from "./components/routine-preview-panel";
 import { ClearRoutineConfirmModal } from "./components/clear-routine-confirm-modal";
@@ -48,6 +49,12 @@ export default function RoutineEditorPage() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isAutoBuildOpen, setIsAutoBuildOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [editStepTarget, setEditStepTarget] = useState<ReplaceStepTarget | null>(null);
+  const [addProductSuggestionContext, setAddProductSuggestionContext] = useState<{
+    slot: "am" | "pm";
+    suggestedStepType?: string;
+    dayKeys?: DayKey[];
+  } | null>(null);
   const [isClearRoutineModalOpen, setIsClearRoutineModalOpen] = useState(false);
 
   useEffect(() => {
@@ -68,16 +75,47 @@ export default function RoutineEditorPage() {
         setWorkspaceProducts(products);
         const profile = (workspacePreference?.skincareProfile ?? null) as RoutineMetadata | null;
         if (profile && !hydrated.metadata) setMetadata(profile);
-
-        const ingredients = [...new Set(products.flatMap((product) => product.mainIngredients ?? []))];
-        if (ingredients.length > 0) {
-          const conflicts = await checkIngredientConflicts(token, ingredients, locale);
-          setIngredientConflicts(conflicts);
-        }
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [token, id, locale]);
+
+  useEffect(() => {
+    if (!token || !routine?.days || !workspaceProducts.length) {
+      setIngredientConflicts([]);
+      return;
+    }
+    const productIdsInRoutine = new Set<string>();
+    for (const day of Object.values(routine.days)) {
+      for (const group of day?.groups ?? []) {
+        for (const item of group.items ?? []) {
+          if (item.productId) productIdsInRoutine.add(item.productId);
+        }
+      }
+    }
+    const ingredientsInRoutine = [
+      ...new Set(
+        workspaceProducts
+          .filter((p) => productIdsInRoutine.has(p.id))
+          .flatMap((p) => p.mainIngredients ?? [])
+      ),
+    ];
+    if (ingredientsInRoutine.length === 0) {
+      setIngredientConflicts([]);
+      return;
+    }
+    let cancelled = false;
+    checkIngredientConflicts(token, ingredientsInRoutine, locale)
+      .then((conflicts) => {
+        if (!cancelled) setIngredientConflicts(conflicts);
+      })
+      .catch(() => {
+        if (!cancelled) setIngredientConflicts([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, locale, routine?.days, workspaceProducts]);
 
   const routineAnalysis = useMemo(
     () =>
@@ -85,6 +123,13 @@ export default function RoutineEditorPage() {
         ? analyzeRoutine({ ...routine, metadata }, ingredientConflicts, metadata)
         : null,
     [routine, metadata, ingredientConflicts]
+  );
+  const routineIntelligence = useMemo(
+    () =>
+      routine?.workspaceId && routine.days
+        ? analyzeRoutineIntelligence(routine, workspaceProducts, ingredientConflicts)
+        : null,
+    [routine, workspaceProducts, ingredientConflicts]
   );
   const intentLabelMap = useMemo(() => {
     const entries = getWeeklyIntentSummary(metadata);
@@ -268,14 +313,27 @@ export default function RoutineEditorPage() {
           intentLabels={intentLabelMap}
           dayNameByKey={(day) => tDays(day)}
           onUpdateDay={updateDay}
+          onEditStep={(dayKey, slot, itemId) => setEditStepTarget({ dayKey, slot, itemId })}
+          itemSeverityMap={routineIntelligence?.itemSeverityMap ?? {}}
+          itemSeverityReasonsMap={routineIntelligence?.itemSeverityReasonsMap ?? {}}
         />
       </div>
 
       {routineAnalysis && (
         <RoutineIntelligencePanel
           analysis={routineAnalysis}
+          routineIntelligence={routineIntelligence}
           onApplySuggestion={(suggestion) => {
             if (!routine) return;
+            if (suggestion.action?.type === "open_add_product") {
+              setAddProductSuggestionContext({
+                slot: suggestion.action.slot,
+                suggestedStepType: suggestion.action.suggestedStepType,
+                dayKeys: suggestion.action.dayKeys,
+              });
+              setIsAddProductModalOpen(true);
+              return;
+            }
             const updated = applySuggestionToRoutine(routine, suggestion);
             if (updated) {
               setRoutine(updated);
@@ -291,13 +349,25 @@ export default function RoutineEditorPage() {
 
       {routine.workspaceId && token ? (
         <AddProductToRoutineModal
-          isOpen={isAddProductModalOpen}
+          isOpen={isAddProductModalOpen || !!editStepTarget}
           token={token}
           workspaceId={routine.workspaceId}
           routine={{ ...routine, metadata }}
           metadata={metadata}
           workspaceProducts={workspaceProducts}
-          onClose={() => setIsAddProductModalOpen(false)}
+          replaceTarget={editStepTarget}
+          initialMoment={addProductSuggestionContext?.slot}
+          initialCategory={
+            addProductSuggestionContext?.suggestedStepType
+              ? stepTypeToCategory(addProductSuggestionContext.suggestedStepType as Parameters<typeof stepTypeToCategory>[0])
+              : undefined
+          }
+          initialDayKeys={addProductSuggestionContext?.dayKeys}
+          onClose={() => {
+            setIsAddProductModalOpen(false);
+            setEditStepTarget(null);
+            setAddProductSuggestionContext(null);
+          }}
           onSuccess={handleAddProductSuccess}
         />
       ) : null}

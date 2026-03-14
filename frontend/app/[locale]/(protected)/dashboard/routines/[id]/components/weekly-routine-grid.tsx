@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { DayContent } from "@/app/lib/routines-api";
-import type { DayKey } from "@/app/lib/routine-builder";
+import type { DayKey, ItemSeverityReason } from "@/app/lib/routine-builder";
 import { DAY_KEYS } from "@/app/lib/routine-builder";
 import { RoutineDayCard } from "./routine-day-card";
 
@@ -18,6 +18,11 @@ interface WeeklyRoutineGridProps {
   intentLabels: Partial<Record<DayKey, string>>;
   dayNameByKey: (day: DayKey) => string;
   onUpdateDay: (dayKey: DayKey, next: DayContent) => void;
+  onEditStep?: (dayKey: DayKey, slot: "am" | "pm", itemId: string) => void;
+  /** Map itemId -> severity for visual feedback (warning = yellow, conflict = red). */
+  itemSeverityMap?: Record<string, "warning" | "conflict">;
+  /** Map itemId -> reason for severity (hover tooltip). */
+  itemSeverityReasonsMap?: Record<string, ItemSeverityReason>;
 }
 
 export function WeeklyRoutineGrid({
@@ -25,6 +30,9 @@ export function WeeklyRoutineGrid({
   intentLabels,
   dayNameByKey,
   onUpdateDay,
+  onEditStep,
+  itemSeverityMap = {},
+  itemSeverityReasonsMap = {},
 }: WeeklyRoutineGridProps) {
   const [scrollIndex, setScrollIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -125,6 +133,9 @@ export function WeeklyRoutineGrid({
                 day={days[dayKey] ?? { groups: [] }}
                 intentLabel={intentLabels[dayKey]}
                 onUpdateDay={(next) => onUpdateDay(dayKey, next)}
+                onEditStep={(slot, itemId) => onEditStep?.(dayKey, slot, itemId)}
+                itemSeverityMap={itemSeverityMap}
+                itemSeverityReasonsMap={itemSeverityReasonsMap}
               />
             </motion.div>
           ))}

@@ -23,6 +23,7 @@ import { CatalogProductsModule } from './catalog-products/catalog-products.modul
 import { IngredientConflictsModule } from './ingredient-conflicts/ingredient-conflicts.module';
 import { PromptsModule } from './prompts/prompts.module';
 import { SkinFaceMappingModule } from './skin-face-mapping/skin-face-mapping.module';
+import { LearningModule } from './learning/learning.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { SkinFaceMappingModule } from './skin-face-mapping/skin-face-mapping.mod
     IngredientConflictsModule,
     PromptsModule,
     SkinFaceMappingModule,
+    LearningModule,
     RoutineTemplatesModule,
     SpacesModule,
     PagesModule,

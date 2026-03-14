@@ -75,6 +75,16 @@ export default function AdminLayout({
             >
               Usuarios del panel
             </Link>
+            <Link
+              href="/admin/learning"
+              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+                pathname?.includes("/admin/learning")
+                  ? "bg-[var(--app-navy)]/20 text-[var(--app-navy)]"
+                  : "text-[var(--app-white)]/80 hover:bg-white/10 hover:text-[var(--app-white)]"
+              }`}
+            >
+              Contenido educativo
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-3">

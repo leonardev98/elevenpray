@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { getCatalogProducts, type CatalogProductApi } from "../../../../lib/catalog-api";
+import { modalBackdrop, modalPanel } from "@/lib/animations";
 
 const CATEGORY_LABELS: Record<string, string> = {
   cleanser: "Limpiador",
@@ -39,14 +41,21 @@ export function RoutineAddProductModal({
   }, [token, workspaceId]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="routine-add-product-title"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl">
+    <AnimatePresence>
+      <motion.div
+        key="routine-add-product-modal"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="routine-add-product-title"
+          onClick={(e) => e.target === e.currentTarget && onClose()}
+          {...modalBackdrop}
+        >
+          <motion.div
+            className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            {...modalPanel}
+          >
         <div className="border-b border-[var(--app-border)] px-4 py-3">
           <h2 id="routine-add-product-title" className="text-lg font-semibold text-[var(--app-fg)]">
             Añadir producto
@@ -100,7 +109,8 @@ export function RoutineAddProductModal({
             Cancelar
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+    </AnimatePresence>
   );
 }

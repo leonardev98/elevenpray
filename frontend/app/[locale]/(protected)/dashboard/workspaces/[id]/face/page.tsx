@@ -6,6 +6,7 @@ import { useAuth } from "../../../../../../providers/auth-provider";
 import { getWorkspace } from "../../../../../../lib/workspaces-api";
 import type { WorkspaceApi } from "../../../../../../lib/workspaces-api";
 import { FaceMap } from "@/components/skincare/face-map/FaceMap";
+import { UnderConstructionOverlay } from "../components/under-construction-overlay";
 
 export default function WorkspaceFacePage() {
   const params = useParams();
@@ -44,6 +45,8 @@ export default function WorkspaceFacePage() {
   }
 
   return (
-    <FaceMap workspaceId={workspaceId} token={token} />
+    <UnderConstructionOverlay>
+      <FaceMap workspaceId={workspaceId} token={token} />
+    </UnderConstructionOverlay>
   );
 }

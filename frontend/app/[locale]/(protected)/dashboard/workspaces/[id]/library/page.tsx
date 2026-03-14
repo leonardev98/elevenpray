@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { useAuth } from "../../../../../../providers/auth-provider";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 import {
   getCatalogProducts,
   getCatalogBookmarks,
@@ -15,6 +17,13 @@ import { ProductDetailModal } from "../components/product-detail-modal";
 import { AddToRoutineModal } from "../components/add-to-routine-modal";
 import { CatalogProductCard } from "../components/catalog-product-card";
 import { toast } from "../../../../../../lib/toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const CATEGORIES = [
   { value: "", label: "Todas" },
@@ -116,28 +125,36 @@ export default function WorkspaceLibraryPage() {
       </p>
 
       <div className="flex flex-wrap gap-3">
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
+        <Select
+          value={category === "" ? "all" : category}
+          onValueChange={(v) => setCategory(v === "all" ? "" : v)}
         >
-          {CATEGORIES.map((c) => (
-            <option key={c.value || "all"} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-        <select
-          value={concern}
-          onChange={(e) => setConcern(e.target.value)}
-          className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
+          <SelectTrigger className="min-w-[160px]">
+            <SelectValue placeholder="Categoría" />
+          </SelectTrigger>
+          <SelectContent>
+            {CATEGORIES.map((c) => (
+              <SelectItem key={c.value || "all"} value={c.value || "all"}>
+                {c.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={concern === "" ? "all" : concern}
+          onValueChange={(v) => setConcern(v === "all" ? "" : v)}
         >
-          {CONCERNS.map((c) => (
-            <option key={c.value || "all"} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="min-w-[180px]">
+            <SelectValue placeholder="Preocupación" />
+          </SelectTrigger>
+          <SelectContent>
+            {CONCERNS.map((c) => (
+              <SelectItem key={c.value || "all"} value={c.value || "all"}>
+                {c.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <input
           type="search"
           value={search}
@@ -162,9 +179,15 @@ export default function WorkspaceLibraryPage() {
           </p>
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" role="list">
+        <motion.ul
+          className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
+          role="list"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
           {products.map((product) => (
-            <li key={product.id}>
+            <motion.li key={product.id} variants={staggerItem}>
               <CatalogProductCard
                 product={product}
                 isBookmarked={bookmarkIds.has(product.id)}
@@ -172,9 +195,9 @@ export default function WorkspaceLibraryPage() {
                 onOpenDetail={() => setSelectedProductId(product.id)}
                 onAddToRoutine={() => setAddToRoutineProduct(product)}
               />
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
       )}
 
       {selectedProductId && (

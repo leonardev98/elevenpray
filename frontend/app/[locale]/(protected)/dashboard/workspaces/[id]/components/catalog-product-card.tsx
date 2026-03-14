@@ -1,6 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
 import type { CatalogProductApi } from "../../../../../../lib/catalog-api";
+import { fadeInUp, hoverCard } from "@/lib/animations";
 
 const CATEGORY_LABELS: Record<string, string> = {
   cleanser: "Limpiador",
@@ -75,8 +77,12 @@ export function CatalogProductCard({
   const benefitLine = product.benefits?.[0] ?? product.description ?? null;
 
   return (
-    <article
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm transition-all duration-200 hover:scale-[1.05] hover:shadow-xl"
+    <motion.article
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm"
+      initial={fadeInUp.initial}
+      animate={fadeInUp.animate}
+      transition={fadeInUp.transition}
+      whileHover={{ ...hoverCard, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
     >
       {/* Bookmark: top-right, icon button */}
       <div className="absolute right-3 top-3 z-10" onClick={(e) => e.stopPropagation()}>
@@ -157,6 +163,6 @@ export function CatalogProductCard({
           Añadir a rutina
         </button>
       </div>
-    </article>
+    </motion.article>
   );
 }

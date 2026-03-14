@@ -1,5 +1,13 @@
 import { getBaseUrl, getAuthHeaders } from "./api";
 
+/** Síntomas rápidos en check-in (checkboxes) */
+export type SkinCheckinSymptom =
+  | "tirantez"
+  | "brotes"
+  | "rojez"
+  | "descamacion"
+  | "manchas_nuevas";
+
 export interface CheckinData {
   skinFeeling?: string;
   dryness?: number;
@@ -8,6 +16,16 @@ export interface CheckinData {
   sensitivity?: number;
   breakouts?: number;
   itchiness?: number;
+  /** Escala 1-5: hidratación */
+  hydration?: number;
+  /** Escala 1-5: irritación */
+  irritation?: number;
+  /** Escala 1-5: acné */
+  acne?: number;
+  /** Escala 1-5: textura */
+  texture?: number;
+  /** Síntomas seleccionados (checkboxes) */
+  symptoms?: SkinCheckinSymptom[];
   confidenceNote?: string;
   sleepQuality?: number;
   stress?: number;
@@ -15,6 +33,8 @@ export interface CheckinData {
   weatherNote?: string;
   freeNotes?: string;
   imageUrl?: string;
+  /** Zonas del mapa facial: { zone, type, severity } */
+  faceMapZones?: { zone: string; type: string; severity: number }[];
   [key: string]: unknown;
 }
 

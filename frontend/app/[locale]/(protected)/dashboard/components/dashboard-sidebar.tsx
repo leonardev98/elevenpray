@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 import { Link, usePathname } from "@/i18n/navigation";
+import { MagneticWrap } from "@/lib/animations";
 import { Plus } from "lucide-react";
 import { useWorkspaces } from "./workspaces-provider";
 import { NewWorkspaceModal } from "./new-workspace-modal";
@@ -140,7 +142,7 @@ export function DashboardSidebar({
               const isActive =
                 href === "/dashboard" ? pathname === "/dashboard" : pathname?.startsWith(href);
               return (
-                <li key={href}>
+                <motion.li key={href} whileHover={{ scale: 1.02 }} transition={{ duration: 0.15 }}>
                   <Link
                     href={href}
                     onClick={isMobileDrawer ? onCloseMobile : undefined}
@@ -153,11 +155,11 @@ export function DashboardSidebar({
                   >
                     {t(key)}
                   </Link>
-                </li>
+                </motion.li>
               );
             })}
             {isPlatformAdmin && (
-              <li>
+              <motion.li whileHover={{ scale: 1.02 }} transition={{ duration: 0.15 }}>
                 <Link
                   href="/admin"
                   onClick={isMobileDrawer ? onCloseMobile : undefined}
@@ -165,7 +167,7 @@ export function DashboardSidebar({
                 >
                   {t("adminPanel")}
                 </Link>
-              </li>
+              </motion.li>
             )}
           </ul>
         </nav>
@@ -175,14 +177,16 @@ export function DashboardSidebar({
           <p className="mb-3 px-2 text-[length:var(--dev-font-label-size)] font-medium tracking-[var(--dev-font-label-tracking)] text-[var(--app-fg)]/55 dark:text-slate-400">
             {tWorkspace("mySpaces")}
           </p>
-          <button
-            type="button"
-            onClick={() => setModalOpen(true)}
-            className="mb-5 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[var(--app-navy)] py-2.5 text-sm font-medium text-[var(--app-white)] shadow-sm transition-all duration-200 hover:opacity-95 active:scale-[0.99]"
-          >
-            <Plus className="h-4 w-4" strokeWidth={2.25} />
-            {tWorkspace("newWorkspace")}
-          </button>
+          <MagneticWrap className="mb-5 block" strength={0.1}>
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              className="flex w-full min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[var(--app-navy)] py-2.5 text-sm font-medium text-[var(--app-white)] shadow-sm transition-all duration-200 hover:opacity-95 active:scale-[0.99]"
+            >
+              <Plus className="h-4 w-4" strokeWidth={2.25} />
+              {tWorkspace("newWorkspace")}
+            </button>
+          </MagneticWrap>
 
           <NewWorkspaceModal
             isOpen={modalOpen}

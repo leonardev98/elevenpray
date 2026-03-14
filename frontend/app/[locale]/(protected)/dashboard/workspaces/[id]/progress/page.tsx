@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useAuth } from "../../../../../../providers/auth-provider";
+import { UnderConstructionOverlay } from "../components/under-construction-overlay";
 import { getWorkspaceCheckins } from "../../../../../../lib/workspace-checkins-api";
 import { getWorkspacePhotos } from "../../../../../../lib/workspace-photos-api";
 
@@ -68,6 +69,7 @@ export default function WorkspaceProgressPage() {
   }
 
   return (
+    <UnderConstructionOverlay>
     <div className="space-y-8">
       <h1 className="text-xl font-semibold text-[var(--app-fg)]">Progreso</h1>
       <p className="text-sm text-[var(--app-fg)]/70">
@@ -134,5 +136,6 @@ export default function WorkspaceProgressPage() {
         </Link>
       </section>
     </div>
+    </UnderConstructionOverlay>
   );
 }

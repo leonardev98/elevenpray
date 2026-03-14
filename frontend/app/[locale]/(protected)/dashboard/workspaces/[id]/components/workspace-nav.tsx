@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import type { LucideIcon } from "lucide-react";
@@ -102,19 +103,20 @@ export function WorkspaceNav({ workspaceId, workspace }: WorkspaceNavProps) {
         }
 
         return (
-          <Link
-            key={section.id}
-            href={href}
-            className={cn(
-              "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-all duration-150",
-              isActive
-                ? "bg-[var(--app-navy)]/10 text-[var(--app-navy)] shadow-sm dark:text-sky-400"
-                : "text-[var(--app-fg)]/70 hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)] dark:text-slate-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-            )}
-          >
-            {Icon ? <Icon className={ICON_CLASS} aria-hidden /> : null}
-            <span>{t(section.labelKey)}</span>
-          </Link>
+          <motion.span key={section.id} whileHover={{ scale: 1.03 }} transition={{ duration: 0.15 }} className="inline-block">
+            <Link
+              href={href}
+              className={cn(
+                "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-all duration-150",
+                isActive
+                  ? "bg-[var(--app-navy)]/10 text-[var(--app-navy)] shadow-sm dark:text-sky-400"
+                  : "text-[var(--app-fg)]/70 hover:bg-[var(--app-bg)] hover:text-[var(--app-fg)] dark:text-slate-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+              )}
+            >
+              {Icon ? <Icon className={ICON_CLASS} aria-hidden /> : null}
+              <span>{t(section.labelKey)}</span>
+            </Link>
+          </motion.span>
         );
       })}
     </nav>

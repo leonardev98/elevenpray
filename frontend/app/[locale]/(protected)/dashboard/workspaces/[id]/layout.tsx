@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
+import { modalBackdrop, modalPanel } from "@/lib/animations";
 import { useAuth } from "../../../../../providers/auth-provider";
 import { getWorkspace } from "../../../../../lib/workspaces-api";
 import {
@@ -24,9 +26,16 @@ import {
 import { getWorkspaceNavSections, getActiveSection } from "../../../../../lib/workspace-navigation";
 import type { WorkspaceApi } from "../../../../../lib/workspaces-api";
 import type { WorkspacePreferenceApi } from "../../../../../lib/workspace-preferences-api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { WorkspaceNav } from "./components/workspace-nav";
 import { WorkspaceSubNav } from "./components/workspace-sub-nav";
-import { WorkspaceProductsAside } from "./components/workspace-products-aside";
+import { WorkspaceSkincareAside } from "./components/workspace-skincare-aside";
 import {
   SkinProfileOnboarding,
   parseSkinProfileFromPreference,
@@ -59,12 +68,20 @@ function GenericOnboardingModal({
   }
 
   return (
-    <>
-      <div role="presentation" className="fixed inset-0 z-50 bg-black/50" aria-hidden />
-      <div
+    <AnimatePresence>
+      <motion.div
+        key="generic-onboarding-modal"
+        role="presentation"
+        className="fixed inset-0 z-50 bg-black/50"
+        aria-hidden
+        {...modalBackdrop}
+      />
+      <motion.div
+        key="generic-onboarding-panel"
         className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-xl"
         role="dialog"
         aria-labelledby="onboarding-title"
+        {...modalPanel}
       >
         <h2 id="onboarding-title" className="mb-2 text-lg font-semibold text-[var(--app-fg)]">
           Configura tu espacio
@@ -76,15 +93,16 @@ function GenericOnboardingModal({
           <label className="mb-1 block text-xs font-medium text-[var(--app-fg)]/70">
             Nivel
           </label>
-          <select
-            value={level}
-            onChange={(e) => setLevel(e.target.value)}
-            className="mb-4 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
-          >
-            <option value="beginner">Principiante</option>
-            <option value="intermediate">Intermedio</option>
-            <option value="advanced">Avanzado</option>
-          </select>
+          <Select value={level} onValueChange={setLevel}>
+            <SelectTrigger className="mb-4 w-full">
+              <SelectValue placeholder="Selecciona nivel" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="beginner">Principiante</SelectItem>
+              <SelectItem value="intermediate">Intermedio</SelectItem>
+              <SelectItem value="advanced">Avanzado</SelectItem>
+            </SelectContent>
+          </Select>
           <button
             type="submit"
             disabled={saving}
@@ -93,8 +111,8 @@ function GenericOnboardingModal({
             {saving ? "Guardando…" : "Empezar"}
           </button>
         </form>
-      </div>
-    </>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
@@ -258,8 +276,11 @@ export default function WorkspaceIdLayout({
     );
   }
 
-  const isSkincareWithProducts =
-    workspace.workspaceType === "skincare" && hasProductVaultCapability(workspace.workspaceType);
+  const pathSegments = pathname.replace(/\/$/, "").split("/").filter(Boolean);
+  const lastSegment = pathSegments[pathSegments.length - 1];
+  const isLearningPage = lastSegment === "knowledge" || lastSegment === "videos";
+  const isSkincareWorkspaceOverview =
+    isSkincareWorkspace && pathSegments[pathSegments.length - 1] === workspaceId;
 
   const base = `/dashboard/workspaces/${workspaceId}`;
   const sections = getWorkspaceNavSections(workspace.workspaceType);
@@ -267,7 +288,7 @@ export default function WorkspaceIdLayout({
   const isCatalogPage = pathname.endsWith("/products") || pathname.endsWith("/library");
 
   return (
-    <div className="flex flex-col lg:flex-row lg:gap-6">
+    <div className="flex flex-col lg:flex-row lg:gap-5">
       {showOnboarding &&
         (isSkincareWorkspace ? (
           <SkinProfileOnboarding
@@ -356,10 +377,8 @@ export default function WorkspaceIdLayout({
           {children}
         </div>
       </div>
-      {isSkincareWithProducts && (
-        <aside className="hidden lg:block lg:w-72 lg:flex-shrink-0 xl:w-80">
-          <WorkspaceProductsAside />
-        </aside>
+      {isSkincareWorkspaceOverview && (
+        <WorkspaceSkincareAside workspaceId={workspaceId} preference={preference} />
       )}
     </div>
   );

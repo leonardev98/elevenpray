@@ -1,12 +1,14 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
+import { hoverCard } from "@/lib/animations";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { DayGroup, DayItem, RoutineSlot } from "@/app/lib/routines-api";
 import { autoArrangeGroupByDermOrder } from "@/app/lib/routine-builder";
-import type { DayKey } from "@/app/lib/routine-builder";
+import type { DayKey, ItemSeverityReason } from "@/app/lib/routine-builder";
 import { RoutineStep } from "./routine-step";
 
 interface RoutineSlotCardProps {
@@ -15,11 +17,15 @@ interface RoutineSlotCardProps {
   slot: RoutineSlot;
   droppableId: string;
   onUpdateGroup: (next: DayGroup) => void;
+  onEditStep?: (itemId: string) => void;
+  itemSeverityMap?: Record<string, "warning" | "conflict">;
+  itemSeverityReasonsMap?: Record<string, ItemSeverityReason>;
 }
 
-export function RoutineSlotCard({ dayKey: _dayKey, group, slot, droppableId, onUpdateGroup }: RoutineSlotCardProps) {
+export function RoutineSlotCard({ dayKey: _dayKey, group, slot, droppableId, onUpdateGroup, onEditStep, itemSeverityMap = {}, itemSeverityReasonsMap = {} }: RoutineSlotCardProps) {
   const t = useTranslations("routineBuilder");
-  const items = group.items ?? [];
+  const rawItems = group.items ?? [];
+  const items = rawItems.filter((item, i, arr) => arr.findIndex((x) => x.id === item.id) === i);
   const isEmpty = items.length === 0;
   const { setNodeRef, isOver } = useDroppable({ id: droppableId });
 
@@ -43,7 +49,11 @@ export function RoutineSlotCard({ dayKey: _dayKey, group, slot, droppableId, onU
   const itemIds = items.map((i) => i.id);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl bg-[var(--app-routine-item-bg)] p-3 transition-colors dark:border dark:border-[var(--app-routine-item-border)]/50 dark:rounded-lg">
+    <motion.div
+      className="flex flex-col gap-3 rounded-xl bg-[var(--app-routine-item-bg)] p-3 transition-colors dark:border dark:border-[var(--app-routine-item-border)]/50 dark:rounded-lg"
+      whileHover={{ scale: 1.02, y: -2 }}
+      transition={{ duration: 0.2 }}
+    >
       <div className="flex items-center justify-between">
         <h4 className="flex items-center gap-1.5 text-sm font-medium text-[var(--app-fg)]">
           <SlotIcon className="size-4 shrink-0 [color:currentColor]" aria-hidden />
@@ -84,12 +94,16 @@ export function RoutineSlotCard({ dayKey: _dayKey, group, slot, droppableId, onU
                   item={item}
                   onChange={(next) => updateItem(item.id, () => next)}
                   onRemove={() => removeItem(item.id)}
+                  onEdit={() => onEditStep?.(item.id)}
+                  dragDisabled={items.length < 2}
+                  severity={itemSeverityMap[item.id]}
+                  severityReason={itemSeverityReasonsMap[item.id]}
                 />
               ))}
             </div>
           </SortableContext>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

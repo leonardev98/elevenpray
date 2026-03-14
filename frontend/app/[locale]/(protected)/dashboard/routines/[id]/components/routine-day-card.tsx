@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 import {
   DndContext,
   closestCenter,
@@ -13,7 +14,7 @@ import {
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import type { DayContent, DayGroup } from "@/app/lib/routines-api";
 import { autoArrangeGroupByDermOrder, ensureAMPMGroups } from "@/app/lib/routine-builder";
-import type { DayKey } from "@/app/lib/routine-builder";
+import type { DayKey, ItemSeverityReason } from "@/app/lib/routine-builder";
 import { RoutineSlotCard } from "./routine-slot-card";
 
 interface RoutineDayCardProps {
@@ -22,6 +23,9 @@ interface RoutineDayCardProps {
   day: DayContent;
   intentLabel?: string;
   onUpdateDay: (next: DayContent) => void;
+  onEditStep?: (slot: "am" | "pm", itemId: string) => void;
+  itemSeverityMap?: Record<string, "warning" | "conflict">;
+  itemSeverityReasonsMap?: Record<string, ItemSeverityReason>;
 }
 
 function getSlotGroup(dayKey: DayKey, groups: DayGroup[], slot: "am" | "pm", morningRoutine: string, nightRoutine: string): DayGroup {
@@ -41,6 +45,9 @@ export function RoutineDayCard({
   day,
   intentLabel,
   onUpdateDay,
+  onEditStep,
+  itemSeverityMap = {},
+  itemSeverityReasonsMap = {},
 }: RoutineDayCardProps) {
   const t = useTranslations("routineBuilder");
   const normalizedDay = ensureAMPMGroups({ [dayKey]: day })[dayKey];
@@ -125,7 +132,11 @@ export function RoutineDayCard({
   }
 
   return (
-    <article className="flex w-full min-w-0 flex-col rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition-all duration-200 hover:border-[var(--app-border)] hover:shadow-md dark:border-[var(--app-border)] dark:bg-[var(--app-surface)] dark:hover:border-[var(--app-fg-muted)]/50">
+    <motion.article
+      className="flex w-full min-w-0 flex-col rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]"
+      whileHover={{ scale: 1.01, y: -2, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)" }}
+      transition={{ duration: 0.2 }}
+    >
       <header className="mb-4">
         <p className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg-secondary)]">{dayLabel}</p>
         {intentLabel ? (
@@ -137,10 +148,10 @@ export function RoutineDayCard({
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="flex flex-1 flex-col gap-4">
-          <RoutineSlotCard dayKey={dayKey} group={amGroup} slot="am" onUpdateGroup={updateGroup} droppableId={`${dayKey}-am`} />
-          <RoutineSlotCard dayKey={dayKey} group={pmGroup} slot="pm" onUpdateGroup={updateGroup} droppableId={`${dayKey}-pm`} />
+          <RoutineSlotCard dayKey={dayKey} group={amGroup} slot="am" onUpdateGroup={updateGroup} droppableId={`${dayKey}-am`} onEditStep={(itemId) => onEditStep?.("am", itemId)} itemSeverityMap={itemSeverityMap} itemSeverityReasonsMap={itemSeverityReasonsMap} />
+          <RoutineSlotCard dayKey={dayKey} group={pmGroup} slot="pm" onUpdateGroup={updateGroup} droppableId={`${dayKey}-pm`} onEditStep={(itemId) => onEditStep?.("pm", itemId)} itemSeverityMap={itemSeverityMap} itemSeverityReasonsMap={itemSeverityReasonsMap} />
         </div>
       </DndContext>
-    </article>
+    </motion.article>
   );
 }

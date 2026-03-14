@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { drawerOverlay, drawerPanel } from "@/lib/animations";
 import { PromptForm, getDefaultValues, type PromptFormValues } from "./PromptForm";
 import type { PromptApi, PromptFolderApi, PromptCategoryApi, DeveloperProjectApi } from "@/app/lib/developer-workspace/types";
 
@@ -107,20 +109,23 @@ export function PromptFormDrawer({
     }
   };
 
-  if (!open) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-40 flex justify-end bg-black/25"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="drawer-title"
-    >
-      <div
-        className="flex h-full w-full max-w-2xl flex-col bg-[var(--dev-surface-elevated)] shadow-xl sm:w-[480px]"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            className="fixed inset-0 z-40 flex justify-end bg-black/25"
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="drawer-title"
+            {...drawerOverlay}
+          />
+          <motion.div
+            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-2xl flex-col bg-[var(--dev-surface-elevated)] shadow-xl sm:w-[480px]"
+            onClick={(e) => e.stopPropagation()}
+            {...drawerPanel}
+          >
         <div className="flex shrink-0 items-center justify-between border-b border-[var(--dev-border-subtle)] px-4 py-3">
           <h2 id="drawer-title" className="text-lg font-semibold text-[var(--app-fg)]">
             {prompt ? t("edit") : t("newPrompt")}
@@ -169,7 +174,9 @@ export function PromptFormDrawer({
             {saving ? "Guardando…" : "Guardar"}
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

@@ -64,16 +64,22 @@ export function toggleStepCompleted(
   return next;
 }
 
+export interface RoutineStep {
+  id: string;
+  content: string;
+  stepType?: string;
+}
+
 /** Extract flat list of steps (with id) for today from a routine template. */
 export function getTodayStepsFromRoutine(
   routine: Routine | null | undefined,
   dayKey?: string
-): { id: string; content: string; stepType?: string }[] {
+): RoutineStep[] {
   if (!routine?.days) return [];
   const key = dayKey ?? getTodayDayKey();
   const day = routine.days[key];
   if (!day?.groups?.length) return [];
-  const steps: { id: string; content: string; stepType?: string }[] = [];
+  const steps: RoutineStep[] = [];
   for (const group of day.groups as DayGroup[]) {
     for (const item of group.items ?? []) {
       const it = item as DayItem & { id?: string };
@@ -85,6 +91,31 @@ export function getTodayStepsFromRoutine(
     }
   }
   return steps;
+}
+
+/** Steps for today grouped by slot (am / pm). Groups without slot go to "am". */
+export function getTodayStepsBySlot(
+  routine: Routine | null | undefined,
+  dayKey?: string
+): { am: RoutineStep[]; pm: RoutineStep[] } {
+  const key = dayKey ?? getTodayDayKey();
+  const day = routine?.days?.[key];
+  const am: RoutineStep[] = [];
+  const pm: RoutineStep[] = [];
+  if (!day?.groups?.length) return { am, pm };
+  for (const group of day.groups as DayGroup[]) {
+    const slot = (group.slot === "pm" ? "pm" : "am") as "am" | "pm";
+    const list = slot === "pm" ? pm : am;
+    for (const item of group.items ?? []) {
+      const it = item as DayItem & { id?: string };
+      list.push({
+        id: it.id ?? `${group.id}-${it.content}-${list.length}`,
+        content: it.content || (it.stepType ?? ""),
+        stepType: it.stepType,
+      });
+    }
+  }
+  return { am, pm };
 }
 
 /** Get today's day content from routine (for sidebar products). */
@@ -106,6 +137,17 @@ export function getProductIdsFromDayContent(day: DayContent | null): string[] {
       const it = item as DayItem & { productId?: string };
       if (it.productId) ids.push(it.productId);
     }
+  }
+  return [...new Set(ids)];
+}
+
+/** Collect all product IDs from the entire routine (all days). */
+export function getProductIdsFromRoutine(routine: Routine | null | undefined): string[] {
+  if (!routine?.days) return [];
+  const ids: string[] = [];
+  for (const dayKey of Object.keys(routine.days)) {
+    const day = routine.days[dayKey];
+    ids.push(...getProductIdsFromDayContent(day ?? null));
   }
   return [...new Set(ids)];
 }

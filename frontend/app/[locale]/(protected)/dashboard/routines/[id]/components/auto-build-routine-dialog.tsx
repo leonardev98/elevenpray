@@ -1,7 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
 import { Wrench, Sparkles, Repeat, Package } from "lucide-react";
+import { modalBackdrop, modalPanel } from "@/lib/animations";
 
 interface AutoBuildRoutineDialogProps {
   isOpen: boolean;
@@ -24,10 +26,21 @@ const OPTION_KEYS: Array<{
 export function AutoBuildRoutineDialog({ isOpen, onClose, onSelectMode }: AutoBuildRoutineDialogProps) {
   const t = useTranslations("routineBuilder");
   const tCommon = useTranslations("common");
-  if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-[900px] rounded-3xl border border-[var(--app-border)] bg-[var(--app-surface)] p-8">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => e.target === e.currentTarget && onClose()}
+          {...modalBackdrop}
+        >
+          <motion.div
+            className="w-full max-w-[900px] rounded-3xl border border-[var(--app-border)] bg-[var(--app-surface)] p-8"
+            onClick={(e) => e.stopPropagation()}
+            {...modalPanel}
+          >
         <div className="mb-6 flex items-center justify-between">
           <h3 className="text-xl font-semibold text-[var(--app-fg)]">{t("autoBuildRoutineTitle")}</h3>
           <button type="button" onClick={onClose} className="rounded-lg px-2 py-1 text-sm text-[var(--app-fg)]/55 hover:bg-[var(--app-bg)]">
@@ -55,7 +68,9 @@ export function AutoBuildRoutineDialog({ isOpen, onClose, onSelectMode }: AutoBu
             </div>
           ))}
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/providers/auth-provider";
 import { FocusModeProvider } from "./focus-mode-context";
@@ -17,7 +18,10 @@ export default function DeveloperWorkspaceLayout({
   const { user, token, isLoading } = useAuth();
   const t = useTranslations("common");
   const sidebar = useSidebar();
+  const pathname = usePathname();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  const isSettingsPage = pathname === "/workspace/developer/settings";
 
   if (isLoading || !token || !user) {
     return (
@@ -34,7 +38,7 @@ export default function DeveloperWorkspaceLayout({
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
           onOpenMobileNav={() => sidebar?.openMobileNav()}
         />
-        <DeveloperNavHorizontal />
+        {!isSettingsPage && <DeveloperNavHorizontal />}
         <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--app-bg)] p-4 sm:p-6">
           <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col overflow-hidden">
             {children}

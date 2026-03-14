@@ -146,13 +146,7 @@ export function DeveloperHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onSelect={() => router.push("/dashboard")}
-              className="cursor-pointer"
-            >
-              {tNav("profile")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={() => router.push("/dashboard")}
+              onClick={() => router.push("/workspace/developer/settings")}
               className="cursor-pointer"
             >
               {tNav("settings")}
@@ -160,7 +154,7 @@ export function DeveloperHeader({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
-              onSelect={() => {
+              onClick={() => {
                 logout();
                 router.replace("/login");
               }}

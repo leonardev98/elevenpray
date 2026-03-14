@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
+import { fadeInUp, hoverCard } from "@/lib/animations";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { getRoutineTemplatesByWorkspace } from "../../../../../../lib/workspaces-api";
 
@@ -48,9 +50,13 @@ export function WeekScheduleCard({ workspaceId }: WeekScheduleCardProps) {
   const showGrid = hasContent === true;
 
   return (
-    <section
+    <motion.section
       className="mt-12 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm dark:border-zinc-700"
       aria-labelledby="week-schedule-heading"
+      initial={fadeInUp.initial}
+      animate={fadeInUp.animate}
+      transition={fadeInUp.transition}
+      whileHover={hoverCard}
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h2
@@ -102,6 +108,6 @@ export function WeekScheduleCard({ workspaceId }: WeekScheduleCardProps) {
           </div>
         </>
       )}
-    </section>
+    </motion.section>
   );
 }

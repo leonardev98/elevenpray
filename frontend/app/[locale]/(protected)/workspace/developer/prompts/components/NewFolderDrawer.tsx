@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { modalBackdrop, modalPanel } from "@/lib/animations";
 import { createPromptFolder } from "@/app/lib/developer-workspace";
 
 interface NewFolderDrawerProps {
@@ -50,20 +52,22 @@ export function NewFolderDrawer({
     }
   };
 
-  if (!open) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/25 p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="new-folder-title"
-    >
-      <div
-        className="w-full max-w-md rounded-xl border border-[var(--dev-border-subtle)] bg-[var(--dev-surface-elevated)] p-4 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/25 p-4"
+          onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="new-folder-title"
+          {...modalBackdrop}
+        >
+          <motion.div
+            className="w-full max-w-md rounded-xl border border-[var(--dev-border-subtle)] bg-[var(--dev-surface-elevated)] p-4 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            {...modalPanel}
+          >
         <div className="flex items-center justify-between pb-3">
           <h2 id="new-folder-title" className="text-lg font-semibold text-[var(--app-fg)]">
             {t("newFolder")}
@@ -110,7 +114,9 @@ export function NewFolderDrawer({
             {saving ? "Creando…" : "Crear"}
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

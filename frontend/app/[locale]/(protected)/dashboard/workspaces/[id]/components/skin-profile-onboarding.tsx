@@ -3,13 +3,20 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../../../../providers/auth-provider";
 import { updateWorkspacePreference } from "../../../../../../lib/workspace-preferences-api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface SkinProfileAnswers {
   skinType: string;
   mainConcerns: string[];
   sensitivityLevel: string;
   ageRange?: string;
-  experienceLevel: string;
+  experienceLevel?: string;
 }
 
 const SKIN_TYPES = [
@@ -43,12 +50,6 @@ const AGE_RANGES = [
   { value: "25_35", label: "25–35" },
   { value: "35_45", label: "35–45" },
   { value: "45_plus", label: "45+" },
-] as const;
-
-const EXPERIENCE_LEVELS = [
-  { value: "beginner", label: "Principiante" },
-  { value: "intermediate", label: "Intermedio" },
-  { value: "advanced", label: "Avanzado" },
 ] as const;
 
 interface SkinProfileOnboardingProps {
@@ -92,9 +93,6 @@ export function SkinProfileOnboarding({
   const [mainConcerns, setMainConcerns] = useState<string[]>(initialData?.mainConcerns ?? []);
   const [sensitivityLevel, setSensitivityLevel] = useState<string>(initialData?.sensitivityLevel ?? "");
   const [ageRange, setAgeRange] = useState<string>(initialData?.ageRange ?? "");
-  const [experienceLevel, setExperienceLevel] = useState<string>(
-    initialData?.experienceLevel ?? "beginner"
-  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -104,7 +102,6 @@ export function SkinProfileOnboarding({
       setMainConcerns(initialData.mainConcerns ?? []);
       setSensitivityLevel(initialData.sensitivityLevel ?? "");
       setAgeRange(initialData.ageRange ?? "");
-      setExperienceLevel(initialData.experienceLevel ?? "beginner");
     }
   }, [initialData]);
 
@@ -128,7 +125,6 @@ export function SkinProfileOnboarding({
         skinType,
         mainConcerns,
         sensitivityLevel,
-        experienceLevel,
       };
       if (ageRange) answers.ageRange = ageRange;
       await updateWorkspacePreference(token, workspaceId, {
@@ -247,34 +243,21 @@ export function SkinProfileOnboarding({
             <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-[var(--app-fg)]/70">
               Rango de edad (opcional)
             </label>
-            <select
-              value={ageRange}
-              onChange={(e) => setAgeRange(e.target.value)}
-              className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
+            <Select
+              value={ageRange === "" ? "none" : ageRange}
+              onValueChange={(v) => setAgeRange(v === "none" ? "" : v)}
             >
-              {AGE_RANGES.map((a) => (
-                <option key={a.value || "none"} value={a.value}>
-                  {a.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-[var(--app-fg)]/70">
-              Nivel con rutinas
-            </label>
-            <select
-              value={experienceLevel}
-              onChange={(e) => setExperienceLevel(e.target.value)}
-              className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/20"
-            >
-              {EXPERIENCE_LEVELS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger size="default" className="w-full">
+                <SelectValue placeholder="Prefiero no decir" />
+              </SelectTrigger>
+              <SelectContent>
+                {AGE_RANGES.map((a) => (
+                  <SelectItem key={a.value || "none"} value={a.value || "none"}>
+                    {a.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {error && (

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Droplet,
@@ -16,31 +15,26 @@ import {
   Pencil,
   Trash2,
   GripVertical,
+  Info,
 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { DayItem } from "@/app/lib/routines-api";
-import type { RoutineStepType } from "@/app/lib/routine-builder";
+import type { RoutineStepType, ItemSeverityReason } from "@/app/lib/routine-builder";
+import { Tooltip } from "@/components/ui/tooltip";
 
 interface RoutineStepProps {
   index: number;
   item: DayItem;
   onChange: (next: DayItem) => void;
   onRemove: () => void;
+  onEdit?: () => void;
+  dragDisabled?: boolean;
+  /** Visual feedback from Routine Intelligence: warning (yellow) or conflict (red). */
+  severity?: "warning" | "conflict";
+  /** Reason for severity (shown in hover tooltip). */
+  severityReason?: ItemSeverityReason;
 }
-
-const STEP_TYPES: RoutineStepType[] = [
-  "cleanser",
-  "toner",
-  "serum",
-  "treatment",
-  "eye",
-  "moisturizer",
-  "sunscreen",
-  "mask",
-  "exfoliant",
-  "retinoid",
-];
 
 const STEP_TYPE_ICON: Record<RoutineStepType, React.ComponentType<{ className?: string }>> = {
   cleanser: Droplet,
@@ -55,11 +49,19 @@ const STEP_TYPE_ICON: Record<RoutineStepType, React.ComponentType<{ className?: 
   mask: Moon,
 };
 
-export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProps) {
+const HOVER_DELAY_MS = 400;
+
+export function RoutineStep({ index, item, onChange, onRemove, onEdit, dragDisabled = false, severity, severityReason }: RoutineStepProps) {
   const t = useTranslations("routineBuilder");
-  const [editing, setEditing] = useState(false);
   const stepType = (item.stepType as RoutineStepType) ?? "treatment";
   const stepTypeLabel = (st: string) => t(`stepTypes.${st}` as Parameters<typeof t>[0]);
+
+  const displayMessage =
+    severity && severityReason
+      ? severityReason.messageKey
+        ? t(severityReason.messageKey as Parameters<typeof t>[0])
+        : severityReason.message ?? ""
+      : "";
 
   const {
     attributes,
@@ -68,71 +70,29 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({ id: item.id, disabled: dragDisabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
-  if (editing) {
-    return (
-      <article className="flex flex-col gap-2 rounded-xl border border-[var(--app-routine-item-border)] bg-[var(--app-routine-item-bg)] p-3">
-        <div className="flex items-center justify-between gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-xs font-semibold text-[var(--app-primary)]">
-            {index + 1}
-          </span>
-          <input
-            type="text"
-            value={item.content}
-            onChange={(e) => onChange({ ...item, content: e.target.value })}
-            placeholder={t("productOrStepName")}
-            className="min-w-0 flex-1 rounded border border-[var(--app-border)] bg-[var(--app-bg)] px-2 py-1.5 text-sm outline-none"
-          />
-          <button
-            type="button"
-            onClick={() => setEditing(false)}
-            className="text-xs text-[var(--app-fg-muted)] hover:text-[var(--app-primary)]"
-          >
-            {t("done")}
-          </button>
-        </div>
-        <select
-          value={item.stepType ?? ""}
-          onChange={(e) => onChange({ ...item, stepType: e.target.value })}
-          className="w-full rounded border border-[var(--app-border)] bg-[var(--app-bg)] px-2 py-1.5 text-xs text-[var(--app-fg)]"
-        >
-          <option value="">{t("stepType")}</option>
-          {STEP_TYPES.map((step) => (
-            <option key={step} value={step}>
-              {stepTypeLabel(step)}
-            </option>
-          ))}
-        </select>
-        <button
-          type="button"
-          onClick={onRemove}
-          className="self-start text-xs text-red-500/80 hover:text-red-500"
-        >
-          {t("remove")}
-        </button>
-      </article>
-    );
-  }
+  const severityClasses =
+    severity === "warning"
+      ? "border-yellow-500 bg-yellow-500/10 dark:border-yellow-500/80 dark:bg-yellow-500/10"
+      : severity === "conflict"
+        ? "border-red-500 bg-red-500/10 dark:border-red-500/80 dark:bg-red-500/10"
+        : "border-[var(--app-routine-item-border)] bg-[var(--app-routine-item-bg)]";
 
-  return (
-    <article
-      ref={setNodeRef}
-      style={style}
-      className={`flex min-w-0 items-center justify-between gap-3 rounded-xl border border-[var(--app-routine-item-border)] bg-[var(--app-routine-item-bg)] p-3 transition shadow-sm hover:shadow-md ${isDragging ? "opacity-50" : ""}`}
-    >
+  const articleContent = (
+    <>
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <button
           type="button"
-          className="touch-none cursor-grab rounded p-1 text-[var(--app-fg-muted)] transition hover:text-[var(--app-fg)] active:cursor-grabbing"
-          {...attributes}
-          {...listeners}
+          className={`rounded p-1 text-[var(--app-fg-muted)] transition ${dragDisabled ? "cursor-default" : "touch-none cursor-grab hover:text-[var(--app-fg)] active:cursor-grabbing"}`}
+          {...(dragDisabled ? {} : { ...attributes, ...listeners })}
           aria-label={t("dragToReorder")}
+          disabled={dragDisabled}
         >
           <GripVertical className="h-4 w-4 shrink-0 [color:currentColor]" />
         </button>
@@ -148,7 +108,7 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
       <div className="flex shrink-0 items-center gap-0.5">
         <button
           type="button"
-          onClick={() => setEditing(true)}
+          onClick={() => onEdit?.()}
           className="rounded p-1 text-[var(--app-fg-muted)] transition hover:bg-[var(--app-surface-elevated)] hover:text-[var(--app-fg)]"
           aria-label={t("editStep")}
         >
@@ -163,6 +123,48 @@ export function RoutineStep({ index, item, onChange, onRemove }: RoutineStepProp
           <Trash2 className="h-4 w-4 [color:currentColor]" />
         </button>
       </div>
+    </>
+  );
+
+  const articleEl = (
+    <article
+      ref={setNodeRef}
+      style={style}
+      className={`relative flex min-w-0 items-center justify-between gap-3 rounded-xl border p-3 transition hover:border-[var(--app-border)]/80 ${severityClasses} ${isDragging ? "opacity-50" : ""}`}
+      aria-label={displayMessage || undefined}
+    >
+      {articleContent}
     </article>
   );
+
+  if (severity && displayMessage) {
+    return (
+      <Tooltip delay={HOVER_DELAY_MS}>
+        <Tooltip.Root>
+          <Tooltip.Trigger
+            render={articleEl}
+            delay={HOVER_DELAY_MS}
+          />
+          <Tooltip.Portal>
+            <Tooltip.Positioner side="top">
+              <Tooltip.Popup
+                className={
+                  severity === "warning"
+                    ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950/90 dark:border-yellow-500/80"
+                    : "border-red-500 bg-red-50 dark:bg-red-950/90 dark:border-red-500/80"
+                }
+              >
+                <div className="flex items-start gap-2">
+                  <Info className="mt-0.5 size-4 shrink-0 text-[var(--app-fg-muted)]" aria-hidden />
+                  <p className="text-[var(--app-fg)]">{displayMessage}</p>
+                </div>
+              </Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip>
+    );
+  }
+
+  return articleEl;
 }

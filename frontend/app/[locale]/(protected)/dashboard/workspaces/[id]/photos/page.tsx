@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useAuth } from "../../../../../../providers/auth-provider";
+import { UnderConstructionOverlay } from "../components/under-construction-overlay";
 import {
   getWorkspacePhotos,
   createWorkspacePhoto,
@@ -12,6 +13,13 @@ import {
   type PhotoAngle,
   PHOTO_ANGLE_LABELS,
 } from "../../../../../../lib/workspace-photos-api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const ANGLES: PhotoAngle[] = ["front", "left", "right"];
 
@@ -92,6 +100,7 @@ export default function WorkspacePhotosPage() {
   const sortedDates = Object.keys(photosByDate).sort((a, b) => b.localeCompare(a));
 
   return (
+    <UnderConstructionOverlay>
     <div>
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold tracking-normal text-[var(--app-fg)]">
@@ -200,17 +209,18 @@ export default function WorkspacePhotosPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs text-[var(--app-fg)]/70">Ángulo</label>
-                <select
-                  value={angle}
-                  onChange={(e) => setAngle(e.target.value as PhotoAngle)}
-                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-sm text-[var(--app-fg)] focus:border-[var(--app-navy)] focus:outline-none focus:ring-1 focus:ring-[var(--app-navy)]"
-                >
-                  {ANGLES.map((a) => (
-                    <option key={a} value={a}>
-                      {PHOTO_ANGLE_LABELS[a]}
-                    </option>
-                  ))}
-                </select>
+                <Select value={angle} onValueChange={(v) => setAngle(v as PhotoAngle)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ANGLES.map((a) => (
+                      <SelectItem key={a} value={a}>
+                        {PHOTO_ANGLE_LABELS[a]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="mb-1 block text-xs text-[var(--app-fg)]/70">URL de la imagen *</label>
@@ -253,5 +263,6 @@ export default function WorkspacePhotosPage() {
         </>
       )}
     </div>
+    </UnderConstructionOverlay>
   );
 }

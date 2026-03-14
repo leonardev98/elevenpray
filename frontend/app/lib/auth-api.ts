@@ -55,3 +55,39 @@ export async function me(token: string): Promise<PublicUser> {
   if (!res.ok) throw new Error("Sesión inválida");
   return res.json();
 }
+
+export async function updateProfile(
+  token: string,
+  data: { name?: string; email?: string },
+): Promise<PublicUser> {
+  const res = await fetch(`${getBaseUrl()}/auth/me`, {
+    method: "PATCH",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message ?? "Error al actualizar el perfil");
+  }
+  const body = await res.json();
+  return body.user;
+}
+
+export async function changePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/auth/change-password`, {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({
+      currentPassword,
+      newPassword,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message ?? "Error al cambiar la contraseña");
+  }
+}

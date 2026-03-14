@@ -1,6 +1,8 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
+import { drawerOverlay, drawerPanel } from "@/lib/animations";
 
 interface RoutineGroup {
   title: string;
@@ -42,22 +44,24 @@ export function DayDrawer({ isOpen, onClose, day }: DayDrawerProps) {
   const tCommon = useTranslations("common");
   const locale = useLocale();
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      <div
-        className="fixed inset-0 z-40 bg-black/40"
-        aria-hidden="true"
-        onClick={onClose}
-      />
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="day-drawer-title"
-        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl"
-        style={{ paddingRight: "env(safe-area-inset-right)", paddingTop: "env(safe-area-inset-top)" }}
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            className="fixed inset-0 z-40 bg-black/40"
+            aria-hidden="true"
+            onClick={onClose}
+            {...drawerOverlay}
+          />
+          <motion.aside
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="day-drawer-title"
+            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-[var(--app-border)] bg-[var(--app-surface)] shadow-xl"
+            style={{ paddingRight: "env(safe-area-inset-right)", paddingTop: "env(safe-area-inset-top)" }}
+            {...drawerPanel}
+          >
         <div className="flex flex-shrink-0 items-center justify-between border-b border-[var(--app-border)] px-4 py-4">
           <h2
             id="day-drawer-title"
@@ -165,7 +169,9 @@ export function DayDrawer({ isOpen, onClose, day }: DayDrawerProps) {
             </div>
           )}
         </div>
-      </aside>
-    </>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

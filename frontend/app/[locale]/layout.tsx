@@ -6,6 +6,7 @@ import { routing } from "../../i18n/routing";
 import { AuthProvider } from "../providers/auth-provider";
 import { ThemeProvider } from "../providers/theme-provider";
 import { ToastProvider } from "../components/toast-provider";
+import { PageTransitionWrapper } from "../components/page-transition-wrapper";
 
 type Props = {
   children: React.ReactNode;
@@ -29,7 +30,9 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider messages={messages}>
       <ThemeProvider>
         <ToastProvider />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <PageTransitionWrapper>{children}</PageTransitionWrapper>
+        </AuthProvider>
       </ThemeProvider>
     </NextIntlClientProvider>
   );

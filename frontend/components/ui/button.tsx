@@ -3,8 +3,10 @@
 import * as React from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
+import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
+import { buttonMotion } from "@/lib/animations"
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -57,11 +59,11 @@ function Button({
   const computedClassName = cn(buttonVariants({ variant, size, className }))
 
   if (asChild && React.isValidElement(children)) {
-    const child = React.Children.only(children) as React.ReactElement
+    const child = React.Children.only(children) as React.ReactElement<{ className?: string }>
     return React.cloneElement(child, {
       ...props,
       className: cn(computedClassName, child.props?.className),
-    })
+    } as React.HTMLAttributes<HTMLElement>)
   }
 
   return (
@@ -75,4 +77,41 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+/** Button with hover scale (1.05) and tap (0.95) motion. Use for primary CTAs. Does not support asChild. */
+const MotionButton = React.forwardRef<
+  HTMLButtonElement,
+  Omit<ButtonProps, "asChild"> & { motion?: boolean }
+>(function MotionButton(
+  { motion: enableMotion = true, className, variant = "default", size = "default", children, ...props },
+  ref
+) {
+  const computedClassName = cn(buttonVariants({ variant, size, className }))
+  if (!enableMotion) {
+    return (
+      <ButtonPrimitive
+        ref={ref}
+        data-slot="button"
+        className={computedClassName}
+        {...props}
+      >
+        {children}
+      </ButtonPrimitive>
+    )
+  }
+  return (
+    <motion.button
+      ref={ref}
+      type={(props as React.ButtonHTMLAttributes<HTMLButtonElement>).type ?? "button"}
+      data-slot="button"
+      className={computedClassName}
+      whileHover={buttonMotion.hover}
+      whileTap={buttonMotion.tap}
+      transition={buttonMotion.transition}
+      {...(props as React.ComponentProps<typeof motion.button>)}
+    >
+      {children}
+    </motion.button>
+  )
+})
+
+export { Button, MotionButton, buttonVariants }

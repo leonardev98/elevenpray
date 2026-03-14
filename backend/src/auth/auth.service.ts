@@ -4,6 +4,7 @@ import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import type { JwtPayload } from '../common/decorators/current-user.decorator';
 
 const SEED_EMAIL = 'admin@localhost';
@@ -53,6 +54,39 @@ export class AuthService implements OnModuleInit {
   async validatePayload(payload: JwtPayload): Promise<PublicUser | null> {
     const user = await this.usersService.findById(payload.sub);
     return user ? this.toPublic(user) : null;
+  }
+
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+  ): Promise<PublicUser> {
+    const updates: { name?: string; email?: string } = {};
+    if (dto.name !== undefined) updates.name = dto.name;
+    if (dto.email !== undefined) updates.email = dto.email;
+    if (Object.keys(updates).length === 0) {
+      const user = await this.usersService.findById(userId);
+      if (!user) throw new UnauthorizedException('User not found');
+      return this.toPublic(user);
+    }
+    await this.usersService.update(userId, updates);
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+    return this.toPublic(user);
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.usersService.findById(userId);
+    if (!user)
+      throw new UnauthorizedException('Invalid credentials');
+    const valid = await this.verifyPassword(currentPassword, user.passwordHash);
+    if (!valid)
+      throw new UnauthorizedException('Invalid current password');
+    const passwordHash = await this.hashPassword(newPassword);
+    await this.usersService.update(userId, { passwordHash });
   }
 
   private payloadFrom(user: User): JwtPayload {

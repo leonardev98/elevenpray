@@ -68,13 +68,16 @@ export type IntelligenceConflict = ConflictResultApi;
 export interface RoutineSuggestion {
   id: string;
   message: string;
+  /** Optional i18n key for panel to translate message. */
+  messageKey?: string;
   action: RoutineSuggestionAction | null;
 }
 
 export type RoutineSuggestionAction =
   | { type: "move_item"; dayKey: DayKey; slot: RoutineSlot; itemId: string; toDayKey: DayKey; toSlot: RoutineSlot }
   | { type: "remove_item"; dayKey: DayKey; slot: RoutineSlot; itemId: string }
-  | { type: "reduce_frequency"; stepType: RoutineStepType; keepDays: DayKey[] };
+  | { type: "reduce_frequency"; stepType: RoutineStepType; keepDays: DayKey[] }
+  | { type: "open_add_product"; slot: RoutineSlot; suggestedStepType?: RoutineStepType; dayKeys?: DayKey[] };
 
 /** Full analysis for Routine Intelligence panel. */
 export interface RoutineAnalysis {
