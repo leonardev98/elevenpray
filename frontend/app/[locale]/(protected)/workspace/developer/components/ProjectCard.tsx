@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { motion } from "framer-motion";
-import { Code2, MessageSquare, Lock, StickyNote, CheckSquare, FileText } from "lucide-react";
+import { FolderOpen, StickyNote, MessageSquare, Code2, Lock, CheckSquare, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/app/lib/developer-workspace/types";
 
@@ -11,6 +11,12 @@ interface ProjectCardProps {
   project: Project;
   index?: number;
 }
+
+const QUICK_ACTIONS_KEYS = [
+  { icon: FolderOpen, key: "open", href: "/workspace/developer/projects" },
+  { icon: StickyNote, key: "addNote", href: "/workspace/developer/notes" },
+  { icon: MessageSquare, key: "runPrompt", href: "/workspace/developer" },
+] as const;
 
 const QUICK_LINKS = [
   { icon: FileText, label: "Docs", href: "#" },
@@ -59,6 +65,7 @@ function StatusBadge({ status, badge }: { status: string; badge?: string }) {
 }
 
 export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
+  const t = useTranslations("developerWorkspace.dashboard");
   const date = new Date(project.lastAccessed);
   const lastAccessedStr = date.toLocaleDateString(undefined, {
     month: "short",
@@ -109,6 +116,17 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5 border-t border-[var(--dev-border-subtle)] pt-3">
+        {QUICK_ACTIONS_KEYS.map(({ icon: Icon, key: actionKey, href }) => (
+          <Link
+            key={actionKey}
+            href={href}
+            title={t(actionKey)}
+            className="flex items-center gap-1.5 rounded-md border border-[var(--dev-border-subtle)] bg-[var(--app-navy)]/10 px-2 py-1.5 text-[length:var(--dev-font-meta-size)] font-medium text-[var(--app-navy)] transition-colors hover:bg-[var(--app-navy)]/15"
+          >
+            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <span className="sr-only sm:not-sr-only sm:inline">{t(actionKey)}</span>
+          </Link>
+        ))}
         {QUICK_LINKS.map(({ icon: Icon, label, href }) => (
           <Link
             key={label}

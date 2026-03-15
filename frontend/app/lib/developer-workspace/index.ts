@@ -1,5 +1,6 @@
 export * from "./types";
 export * from "./api/prompts-api";
+export * from "./api/discovery-api";
 export * from "./hooks/use-prompts-api";
 export { MOCK_PROJECTS } from "./mock-projects";
 export { MOCK_VAULT_ITEMS } from "./mock-vault";

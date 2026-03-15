@@ -22,6 +22,7 @@ import {
   WORKSPACE_DOMAIN_IDS,
   type WorkspaceDomainId,
 } from "../../../../lib/workspace-type-registry";
+import { getSpecialWorkspaceRoute } from "../../../../lib/workspace-special-routes";
 
 const DELETE_COUNTDOWN_SECONDS = 3;
 
@@ -263,21 +264,22 @@ export function DashboardSidebar({
                       hasCheckinsCapability(w.workspaceType) ||
                       hasProgressPhotosCapability(w.workspaceType) ||
                       hasInsightsCapability(w.workspaceType);
+                    const specialRoute = getSpecialWorkspaceRoute(w);
                     const href =
-                      hasSectionNav
+                      specialRoute ??
+                      (hasSectionNav
                         ? `/dashboard/workspaces/${w.id}`
                         : hasRoutine
                           ? `/dashboard/workspaces/${w.id}/routine`
-                          : `/dashboard/workspaces/${w.id}`;
+                          : `/dashboard/workspaces/${w.id}`);
                     const typeDef = getWorkspaceType(w.workspaceType);
                     const categoryLabel = typeDef ? tCategories(typeDef.category) : "";
                     const displayName = w.name?.trim() || (typeDef ? tTypes(w.workspaceType) : w.workspaceType);
-                    const isDeveloperRoute = pathname?.startsWith?.("/workspace/developer") ?? false;
-                    const subtypeCode = (w.workspaceSubtype?.code ?? (w as { workspace_subtype?: { code?: string } }).workspace_subtype?.code)?.toLowerCase?.();
-                    const isDeveloperWorkspace = subtypeCode === "programador" || subtypeCode === "programmer";
+                    const isSpecialRoute =
+                      specialRoute ? pathname?.startsWith?.(specialRoute) ?? false : false;
                     const isActive =
                       pathname?.startsWith(`/dashboard/workspaces/${w.id}`) ||
-                      (isDeveloperRoute && isDeveloperWorkspace);
+                      isSpecialRoute;
                     return (
                       <li key={w.id}>
                         <div

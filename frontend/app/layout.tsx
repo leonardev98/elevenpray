@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "./domains-pattern.css";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 const inter = Inter({
@@ -41,7 +47,7 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${geistMono.variable} ${inter.variable} antialiased`}
+        className={`${geistMono.variable} ${jetbrainsMono.variable} ${inter.variable} antialiased`}
         style={{ fontFamily: "var(--font-inter), system-ui, -apple-system, sans-serif" }}
       >
         {children}

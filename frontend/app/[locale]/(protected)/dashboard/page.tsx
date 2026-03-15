@@ -264,6 +264,10 @@ export default function DashboardPage() {
     dataYear === currWeek.year && dataWeek === currWeek.week
       ? (data?.workspaceSummaries?.filter((s) => s.kind === "routine_today") ?? [])
       : [];
+  const studyTodaySummaries =
+    dataYear === currWeek.year && dataWeek === currWeek.week
+      ? (data?.workspaceSummaries?.filter((s) => s.kind === "study_today") ?? [])
+      : [];
 
   if (loading && !data) {
     return (
@@ -400,6 +404,39 @@ export default function DashboardPage() {
                   ) : (
                     <p className="mt-1 text-sm text-[var(--app-fg)]/50">{t("noRoutineForToday")}</p>
                   )}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {studyTodaySummaries.length > 0 && (
+        <section className="mt-4" aria-label={t("today")}>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg)]/70">
+            Study Today
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {studyTodaySummaries.map((summary) => {
+              const data = (summary.data ?? {}) as {
+                activeCourses?: number;
+                classesToday?: number;
+                pendingAssignments?: number;
+                conflicts?: number;
+              };
+              return (
+                <Link
+                  key={summary.workspaceId}
+                  href={`/dashboard/workspaces/${summary.workspaceId}`}
+                  className="block min-w-[220px] rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 hover:border-[var(--app-navy)]/30 hover:bg-[var(--app-bg)]"
+                >
+                  <p className="font-medium text-[var(--app-fg)]">{summary.workspaceTitle}</p>
+                  <div className="mt-2 grid grid-cols-2 gap-1 text-xs text-[var(--app-fg)]/75">
+                    <span>Cursos: {data.activeCourses ?? 0}</span>
+                    <span>Clases hoy: {data.classesToday ?? 0}</span>
+                    <span>Pendientes: {data.pendingAssignments ?? 0}</span>
+                    <span>Conflictos: {data.conflicts ?? 0}</span>
+                  </div>
                 </Link>
               );
             })}

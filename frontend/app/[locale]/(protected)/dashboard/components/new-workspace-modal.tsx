@@ -151,7 +151,7 @@ export function NewWorkspaceModal({
                     <option value="">{tCommon("none")}</option>
                     {subtypes.map((s) => {
                       const code = (s.code ?? "").toLowerCase().replace(/-/g, "_");
-                      const knownCodes = ["programmer", "programador", "remote_worker", "trabajo_remoto"] as const;
+                      const knownCodes = ["university", "programmer", "programador", "remote_worker", "trabajo_remoto"] as const;
                       const label = code && knownCodes.includes(code as (typeof knownCodes)[number])
                         ? tSubtypes(code as (typeof knownCodes)[number])
                         : s.label;

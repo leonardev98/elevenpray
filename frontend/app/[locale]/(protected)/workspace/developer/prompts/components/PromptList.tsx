@@ -1,11 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { PromptRow } from "./PromptRow";
 import type { PromptApi, PromptFolderApi, PromptCategoryApi, DeveloperProjectApi } from "@/app/lib/developer-workspace";
 
 export type SortOption = "updated_at" | "last_used_at" | "created_at" | "title";
+
+export interface PromptListPagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  onPageChange: (page: number) => void;
+}
 
 interface PromptListProps {
   prompts: PromptApi[];
@@ -20,6 +27,7 @@ interface PromptListProps {
   onSearchChange: (v: string) => void;
   onSortChange: (by: SortOption, order: "asc" | "desc") => void;
   onSelect: (prompt: PromptApi) => void;
+  onOpenFullView?: (prompt: PromptApi) => void;
   onCopy: (prompt: PromptApi) => void;
   onToggleFavorite: (prompt: PromptApi) => void;
   onTogglePin: (prompt: PromptApi) => void;
@@ -32,6 +40,8 @@ interface PromptListProps {
   isLoading?: boolean;
   /** When true, show full empty state with CTA. When false and prompts.length===0, show noResults. */
   isInitialEmpty?: boolean;
+  /** When set, show pagination controls (previous/next, page X of Y). */
+  pagination?: PromptListPagination;
 }
 
 export function PromptList({
@@ -47,6 +57,7 @@ export function PromptList({
   onSearchChange,
   onSortChange,
   onSelect,
+  onOpenFullView,
   onCopy,
   onToggleFavorite,
   onTogglePin,
@@ -57,13 +68,16 @@ export function PromptList({
   onEmptyCreateClick,
   isLoading,
   isInitialEmpty,
+  pagination,
 }: PromptListProps) {
   const t = useTranslations("developerWorkspace.prompts");
+  const totalPages = pagination ? Math.max(1, Math.ceil(pagination.total / pagination.pageSize)) : 0;
+  const showPagination = pagination && totalPages > 1;
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--dev-border-subtle)] pb-3">
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative min-w-0 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--app-fg)]/50" />
           <input
             type="search"
@@ -89,7 +103,7 @@ export function PromptList({
           <option value="title-desc">Título Z–A</option>
         </select>
       </div>
-      <div className="mt-2 flex flex-1 flex-col gap-1 overflow-auto">
+      <div className="mt-2 flex min-h-0 flex-1 flex-col gap-1 overflow-auto">
         {isLoading ? (
           <div className="flex flex-col gap-2 py-4">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -130,6 +144,7 @@ export function PromptList({
               prompt={prompt}
               isSelected={selectedId === prompt.id}
               onSelect={() => onSelect(prompt)}
+              onOpenFullView={onOpenFullView ? () => onOpenFullView(prompt) : undefined}
               onCopy={() => onCopy(prompt)}
               onToggleFavorite={() => onToggleFavorite(prompt)}
               onTogglePin={() => onTogglePin(prompt)}
@@ -142,6 +157,31 @@ export function PromptList({
           ))
         )}
       </div>
+      {showPagination && pagination && (
+        <div className="mt-3 flex shrink-0 items-center justify-between gap-2 border-t border-[var(--dev-border-subtle)] pt-3">
+          <button
+            type="button"
+            onClick={() => pagination.onPageChange(pagination.page - 1)}
+            disabled={pagination.page <= 0}
+            className="inline-flex items-center gap-1 rounded-lg border border-[var(--dev-border-subtle)] bg-[var(--app-bg)]/60 px-3 py-2 text-sm font-medium text-[var(--app-fg)] transition-colors hover:bg-[var(--app-navy)]/5 disabled:opacity-50 disabled:pointer-events-none"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            {t("previous")}
+          </button>
+          <span className="text-sm text-[var(--app-fg)]/70">
+            {t("pageOf", { page: pagination.page + 1, total: totalPages })}
+          </span>
+          <button
+            type="button"
+            onClick={() => pagination.onPageChange(pagination.page + 1)}
+            disabled={pagination.page >= totalPages - 1}
+            className="inline-flex items-center gap-1 rounded-lg border border-[var(--dev-border-subtle)] bg-[var(--app-bg)]/60 px-3 py-2 text-sm font-medium text-[var(--app-fg)] transition-colors hover:bg-[var(--app-navy)]/5 disabled:opacity-50 disabled:pointer-events-none"
+          >
+            {t("next")}
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

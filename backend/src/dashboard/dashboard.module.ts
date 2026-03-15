@@ -8,6 +8,7 @@ import { WorkspacePreferencesModule } from '../workspace-preferences/workspace-p
 import { RoutineProvider } from './providers/routine.provider';
 import { EntriesProvider } from './providers/entries.provider';
 import { WorkspaceSummaryProvider } from './providers/workspace-summary.provider';
+import { StudyUniversityModule } from '../study-university/study-university.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { WorkspaceSummaryProvider } from './providers/workspace-summary.provider
     WorkspacesModule,
     RoutineTemplatesModule,
     WorkspacePreferencesModule,
+    StudyUniversityModule,
   ],
   controllers: [DashboardController],
   providers: [DashboardService, RoutineProvider, EntriesProvider, WorkspaceSummaryProvider],

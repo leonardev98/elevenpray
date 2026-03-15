@@ -14,6 +14,7 @@ export interface ListPromptsParams {
   categoryId?: string;
   projectId?: string;
   isFavorite?: boolean;
+  isPinned?: boolean;
   status?: string;
   search?: string;
   sortBy?: "updated_at" | "last_used_at" | "created_at" | "title";
@@ -27,6 +28,7 @@ function buildSearchParams(params: ListPromptsParams): string {
   if (params.categoryId) sp.set("categoryId", params.categoryId);
   if (params.projectId) sp.set("projectId", params.projectId);
   if (params.isFavorite !== undefined) sp.set("isFavorite", String(params.isFavorite));
+  if (params.isPinned !== undefined) sp.set("isPinned", String(params.isPinned));
   if (params.status) sp.set("status", params.status);
   if (params.search) sp.set("search", params.search);
   if (params.sortBy) sp.set("sortBy", params.sortBy);

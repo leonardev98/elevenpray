@@ -13,8 +13,6 @@ import {
   Sparkles,
   Rss,
   StickyNote,
-  User,
-  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NavGroupDropdown, type NavGroupItem } from "./NavGroupDropdown";
@@ -38,11 +36,6 @@ const TOOLS_ITEMS: NavGroupItem[] = [
   { href: "/workspace/developer/tech-feed", key: "techFeed", icon: Rss },
 ];
 
-const SYSTEM_ITEMS: NavGroupItem[] = [
-  { href: "/workspace/developer/profile", key: "profile", icon: User },
-  { href: "/workspace/developer/settings", key: "settings", icon: Settings },
-];
-
 function isPathActive(pathname: string, href: string, key: string): boolean {
   if (key === "today") return pathname === "/workspace/developer";
   return pathname === href;
@@ -54,7 +47,6 @@ export function DeveloperNavHorizontal() {
 
   const knowledgeActive = KNOWLEDGE_ITEMS.some((i) => isPathActive(pathname, i.href, i.key));
   const toolsActive = TOOLS_ITEMS.some((i) => isPathActive(pathname, i.href, i.key));
-  const systemActive = SYSTEM_ITEMS.some((i) => isPathActive(pathname, i.href, i.key));
 
   return (
     <nav
@@ -104,18 +96,6 @@ export function DeveloperNavHorizontal() {
         renderLabel={(key) => t(key)}
       />
 
-      <span
-        className="mx-1 h-4 w-px shrink-0 bg-[var(--dev-border-subtle)]"
-        aria-hidden
-      />
-
-      {/* Sistema dropdown */}
-      <NavGroupDropdown
-        labelKey="system"
-        items={SYSTEM_ITEMS}
-        isActive={systemActive}
-        renderLabel={(key) => t(key)}
-      />
     </nav>
   );
 }

@@ -26,6 +26,7 @@ import {
 import { getWorkspaceNavSections, getActiveSection } from "../../../../../lib/workspace-navigation";
 import type { WorkspaceApi } from "../../../../../lib/workspaces-api";
 import type { WorkspacePreferenceApi } from "../../../../../lib/workspace-preferences-api";
+import { getSpecialWorkspaceRoute } from "../../../../../lib/workspace-special-routes";
 import {
   Select,
   SelectContent,
@@ -180,14 +181,11 @@ export default function WorkspaceIdLayout({
       .finally(() => setLoading(false));
   }, [token, workspaceId]);
 
-  // Developer OS: redirect workspace "programador" to the premium developer dashboard
+  // Special workspace routes by subtype.
   useEffect(() => {
     if (!workspace || loading) return;
-    const subtype = workspace.workspaceSubtype ?? (workspace as { workspace_subtype?: { code?: string } }).workspace_subtype;
-    const code = subtype?.code?.toLowerCase();
-    if (code === "programador" || code === "programmer") {
-      router.replace("/workspace/developer");
-    }
+    const specialRoute = getSpecialWorkspaceRoute(workspace);
+    if (specialRoute) router.replace(specialRoute);
   }, [workspace, loading, router]);
 
   useEffect(() => {

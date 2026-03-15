@@ -5,7 +5,6 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { useTranslations } from "next-intl";
 import {
   usePrompts,
-  usePrompt,
   usePromptFolders,
   usePromptCategories,
   useDeveloperProjects,
@@ -23,9 +22,11 @@ import type { PromptApi } from "@/app/lib/developer-workspace/types";
 import type { SortOption } from "./components/PromptList";
 import { PromptsAside } from "./components/PromptsAside";
 import { PromptList } from "./components/PromptList";
-import { PromptDetailPanel } from "./components/PromptDetailPanel";
+import { PromptDiscoveryPanel } from "./components/PromptDiscoveryPanel";
+import { PromptFullViewModal } from "./components/PromptFullViewModal";
 import { PromptFormDrawer } from "./components/PromptFormDrawer";
 import { NewFolderDrawer } from "./components/NewFolderDrawer";
+import { ImportPromptDrawer } from "./components/ImportPromptDrawer";
 
 export default function PromptsPage() {
   const t = useTranslations("developerWorkspace.prompts");
@@ -38,8 +39,11 @@ export default function PromptsPage() {
   const [sortBy, setSortBy] = useState<SortOption>("updated_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState<"prompt" | "folder" | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState<"prompt" | "folder" | "import" | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<PromptApi | null>(null);
+  const [templateMode, setTemplateMode] = useState(false);
+  const [fullViewPrompt, setFullViewPrompt] = useState<PromptApi | null>(null);
+  const [listPage, setListPage] = useState(0);
 
   const listParams = useMemo((): ListPromptsParams => {
     const p: ListPromptsParams = { sortBy, sortOrder };
@@ -53,18 +57,22 @@ export default function PromptsPage() {
   }, [viewMode, selectedFolderId, selectedCategoryId, search, sortBy, sortOrder]);
 
   const { data: prompts, isLoading: loadingList, refetch: refetchPrompts } = usePrompts(token, listParams);
-  const { data: selectedPrompt, refetch: refetchSelected } = usePrompt(token, selectedId);
   const { data: folders, refetch: refetchFolders } = usePromptFolders(token);
   const { data: categories } = usePromptCategories(token);
   const { data: projects, refetch: refetchProjects } = useDeveloperProjects(token);
   const { data: tags } = usePromptTags(token);
 
+  const tagSuggestions = useMemo(() => {
+    const fromApi = tags?.map((t) => t.name) ?? [];
+    const fixed = ["React", "SQL", "Testing", "Debug", "Architecture"];
+    return [...new Set([...fixed, ...fromApi])];
+  }, [tags]);
+
   const refetchAll = useCallback(() => {
     refetchPrompts();
-    refetchSelected();
     refetchFolders();
     refetchProjects();
-  }, [refetchPrompts, refetchSelected, refetchFolders, refetchProjects]);
+  }, [refetchPrompts, refetchFolders, refetchProjects]);
 
   const handleCopy = useCallback(
     async (prompt: PromptApi) => {
@@ -75,12 +83,11 @@ export default function PromptsPage() {
         setTimeout(() => setCopiedId(null), 2000);
         await recordPromptUse(token, prompt.id);
         refetchPrompts();
-        refetchSelected();
       } catch {
         // ignore
       }
     },
-    [token, refetchPrompts, refetchSelected]
+    [token, refetchPrompts]
   );
 
   const handleToggleFavorite = useCallback(
@@ -167,20 +174,35 @@ export default function PromptsPage() {
 
   const openCreatePrompt = useCallback(() => {
     setEditingPrompt(null);
+    setTemplateMode(false);
     setDrawerOpen("prompt");
   }, []);
 
-  // Auto-seleccionar el primer prompt cuando hay lista y ninguna selección
-  useEffect(() => {
-    if (loadingList || !prompts?.length || selectedId !== null) return;
-    setSelectedId(prompts[0].id);
-  }, [loadingList, prompts, selectedId]);
+  const openImportPrompt = useCallback(() => {
+    setDrawerOpen("import");
+  }, []);
 
-  const hasPrompts = (prompts?.length ?? 0) > 0;
-  const showDetailPanel = hasPrompts && selectedId !== null;
+  const openCreateTemplate = useCallback(() => {
+    setEditingPrompt(null);
+    setTemplateMode(true);
+    setDrawerOpen("prompt");
+  }, []);
+
+  const PAGE_SIZE = 5;
+  const totalPrompts = prompts?.length ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalPrompts / PAGE_SIZE));
+  const currentPage = totalPages <= 0 ? 0 : Math.min(listPage, totalPages - 1);
+  const promptsToShow = (prompts ?? []).slice(
+    currentPage * PAGE_SIZE,
+    currentPage * PAGE_SIZE + PAGE_SIZE
+  );
+
+  useEffect(() => {
+    setListPage(0);
+  }, [listParams]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 min-w-0 max-h-[100vh] flex-col overflow-hidden">
       <div className="flex shrink-0 items-start justify-between gap-4 pb-4">
         <div>
           <h1 className="text-2xl font-semibold text-[var(--app-fg)]">{t("title")}</h1>
@@ -207,7 +229,7 @@ export default function PromptsPage() {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 gap-4">
+      <div className="flex h-[calc(100vh-14rem)] min-h-0 min-w-0 flex-1 gap-4 overflow-hidden">
         <PromptsAside
           folders={folders}
           categories={categories}
@@ -219,10 +241,10 @@ export default function PromptsPage() {
           onViewMode={setViewMode}
           onNewFolder={handleNewFolder}
         />
-        <div className="flex min-h-0 min-w-0 flex-1 gap-4">
-          <div className="flex min-h-0 min-w-0 flex-[1_1_400px] flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 gap-4 overflow-hidden">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <PromptList
-              prompts={prompts}
+              prompts={promptsToShow}
               folders={folders}
               categories={categories}
               projects={projects}
@@ -236,7 +258,11 @@ export default function PromptsPage() {
                 setSortBy(by);
                 setSortOrder(order);
               }}
-              onSelect={(p) => setSelectedId(p.id)}
+              onSelect={(p) => {
+                setSelectedId(p.id);
+                setFullViewPrompt(p);
+              }}
+              onOpenFullView={(p) => setFullViewPrompt(p)}
               onCopy={handleCopy}
               onToggleFavorite={handleToggleFavorite}
               onTogglePin={handleTogglePin}
@@ -254,35 +280,65 @@ export default function PromptsPage() {
                 !selectedCategoryId &&
                 viewMode === null
               }
+              pagination={
+                totalPrompts > PAGE_SIZE
+                  ? {
+                      page: currentPage,
+                      pageSize: PAGE_SIZE,
+                      total: totalPrompts,
+                      onPageChange: setListPage,
+                    }
+                  : undefined
+              }
             />
           </div>
-          {showDetailPanel && (
-            <div className="hidden min-h-0 min-w-0 flex-[1_1_320px] flex flex-col lg:flex">
-              <PromptDetailPanel
-              prompt={selectedPrompt ?? null}
-              onEdit={() => selectedPrompt && handleEdit(selectedPrompt)}
-              onCopy={() => selectedPrompt && handleCopy(selectedPrompt)}
-              onDuplicate={() => selectedPrompt && handleDuplicate(selectedPrompt)}
-              onToggleFavorite={() => selectedPrompt && handleToggleFavorite(selectedPrompt)}
-              onTogglePin={() => selectedPrompt && handleTogglePin(selectedPrompt)}
-              copied={selectedPrompt ? copiedId === selectedPrompt.id : false}
-              />
-            </div>
-          )}
+          <div className="hidden min-h-0 min-w-0 shrink-0 flex-col overflow-hidden lg:flex lg:w-[320px]">
+            <PromptDiscoveryPanel
+              token={token}
+              onRefetch={refetchAll}
+              onNewPrompt={openCreatePrompt}
+              onImportPrompt={openImportPrompt}
+              onCreateTemplate={openCreateTemplate}
+            />
+          </div>
         </div>
       </div>
 
+      <PromptFullViewModal
+        prompt={fullViewPrompt}
+        open={fullViewPrompt != null}
+        onClose={() => setFullViewPrompt(null)}
+        onEdit={() => {
+          if (fullViewPrompt) {
+            setFullViewPrompt(null);
+            handleEdit(fullViewPrompt);
+          }
+        }}
+        onCopy={() => fullViewPrompt && handleCopy(fullViewPrompt)}
+        onDuplicate={() => fullViewPrompt && handleDuplicate(fullViewPrompt)}
+        onToggleFavorite={() => fullViewPrompt && handleToggleFavorite(fullViewPrompt)}
+        onTogglePin={() => fullViewPrompt && handleTogglePin(fullViewPrompt)}
+        copied={fullViewPrompt ? copiedId === fullViewPrompt.id : false}
+      />
+      <ImportPromptDrawer
+        open={drawerOpen === "import"}
+        onClose={() => setDrawerOpen(null)}
+        token={token}
+        onSuccess={refetchAll}
+      />
       <PromptFormDrawer
         open={drawerOpen === "prompt"}
         onClose={() => {
           setDrawerOpen(null);
           setEditingPrompt(null);
+          setTemplateMode(false);
         }}
         prompt={editingPrompt}
+        initialTitle={templateMode ? t("newTemplateTitle") : undefined}
         folders={folders}
         categories={categories}
         projects={projects}
-        tagSuggestions={tags?.map((t) => t.name) ?? []}
+        tagSuggestions={tagSuggestions}
         token={token}
         onSuccess={refetchAll}
       />

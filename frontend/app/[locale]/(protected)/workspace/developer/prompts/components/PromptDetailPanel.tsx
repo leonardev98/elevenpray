@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Copy, Pencil, CopyPlus, Star, Pin } from "lucide-react";
+import { Copy, Pencil, CopyPlus, Star, Pin, Expand } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PromptApi } from "@/app/lib/developer-workspace";
 
@@ -12,6 +12,7 @@ interface PromptDetailPanelProps {
   onDuplicate: () => void;
   onToggleFavorite: () => void;
   onTogglePin: () => void;
+  onOpenFullView?: () => void;
   copied?: boolean;
 }
 
@@ -22,13 +23,14 @@ export function PromptDetailPanel({
   onDuplicate,
   onToggleFavorite,
   onTogglePin,
+  onOpenFullView,
   copied,
 }: PromptDetailPanelProps) {
   const t = useTranslations("developerWorkspace.prompts");
 
   if (!prompt) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-[var(--dev-border-subtle)] bg-[var(--app-bg)]/30 p-8 text-center">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-[var(--dev-border-subtle)] bg-[var(--app-bg)]/30 p-8 text-center">
         <p className="text-sm text-[var(--app-fg)]/50">
           {t("selectPromptToPreview")}
         </p>
@@ -60,6 +62,16 @@ export function PromptDetailPanel({
           </div>
         </div>
         <div className="ml-2 flex items-center gap-1">
+          {onOpenFullView && (
+            <button
+              type="button"
+              onClick={onOpenFullView}
+              className="rounded p-2 text-[var(--app-fg)]/60 hover:bg-[var(--app-bg)] hover:text-[var(--app-navy)]"
+              title={t("viewFull")}
+            >
+              <Expand className="h-4 w-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={onCopy}
@@ -109,13 +121,19 @@ export function PromptDetailPanel({
           </button>
         </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-auto p-4">
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden p-4">
         {prompt.description && (
-          <p className="mb-3 text-sm text-[var(--app-fg)]/70">{prompt.description}</p>
+          <p className="mb-3 line-clamp-2 shrink-0 text-sm text-[var(--app-fg)]/70">
+            {prompt.description}
+          </p>
         )}
-        <pre className="whitespace-pre-wrap rounded-lg bg-[var(--app-bg)] p-3 text-sm text-[var(--app-fg)]/90 font-sans">
+        <pre className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-hidden whitespace-pre-wrap break-words rounded-lg bg-[var(--app-bg)] p-3 text-sm font-sans text-[var(--app-fg)]/90">
           {prompt.content}
         </pre>
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[var(--dev-surface-elevated)] to-transparent"
+          aria-hidden
+        />
       </div>
     </div>
   );

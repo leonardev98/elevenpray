@@ -12,6 +12,12 @@ interface PromptFormDrawerProps {
   open: boolean;
   onClose: () => void;
   prompt: PromptApi | null;
+  /** Prefill content when creating a new prompt (e.g. from Developer Desk composer). */
+  initialContent?: string;
+  /** When creating, prefill title (e.g. for "Create template"). */
+  initialTitle?: string;
+  /** When creating, pre-check "pin" in the form. */
+  initialPinned?: boolean;
   folders: PromptFolderApi[];
   categories: PromptCategoryApi[];
   projects: DeveloperProjectApi[];
@@ -24,6 +30,9 @@ export function PromptFormDrawer({
   open,
   onClose,
   prompt,
+  initialContent,
+  initialTitle,
+  initialPinned,
   folders,
   categories,
   projects,
@@ -41,10 +50,22 @@ export function PromptFormDrawer({
 
   useEffect(() => {
     if (open) {
-      setValues(getDefaultValues(prompt));
+      const next = getDefaultValues(prompt);
+      if (!prompt) {
+        if (initialContent !== undefined && initialContent !== "") {
+          next.content = initialContent;
+        }
+        if (initialTitle !== undefined && initialTitle !== "") {
+          next.title = initialTitle;
+        }
+        if (initialPinned) {
+          next.isPinned = true;
+        }
+      }
+      setValues(next);
       setError(null);
     }
-  }, [open, prompt]);
+  }, [open, prompt, initialContent, initialTitle, initialPinned]);
 
   const handleSubmit = async () => {
     if (!token) return;

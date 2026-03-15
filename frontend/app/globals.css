@@ -217,6 +217,169 @@
   --dev-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
+/* Developer dashboard — paleta unificada día y noche */
+/* Modo oscuro (noche) — Raycast / Linear / GitHub */
+.developer-dashboard {
+  --dev-dash-bg: #0f172a;
+  --dev-dash-card: #111827;
+  --dev-dash-border: #1f2937;
+  --dev-dash-fg: #e2e8f0;
+  --dev-dash-fg-muted: #94a3b8;
+  --dev-dash-inner-bg: #0f172a;
+  --dev-dash-row-bg: rgba(15, 23, 42, 0.6);
+  --dev-dash-hover-bg: #1f2937;
+  --dev-dash-accent-green: #22c55e;
+  --dev-dash-accent-blue: #38bdf8;
+  --dev-dash-accent-indigo: #6366f1;
+  --dev-dash-font-mono: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
+  background: var(--dev-dash-bg);
+  color: var(--dev-dash-fg);
+  font-family: var(--dev-dash-font-mono);
+  min-height: 100%;
+}
+
+/* Modo claro (día) — legible y consistente */
+:root:not(.dark) .developer-dashboard {
+  --dev-dash-bg: #f1f5f9;
+  --dev-dash-card: #ffffff;
+  --dev-dash-border: #e2e8f0;
+  --dev-dash-fg: #0f172a;
+  --dev-dash-fg-muted: #64748b;
+  --dev-dash-inner-bg: #f8fafc;
+  --dev-dash-row-bg: #f1f5f9;
+  --dev-dash-hover-bg: #e2e8f0;
+  --dev-dash-accent-green: #16a34a;
+  --dev-dash-accent-blue: #0284c7;
+  --dev-dash-accent-indigo: #4f46e5;
+}
+
+.developer-dashboard .dev-dash-card {
+  background: var(--dev-dash-card);
+  border: 1px solid var(--dev-dash-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.dark .developer-dashboard .dev-dash-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.developer-dashboard .dev-dash-card:hover {
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+:root:not(.dark) .developer-dashboard .dev-dash-card:hover {
+  border-color: rgba(79, 70, 229, 0.4);
+}
+
+/* University dashboard — premium minimal study OS */
+.university-dashboard {
+  --uni-dash-bg: #0f172a;
+  --uni-dash-card: #111827;
+  --uni-dash-border: #1f2937;
+  --uni-dash-fg: #e2e8f0;
+  --uni-dash-fg-muted: #94a3b8;
+  --uni-dash-inner-bg: #0f172a;
+  --uni-dash-hover-bg: #1e293b;
+  --uni-dash-accent: #4f46e5;
+  background: var(--uni-dash-bg);
+  color: var(--uni-dash-fg);
+}
+
+:root:not(.dark) .university-dashboard {
+  --uni-dash-bg: #f8fafc;
+  --uni-dash-card: #ffffff;
+  --uni-dash-border: #e2e8f0;
+  --uni-dash-fg: #0f172a;
+  --uni-dash-fg-muted: #64748b;
+  --uni-dash-inner-bg: #f1f5f9;
+  --uni-dash-hover-bg: #e2e8f0;
+  --uni-dash-accent: #4338ca;
+}
+
+/* Snippets section — card, code preview, tags (light/dark) */
+.snippets-section {
+  --snippets-bg: #0f172a;
+  --snippets-card: #111827;
+  --snippets-border: #1f2937;
+  --snippets-fg: #e2e8f0;
+  --snippets-fg-muted: #94a3b8;
+  --snippets-success: #22c55e;
+  --snippets-font-mono: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
+  /* Code preview (dark) */
+  --snippets-preview-bg: #020617;
+  --snippets-preview-border: #1e293b;
+  /* Tags (dark) */
+  --snippets-tag-bg: #1e293b;
+  --snippets-tag-fg: #94a3b8;
+  /* Filter tabs & hover (dark) */
+  --snippets-filter-active-bg: #334155;
+  --snippets-filter-active-fg: #e2e8f0;
+  --snippets-filter-inactive-fg: #94a3b8;
+  --snippets-filter-hover-bg: #1e293b;
+  --snippets-card-hover-border: #334155;
+  /* Modal surfaces (dark) */
+  --snippets-modal-btn-bg: #1e293b;
+  --snippets-modal-btn-fg: #94a3b8;
+  --snippets-modal-btn-hover-bg: #334155;
+  --snippets-code-block-bg: #020617;
+  --snippets-code-block-border: #1e293b;
+  --snippets-accent: #38bdf8;
+  background: var(--snippets-bg);
+  color: var(--snippets-fg);
+  font-family: var(--snippets-font-mono);
+  min-height: 100%;
+}
+
+.snippets-section .snippet-preview-wrapper {
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--snippets-preview-bg);
+  border: 1px solid var(--snippets-preview-border);
+}
+
+.snippets-section .snippet-tag {
+  background: var(--snippets-tag-bg);
+  color: var(--snippets-tag-fg);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.snippets-section .snippet-preview-cm .cm-content {
+  font-size: 13px;
+  line-height: 1.5;
+  font-family: var(--snippets-font-mono);
+}
+
+:root:not(.dark) .snippets-section {
+  --snippets-bg: #f9fafb;
+  --snippets-card: #ffffff;
+  --snippets-border: #e5e7eb;
+  --snippets-fg: #111827;
+  --snippets-fg-muted: #6b7280;
+  --snippets-success: #16a34a;
+  --snippets-preview-bg: #f8fafc;
+  --snippets-preview-border: #e2e8f0;
+  --snippets-tag-bg: #f1f5f9;
+  --snippets-tag-fg: #475569;
+  /* Filter tabs & hover (light) */
+  --snippets-filter-active-bg: #e5e7eb;
+  --snippets-filter-active-fg: #111827;
+  --snippets-filter-inactive-fg: #6b7280;
+  --snippets-filter-hover-bg: #f3f4f6;
+  --snippets-card-hover-border: #d1d5db;
+  /* Modal surfaces (light) */
+  --snippets-modal-btn-bg: #f3f4f6;
+  --snippets-modal-btn-fg: #374151;
+  --snippets-modal-btn-hover-bg: #e5e7eb;
+  --snippets-code-block-bg: #f8fafc;
+  --snippets-code-block-border: #e2e8f0;
+  --snippets-accent: #2563eb;
+}
+
 /* Aurora Background (Aceternity) */
 @theme inline {
   --animate-aurora: aurora 60s linear infinite;
@@ -345,4 +508,123 @@ body {
   html {
     font-family: var(--font-sans);
   }
+}
+
+/* University workspace: FullCalendar weekly view — minimal, premium */
+.university-calendar-wrapper {
+  --fc-border-color: var(--app-border);
+  --fc-button-bg-color: var(--app-surface);
+  --fc-button-border-color: var(--app-border);
+  --fc-button-hover-bg-color: var(--app-bg);
+  --fc-today-bg-color: var(--app-surface-soft);
+  --fc-page-bg-color: var(--app-bg);
+  --fc-neutral-bg-color: var(--app-bg);
+  --fc-list-event-hover-bg-color: var(--app-surface-soft);
+}
+
+.university-calendar-wrapper .fc {
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+.university-calendar-wrapper .fc-theme-standard td,
+.university-calendar-wrapper .fc-theme-standard th {
+  border-color: var(--app-border);
+}
+
+.university-calendar-wrapper .fc-scrollgrid {
+  border-radius: var(--radius-lg);
+  border-color: var(--app-border);
+}
+
+.university-calendar-wrapper .fc-timegrid-slot {
+  height: 2.5rem;
+}
+
+.university-calendar-wrapper .fc-timegrid-slot-label {
+  font-size: 0.75rem;
+  color: var(--app-fg-muted);
+  padding-top: 0.25rem;
+}
+
+.university-calendar-wrapper .fc-col-header-cell-cushion {
+  padding: 0.5rem 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--app-fg);
+  text-transform: capitalize;
+}
+
+.university-calendar-wrapper .fc-timegrid-axis-cushion,
+.university-calendar-wrapper .fc-timegrid-slot-label-cushion {
+  color: var(--app-fg-muted);
+}
+
+/* Eventos: bloques modernos tipo Google Calendar */
+.university-calendar-wrapper .fc-event {
+  border: none;
+  border-radius: 6px;
+  padding: 0;
+  margin: 1px 2px;
+  min-height: 24px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.university-calendar-wrapper .fc-event:hover {
+  opacity: 0.95;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.university-calendar-wrapper .fc-event .fc-event-main {
+  padding: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.university-calendar-wrapper .university-calendar-event {
+  border-left-width: 3px;
+  border-left-style: solid;
+}
+
+.university-calendar-wrapper .university-calendar-event-conflict {
+  box-shadow: 0 0 0 2px var(--destructive);
+}
+
+.university-calendar-wrapper .university-calendar-event-inner {
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 100%;
+  color: var(--app-fg);
+}
+
+.university-calendar-wrapper .university-calendar-event-title {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.university-calendar-wrapper .university-calendar-event-meta {
+  font-size: 0.6875rem;
+  color: var(--app-fg-muted);
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+/* Celdas de tiempo: bordes suaves */
+.university-calendar-wrapper .fc-timegrid-col.fc-day-today {
+  background: var(--app-surface-soft);
+}
+
+.university-calendar-wrapper .fc-timegrid-divider {
+  display: none;
+}
+
+.university-calendar-wrapper .fc-daygrid-day-frame {
+  min-height: 0;
 }

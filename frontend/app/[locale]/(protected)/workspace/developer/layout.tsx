@@ -39,8 +39,8 @@ export default function DeveloperWorkspaceLayout({
           onOpenMobileNav={() => sidebar?.openMobileNav()}
         />
         {!isSettingsPage && <DeveloperNavHorizontal />}
-        <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--app-bg)] p-4 sm:p-6">
-          <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col overflow-hidden">
+        <main className="flex min-h-[min-content] flex-1 flex-col overflow-visible bg-[var(--app-bg)] p-4 sm:p-6">
+          <div className="mx-auto flex min-h-[min-content] w-full max-w-[1440px] flex-1 flex-col">
             {children}
           </div>
         </main>

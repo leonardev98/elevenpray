@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/select";
 import type { PromptApi, PromptFolderApi, PromptCategoryApi, DeveloperProjectApi } from "@/app/lib/developer-workspace/types";
 
+/** Sentinel value for "None" in Select (Radix forbids empty string). */
+const SELECT_NONE_VALUE = "__none__";
+
 export interface PromptFormValues {
   title: string;
   slug: string;
@@ -177,9 +180,9 @@ export function PromptForm({
             {t("formFolder")}
           </label>
           <Select
-            value={value.folderId ?? ""}
+            value={value.folderId && value.folderId !== "" ? value.folderId : SELECT_NONE_VALUE}
             onValueChange={(v) =>
-              onChange({ ...value, folderId: v ? v : null })
+              onChange({ ...value, folderId: v === SELECT_NONE_VALUE ? null : v })
             }
             disabled={disabled}
           >
@@ -187,8 +190,8 @@ export function PromptForm({
               <SelectValue placeholder={t("formFolderNone")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{t("formFolderNone")}</SelectItem>
-              {folders.map((f) => (
+              <SelectItem value={SELECT_NONE_VALUE}>{t("formFolderNone")}</SelectItem>
+              {folders.filter((f) => f.id != null && f.id !== "").map((f) => (
                 <SelectItem key={f.id} value={f.id}>
                   {f.name}
                 </SelectItem>
@@ -202,9 +205,9 @@ export function PromptForm({
             {t("formCategory")}
           </label>
           <Select
-            value={value.categoryId ?? ""}
+            value={value.categoryId && value.categoryId !== "" ? value.categoryId : SELECT_NONE_VALUE}
             onValueChange={(v) =>
-              onChange({ ...value, categoryId: v ? v : null })
+              onChange({ ...value, categoryId: v === SELECT_NONE_VALUE ? null : v })
             }
             disabled={disabled}
           >
@@ -212,8 +215,8 @@ export function PromptForm({
               <SelectValue placeholder={t("formCategoryNone")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{t("formCategoryNone")}</SelectItem>
-              {categories.map((c) => (
+              <SelectItem value={SELECT_NONE_VALUE}>{t("formCategoryNone")}</SelectItem>
+              {categories.filter((c) => c.id != null && c.id !== "").map((c) => (
                 <SelectItem key={c.id} value={c.id}>
                   {c.name || c.code}
                 </SelectItem>
@@ -229,9 +232,9 @@ export function PromptForm({
             {t("formProject")}
           </label>
           <Select
-            value={value.projectId ?? ""}
+            value={value.projectId && value.projectId !== "" ? value.projectId : SELECT_NONE_VALUE}
             onValueChange={(v) =>
-              onChange({ ...value, projectId: v ? v : null })
+              onChange({ ...value, projectId: v === SELECT_NONE_VALUE ? null : v })
             }
             disabled={disabled}
           >
@@ -239,8 +242,8 @@ export function PromptForm({
               <SelectValue placeholder={t("formProjectNone")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{t("formProjectNone")}</SelectItem>
-              {projects.map((p) => (
+              <SelectItem value={SELECT_NONE_VALUE}>{t("formProjectNone")}</SelectItem>
+              {projects.filter((p) => p.id != null && p.id !== "").map((p) => (
                 <SelectItem key={p.id} value={p.id}>
                   {p.name}
                 </SelectItem>

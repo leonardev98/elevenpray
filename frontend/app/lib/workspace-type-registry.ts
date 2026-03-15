@@ -70,7 +70,7 @@ const DEFINITIONS: WorkspaceTypeDefinition[] = [
     },
     sortOrder: 0,
   },
-  { id: "university", label: "Universidad", category: "estudios", domain: "studies", capabilities: { hasRoutine: false }, sortOrder: 1 },
+  { id: "study", label: "Study", category: "estudios", domain: "studies", capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 1 },
   { id: "work", label: "Trabajo", category: "trabajo", domain: "work", capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 2 },
   { id: "fitness", label: "Fitness", category: "vida_personal", domain: "wellness", capabilities: { hasRoutine: true }, sortOrder: 3 },
   { id: "general", label: "General", category: "vida_personal", domain: "general", capabilities: { hasRoutine: true }, sortOrder: 4 },
@@ -80,9 +80,16 @@ export const WORKSPACE_TYPE_IDS = DEFINITIONS.map((d) => d.id) as readonly strin
 export type WorkspaceTypeId = (typeof WORKSPACE_TYPE_IDS)[number];
 
 const byId = new Map<string, WorkspaceTypeDefinition>(DEFINITIONS.map((d) => [d.id, d]));
+const LEGACY_ALIASES: Record<string, string> = {
+  university: "study",
+};
+
+function resolveTypeId(typeId: string): string {
+  return LEGACY_ALIASES[typeId] ?? typeId;
+}
 
 export function getWorkspaceType(id: string): WorkspaceTypeDefinition | undefined {
-  return byId.get(id);
+  return byId.get(resolveTypeId(id));
 }
 
 export function getWorkspaceCategoryLabel(categoryId: WorkspaceCategoryId): string {
@@ -91,7 +98,7 @@ export function getWorkspaceCategoryLabel(categoryId: WorkspaceCategoryId): stri
 
 /** Returns domain code for a workspace type (for grouping in sidebar). */
 export function getWorkspaceDomain(typeId: string): WorkspaceDomainId {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.domain ?? "general";
 }
 
@@ -101,56 +108,56 @@ export function getAllWorkspaceTypes(): WorkspaceTypeDefinition[] {
 
 /** Whether this workspace type has the routine capability (weekly routine editor). */
 export function hasRoutineCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasRoutine === true;
 }
 
 export function hasProductVaultCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasProductVault === true;
 }
 
 export function hasCheckinsCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasCheckins === true;
 }
 
 export function hasProgressPhotosCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasProgressPhotos === true;
 }
 
 export function hasInsightsCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasInsights === true;
 }
 
 export function hasRoutineSlotsCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasRoutineSlots === true;
 }
 
 export function hasExpertConsultationCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasExpertConsultation === true;
 }
 
 export function hasKnowledgeHubCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasKnowledgeHub === true;
 }
 
 export function hasVideoGuidesCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasVideoGuides === true;
 }
 
 export function hasRemindersCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasReminders === true;
 }
 
 export function hasCommunityInsightsCapability(typeId: string): boolean {
-  const def = byId.get(typeId);
+  const def = byId.get(resolveTypeId(typeId));
   return def?.capabilities?.hasCommunityInsights === true;
 }

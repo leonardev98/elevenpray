@@ -9,7 +9,9 @@ import type {
   PromptTagApi,
 } from "../types";
 import type { ListPromptsParams, CreatePromptBody, UpdatePromptBody } from "../api/prompts-api";
+import type { DiscoveryPromptItem, DiscoverySection } from "../api/discovery-api";
 import * as api from "../api/prompts-api";
+import * as discoveryApi from "../api/discovery-api";
 
 export function usePrompts(token: string | null, params: ListPromptsParams = {}) {
   const [data, setData] = useState<PromptApi[]>([]);
@@ -189,6 +191,41 @@ export function usePromptTags(token: string | null, search?: string) {
       setIsLoading(false);
     }
   }, [token, search]);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  return { data, isLoading, error, refetch };
+}
+
+export function useDiscoveryPrompts(
+  token: string | null,
+  locale: string,
+  section: DiscoverySection
+): { data: DiscoveryPromptItem[]; isLoading: boolean; error: Error | null; refetch: () => Promise<void> } {
+  const [data, setData] = useState<DiscoveryPromptItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const refetch = useCallback(async () => {
+    if (!token) {
+      setData([]);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const list = await discoveryApi.listDiscoveryPrompts(token, locale, section);
+      setData(list);
+    } catch (e) {
+      setError(e instanceof Error ? e : new Error("Failed to load discovery prompts"));
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, locale, section]);
 
   useEffect(() => {
     refetch();

@@ -24,6 +24,7 @@ import { IngredientConflictsModule } from './ingredient-conflicts/ingredient-con
 import { PromptsModule } from './prompts/prompts.module';
 import { SkinFaceMappingModule } from './skin-face-mapping/skin-face-mapping.module';
 import { LearningModule } from './learning/learning.module';
+import { StudyUniversityModule } from './study-university/study-university.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { LearningModule } from './learning/learning.module';
     PromptsModule,
     SkinFaceMappingModule,
     LearningModule,
+    StudyUniversityModule,
     RoutineTemplatesModule,
     SpacesModule,
     PagesModule,

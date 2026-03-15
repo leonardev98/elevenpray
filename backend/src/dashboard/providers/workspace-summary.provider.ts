@@ -5,6 +5,7 @@ import { hasRoutineCapability } from '../../workspace-types/workspace-type.regis
 import type { DayGroup } from '../../routine-templates/entities/routine-template.entity';
 import type { DashboardWorkspaceSummary } from '../dashboard.types';
 import type { DashboardRoutineGroup } from '../dashboard.types';
+import { StudyUniversityService } from '../../study-university/study-university.service';
 
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
@@ -18,6 +19,7 @@ export class WorkspaceSummaryProvider {
   constructor(
     private readonly workspacesService: WorkspacesService,
     private readonly routineTemplatesService: RoutineTemplatesService,
+    private readonly studyUniversityService: StudyUniversityService,
   ) {}
 
   async getSummaries(
@@ -25,6 +27,7 @@ export class WorkspaceSummaryProvider {
     workspaceIds: string[],
   ): Promise<DashboardWorkspaceSummary[]> {
     const summaries: DashboardWorkspaceSummary[] = [];
+    const studyWorkspaceIds: string[] = [];
     const todayKey = getTodayDayKey();
     const now = new Date();
     const year = now.getFullYear();
@@ -32,6 +35,9 @@ export class WorkspaceSummaryProvider {
 
     for (const workspaceId of workspaceIds) {
       const workspace = await this.workspacesService.findOne(workspaceId, userId);
+      if (workspace.workspaceType === 'study' || workspace.workspaceType === 'university') {
+        studyWorkspaceIds.push(workspace.id);
+      }
       if (!hasRoutineCapability(workspace.workspaceType)) continue;
       const template = await this.routineTemplatesService.findTemplateByWorkspaceId(
         workspace.id,
@@ -66,6 +72,13 @@ export class WorkspaceSummaryProvider {
         kind: 'routine_today',
         data: { dayKey: todayKey, groups },
       });
+    }
+    if (studyWorkspaceIds.length > 0) {
+      const studySummaries = await this.studyUniversityService.getWorkspaceSummaries(
+        userId,
+        studyWorkspaceIds,
+      );
+      summaries.push(...studySummaries);
     }
     return summaries;
   }

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { Workspace } from './entities/workspace.entity';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/create-workspace.dto';
@@ -52,14 +52,25 @@ export class WorkspacesService {
   async create(userId: string, dto: CreateWorkspaceDto): Promise<Workspace> {
     const count = await this.workspaceRepository.count({ where: { userId } });
     const name = await this.deriveWorkspaceName(dto);
-    const workspace = this.workspaceRepository.create({
-      userId,
-      name,
-      workspaceType: dto.workspaceType as Workspace['workspaceType'],
-      workspaceSubtypeId: dto.workspaceSubtypeId ?? null,
-      sortOrder: count,
-    });
-    const saved = await this.workspaceRepository.save(workspace);
+    const buildWorkspace = (workspaceType: string) =>
+      this.workspaceRepository.create({
+        userId,
+        name,
+        workspaceType: workspaceType as Workspace['workspaceType'],
+        workspaceSubtypeId: dto.workspaceSubtypeId ?? null,
+        sortOrder: count,
+      });
+
+    let saved: Workspace;
+    try {
+      saved = await this.workspaceRepository.save(buildWorkspace(dto.workspaceType));
+    } catch (error) {
+      // Backward compatibility for databases that still enforce legacy `university` type.
+      const shouldRetryLegacyStudyType =
+        dto.workspaceType === 'study' && error instanceof QueryFailedError;
+      if (!shouldRetryLegacyStudyType) throw error;
+      saved = await this.workspaceRepository.save(buildWorkspace('university'));
+    }
     if (hasRoutineCapability(saved.workspaceType)) {
       await this.routineTemplatesService.createTemplateForWorkspace(
         userId,

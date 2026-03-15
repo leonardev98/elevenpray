@@ -5,7 +5,10 @@ import { PromptFolder } from './entities/prompt-folder.entity';
 import { PromptCategory } from './entities/prompt-category.entity';
 import { DeveloperProject } from './entities/developer-project.entity';
 import { PromptTag } from './entities/prompt-tag.entity';
+import { DiscoveryPrompt } from './entities/discovery-prompt.entity';
 import { PromptsService } from './prompts.service';
+import { DiscoveryPromptsService } from './discovery-prompts.service';
+import { DiscoveryPromptsController } from './discovery-prompts.controller';
 import { PromptFoldersService } from './prompt-folders.service';
 import { PromptCategoriesService } from './prompt-categories.service';
 import { DeveloperProjectsService } from './developer-projects.service';
@@ -25,6 +28,7 @@ import { AuthModule } from '../auth/auth.module';
       PromptCategory,
       DeveloperProject,
       PromptTag,
+      DiscoveryPrompt,
     ]),
     AuthModule,
   ],
@@ -34,6 +38,7 @@ import { AuthModule } from '../auth/auth.module';
     PromptCategoriesController,
     DeveloperProjectsController,
     PromptTagsController,
+    DiscoveryPromptsController,
   ],
   providers: [
     PromptsService,
@@ -41,6 +46,7 @@ import { AuthModule } from '../auth/auth.module';
     PromptCategoriesService,
     DeveloperProjectsService,
     PromptTagsService,
+    DiscoveryPromptsService,
   ],
   exports: [PromptsService],
 })

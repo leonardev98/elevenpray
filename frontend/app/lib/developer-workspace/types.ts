@@ -119,6 +119,7 @@ export interface Snippet {
   tags: string[];
   favorite: boolean;
   lastUsed?: string;
+  timesUsed?: number;
 }
 
 export type TaskStatus = "todo" | "inProgress" | "done";
