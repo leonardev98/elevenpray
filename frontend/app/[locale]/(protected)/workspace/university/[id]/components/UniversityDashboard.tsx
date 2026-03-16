@@ -32,6 +32,7 @@ export function UniversityDashboard({
   state,
   onOpenCreateCourse,
   onOpenSession,
+  onUpdateSession,
   onReorderCourses: _onReorderCourses,
   onStartFocus,
   onUpdateAssignmentStatus,
@@ -40,6 +41,10 @@ export function UniversityDashboard({
   state: UniversityWorkspaceState;
   onOpenCreateCourse: (slot?: { date: string; startTime: string; endTime: string }) => void;
   onOpenSession: (sessionId: string) => void;
+  onUpdateSession: (
+    sessionId: string,
+    payload: { sessionDate?: string; startTime?: string; endTime?: string; classroom?: string },
+  ) => Promise<void>;
   onReorderCourses: (orderedCourseIds: string[]) => Promise<void>;
   onStartFocus: (durationMinutes: number, courseId?: string) => Promise<void>;
   onUpdateAssignmentStatus: (assignmentId: string, status: Assignment["status"]) => Promise<void>;
@@ -101,6 +106,7 @@ export function UniversityDashboard({
             onSlotClick={(date, startTime, endTime) =>
               onOpenCreateCourse({ date, startTime, endTime })
             }
+            onUpdateSessionTime={onUpdateSession}
             drawerOpen={createCourseOpen}
           />
         </div>

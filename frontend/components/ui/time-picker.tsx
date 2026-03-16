@@ -1,15 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import { ChevronDown, ChevronUp, Clock3 } from "lucide-react";
+import { Time } from "@internationalized/date";
+import {
+  TimeField as AriaTimeField,
+  DateInput,
+  DateSegment,
+  Label,
+} from "react-aria-components";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
-const MINUTES_STEP_5 = Array.from({ length: 12 }, (_, i) => i * 5);
-
-function normalizeTime(value: string): { hour: number; minute: number } {
-  const [rawHour, rawMinute] = value.split(":");
+function parseTimeString(value: string): { hour: number; minute: number } {
+  const [rawHour, rawMinute] = (value ?? "").split(":");
   const hour = Number(rawHour ?? 9);
   const minute = Number(rawMinute ?? 0);
   return {
@@ -18,125 +20,63 @@ function normalizeTime(value: string): { hour: number; minute: number } {
   };
 }
 
-function formatTime(hour: number, minute: number) {
-  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+function timeToHHmm(time: Time): string {
+  return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
 }
-
-function addMinutes(value: string, delta: number) {
-  const { hour, minute } = normalizeTime(value);
-  const total = hour * 60 + minute + delta;
-  const wrapped = ((total % (24 * 60)) + 24 * 60) % (24 * 60);
-  const nextHour = Math.floor(wrapped / 60);
-  const nextMinute = wrapped % 60;
-  return formatTime(nextHour, nextMinute);
-}
-
-const selectClass =
-  "h-8 min-w-[3.5rem] appearance-none rounded-md border-0 bg-transparent px-1.5 text-xs text-[var(--app-fg)] focus:outline-none focus:ring-0 [&>option]:bg-[var(--app-surface)]";
 
 export function TimePicker({
   value,
   onChange,
+  label,
   className,
-  minuteStep = 5,
+  isInvalid,
   "aria-label": ariaLabel,
 }: {
   value: string;
   onChange: (next: string) => void;
+  label?: string;
   className?: string;
-  minuteStep?: 5 | 10 | 15 | 30;
+  isInvalid?: boolean;
   "aria-label"?: string;
 }) {
-  const { hour, minute } = normalizeTime(value);
-  const minuteOptions = useMemo(() => {
-    if (minuteStep === 5) return MINUTES_STEP_5;
-    return Array.from({ length: 60 / minuteStep }, (_, i) => i * minuteStep);
-  }, [minuteStep]);
-
-  const nearestMinute = useMemo(() => {
-    return minuteOptions.reduce((closest, current) =>
-      Math.abs(current - minute) < Math.abs(closest - minute) ? current : closest
-    );
-  }, [minute, minuteOptions]);
-
-  const handleHourChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const h = Number(e.target.value);
-    onChange(formatTime(h, nearestMinute));
-  };
-
-  const handleMinuteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const m = Number(e.target.value);
-    onChange(formatTime(hour, m));
-  };
+  const { hour, minute } = parseTimeString(value);
+  const timeValue = useMemo(() => new Time(hour, minute), [hour, minute]);
 
   return (
-    <div
-      className={cn(
-        "flex min-w-0 flex-shrink items-center gap-1.5 overflow-hidden rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-2 py-1.5 transition focus-within:border-[var(--app-primary)] focus-within:ring-2 focus-within:ring-[var(--app-primary)]/15",
-        className,
-      )}
-      tabIndex={0}
-      role="group"
-      aria-label={ariaLabel ?? "Selector de hora"}
-      onKeyDown={(event) => {
-        if (event.key === "ArrowUp") {
-          event.preventDefault();
-          onChange(addMinutes(value, minuteStep));
-        }
-        if (event.key === "ArrowDown") {
-          event.preventDefault();
-          onChange(addMinutes(value, -minuteStep));
-        }
-      }}
+    <AriaTimeField
+      value={timeValue}
+      onChange={(next) => next != null && onChange(timeToHHmm(next))}
+      hourCycle={12}
+      granularity="minute"
+      aria-label={ariaLabel ?? (label || "Selector de hora")}
+      isInvalid={isInvalid}
+      className={cn("flex min-w-0 flex-col gap-1", className)}
     >
-      <Clock3 className="h-3.5 w-3.5 shrink-0 text-[var(--app-fg-muted)]" />
-      <select
-        aria-label="Hora"
-        className={selectClass}
-        value={hour}
-        onChange={handleHourChange}
+      {label != null && (
+        <Label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/70">
+          {label}
+        </Label>
+      )}
+      <DateInput
+        className={cn(
+          "flex min-w-0 flex-shrink items-center gap-0.5 overflow-hidden rounded-xl border bg-white/5 px-2 py-1.5 text-sm text-white outline-none transition",
+          "border-white/20 hover:border-white/40",
+          "focus-within:border-blue-500/60 focus-within:ring-2 focus-within:ring-blue-500/40",
+          isInvalid &&
+            "border-red-500/60 focus-within:border-red-500/60 focus-within:ring-red-500/40",
+        )}
       >
-        {HOURS.map((option) => (
-          <option key={option} value={option}>
-            {String(option).padStart(2, "0")}
-          </option>
-        ))}
-      </select>
-      <span className="text-xs text-[var(--app-fg-muted)]">:</span>
-      <select
-        aria-label="Minutos"
-        className={selectClass}
-        value={nearestMinute}
-        onChange={handleMinuteChange}
-      >
-        {minuteOptions.map((option) => (
-          <option key={option} value={option}>
-            {String(option).padStart(2, "0")}
-          </option>
-        ))}
-      </select>
-      <div className="ml-auto flex flex-col gap-0.5">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          className="h-3.5 w-4 rounded-sm p-0 text-[var(--app-fg-muted)] hover:bg-[var(--app-primary)]/10 hover:text-[var(--app-primary)]"
-          onClick={() => onChange(addMinutes(value, minuteStep))}
-          aria-label="Incrementar tiempo"
-        >
-          <ChevronUp className="h-2.5 w-2.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          className="h-3.5 w-4 rounded-sm p-0 text-[var(--app-fg-muted)] hover:bg-[var(--app-primary)]/10 hover:text-[var(--app-primary)]"
-          onClick={() => onChange(addMinutes(value, -minuteStep))}
-          aria-label="Reducir tiempo"
-        >
-          <ChevronDown className="h-2.5 w-2.5" />
-        </Button>
-      </div>
-    </div>
+        {(segment) => (
+          <DateSegment
+            segment={segment}
+            className={cn(
+              "inline rounded px-0.5 py-0.5 text-white outline-none placeholder:text-white/40",
+              "focus:bg-white/10 focus:caret-white",
+              "type-literal:min-w-[1.25rem] type-literal:text-center",
+            )}
+          />
+        )}
+      </DateInput>
+    </AriaTimeField>
   );
 }

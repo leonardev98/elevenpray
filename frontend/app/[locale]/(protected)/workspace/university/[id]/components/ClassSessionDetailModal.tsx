@@ -5,7 +5,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import type { Assignment, ClassSession, Course } from "@/app/lib/study-university/types";
+
+function normalizeTime(value: string): string {
+  const [h = "09", m = "00"] = String(value).split(":");
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
 
 export function ClassSessionDetailModal({
   open,
@@ -14,6 +21,7 @@ export function ClassSessionDetailModal({
   assignments,
   onClose,
   onSaveNotes,
+  onUpdateSession,
 }: {
   open: boolean;
   session: ClassSession | null;
@@ -21,9 +29,16 @@ export function ClassSessionDetailModal({
   assignments: Assignment[];
   onClose: () => void;
   onSaveNotes: (payload: { notesHtml?: string; aiSummaryMock?: string }) => Promise<void>;
+  onUpdateSession?: (payload: { sessionDate: string; startTime: string; endTime: string; classroom?: string }) => Promise<void>;
 }) {
   const [saving, setSaving] = useState(false);
+  const [savingSchedule, setSavingSchedule] = useState(false);
   const [summary, setSummary] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editStartTime, setEditStartTime] = useState("");
+  const [editEndTime, setEditEndTime] = useState("");
+  const [editClassroom, setEditClassroom] = useState("");
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit],
@@ -41,6 +56,15 @@ export function ClassSessionDetailModal({
     editor.commands.setContent(session.notesHtml ?? "<p>Apuntes de clase...</p>");
     setSummary(session.aiSummaryMock ?? "");
   }, [editor, session]);
+
+  useEffect(() => {
+    if (!session) return;
+    setEditDate(session.sessionDate);
+    setEditStartTime(normalizeTime(session.startTime));
+    setEditEndTime(normalizeTime(session.endTime));
+    setEditClassroom(session.classroom ?? "");
+    setScheduleError(null);
+  }, [session]);
 
   const title = useMemo(
     () => `${course?.name ?? "Class session"} · ${session?.sessionDate ?? ""}`,
@@ -82,6 +106,67 @@ export function ClassSessionDetailModal({
             </div>
 
             <div className="space-y-3">
+              {onUpdateSession && (
+                <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] p-3">
+                  <p className="mb-3 text-xs uppercase tracking-[0.12em] text-[var(--app-fg)]/55">Editar horario</p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--app-fg)]/60">Fecha</label>
+                      <DatePicker value={editDate} onChange={setEditDate} className="w-full" placeholder="Seleccionar fecha" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <TimePicker label="Inicio" value={editStartTime} onChange={setEditStartTime} className="w-full" />
+                      </div>
+                      <div>
+                        <TimePicker
+                          label="Fin"
+                          value={editEndTime}
+                          onChange={setEditEndTime}
+                          className="w-full"
+                          isInvalid={editStartTime >= editEndTime}
+                        />
+                      </div>
+                    </div>
+                    {editStartTime >= editEndTime && (
+                      <p className="text-[11px] text-destructive">La hora de fin debe ser posterior a la de inicio.</p>
+                    )}
+                    <div>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--app-fg)]/60">Aula</label>
+                      <input
+                        type="text"
+                        className="h-10 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 text-sm text-[var(--app-fg)] transition focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/15"
+                        placeholder="Ej. B201"
+                        value={editClassroom}
+                        onChange={(e) => setEditClassroom(e.target.value)}
+                      />
+                    </div>
+                    {scheduleError && <p className="text-[11px] text-destructive">{scheduleError}</p>}
+                    <Button
+                      size="sm"
+                      disabled={savingSchedule || editStartTime >= editEndTime || !editDate}
+                      onClick={async () => {
+                        setScheduleError(null);
+                        setSavingSchedule(true);
+                        try {
+                          await onUpdateSession({
+                            sessionDate: editDate,
+                            startTime: `${editStartTime}:00`,
+                            endTime: `${editEndTime}:00`,
+                            classroom: editClassroom.trim() || undefined,
+                          });
+                        } catch (err) {
+                          setScheduleError(err instanceof Error ? err.message : "Error al guardar");
+                        } finally {
+                          setSavingSchedule(false);
+                        }
+                      }}
+                    >
+                      {savingSchedule ? "Guardando..." : "Guardar horario"}
+                    </Button>
+                  </div>
+                </div>
+              )}
               <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] p-3">
                 <p className="mb-2 text-xs uppercase tracking-[0.12em] text-[var(--app-fg)]/55">Tareas asociadas</p>
                 <ul className="space-y-2 text-sm">

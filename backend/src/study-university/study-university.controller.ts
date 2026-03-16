@@ -23,7 +23,9 @@ import {
   GenerateSessionsDto,
   ReorderCoursesDto,
   UpdateAssignmentStatusDto,
+  UpdateClassSessionDto,
   UpdateClassSessionNotesDto,
+  UpdateSemesterDto,
   UpsertAttendanceDto,
   UpsertStudyWorkspaceConfigDto,
 } from './dto/study-university.dto';
@@ -60,6 +62,16 @@ export class StudyUniversityController {
     @Body() dto: CreateSemesterDto,
   ) {
     return this.studyUniversityService.createSemester(workspaceId, userId, dto);
+  }
+
+  @Patch('semesters/:semesterId')
+  updateSemester(
+    @Param('workspaceId') workspaceId: string,
+    @Param('semesterId') semesterId: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateSemesterDto,
+  ) {
+    return this.studyUniversityService.updateSemester(workspaceId, userId, semesterId, dto);
   }
 
   @Post('courses')
@@ -116,6 +128,16 @@ export class StudyUniversityController {
     @Param('sessionId') sessionId: string,
   ) {
     return this.studyUniversityService.getClassSessionDetail(workspaceId, userId, sessionId);
+  }
+
+  @Patch('sessions/:sessionId')
+  updateSession(
+    @Param('workspaceId') workspaceId: string,
+    @Param('sessionId') sessionId: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateClassSessionDto,
+  ) {
+    return this.studyUniversityService.updateClassSession(workspaceId, userId, sessionId, dto);
   }
 
   @Patch('sessions/:sessionId/notes')

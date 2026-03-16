@@ -700,210 +700,56 @@ body {
   }
 }
 
-/* University workspace: Schedule-X weekly view — minimal, premium */
+/* University workspace: custom weekly calendar — cosmetic only (layout in inline styles) */
 
-/* Tema Schedule-X usa z-index 100+ en header/popups; lo limitamos para que modales (z-50) siempre cubran el calendario */
-.university-calendar-wrapper {
-  position: relative;
-  z-index: 0;
-  isolation: isolate;
-}
-.university-calendar-wrapper .sx__week-header,
-.university-calendar-wrapper .sx-react-calendar-wrapper,
-.university-calendar-wrapper .sx__calendar,
-.university-calendar-wrapper [class*="sx__"] {
-  z-index: 0 !important;
-}
-
-/* Con el drawer de Crear curso abierto: quitar resaltado de foco */
-.university-calendar-wrapper.university-calendar-drawer-open .sx-react-calendar-wrapper,
-.university-calendar-wrapper.university-calendar-drawer-open .sx__calendar,
-.university-calendar-wrapper.university-calendar-drawer-open .university-sx-calendar-container,
-.university-calendar-wrapper.university-calendar-drawer-open .sx__week-header,
-.university-calendar-wrapper.university-calendar-drawer-open [class*="sx__"] {
-  outline: none !important;
-  box-shadow: none !important;
-}
 .university-calendar-wrapper.university-calendar-drawer-open *:focus,
 .university-calendar-wrapper.university-calendar-drawer-open *:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }
 
-.university-calendar-wrapper .university-sx-calendar-container .sx-react-calendar-wrapper {
-  height: 100%;
-  min-height: 640px;
-  width: 100%;
-  font-family: var(--font-sans);
-}
-
-.university-calendar-wrapper .university-sx-calendar-container {
-  overflow: hidden;
-  position: relative;
-}
-
-.university-calendar-wrapper .sx__calendar {
-  height: 100%;
-}
-
-.university-calendar-wrapper .sx__week-grid {
-  min-height: 100%;
-  background: color-mix(in oklab, var(--app-bg) 92%, var(--app-surface) 8%);
-}
-
-.university-calendar-wrapper .sx__week-header {
-  backdrop-filter: blur(8px);
-  background: color-mix(in oklab, var(--app-surface) 92%, transparent 8%);
-}
-
-.university-calendar-wrapper .sx__week-header-border {
-  border-bottom-color: color-mix(in oklab, var(--app-border) 82%, transparent 18%);
-}
-
-.university-calendar-wrapper .sx__week-grid__date {
-  border-radius: 10px;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.university-calendar-wrapper .sx__week-grid__date:hover {
-  background-color: color-mix(in oklab, var(--app-primary-soft) 45%, transparent 55%);
-}
-
-.university-calendar-wrapper .sx__week-grid__day-name {
-  font-size: 0.64rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--app-fg-muted);
-}
-
-.university-calendar-wrapper .sx__week-grid__date-number {
-  font-size: 0.95rem;
-  font-weight: 600;
+.ucal-date-input {
+  border: 1px solid var(--app-border);
+  border-radius: 0.5rem;
+  background: var(--app-surface);
   color: var(--app-fg);
+  font-size: 0.8rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.ucal-day-header {
+  transition: background-color 0.15s ease;
+}
+.ucal-day-header:hover {
+  background: var(--app-primary-soft) !important;
+  opacity: 0.55;
+}
+
+.ucal-grid-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border) transparent;
+}
+.ucal-grid-body::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.ucal-grid-body::-webkit-scrollbar-thumb {
+  background: var(--app-border);
   border-radius: 999px;
-  transition: all 0.2s ease;
 }
 
-.university-calendar-wrapper .sx__week-grid__date--is-today .sx__week-grid__day-name {
-  color: var(--app-primary);
+.ucal-event {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
-
-.university-calendar-wrapper .sx__week-grid__date--is-today .sx__week-grid__date-number {
-  background-color: color-mix(in oklab, var(--app-primary) 15%, var(--app-surface) 85%);
-  color: var(--app-primary);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--app-primary) 25%, transparent 75%);
-}
-
-.university-calendar-wrapper .sx__week-grid__date--selected-soft {
-  background: transparent !important;
-}
-
-.university-calendar-wrapper .sx__week-grid__date--selected-soft .sx__week-grid__date-number {
-  box-shadow: inset 0 -2px 0 var(--app-primary);
-  border-radius: 4px;
-}
-
-.university-calendar-wrapper .sx__week-grid__date:focus-visible,
-.university-calendar-wrapper .sx__week-grid__date:focus-within {
-  outline: none;
-  background-color: transparent;
-}
-
-.university-calendar-wrapper .sx__time-grid-day {
-  border-left: 1px solid color-mix(in oklab, var(--app-border) 68%, transparent 32%);
-}
-
-.university-calendar-wrapper .sx__week-grid__hour {
-  border-bottom: 1px solid color-mix(in oklab, var(--app-border) 58%, transparent 42%);
-}
-
-.university-calendar-wrapper .sx__week-grid__time-axis {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: color-mix(in oklab, var(--app-fg-muted) 90%, transparent 10%);
-  letter-spacing: 0.02em;
-}
-
-.university-calendar-wrapper .university-sx-event,
-.university-calendar-wrapper .university-calendar-event {
-  border-left-width: 3px;
-  border-left-style: solid;
-  border-radius: 0.7rem;
-  padding: 0;
-  min-height: 38px;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(15, 30, 51, 0.06);
-  transition: box-shadow 0.2s ease, transform 0.2s ease, filter 0.2s ease;
-}
-
-.university-calendar-wrapper .university-sx-event:hover,
-.university-calendar-wrapper .university-calendar-event:hover {
-  box-shadow: 0 10px 22px rgba(15, 30, 51, 0.12);
+.ucal-event:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
-  filter: saturate(1.03);
 }
-
-.university-calendar-wrapper .university-sx-event:active,
-.university-calendar-wrapper .university-calendar-event:active {
+.ucal-event:active {
   transform: translateY(0) scale(0.995);
 }
 
-.university-calendar-wrapper .university-calendar-event-conflict {
-  box-shadow: 0 0 0 1.5px var(--destructive), 0 10px 22px rgba(185, 28, 28, 0.12);
-}
-
-.university-calendar-wrapper .university-calendar-event-inner {
-  padding: 6px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-height: 100%;
-  color: var(--app-fg);
-}
-
-.university-calendar-wrapper .university-calendar-event-title {
-  font-weight: 600;
-  font-size: 0.78rem;
-  line-height: 1.22;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.university-calendar-wrapper .university-calendar-event-meta {
-  font-size: 0.665rem;
-  color: color-mix(in oklab, var(--app-fg-muted) 86%, transparent 14%);
-  line-height: 1.2;
-}
-
-.university-calendar-wrapper .university-calendar-event-time {
-  font-size: 0.64rem;
-  color: color-mix(in oklab, var(--app-fg-secondary) 80%, transparent 20%);
-  letter-spacing: 0.01em;
-  margin-top: 1px;
-}
-
-.university-calendar-wrapper .sx__week-wrapper,
-.university-calendar-wrapper .sx__calendar-wrapper,
-.university-calendar-wrapper .sx__view-container,
-.university-calendar-wrapper .sx__week-grid-wrapper {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklab, var(--app-border) 85%, transparent 15%) transparent;
-}
-
-.university-calendar-wrapper .sx__week-wrapper::-webkit-scrollbar,
-.university-calendar-wrapper .sx__calendar-wrapper::-webkit-scrollbar,
-.university-calendar-wrapper .sx__view-container::-webkit-scrollbar,
-.university-calendar-wrapper .sx__week-grid-wrapper::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.university-calendar-wrapper .sx__week-wrapper::-webkit-scrollbar-thumb,
-.university-calendar-wrapper .sx__calendar-wrapper::-webkit-scrollbar-thumb,
-.university-calendar-wrapper .sx__view-container::-webkit-scrollbar-thumb,
-.university-calendar-wrapper .sx__week-grid-wrapper::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--app-border) 88%, transparent 12%);
-  border-radius: 999px;
+.ucal-event-conflict {
+  box-shadow: 0 0 0 2px var(--destructive), 0 4px 12px rgba(239, 68, 68, 0.15) !important;
 }

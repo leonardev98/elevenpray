@@ -95,6 +95,25 @@ export class CreateSemesterDto {
   creditGoal?: number;
 }
 
+export class UpdateSemesterDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  name?: string;
+
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isCurrent?: boolean;
+}
+
 export class CreateCourseScheduleDto {
   @IsIn(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
   weekday: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
@@ -211,6 +230,26 @@ export class UpdateClassSessionNotesDto {
   @IsOptional()
   @IsString()
   aiSummaryMock?: string;
+}
+
+export class UpdateClassSessionDto {
+  @IsOptional()
+  @IsDateString()
+  sessionDate?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  startTime?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  endTime?: string;
+
+  @IsOptional()
+  @IsString()
+  classroom?: string;
 }
 
 export class CreateAssignmentDto {

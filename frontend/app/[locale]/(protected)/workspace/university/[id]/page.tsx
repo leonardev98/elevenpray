@@ -14,6 +14,15 @@ import { toast } from "@/app/lib/toast";
 
 const WORKSPACE_NOT_FOUND = /workspace not found/i;
 
+function getDefaultSemesterDates(): { startDate: string; endDate: string } {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startDate = start.toISOString().slice(0, 10);
+  const end = new Date(now.getFullYear(), now.getMonth() + 5, 0);
+  const endDate = end.toISOString().slice(0, 10);
+  return { startDate, endDate };
+}
+
 export default function UniversityWorkspacePage() {
   const params = useParams();
   const router = useRouter();
@@ -62,6 +71,7 @@ export default function UniversityWorkspacePage() {
           university.setCreateCourseOpen(true);
         }}
         onOpenSession={(sessionId) => university.setSelectedSessionId(sessionId)}
+        onUpdateSession={university.updateSession}
         onReorderCourses={university.reorderCourses}
         onStartFocus={university.startFocus}
         onUpdateAssignmentStatus={university.updateAssignmentStatus}
@@ -111,18 +121,41 @@ export default function UniversityWorkspacePage() {
         }}
         onSubmit={async (values: CreateCourseFormValues) => {
           const currentSemester = university.state.semesters.find((s) => s.isCurrent);
-          const currentSemesterId = currentSemester?.id;
+          const defaultDates = getDefaultSemesterDates();
+          let semesterId: string | null = currentSemester?.id ?? null;
+          let didSetDefaultDates = false;
+
+          if (!currentSemester) {
+            const newSemester = await university.createSemester({
+              name: defaultDates.startDate.slice(0, 7),
+              startDate: defaultDates.startDate,
+              endDate: defaultDates.endDate,
+              isCurrent: true,
+            });
+            semesterId = newSemester?.id ?? null;
+            didSetDefaultDates = true;
+          } else if (!currentSemester.startDate || !currentSemester.endDate) {
+            await university.updateSemester(currentSemester.id, {
+              startDate: defaultDates.startDate,
+              endDate: defaultDates.endDate,
+            });
+            semesterId = currentSemester.id;
+            didSetDefaultDates = true;
+          }
+
           await university.createCourse({
             ...values,
-            semesterId: currentSemesterId,
+            semesterId,
           });
-          const canGenerateSessions =
-            currentSemesterId &&
-            currentSemester?.startDate &&
-            currentSemester?.endDate;
-          if (canGenerateSessions) {
-            await university.generateSessions({ semesterId: currentSemesterId });
-          } else if (currentSemesterId) {
+
+          if (semesterId) {
+            await university.generateSessions({ semesterId });
+            if (didSetDefaultDates) {
+              toast.success(t("courseCreated"), t("semesterDatesSetDefault"));
+            } else {
+              toast.success(t("courseCreated"));
+            }
+          } else {
             toast.warning(t("courseCreated"), t("noSessionsGenerated"));
           }
         }}
@@ -139,6 +172,15 @@ export default function UniversityWorkspacePage() {
         onSaveNotes={async (payload) => {
           if (!university.selectedSession) return;
           await university.updateSessionNotes(university.selectedSession.id, payload);
+        }}
+        onUpdateSession={async (payload) => {
+          if (!university.selectedSession) return;
+          await university.updateSession(university.selectedSession.id, {
+            sessionDate: payload.sessionDate,
+            startTime: payload.startTime,
+            endTime: payload.endTime,
+            classroom: payload.classroom,
+          });
         }}
       />
     </div>

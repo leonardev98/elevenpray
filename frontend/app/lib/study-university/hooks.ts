@@ -13,12 +13,14 @@ import {
   startUniversityFocusSession,
   updateUniversityAssignmentStatus,
   updateUniversityClassSessionNotes,
+  updateUniversitySession,
+  updateUniversitySemester,
   upsertUniversityAttendance,
   upsertUniversityConfig,
 } from "./api";
 import { useUniversityWorkspaceStore } from "./store";
 import { UNIVERSITY_WORKSPACE_MOCK_STATE } from "./mock-data";
-import type { AssignmentStatus, UniversityWorkspaceState } from "./types";
+import type { AssignmentStatus, Semester, UniversityWorkspaceState } from "./types";
 
 export function useStudyUniversity(workspaceId: string, token: string | null) {
   const {
@@ -71,9 +73,19 @@ export function useStudyUniversity(workspaceId: string, token: string | null) {
   );
 
   const createSemester = useCallback(
-    async (payload: Record<string, unknown>) => {
+    async (payload: Record<string, unknown>): Promise<Semester | undefined> => {
+      if (!token) return undefined;
+      const semester = await createUniversitySemester(token, workspaceId, payload);
+      await load();
+      return semester;
+    },
+    [token, workspaceId, load],
+  );
+
+  const updateSemester = useCallback(
+    async (semesterId: string, payload: Record<string, unknown>) => {
       if (!token) return;
-      await createUniversitySemester(token, workspaceId, payload);
+      await updateUniversitySemester(token, workspaceId, semesterId, payload);
       await load();
     },
     [token, workspaceId, load],
@@ -122,6 +134,18 @@ export function useStudyUniversity(workspaceId: string, token: string | null) {
     async (assignmentId: string, status: AssignmentStatus) => {
       if (!token) return;
       await updateUniversityAssignmentStatus(token, workspaceId, assignmentId, status);
+      await load();
+    },
+    [token, workspaceId, load],
+  );
+
+  const updateSession = useCallback(
+    async (
+      sessionId: string,
+      payload: { sessionDate?: string; startTime?: string; endTime?: string; classroom?: string },
+    ) => {
+      if (!token) return;
+      await updateUniversitySession(token, workspaceId, sessionId, payload);
       await load();
     },
     [token, workspaceId, load],
@@ -194,11 +218,13 @@ export function useStudyUniversity(workspaceId: string, token: string | null) {
     load,
     upsertConfig,
     createSemester,
+    updateSemester,
     createCourse,
     reorderCourses,
     generateSessions,
     createAssignment,
     updateAssignmentStatus,
+    updateSession,
     updateSessionNotes,
     setAttendance,
     createGrade,

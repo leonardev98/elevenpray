@@ -419,9 +419,10 @@ export function CreateCourseModal({
                             ))}
                           </div>
 
-                          <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_1fr]">
+                          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_1fr]">
                             <div className="min-w-0">
                               <TimePicker
+                                label="Inicio"
                                 value={normalizeTime(startTime)}
                                 onChange={(next) =>
                                   form.setValue(`schedules.${index}.startTime`, next, { shouldDirty: true })
@@ -435,17 +436,19 @@ export function CreateCourseModal({
                             </div>
                             <div className="min-w-0">
                               <TimePicker
+                                label="Fin"
                                 value={normalizeTime(endTime)}
                                 onChange={(next) =>
                                   form.setValue(`schedules.${index}.endTime`, next, { shouldDirty: true })
                                 }
                                 aria-label={`Hora de fin bloque ${index + 1}`}
                                 className="w-full min-w-0"
+                                isInvalid={!!form.formState.errors.schedules?.[index]?.endTime}
                               />
                             </div>
                           </div>
                           {form.formState.errors.schedules?.[index]?.endTime?.message && (
-                            <p className="mt-1.5 text-[11px] text-destructive">
+                            <p className="mt-1.5 text-[11px] text-destructive" role="alert">
                               {form.formState.errors.schedules[index]?.endTime?.message}
                             </p>
                           )}

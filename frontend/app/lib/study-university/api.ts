@@ -26,6 +26,25 @@ function parseNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function normalizeSession(raw: Record<string, unknown>): ClassSession {
+  return {
+    id: String(raw.id),
+    workspaceId: String(raw.workspaceId ?? raw.workspace_id),
+    semesterId: (raw.semesterId ?? raw.semester_id ?? null) as string | null,
+    courseId: String(raw.courseId ?? raw.course_id),
+    scheduleId: (raw.scheduleId ?? raw.schedule_id ?? null) as string | null,
+    sessionDate: String(raw.sessionDate ?? raw.session_date),
+    startTime: String(raw.startTime ?? raw.start_time),
+    endTime: String(raw.endTime ?? raw.end_time),
+    classroom: (raw.classroom ?? null) as string | null,
+    title: (raw.title ?? null) as string | null,
+    notesHtml: (raw.notesHtml ?? raw.notes_html ?? null) as string | null,
+    notesJson: (raw.notesJson ?? raw.notes_json ?? null) as Record<string, unknown> | null,
+    aiSummaryMock: (raw.aiSummaryMock ?? raw.ai_summary_mock ?? null) as string | null,
+    generatedFromSchedule: Boolean(raw.generatedFromSchedule ?? raw.generated_from_schedule ?? false),
+  };
+}
+
 function normalizeCourse(raw: Record<string, unknown>): Course {
   return {
     id: String(raw.id),
@@ -208,6 +227,29 @@ export async function createUniversitySemester(
   };
 }
 
+export async function updateUniversitySemester(
+  token: string,
+  workspaceId: string,
+  semesterId: string,
+  body: Record<string, unknown>,
+): Promise<Semester> {
+  const payload = await fetchJson<Record<string, unknown>>(
+    `${baseStudyUrl(workspaceId)}/semesters/${semesterId}`,
+    token,
+    "PATCH",
+    body,
+  );
+  return {
+    id: String(payload.id),
+    workspaceId: String(payload.workspaceId ?? payload.workspace_id),
+    name: String(payload.name),
+    startDate: (payload.startDate ?? payload.start_date ?? null) as string | null,
+    endDate: (payload.endDate ?? payload.end_date ?? null) as string | null,
+    isCurrent: Boolean(payload.isCurrent ?? payload.is_current ?? false),
+    creditGoal: parseNumber(payload.creditGoal ?? payload.credit_goal),
+  };
+}
+
 export async function createUniversityCourse(
   token: string,
   workspaceId: string,
@@ -304,6 +346,21 @@ export async function getUniversityClassSessionDetail(
   sessionId: string,
 ): Promise<Record<string, unknown>> {
   return fetchJson(`${baseStudyUrl(workspaceId)}/sessions/${sessionId}`, token);
+}
+
+export async function updateUniversitySession(
+  token: string,
+  workspaceId: string,
+  sessionId: string,
+  payload: { sessionDate?: string; startTime?: string; endTime?: string; classroom?: string },
+): Promise<ClassSession> {
+  const raw = await fetchJson<Record<string, unknown>>(
+    `${baseStudyUrl(workspaceId)}/sessions/${sessionId}`,
+    token,
+    "PATCH",
+    payload,
+  );
+  return normalizeSession(raw);
 }
 
 export async function updateUniversityClassSessionNotes(

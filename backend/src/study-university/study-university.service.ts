@@ -33,7 +33,9 @@ import {
   GenerateSessionsDto,
   ReorderCoursesDto,
   UpdateAssignmentStatusDto,
+  UpdateClassSessionDto,
   UpdateClassSessionNotesDto,
+  UpdateSemesterDto,
   UpsertAttendanceDto,
   UpsertStudyWorkspaceConfigDto,
 } from './dto/study-university.dto';
@@ -220,6 +222,30 @@ export class StudyUniversityService {
     return this.semesterRepo.save(semester);
   }
 
+  async updateSemester(
+    workspaceId: string,
+    userId: string,
+    semesterId: string,
+    dto: UpdateSemesterDto,
+  ): Promise<Semester> {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const semester = await this.semesterRepo.findOne({
+      where: { id: semesterId, workspaceId, userId },
+    });
+    if (!semester) throw new NotFoundException('Semester not found');
+    if (dto.startDate != null) semester.startDate = dto.startDate;
+    if (dto.endDate != null) semester.endDate = dto.endDate;
+    if (dto.startDate && dto.endDate && dto.startDate > dto.endDate) {
+      throw new BadRequestException('startDate must be <= endDate');
+    }
+    if (dto.name != null) semester.name = dto.name;
+    if (dto.isCurrent === true) {
+      await this.semesterRepo.update({ workspaceId, userId, isCurrent: true }, { isCurrent: false });
+      semester.isCurrent = true;
+    }
+    return this.semesterRepo.save(semester);
+  }
+
   async createCourse(workspaceId: string, userId: string, dto: CreateCourseDto) {
     await this.ensureStudyWorkspace(workspaceId, userId);
     dto.schedules.forEach((s) => this.assertValidTimeRange(s.startTime, s.endTime));
@@ -393,6 +419,25 @@ export class StudyUniversityService {
       title: dto.title ?? course.name,
       generatedFromSchedule: false,
     });
+    return this.sessionRepo.save(session);
+  }
+
+  async updateClassSession(
+    workspaceId: string,
+    userId: string,
+    sessionId: string,
+    dto: UpdateClassSessionDto,
+  ): Promise<ClassSession> {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const session = await this.sessionRepo.findOne({ where: { id: sessionId, workspaceId } });
+    if (!session) throw new NotFoundException('Class session not found');
+    if (dto.sessionDate !== undefined) session.sessionDate = dto.sessionDate;
+    if (dto.startTime !== undefined) session.startTime = dto.startTime;
+    if (dto.endTime !== undefined) session.endTime = dto.endTime;
+    if (dto.classroom !== undefined) session.classroom = dto.classroom ?? null;
+    const startTime = session.startTime;
+    const endTime = session.endTime;
+    this.assertValidTimeRange(startTime, endTime);
     return this.sessionRepo.save(session);
   }
 
