@@ -25,6 +25,36 @@ export function DevScratchpadCard({ className }: { className?: string }) {
   const [loaded, setLoaded] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editorRef = useRef<ReactCodeMirrorRef | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      const scroller = el.querySelector(".cm-scroller") as HTMLElement | null;
+      if (!scroller) return;
+      const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = scroller;
+      const canScrollUp = scrollTop > 0;
+      const canScrollDown = scrollTop + clientHeight < scrollHeight;
+      const canScrollLeft = scrollLeft > 0;
+      const canScrollRight = scrollLeft + clientWidth < scrollWidth;
+      const scrollingUp = e.deltaY < 0;
+      const scrollingDown = e.deltaY > 0;
+      const scrollingLeft = e.deltaX < 0;
+      const scrollingRight = e.deltaX > 0;
+      const shouldConsumeVertical =
+        (canScrollUp && scrollingUp) || (canScrollDown && scrollingDown);
+      const shouldConsumeHorizontal =
+        (canScrollLeft && scrollingLeft) || (canScrollRight && scrollingRight);
+      if (shouldConsumeVertical || shouldConsumeHorizontal) {
+        e.preventDefault();
+        if (shouldConsumeVertical) scroller.scrollTop += e.deltaY;
+        if (shouldConsumeHorizontal) scroller.scrollLeft += e.deltaX;
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
 
   useEffect(() => {
     try {
@@ -121,7 +151,7 @@ export function DevScratchpadCard({ className }: { className?: string }) {
           </DropdownMenu>
         </div>
       </div>
-      <div className="[&_.cm-editor]:min-h-[200px] [&_.cm-scroller]:min-h-[200px] [&_.cm-content]:font-mono">
+      <div ref={scrollContainerRef} className="overflow-hidden [&_.cm-content]:font-mono">
         <CodeMirror
           ref={editorRef}
           value={value}

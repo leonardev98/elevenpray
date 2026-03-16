@@ -8,6 +8,7 @@ import { UniversityOnboardingWizard } from "./components/UniversityOnboardingWiz
 import { UniversityDashboard } from "./components/UniversityDashboard";
 import { ClassSessionDetailModal } from "./components/ClassSessionDetailModal";
 import { useStudyUniversity } from "@/app/lib/study-university/hooks";
+import { toast } from "@/app/lib/toast";
 
 export default function UniversityWorkspacePage() {
   const params = useParams();
@@ -42,15 +43,19 @@ export default function UniversityWorkspacePage() {
         open={university.onboardingOpen}
         onClose={() => university.setOnboardingOpen(false)}
         onComplete={async (payload) => {
+          const startDate = payload.startDate?.trim() || undefined;
+          const endDate = payload.endDate?.trim() || undefined;
           await university.upsertConfig({
             ...payload,
+            startDate,
+            endDate,
             onboardingCompleted: true,
             onboardingStep: 3,
           });
           await university.createSemester({
             name: payload.currentSemesterLabel,
-            startDate: payload.startDate,
-            endDate: payload.endDate,
+            startDate,
+            endDate,
             isCurrent: true,
             creditGoal: payload.creditGoal,
           });
@@ -62,13 +67,23 @@ export default function UniversityWorkspacePage() {
         open={university.createCourseOpen}
         onClose={() => university.setCreateCourseOpen(false)}
         onSubmit={async (values: CreateCourseFormValues) => {
-          const currentSemesterId = university.state.semesters.find((semester) => semester.isCurrent)?.id;
+          const currentSemester = university.state.semesters.find((s) => s.isCurrent);
+          const currentSemesterId = currentSemester?.id;
           await university.createCourse({
             ...values,
             semesterId: currentSemesterId,
           });
-          if (currentSemesterId) {
+          const canGenerateSessions =
+            currentSemesterId &&
+            currentSemester?.startDate &&
+            currentSemester?.endDate;
+          if (canGenerateSessions) {
             await university.generateSessions({ semesterId: currentSemesterId });
+          } else if (currentSemesterId) {
+            toast.warning(
+              "Curso creado",
+              "No se generaron sesiones automáticas: el semestre no tiene fechas de inicio y fin configuradas.",
+            );
           }
         }}
       />

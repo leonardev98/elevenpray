@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 const configSchema = z.object({
   workspaceName: z.string().min(2, "Nombre requerido"),
   currentSemesterLabel: z.string().min(2, "Semestre requerido"),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  startDate: z.string().min(1, "La fecha de inicio es requerida"),
+  endDate: z.string().min(1, "La fecha de fin es requerida"),
   gradeScale: z.enum(["0_20", "0_100", "A_F"]),
   creditGoal: z.coerce.number().min(0).optional(),
 });
@@ -44,6 +44,8 @@ export function UniversityOnboardingWizard({
     defaultValues: {
       workspaceName: "University Workspace",
       currentSemesterLabel: "2026-I",
+      startDate: "2026-01-01",
+      endDate: "2026-06-30",
       gradeScale: "0_100",
     },
   });
@@ -112,12 +114,18 @@ export function UniversityOnboardingWizard({
                 <input className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2" {...configForm.register("currentSemesterLabel")} />
               </label>
               <label className="text-sm">
-                <span className="mb-1 block text-[var(--app-fg)]/75">Inicio (opcional)</span>
+                <span className="mb-1 block text-[var(--app-fg)]/75">Inicio del semestre</span>
                 <input type="date" className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2" {...configForm.register("startDate")} />
+                {configForm.formState.errors.startDate && (
+                  <p className="mt-1 text-xs text-red-500">{configForm.formState.errors.startDate.message}</p>
+                )}
               </label>
               <label className="text-sm">
-                <span className="mb-1 block text-[var(--app-fg)]/75">Fin (opcional)</span>
+                <span className="mb-1 block text-[var(--app-fg)]/75">Fin del semestre</span>
                 <input type="date" className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2" {...configForm.register("endDate")} />
+                {configForm.formState.errors.endDate && (
+                  <p className="mt-1 text-xs text-red-500">{configForm.formState.errors.endDate.message}</p>
+                )}
               </label>
               <label className="text-sm">
                 <span className="mb-1 block text-[var(--app-fg)]/75">Escala</span>

@@ -274,6 +274,16 @@
   border-color: rgba(79, 70, 229, 0.4);
 }
 
+/* Dev Scratchpad: scroll solo dentro del cuadro */
+.developer-dashboard .dev-dash-card .cm-editor {
+  max-height: 280px;
+}
+.developer-dashboard .dev-dash-card .cm-scroller {
+  overflow: auto !important;
+  max-height: 280px;
+  min-height: 200px;
+}
+
 /* University dashboard — premium minimal study OS */
 .university-dashboard {
   --uni-dash-bg: #0f172a;
