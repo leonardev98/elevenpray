@@ -12,6 +12,7 @@ import {
   hasCheckinsCapability,
   hasProgressPhotosCapability,
   hasInsightsCapability,
+  getWorkspaceType,
 } from "../../../../lib/workspace-type-registry";
 
 interface AsideTopicsProps {
@@ -82,6 +83,12 @@ function WorkspacesContent({ error }: { error: string | null }) {
               hasInsightsCapability(w.workspaceType);
             const href =
               hasSectionNav ? `/dashboard/workspaces/${w.id}` : hasRoutine ? `/dashboard/workspaces/${w.id}/routine` : `/dashboard/workspaces/${w.id}`;
+            const typeDef = getWorkspaceType(w.workspaceType);
+            const isDefaultName =
+              !w.name?.trim() ||
+              w.name === w.workspaceType ||
+              (typeDef?.label != null && w.name === typeDef.label);
+            const displayName = isDefaultName && typeDef ? tTypes(w.workspaceType) : (w.name?.trim() || w.workspaceType);
             const typeLabel = tTypes(w.workspaceType);
             return (
               <li
@@ -97,7 +104,7 @@ function WorkspacesContent({ error }: { error: string | null }) {
                   className="min-w-0 flex-1 min-h-[44px] flex flex-col justify-center py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)] focus:ring-offset-2 focus:ring-offset-[var(--app-surface)]"
                 >
                   <span className="truncate text-sm font-medium text-[var(--app-fg)] hover:underline">
-                    {w.name}
+                    {displayName}
                   </span>
                   <span className="truncate text-xs text-[var(--app-fg)]/50">
                     {typeLabel}

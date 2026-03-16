@@ -33,7 +33,12 @@ export class UsersService {
 
   async update(
     id: string,
-    data: { name?: string; email?: string; passwordHash?: string },
+    data: {
+      name?: string;
+      email?: string;
+      passwordHash?: string;
+      avatarUrl?: string | null;
+    },
   ): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) return null as unknown as User;
@@ -49,6 +54,7 @@ export class UsersService {
     }
     if (data.name !== undefined) user.name = data.name;
     if (data.passwordHash !== undefined) user.passwordHash = data.passwordHash;
+    if (data.avatarUrl !== undefined) user.avatarUrl = data.avatarUrl;
 
     return this.userRepository.save(user);
   }

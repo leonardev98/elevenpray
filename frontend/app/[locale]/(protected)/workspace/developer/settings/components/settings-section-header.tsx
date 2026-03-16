@@ -21,7 +21,7 @@ export function SettingsSectionHeader({
       <h2 className="text-xl font-semibold text-[var(--app-fg)]">
         {t(titleKey)}
       </h2>
-      <p className="mt-1 text-sm text-[var(--app-fg)]/60">
+      <p className="mt-1 text-sm text-neutral-500 dark:text-[var(--app-fg-muted)]">
         {t(descriptionKey)}
       </p>
     </header>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/app/providers/auth-provider";
 import { CreateCourseModal, type CreateCourseFormValues } from "./components/CreateCourseModal";
@@ -15,10 +15,12 @@ export default function UniversityWorkspacePage() {
   const workspaceId = params.id as string;
   const { token } = useAuth();
   const university = useStudyUniversity(workspaceId, token);
+  const [draftSlot, setDraftSlot] = useState<{ date: string; startTime: string; endTime: string } | null>(null);
+  const loadUniversity = university.load;
 
   useEffect(() => {
-    void university.load();
-  }, [university.load]);
+    void loadUniversity();
+  }, [loadUniversity]);
 
   const selectedCourse = useMemo(
     () =>
@@ -32,7 +34,11 @@ export default function UniversityWorkspacePage() {
     <div className="space-y-4">
       <UniversityDashboard
         state={university.state}
-        onOpenCreateCourse={() => university.setCreateCourseOpen(true)}
+        createCourseOpen={university.createCourseOpen}
+        onOpenCreateCourse={(slot) => {
+          setDraftSlot(slot ?? null);
+          university.setCreateCourseOpen(true);
+        }}
         onOpenSession={(sessionId) => university.setSelectedSessionId(sessionId)}
         onReorderCourses={university.reorderCourses}
         onStartFocus={university.startFocus}
@@ -65,7 +71,12 @@ export default function UniversityWorkspacePage() {
 
       <CreateCourseModal
         open={university.createCourseOpen}
-        onClose={() => university.setCreateCourseOpen(false)}
+        conflicts={university.state.conflicts}
+        initialSlot={draftSlot}
+        onClose={() => {
+          university.setCreateCourseOpen(false);
+          setDraftSlot(null);
+        }}
         onSubmit={async (values: CreateCourseFormValues) => {
           const currentSemester = university.state.semesters.find((s) => s.isCurrent);
           const currentSemesterId = currentSemester?.id;

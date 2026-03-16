@@ -10,4 +10,8 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsEmail({ require_tld: false }, { message: 'Email no válido' })
   email?: string;
+
+  @IsOptional()
+  @IsString()
+  avatarUrl?: string;
 }

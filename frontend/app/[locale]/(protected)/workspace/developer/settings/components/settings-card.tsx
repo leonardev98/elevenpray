@@ -17,16 +17,16 @@ export function SettingsCard({
   return (
     <div
       className={cn(
-        "rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-sm transition-all duration-200",
+        "rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-[var(--app-border)] dark:bg-[var(--app-surface)]",
         className
       )}
     >
       {title && (
-        <h3 className="mb-4 text-sm font-medium text-[var(--app-fg)]/80">
+        <h3 className="mb-4 text-sm font-medium text-neutral-700 dark:text-[var(--app-fg)]">
           {title}
         </h3>
       )}
-      <div className="divide-y divide-[var(--app-border)]/60">{children}</div>
+      <div className="space-y-4">{children}</div>
     </div>
   );
 }

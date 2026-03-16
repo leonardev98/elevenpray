@@ -22,6 +22,9 @@ export class User {
   @Column({ type: 'text', default: 'user' })
   role: 'user' | 'platform_admin';
 
+  @Column({ name: 'avatar_url', type: 'text', nullable: true })
+  avatarUrl: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 }

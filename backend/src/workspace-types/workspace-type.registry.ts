@@ -53,9 +53,12 @@ const DEFINITIONS: WorkspaceTypeDefinition[] = [
     sortOrder: 0,
   },
   { id: 'study', label: 'Study', capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 1 },
-  { id: 'work', label: 'Trabajo', capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 2 },
+  { id: 'work', label: 'Work', capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 2 },
   { id: 'fitness', label: 'Fitness', capabilities: { hasRoutine: true }, sortOrder: 3 },
   { id: 'general', label: 'General', capabilities: { hasRoutine: true }, sortOrder: 4 },
+  { id: 'nutrition', label: 'Nutrition', capabilities: { hasRoutine: true }, sortOrder: 5 },
+  { id: 'sleep', label: 'Sleep', capabilities: { hasRoutine: true }, sortOrder: 6 },
+  { id: 'mental_health', label: 'Mental Health', capabilities: { hasRoutine: true }, sortOrder: 7 },
 ];
 
 export const WORKSPACE_TYPE_IDS = DEFINITIONS.map((d) => d.id) as readonly string[];

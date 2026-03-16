@@ -8,6 +8,8 @@ export interface PublicUser {
   name: string;
   /** Present from backend when role column exists; default 'user' on frontend if missing. */
   role?: UserRole;
+  /** Profile photo URL (S3). Present when set. */
+  avatarUrl?: string | null;
 }
 
 export interface AuthResponse {
@@ -58,7 +60,7 @@ export async function me(token: string): Promise<PublicUser> {
 
 export async function updateProfile(
   token: string,
-  data: { name?: string; email?: string },
+  data: { name?: string; email?: string; avatarUrl?: string | null },
 ): Promise<PublicUser> {
   const res = await fetch(`${getBaseUrl()}/auth/me`, {
     method: "PATCH",
@@ -71,6 +73,40 @@ export async function updateProfile(
   }
   const body = await res.json();
   return body.user;
+}
+
+/** Get presigned URL for uploading profile photo. Then use uploadFileToPresignedUrl and updateProfile(avatarUrl). */
+export async function getProfilePhotoUploadUrl(
+  token: string,
+  contentType: string,
+): Promise<{ uploadUrl: string; publicUrl: string }> {
+  const res = await fetch(`${getBaseUrl()}/auth/profile-photo/upload-url`, {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ contentType }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message ?? "Error al obtener URL de subida");
+  }
+  return res.json();
+}
+
+/** Upload a file to a presigned S3 PUT URL. Content-Type must match what was requested when getting the URL. */
+export async function uploadFileToPresignedUrl(
+  file: File,
+  uploadUrl: string,
+): Promise<void> {
+  const res = await fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: {
+      "Content-Type": file.type,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Error al subir el archivo");
+  }
 }
 
 export async function changePassword(

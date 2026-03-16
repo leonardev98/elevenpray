@@ -8,11 +8,8 @@ import { cn } from "@/lib/utils";
 
 export type SettingsSectionId =
   | "profile"
-  | "account"
-  | "security"
   | "appearance"
-  | "notifications"
-  | "privacy";
+  | "notifications";
 
 export interface SettingsSectionConfig {
   id: SettingsSectionId;
