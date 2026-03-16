@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/app/providers/auth-provider";
 import { CreateCourseModal, type CreateCourseFormValues } from "./components/CreateCourseModal";
@@ -14,10 +14,12 @@ export default function UniversityWorkspacePage() {
   const workspaceId = params.id as string;
   const { token } = useAuth();
   const university = useStudyUniversity(workspaceId, token);
+  const [draftSlot, setDraftSlot] = useState<{ date: string; startTime: string; endTime: string } | null>(null);
+  const loadUniversity = university.load;
 
   useEffect(() => {
-    void university.load();
-  }, [university.load]);
+    void loadUniversity();
+  }, [loadUniversity]);
 
   const selectedCourse = useMemo(
     () =>
@@ -31,7 +33,11 @@ export default function UniversityWorkspacePage() {
     <div className="space-y-4">
       <UniversityDashboard
         state={university.state}
-        onOpenCreateCourse={() => university.setCreateCourseOpen(true)}
+        createCourseOpen={university.createCourseOpen}
+        onOpenCreateCourse={(slot) => {
+          setDraftSlot(slot ?? null);
+          university.setCreateCourseOpen(true);
+        }}
         onOpenSession={(sessionId) => university.setSelectedSessionId(sessionId)}
         onReorderCourses={university.reorderCourses}
         onStartFocus={university.startFocus}
@@ -42,15 +48,19 @@ export default function UniversityWorkspacePage() {
         open={university.onboardingOpen}
         onClose={() => university.setOnboardingOpen(false)}
         onComplete={async (payload) => {
+          const startDate = payload.startDate?.trim() || undefined;
+          const endDate = payload.endDate?.trim() || undefined;
           await university.upsertConfig({
             ...payload,
+            startDate,
+            endDate,
             onboardingCompleted: true,
             onboardingStep: 3,
           });
           await university.createSemester({
             name: payload.currentSemesterLabel,
-            startDate: payload.startDate,
-            endDate: payload.endDate,
+            startDate,
+            endDate,
             isCurrent: true,
             creditGoal: payload.creditGoal,
           });
@@ -60,7 +70,12 @@ export default function UniversityWorkspacePage() {
 
       <CreateCourseModal
         open={university.createCourseOpen}
-        onClose={() => university.setCreateCourseOpen(false)}
+        conflicts={university.state.conflicts}
+        initialSlot={draftSlot}
+        onClose={() => {
+          university.setCreateCourseOpen(false);
+          setDraftSlot(null);
+        }}
         onSubmit={async (values: CreateCourseFormValues) => {
           const currentSemesterId = university.state.semesters.find((semester) => semester.isCurrent)?.id;
           await university.createCourse({

@@ -27,16 +27,16 @@ export interface WorkspaceTypeCapabilities {
 
 export type WorkspaceCategoryId = "vida_personal" | "trabajo" | "estudios";
 
-/** Dominio (padre) que agrupa tipos. Alineado con BD workspace_type_domains. */
-export type WorkspaceDomainId = "wellness" | "work" | "studies" | "general";
+/** Categoría padre en el modal de nuevo workspace. Alineado con BD workspace_type_domains. */
+export type WorkspaceParentId = "wellness" | "study" | "work" | "general";
 
 export interface WorkspaceTypeDefinition {
   id: string;
   label: string;
   /** Categoría para el aside: Vida personal, Trabajo, Estudios */
   category: WorkspaceCategoryId;
-  /** Dominio para agrupar en UI (Salud y bienestar, Trabajo, etc.) */
-  domain: WorkspaceDomainId;
+  /** Categoría padre para agrupar en UI (Bienestar, Estudios, Trabajo, General) */
+  domain: WorkspaceParentId;
   capabilities: WorkspaceTypeCapabilities;
   sortOrder: number;
 }
@@ -47,7 +47,30 @@ const CATEGORY_LABELS: Record<WorkspaceCategoryId, string> = {
   estudios: "Estudios",
 };
 
-export const WORKSPACE_DOMAIN_IDS: WorkspaceDomainId[] = ["wellness", "work", "studies", "general"];
+export const WORKSPACE_PARENT_IDS: WorkspaceParentId[] = ["wellness", "study", "work", "general"];
+
+/** Tipos que son solo tipo (sin subtipo): se elige el tipo y se crea el workspace con ese type. */
+const WELLNESS_TYPE_IDS: WorkspaceTypeId[] = ["skincare", "fitness", "nutrition", "sleep", "mental_health"];
+
+/** Para study, work, general: el workspace tiene un tipo + subtipo (se elige desde API). */
+const PARENT_TO_WORKSPACE_TYPE: Record<Exclude<WorkspaceParentId, "wellness">, WorkspaceTypeId> = {
+  study: "study",
+  work: "work",
+  general: "general",
+};
+
+export function getWellnessTypeIds(): WorkspaceTypeId[] {
+  return [...WELLNESS_TYPE_IDS];
+}
+
+export function getWorkspaceTypeForParent(parentId: WorkspaceParentId): WorkspaceTypeId | null {
+  return PARENT_TO_WORKSPACE_TYPE[parentId] ?? null;
+}
+
+/** Si la categoría padre usa subtipos desde API (study, work, general). */
+export function parentUsesSubtypes(parentId: WorkspaceParentId): boolean {
+  return parentId !== "wellness";
+}
 
 const DEFINITIONS: WorkspaceTypeDefinition[] = [
   {
@@ -70,10 +93,13 @@ const DEFINITIONS: WorkspaceTypeDefinition[] = [
     },
     sortOrder: 0,
   },
-  { id: "study", label: "Study", category: "estudios", domain: "studies", capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 1 },
-  { id: "work", label: "Trabajo", category: "trabajo", domain: "work", capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 2 },
+  { id: "study", label: "Study", category: "estudios", domain: "study", capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 1 },
+  { id: "work", label: "Work", category: "trabajo", domain: "work", capabilities: { hasRoutine: false, hasDashboardWidgets: true }, sortOrder: 2 },
   { id: "fitness", label: "Fitness", category: "vida_personal", domain: "wellness", capabilities: { hasRoutine: true }, sortOrder: 3 },
   { id: "general", label: "General", category: "vida_personal", domain: "general", capabilities: { hasRoutine: true }, sortOrder: 4 },
+  { id: "nutrition", label: "Nutrition", category: "vida_personal", domain: "wellness", capabilities: { hasRoutine: true }, sortOrder: 5 },
+  { id: "sleep", label: "Sleep", category: "vida_personal", domain: "wellness", capabilities: { hasRoutine: true }, sortOrder: 6 },
+  { id: "mental_health", label: "Mental Health", category: "vida_personal", domain: "wellness", capabilities: { hasRoutine: true }, sortOrder: 7 },
 ];
 
 export const WORKSPACE_TYPE_IDS = DEFINITIONS.map((d) => d.id) as readonly string[];
@@ -96,8 +122,8 @@ export function getWorkspaceCategoryLabel(categoryId: WorkspaceCategoryId): stri
   return CATEGORY_LABELS[categoryId] ?? categoryId;
 }
 
-/** Returns domain code for a workspace type (for grouping in sidebar). */
-export function getWorkspaceDomain(typeId: string): WorkspaceDomainId {
+/** Returns parent/domain code for a workspace type (for grouping in sidebar). */
+export function getWorkspaceDomain(typeId: string): WorkspaceParentId {
   const def = byId.get(resolveTypeId(typeId));
   return def?.domain ?? "general";
 }

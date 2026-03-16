@@ -29,17 +29,17 @@ export function SettingsToggle({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 rounded-lg px-4 py-3 transition-colors sm:flex-row sm:items-center sm:justify-between sm:gap-4 hover:bg-[var(--app-bg)]/50",
+        "flex flex-col gap-1 rounded-lg px-3 py-2.5 transition-colors hover:bg-neutral-100 sm:flex-row sm:items-center sm:justify-between sm:gap-4 dark:hover:bg-[var(--app-surface-soft)]",
         className
       )}
     >
       <label
         htmlFor={finalId}
-        className="min-w-0 flex-1 cursor-pointer text-sm font-medium text-[var(--app-fg)]"
+        className="min-w-0 flex-1 cursor-pointer text-sm font-medium text-neutral-900 dark:text-[var(--app-fg)]"
       >
         <span className="block">{label}</span>
         {description && (
-          <span className="mt-0.5 block text-xs text-[var(--app-fg)]/60">
+          <span className="mt-0.5 block text-xs text-neutral-500 dark:text-[var(--app-fg-muted)]">
             {description}
           </span>
         )}

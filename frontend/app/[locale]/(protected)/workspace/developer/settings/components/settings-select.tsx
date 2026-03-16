@@ -40,13 +40,13 @@ export function SettingsSelect({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 rounded-lg px-4 py-3 transition-colors hover:bg-[var(--app-bg)]/50 sm:flex-row sm:items-center sm:justify-between sm:gap-4",
+        "flex flex-col gap-1 rounded-lg px-3 py-2.5 transition-colors hover:bg-neutral-100 sm:flex-row sm:items-center sm:justify-between sm:gap-4 dark:hover:bg-[var(--app-surface-soft)]",
         className
       )}
     >
       <label
         htmlFor={finalId}
-        className="min-w-0 flex-1 text-sm font-medium text-[var(--app-fg)]"
+        className="min-w-0 flex-1 text-sm font-medium text-neutral-900 dark:text-[var(--app-fg)]"
       >
         {label}
       </label>

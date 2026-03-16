@@ -25,6 +25,7 @@ import { PromptsModule } from './prompts/prompts.module';
 import { SkinFaceMappingModule } from './skin-face-mapping/skin-face-mapping.module';
 import { LearningModule } from './learning/learning.module';
 import { StudyUniversityModule } from './study-university/study-university.module';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { StudyUniversityModule } from './study-university/study-university.modul
       synchronize: false,
     }),
     UsersModule,
+    S3Module,
     AuthModule,
     WorkspaceTypesModule,
     WorkspaceSubtypesModule,

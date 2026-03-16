@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
+import { createViewWeek } from "@schedule-x/calendar";
+import "temporal-polyfill/global";
+import "@schedule-x/theme-default/dist/index.css";
+import type { CalendarEvent } from "@schedule-x/calendar";
 import type { ClassSession, Course, ScheduleConflict } from "@/app/lib/study-university/types";
 import { COURSE_COLOR_CLASSES } from "@/app/lib/study-university/color-tokens";
+import { cn } from "@/lib/utils";
 import { parseISO } from "date-fns";
 
 const WEEKDAY_TO_NUMBER: Record<string, number> = {
@@ -18,6 +21,10 @@ const WEEKDAY_TO_NUMBER: Record<string, number> = {
   saturday: 6,
 };
 
+const ACADEMIC_TZ = "Europe/Madrid";
+const CALENDAR_HEIGHT = "clamp(680px, calc(100vh - 220px), 920px)";
+const CALENDAR_MIN_HEIGHT = 640;
+
 function sessionIsInConflict(
   session: ClassSession,
   conflicts: ScheduleConflict[],
@@ -28,14 +35,86 @@ function sessionIsInConflict(
   return conflicts.some((c) => {
     const dayMatch = WEEKDAY_TO_NUMBER[c.day] === sessionDayOfWeek;
     if (!dayMatch) return false;
-    const courseMatch = c.courseId === session.courseId || c.conflictingCourseId === session.courseId;
+    const courseMatch =
+      c.courseId === session.courseId ||
+      c.conflictingCourseId === session.courseId;
     if (!courseMatch) return false;
     const timeOverlap =
-      (sessionStart >= c.startTime && sessionStart < c.conflictingEndTime) ||
-      (sessionEnd > c.conflictingStartTime && sessionEnd <= c.conflictingEndTime) ||
-      (sessionStart <= c.startTime && sessionEnd >= c.conflictingEndTime);
+      (sessionStart >= c.startTime &&
+        sessionStart < c.conflictingEndTime) ||
+      (sessionEnd > c.conflictingStartTime &&
+        sessionEnd <= c.conflictingEndTime) ||
+      (sessionStart <= c.startTime &&
+        sessionEnd >= c.conflictingEndTime);
     return timeOverlap;
   });
+}
+
+function toZonedDateTime(dateStr: string, timeStr: string) {
+  const [h, m, s] = timeStr.split(":").map(Number);
+  const iso = `${dateStr}T${String(h).padStart(2, "0")}:${String(m ?? 0).padStart(2, "0")}:${String(s ?? 0).padStart(2, "0")}`;
+  const TemporalGlobal = globalThis as unknown as {
+    Temporal: {
+      PlainDateTime: { from: (s: string) => { toZonedDateTime: (tz: string) => CalendarEvent["start"] } };
+    };
+  };
+  const plain = TemporalGlobal.Temporal.PlainDateTime.from(iso);
+  return plain.toZonedDateTime(ACADEMIC_TZ) as CalendarEvent["start"];
+}
+
+function UniversityTimeGridEvent({
+  calendarEvent,
+}: {
+  calendarEvent: {
+    id: string;
+    title?: string;
+    [key: string]: unknown;
+  };
+}) {
+  const courseName = (calendarEvent.courseName as string) ?? calendarEvent.title ?? "Clase";
+  const professor = calendarEvent.professor as string | null | undefined;
+  const classroom = calendarEvent.classroom as string | null | undefined;
+  const timeRange = calendarEvent.timeRange as string | undefined;
+  const colorClasses = (calendarEvent.colorClasses as string[]) ?? [];
+  const isConflict = Boolean(calendarEvent.isConflict);
+
+  return (
+    <div
+      className={`university-sx-event ${colorClasses.join(" ")} ${isConflict ? "university-calendar-event-conflict" : ""}`}
+      role="button"
+      tabIndex={0}
+    >
+      <div className="university-calendar-event-inner">
+        <div className="university-calendar-event-title">{courseName}</div>
+        {professor && (
+          <div className="university-calendar-event-meta">{professor}</div>
+        )}
+        {classroom && (
+          <div className="university-calendar-event-meta">{classroom}</div>
+        )}
+        {timeRange && (
+          <div className="university-calendar-event-time">{timeRange}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function extractDateFromHeaderElement(element: HTMLElement): string | null {
+  const direct = element.dataset.date ?? element.getAttribute("data-date");
+  if (direct && /^\d{4}-\d{2}-\d{2}$/.test(direct)) return direct;
+  const dateLike = [
+    element.getAttribute("aria-label"),
+    element.getAttribute("data-value"),
+    element.getAttribute("datetime"),
+    element.getAttribute("title"),
+    element.textContent,
+  ].filter(Boolean) as string[];
+  for (const raw of dateLike) {
+    const match = raw.match(/\d{4}-\d{2}-\d{2}/);
+    if (match) return match[0];
+  }
+  return null;
 }
 
 export function UniversityWeeklyCalendar({
@@ -44,109 +123,205 @@ export function UniversityWeeklyCalendar({
   conflicts = [],
   onOpenSession,
   onSlotClick,
+  drawerOpen = false,
 }: {
   courses: Course[];
   sessions: ClassSession[];
   conflicts?: ScheduleConflict[];
   onOpenSession: (sessionId: string) => void;
   onSlotClick?: (date: string, startTime: string, endTime: string) => void;
+  drawerOpen?: boolean;
 }) {
+  const onOpenSessionRef = useRef(onOpenSession);
+  const onSlotClickRef = useRef(onSlotClick);
+  const calendarRootRef = useRef<HTMLDivElement | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    onOpenSessionRef.current = onOpenSession;
+  }, [onOpenSession]);
+
+  useEffect(() => {
+    onSlotClickRef.current = onSlotClick;
+  }, [onSlotClick]);
+
+  useEffect(() => {
+    if (drawerOpen) setSelectedDate(null);
+  }, [drawerOpen]);
+
   const courseById = useMemo(
     () => new Map(courses.map((c) => [c.id, c])),
     [courses],
   );
 
-  const events = useMemo(
-    () =>
-      sessions.map((session) => {
-        const course = courseById.get(session.courseId);
-        const colorToken = course?.colorToken ?? "indigo";
-        const colors = COURSE_COLOR_CLASSES[colorToken];
-        const inConflict = sessionIsInConflict(session, conflicts);
-        return {
-          id: session.id,
-          title: course?.name ?? session.title ?? "Clase",
-          start: `${session.sessionDate}T${session.startTime}`,
-          end: `${session.sessionDate}T${session.endTime}`,
-          backgroundColor: "transparent",
-          borderColor: "transparent",
-          classNames: [
+  const scheduleXEvents = useMemo((): CalendarEvent[] => {
+    return sessions.map((session) => {
+      const course = courseById.get(session.courseId);
+      const colorToken = course?.colorToken ?? "indigo";
+      const colors = COURSE_COLOR_CLASSES[colorToken];
+      const inConflict = sessionIsInConflict(session, conflicts);
+      const start = toZonedDateTime(session.sessionDate, session.startTime);
+      const end = toZonedDateTime(session.sessionDate, session.endTime);
+      return {
+        id: session.id,
+        title: course?.name ?? session.title ?? "Clase",
+        start,
+        end,
+        courseName: course?.name ?? session.title ?? "Clase",
+        professor: course?.professor ?? null,
+        classroom: session.classroom ?? course?.classroom ?? null,
+        timeRange: `${session.startTime.slice(0, 5)} — ${session.endTime.slice(0, 5)}`,
+        isConflict: inConflict,
+        colorClasses: [
+          "university-calendar-event",
+          colors.soft,
+          colors.border,
+        ],
+        _options: {
+          additionalClasses: [
             "university-calendar-event",
             colors.soft,
             colors.border,
-            inConflict ? "university-calendar-event-conflict" : "",
-          ].filter(Boolean),
-          extendedProps: {
-            courseName: course?.name ?? session.title ?? "Clase",
-            professor: course?.professor ?? null,
-            classroom: session.classroom ?? course?.classroom ?? null,
-          },
-        };
-      }),
-    [sessions, courseById, conflicts],
+            ...(inConflict ? ["university-calendar-event-conflict"] : []),
+          ],
+          disableResize: true,
+          disableDND: true,
+        },
+      };
+    });
+  }, [sessions, courseById, conflicts]);
+
+  const calendar = useCalendarApp(
+    {
+      views: [createViewWeek()],
+      defaultView: "week",
+      locale: "es-ES",
+      firstDayOfWeek: 1,
+      dayBoundaries: { start: "06:00", end: "22:00" },
+      weekOptions: { gridStep: 30 },
+      events: scheduleXEvents,
+      callbacks: {
+        onEventClick: (event, e) => {
+          e?.preventDefault?.();
+          onOpenSessionRef.current(String(event.id));
+        },
+        onClickDateTime: (dateTime, e) => {
+          e?.preventDefault?.();
+          const cb = onSlotClickRef.current;
+          const str = (dateTime as { toString: () => string }).toString();
+          const dateStr = str.slice(0, 10);
+          setSelectedDate(dateStr);
+          if (!cb) return;
+          const timePart = str.slice(11, 19);
+          const [h, m] = timePart ? timePart.split(":").map(Number) : [0, 0];
+          const startTime = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`;
+          const endM = (m ?? 0) + 30;
+          const endH = endM >= 60 ? (h ?? 0) + 1 : h ?? 0;
+          const endMin = endM >= 60 ? endM - 60 : endM;
+          const endTime = `${String(endH).padStart(2, "0")}:${String(endMin).padStart(2, "0")}:00`;
+          cb(dateStr, startTime, endTime);
+        },
+      },
+    },
+    [],
   );
 
-  const handleDateClick = (arg: { dateStr: string; allDay: boolean }) => {
-    if (arg.allDay || !onSlotClick) return;
-    const d = arg.dateStr; // ISO date or datetime
-    const dateOnly = d.slice(0, 10);
-    const timePart = d.slice(11, 19); // HH:mm:ss
-    if (!timePart) return;
-    const [h, m] = timePart.split(":").map(Number);
-    const endM = m + 30;
-    const endH = endM >= 60 ? h + 1 : h;
-    const endMin = endM >= 60 ? endM - 60 : endM;
-    const startTime = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`;
-    const endTime = `${String(endH).padStart(2, "0")}:${String(endMin).padStart(2, "0")}:00`;
-    onSlotClick(dateOnly, startTime, endTime);
-  };
+  useEffect(() => {
+    if (!calendar) return;
+    calendar.events.set(scheduleXEvents);
+  }, [calendar, scheduleXEvents]);
+
+  useEffect(() => {
+    const root = calendarRootRef.current;
+    if (!root) return;
+
+    const onHeaderClick = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      const headerCell = target.closest(".sx__week-grid__date") as HTMLElement | null;
+      if (!headerCell) return;
+      const extracted = extractDateFromHeaderElement(headerCell);
+      if (extracted) setSelectedDate(extracted);
+    };
+
+    root.addEventListener("click", onHeaderClick);
+    return () => root.removeEventListener("click", onHeaderClick);
+  }, []);
+
+  useEffect(() => {
+    const root = calendarRootRef.current;
+    if (!root) return;
+
+    const headers = Array.from(
+      root.querySelectorAll<HTMLElement>(".sx__week-grid__date"),
+    );
+    headers.forEach((header, index) => {
+      header.classList.remove("sx__week-grid__date--selected-soft");
+      const extracted = extractDateFromHeaderElement(header);
+      if (selectedDate && extracted === selectedDate) {
+        header.classList.add("sx__week-grid__date--selected-soft");
+        return;
+      }
+      if (selectedDate && !extracted) {
+        const selectedDay = Number(selectedDate.slice(8, 10));
+        const dayNumberNode = header.querySelector<HTMLElement>(".sx__week-grid__date-number");
+        const dayNumber = Number(dayNumberNode?.textContent?.trim() ?? NaN);
+        if (!Number.isNaN(dayNumber) && dayNumber === selectedDay && index < 7) {
+          header.classList.add("sx__week-grid__date--selected-soft");
+        }
+      }
+    });
+  }, [selectedDate]);
+
+  const customComponents = useMemo(
+    () => ({
+      timeGridEvent: UniversityTimeGridEvent,
+    }),
+    [],
+  );
+
+  if (!calendar) {
+    return (
+      <div className="university-calendar-wrapper rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
+        <div className="mb-3">
+          <h3 className="text-sm font-semibold text-[var(--app-fg)]">
+            Calendario semanal
+          </h3>
+        </div>
+        <div
+          className="flex items-center justify-center rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)]"
+          style={{ height: CALENDAR_HEIGHT, minHeight: CALENDAR_MIN_HEIGHT }}
+        >
+          <span className="text-sm text-[var(--app-fg-muted)]">
+            Cargando calendario...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="university-calendar-wrapper rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
+    <div
+      className={cn(
+        "university-calendar-wrapper rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4",
+        drawerOpen && "university-calendar-drawer-open",
+      )}
+    >
       <div className="mb-3">
         <h3 className="text-sm font-semibold text-[var(--app-fg)]">
           Calendario semanal
         </h3>
       </div>
-      <div className="overflow-hidden rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)]">
-        <FullCalendar
-          plugins={[timeGridPlugin, interactionPlugin]}
-          initialView="timeGridWeek"
-          headerToolbar={false}
-          allDaySlot={false}
-          slotDuration="00:30:00"
-          slotMinTime="06:00:00"
-          slotMaxTime="22:00:00"
-          height={520}
-          locale="es"
-          firstDay={1}
-          events={events}
-          eventClick={(info) => {
-            info.jsEvent.preventDefault();
-            onOpenSession(info.event.id);
-          }}
-          dateClick={handleDateClick}
-          eventContent={(arg) => {
-            const { courseName, professor, classroom } = arg.event.extendedProps as {
-              courseName: string;
-              professor: string | null;
-              classroom: string | null;
-            };
-            const lines = [courseName];
-            if (professor) lines.push(professor);
-            if (classroom) lines.push(classroom);
-            return {
-              html: `<div class="university-calendar-event-inner"><div class="university-calendar-event-title">${escapeHtml(courseName)}</div>${professor ? `<div class="university-calendar-event-meta">${escapeHtml(professor)}</div>` : ""}${classroom ? `<div class="university-calendar-event-meta">${escapeHtml(classroom)}</div>` : ""}</div>`,
-            };
-          }}
+      <div
+        ref={calendarRootRef}
+        className="university-sx-calendar-container rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)]"
+        style={{ height: CALENDAR_HEIGHT, minHeight: CALENDAR_MIN_HEIGHT }}
+      >
+        <ScheduleXCalendar
+          calendarApp={calendar}
+          customComponents={customComponents}
         />
       </div>
     </div>
   );
-}
-
-function escapeHtml(text: string): string {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
 }

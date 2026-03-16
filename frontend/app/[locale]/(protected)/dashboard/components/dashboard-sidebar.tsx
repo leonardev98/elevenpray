@@ -19,8 +19,8 @@ import {
   hasInsightsCapability,
   getWorkspaceType,
   getWorkspaceDomain,
-  WORKSPACE_DOMAIN_IDS,
-  type WorkspaceDomainId,
+  WORKSPACE_PARENT_IDS,
+  type WorkspaceParentId,
 } from "../../../../lib/workspace-type-registry";
 import { getSpecialWorkspaceRoute } from "../../../../lib/workspace-special-routes";
 
@@ -57,8 +57,8 @@ export function DashboardSidebar({
   const { workspaces, isLoading, addWorkspace, removeWorkspace, error } = useWorkspaces();
 
   const workspacesByDomain = useMemo(() => {
-    const map = new Map<WorkspaceDomainId, WorkspaceApi[]>();
-    for (const id of WORKSPACE_DOMAIN_IDS) map.set(id, []);
+    const map = new Map<WorkspaceParentId, WorkspaceApi[]>();
+    for (const id of WORKSPACE_PARENT_IDS) map.set(id, []);
     for (const w of workspaces) {
       const domain = getWorkspaceDomain(w.workspaceType);
       map.get(domain)?.push(w);
@@ -215,7 +215,16 @@ export function DashboardSidebar({
                   {tWorkspace("confirmDeleteWorkspaceMessage")}
                 </p>
                 <p className="mt-2 text-sm font-medium text-[var(--app-fg)]">
-                  «{deleteConfirmWorkspace.name || (getWorkspaceType(deleteConfirmWorkspace.workspaceType) ? tTypes(deleteConfirmWorkspace.workspaceType) : deleteConfirmWorkspace.workspaceType)}»
+                  «{(() => {
+                  const def = getWorkspaceType(deleteConfirmWorkspace.workspaceType);
+                  const isDefault =
+                    !deleteConfirmWorkspace.name?.trim() ||
+                    deleteConfirmWorkspace.name === deleteConfirmWorkspace.workspaceType ||
+                    (def?.label != null && deleteConfirmWorkspace.name === def.label);
+                  return isDefault && def
+                    ? tTypes(deleteConfirmWorkspace.workspaceType)
+                    : (deleteConfirmWorkspace.name?.trim() || deleteConfirmWorkspace.workspaceType);
+                })()}»
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <button
@@ -248,7 +257,7 @@ export function DashboardSidebar({
           {isLoading && (
             <p className="px-2 py-4 text-xs text-[var(--app-fg)]/50">{tCommon("loading")}</p>
           )}
-          {WORKSPACE_DOMAIN_IDS.map((domainId) => {
+          {WORKSPACE_PARENT_IDS.map((domainId) => {
             const list = workspacesByDomain.get(domainId) ?? [];
             if (list.length === 0) return null;
             return (
@@ -273,8 +282,18 @@ export function DashboardSidebar({
                           ? `/dashboard/workspaces/${w.id}/routine`
                           : `/dashboard/workspaces/${w.id}`);
                     const typeDef = getWorkspaceType(w.workspaceType);
+                    const isUniversityRoute = specialRoute?.startsWith?.("/workspace/university/");
                     const categoryLabel = typeDef ? tCategories(typeDef.category) : "";
-                    const displayName = w.name?.trim() || (typeDef ? tTypes(w.workspaceType) : w.workspaceType);
+                    const isDefaultName =
+                      !w.name?.trim() ||
+                      w.name === w.workspaceType ||
+                      (typeDef?.label != null && w.name === typeDef.label);
+                    const displayName =
+                      isUniversityRoute
+                        ? tTypes("university")
+                        : isDefaultName
+                          ? (typeDef ? tTypes(w.workspaceType) : w.workspaceType)
+                          : w.name.trim();
                     const isSpecialRoute =
                       specialRoute ? pathname?.startsWith?.(specialRoute) ?? false : false;
                     const isActive =

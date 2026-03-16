@@ -60,9 +60,10 @@ export class AuthService implements OnModuleInit {
     userId: string,
     dto: UpdateProfileDto,
   ): Promise<PublicUser> {
-    const updates: { name?: string; email?: string } = {};
+    const updates: { name?: string; email?: string; avatarUrl?: string | null } = {};
     if (dto.name !== undefined) updates.name = dto.name;
     if (dto.email !== undefined) updates.email = dto.email;
+    if (dto.avatarUrl !== undefined) updates.avatarUrl = dto.avatarUrl ?? null;
     if (Object.keys(updates).length === 0) {
       const user = await this.usersService.findById(userId);
       if (!user) throw new UnauthorizedException('User not found');
@@ -99,6 +100,7 @@ export class AuthService implements OnModuleInit {
       email: user.email,
       name: user.name,
       role: user.role ?? 'user',
+      avatarUrl: user.avatarUrl ?? null,
     };
   }
 
@@ -118,4 +120,5 @@ export interface PublicUser {
   email: string;
   name: string;
   role: 'user' | 'platform_admin';
+  avatarUrl: string | null;
 }
