@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { WorkspaceApi } from "../../../../lib/workspaces-api";
 import { getWorkspaces, createWorkspace, deleteWorkspace } from "../../../../lib/workspaces-api";
 import type { WorkspaceTypeId } from "./topic-types";
@@ -21,6 +22,7 @@ export function WorkspacesProvider({ children, token }: { children: React.ReactN
   const [workspaces, setWorkspaces] = useState<WorkspaceApi[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("workspace");
 
   const refreshWorkspaces = useCallback(async () => {
     if (!token) {
@@ -52,15 +54,16 @@ export function WorkspacesProvider({ children, token }: { children: React.ReactN
       try {
         const created = await createWorkspace(token, name, workspaceType, workspaceSubtypeId);
         setWorkspaces((prev) => [...prev, created]);
-        toast.success("Espacio creado", `"${name}" está listo para usar.`);
+        const displayName = (name?.trim() || created.name?.trim()) || t("spaceUnnamed");
+        toast.success(t("spaceCreatedTitle"), t("spaceCreatedMessage", { name: displayName }));
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Error al crear workspace";
         setError(msg);
-        toast.error("Error al crear espacio", msg);
+        toast.error(t("errorCreateTitle"), msg);
         throw e;
       }
     },
-    [token]
+    [token, t]
   );
 
   const removeWorkspace = useCallback(
@@ -71,16 +74,16 @@ export function WorkspacesProvider({ children, token }: { children: React.ReactN
       setWorkspaces((prev) => prev.filter((w) => w.id !== id));
       try {
         await deleteWorkspace(token, id);
-        toast.success("Espacio eliminado", "El workspace se ha eliminado.");
+        toast.success(t("spaceDeletedTitle"), t("spaceDeletedMessage"));
       } catch (e) {
         setWorkspaces(previous);
         const message = e instanceof Error ? e.message : "Error al eliminar workspace";
         setError(message);
-        toast.error("Error al eliminar", message);
+        toast.error(t("errorDeleteTitle"), message);
         throw e;
       }
     },
-    [token, workspaces]
+    [token, workspaces, t]
   );
 
   return (

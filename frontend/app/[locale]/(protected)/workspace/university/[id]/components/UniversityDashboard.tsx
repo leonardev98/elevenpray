@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { format, formatDistanceToNowStrict } from "date-fns";
-import { es } from "date-fns/locale";
+import { enUS, es } from "date-fns/locale";
+import { useTranslations, useLocale } from "next-intl";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Assignment, ClassSession, UniversityWorkspaceState } from "@/app/lib/study-university/types";
@@ -17,16 +18,6 @@ function HeroMetric({ label, value }: { label: string; value: string | number })
     </div>
   );
 }
-
-const WEEKDAY_LABELS: Record<string, string> = {
-  monday: "Lunes",
-  tuesday: "Martes",
-  wednesday: "Miércoles",
-  thursday: "Jueves",
-  friday: "Viernes",
-  saturday: "Sábado",
-  sunday: "Domingo",
-};
 
 function addMinutes(value: string, minutes: number) {
   const [hour, minute] = value.split(":").map(Number);
@@ -56,6 +47,10 @@ export function UniversityDashboard({
 }) {
   void _onReorderCourses;
   const [focusDuration, setFocusDuration] = useState(45);
+  const t = useTranslations("university");
+  const tDays = useTranslations("days.long");
+  const locale = useLocale() as "es" | "en";
+  const dateFnsLocale = locale === "en" ? enUS : es;
 
   const coursesById = useMemo(
     () => new Map(state.courses.map((course) => [course.id, course])),
@@ -89,11 +84,11 @@ export function UniversityDashboard({
 
   return (
     <div className="space-y-4">
-      <section className="grid grid-cols-2 gap-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-2.5 sm:grid-cols-4">
-        <HeroMetric label="Cursos activos" value={state.stats.activeCourses} />
-        <HeroMetric label="Créditos" value={state.stats.credits} />
-        <HeroMetric label="Tareas pendientes" value={state.stats.pendingAssignments} />
-        <HeroMetric label="Clases hoy" value={state.stats.classesToday} />
+      <section className="grid grid-cols-2 gap-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-2.5 shadow-app-card sm:grid-cols-4">
+        <HeroMetric label={t("activeCourses")} value={state.stats.activeCourses} />
+        <HeroMetric label={t("credits")} value={state.stats.credits} />
+        <HeroMetric label={t("pendingTasks")} value={state.stats.pendingAssignments} />
+        <HeroMetric label={t("classesToday")} value={state.stats.classesToday} />
       </section>
 
       <section className="grid grid-cols-12 gap-4">
@@ -111,10 +106,10 @@ export function UniversityDashboard({
         </div>
 
         <aside className="col-span-12 space-y-3 xl:col-span-4">
-          <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
+          <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3 shadow-app-card">
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[var(--app-fg)]">Clases de hoy</h3>
-              <Button size="sm" onClick={onOpenCreateCourse}>Crear curso</Button>
+              <h3 className="text-sm font-semibold text-[var(--app-fg)]">{t("classesTodaySection")}</h3>
+              <Button size="sm" onClick={() => onOpenCreateCourse()}>{t("createCourse")}</Button>
             </div>
             <div className="space-y-1.5">
               {classesToday.length > 0 ? (
@@ -128,22 +123,22 @@ export function UniversityDashboard({
                     >
                       <div>
                         <p className="text-xs font-semibold text-[var(--app-fg)]">{session.startTime} · {course?.name ?? session.title}</p>
-                        <p className="text-xs text-[var(--app-fg)]/55">{session.classroom ?? "Sin aula"}</p>
+                        <p className="text-xs text-[var(--app-fg)]/55">{session.classroom ?? t("noClassroom")}</p>
                       </div>
-                      <span className="text-[11px] text-[var(--app-navy)]">Abrir</span>
+                      <span className="text-[11px] text-[var(--app-navy)]">{t("open")}</span>
                     </button>
                   );
                 })
               ) : (
                 <div className="rounded-md border border-dashed border-[var(--app-border)] bg-[var(--app-bg)] px-2.5 py-3 text-xs text-[var(--app-fg)]/60">
-                  Hoy no hay clases programadas.
+                  {t("noClassesScheduled")}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
-            <h3 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Próximas entregas</h3>
+          <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3 shadow-app-card">
+            <h3 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">{t("upcomingDeliveries")}</h3>
             <div className="space-y-1.5">
               {pendingAssignments.length > 0 ? (
                 pendingAssignments.slice(0, 5).map((assignment) => {
@@ -152,17 +147,17 @@ export function UniversityDashboard({
                     <div key={assignment.id} className="rounded-md border border-[var(--app-border)] bg-[var(--app-bg)] px-2.5 py-2">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className="text-xs text-[var(--app-fg)]/65">{course?.name ?? "Curso"}</p>
+                          <p className="text-xs text-[var(--app-fg)]/65">{course?.name ?? t("course")}</p>
                           <p className="text-xs font-medium text-[var(--app-fg)]">{assignment.title}</p>
                           <p className="text-[11px] text-[var(--app-fg)]/55">
-                            {formatDistanceToNowStrict(new Date(assignment.deadline), { addSuffix: true, locale: es })}
+                            {formatDistanceToNowStrict(new Date(assignment.deadline), { addSuffix: true, locale: dateFnsLocale })}
                           </p>
                         </div>
                         <button
                           onClick={() => onUpdateAssignmentStatus(assignment.id, "done")}
                           className="text-[11px] text-[var(--app-navy)] hover:underline"
                         >
-                          Done
+                          {t("done")}
                         </button>
                       </div>
                     </div>
@@ -170,14 +165,14 @@ export function UniversityDashboard({
                 })
               ) : (
                 <div className="rounded-md border border-dashed border-[var(--app-border)] bg-[var(--app-bg)] px-2.5 py-3 text-xs text-[var(--app-fg)]/60">
-                  No hay entregas pendientes.
+                  {t("noPendingDeliveries")}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
-            <h3 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Conflictos de horario</h3>
+          <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3 shadow-app-card">
+            <h3 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">{t("scheduleConflicts")}</h3>
             {state.conflicts.length > 0 ? (
               <div className="space-y-2">
                 {state.conflicts.slice(0, 4).map((conflict, index) => (
@@ -188,16 +183,16 @@ export function UniversityDashboard({
                     <div className="flex items-start gap-2">
                       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold">Conflicto de horario detectado</p>
+                        <p className="text-xs font-semibold">{t("conflictDetected")}</p>
                         <p className="mt-0.5 text-[11px]">
                           {conflict.courseName}
                           {" · "}
-                          {WEEKDAY_LABELS[conflict.day] ?? conflict.day}
+                          {tDays(conflict.day as "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday") ?? conflict.day}
                           {" "}
                           {conflict.startTime} — {conflict.endTime}
                         </p>
                         <p className="text-[11px]">
-                          Entra en conflicto con {conflict.conflictingCourseName} ({conflict.conflictingStartTime} — {conflict.conflictingEndTime})
+                          {t("conflictsWith")} {conflict.conflictingCourseName} ({conflict.conflictingStartTime} — {conflict.conflictingEndTime})
                         </p>
                         <Button
                           size="sm"
@@ -211,7 +206,7 @@ export function UniversityDashboard({
                             })
                           }
                         >
-                          Ajustar hora
+                          {t("adjustTime")}
                         </Button>
                       </div>
                     </div>
@@ -219,12 +214,12 @@ export function UniversityDashboard({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-[var(--app-fg)]/60">Sin conflictos detectados.</p>
+              <p className="text-xs text-[var(--app-fg)]/60">{t("noConflicts")}</p>
             )}
           </div>
 
-          <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
-            <h3 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Focus mode</h3>
+          <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3 shadow-app-card">
+            <h3 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">{t("focusMode")}</h3>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -234,9 +229,9 @@ export function UniversityDashboard({
                 value={focusDuration}
                 onChange={(event) => setFocusDuration(Number(event.target.value))}
               />
-              <Button size="sm" onClick={() => onStartFocus(focusDuration)}>Iniciar sesión</Button>
+              <Button size="sm" onClick={() => onStartFocus(focusDuration)}>{t("startSession")}</Button>
             </div>
-            <p className="mt-2 text-[11px] text-[var(--app-fg)]/60">Sesión corta para entrar en flujo.</p>
+            <p className="mt-2 text-[11px] text-[var(--app-fg)]/60">{t("focusShortDescription")}</p>
           </div>
 
           <UniversityCoursesMiniWidget

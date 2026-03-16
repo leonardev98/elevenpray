@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { COURSE_COLOR_CLASSES } from "@/app/lib/study-university/color-tokens";
 import type { ClassSession, Course } from "@/app/lib/study-university/types";
 
@@ -14,11 +15,12 @@ export function UniversityCoursesMiniWidget({
   nextSessionByCourse: Map<string, ClassSession>;
   onOpenSession: (sessionId: string) => void;
 }) {
+  const t = useTranslations("university");
   const visibleCourses = courses.slice(0, 8);
 
   return (
-    <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
-      <h3 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">Cursos</h3>
+    <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-3 shadow-app-card">
+      <h3 className="mb-2 text-sm font-semibold text-[var(--app-fg)]">{t("courses")}</h3>
       <div className="space-y-1.5">
         {visibleCourses.length > 0 ? (
           visibleCourses.map((course) => {
@@ -37,7 +39,7 @@ export function UniversityCoursesMiniWidget({
                   <div className="min-w-0">
                     <p className="truncate text-xs font-medium text-[var(--app-fg)]">{course.name}</p>
                     <p className="text-[11px] text-[var(--app-fg)]/55">
-                      {nextSession ? `${nextSession.sessionDate} · ${nextSession.startTime}` : "Sin próxima clase"}
+                      {nextSession ? `${nextSession.sessionDate} · ${nextSession.startTime}` : t("noNextClass")}
                     </p>
                   </div>
                 </div>
@@ -49,7 +51,7 @@ export function UniversityCoursesMiniWidget({
           })
         ) : (
           <div className="rounded-md border border-dashed border-[var(--app-border)] bg-[var(--app-bg)] px-2.5 py-3 text-xs text-[var(--app-fg)]/60">
-            Aun no hay cursos creados.
+            {t("noCoursesYet")}
           </div>
         )}
       </div>

@@ -204,7 +204,7 @@ export function DashboardSidebar({
               aria-modal="true"
               aria-labelledby="confirm-delete-workspace-title"
             >
-              <div className="w-full max-w-md rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-xl">
+              <div className="w-full max-w-md rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-app-modal">
                 <h2
                   id="confirm-delete-workspace-title"
                   className="text-lg font-semibold text-[var(--app-fg)]"
@@ -305,7 +305,7 @@ export function DashboardSidebar({
                           className={cn(
                             "group relative flex items-center gap-2 rounded-xl py-2 pl-3 pr-2 transition-all duration-150",
                             isActive
-                              ? "bg-[var(--app-navy)]/10"
+                              ? "bg-[var(--app-sidebar-active-bg)]"
                               : "hover:bg-[var(--app-bg)]"
                           )}
                         >

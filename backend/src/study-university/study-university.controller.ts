@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   InternalServerErrorException,
   Param,
   Patch,
@@ -46,6 +47,7 @@ export class StudyUniversityController {
     try {
       return await this.studyUniversityService.upsertConfig(workspaceId, userId, dto);
     } catch (err) {
+      if (err instanceof HttpException) throw err;
       const message = err instanceof Error ? err.message : String(err);
       throw new InternalServerErrorException(message);
     }
@@ -69,6 +71,7 @@ export class StudyUniversityController {
     try {
       return await this.studyUniversityService.createCourse(workspaceId, userId, dto);
     } catch (err) {
+      if (err instanceof HttpException) throw err;
       const message = err instanceof Error ? err.message : String(err);
       throw new InternalServerErrorException(message);
     }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import { createViewWeek } from "@schedule-x/calendar";
+import { useTranslations, useLocale } from "next-intl";
 import "temporal-polyfill/global";
 import "@schedule-x/theme-default/dist/index.css";
 import type { CalendarEvent } from "@schedule-x/calendar";
@@ -132,6 +133,10 @@ export function UniversityWeeklyCalendar({
   onSlotClick?: (date: string, startTime: string, endTime: string) => void;
   drawerOpen?: boolean;
 }) {
+  const t = useTranslations("university");
+  const locale = useLocale() as string;
+  const calendarLocale = locale === "en" ? "en-US" : "es-ES";
+
   const onOpenSessionRef = useRef(onOpenSession);
   const onSlotClickRef = useRef(onSlotClick);
   const calendarRootRef = useRef<HTMLDivElement | null>(null);
@@ -195,7 +200,7 @@ export function UniversityWeeklyCalendar({
     {
       views: [createViewWeek()],
       defaultView: "week",
-      locale: "es-ES",
+      locale: calendarLocale,
       firstDayOfWeek: 1,
       dayBoundaries: { start: "06:00", end: "22:00" },
       weekOptions: { gridStep: 30 },
@@ -223,7 +228,7 @@ export function UniversityWeeklyCalendar({
         },
       },
     },
-    [],
+    [calendarLocale],
   );
 
   useEffect(() => {
@@ -285,7 +290,7 @@ export function UniversityWeeklyCalendar({
       <div className="university-calendar-wrapper rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
         <div className="mb-3">
           <h3 className="text-sm font-semibold text-[var(--app-fg)]">
-            Calendario semanal
+            {t("weeklyCalendar")}
           </h3>
         </div>
         <div
@@ -293,7 +298,7 @@ export function UniversityWeeklyCalendar({
           style={{ height: CALENDAR_HEIGHT, minHeight: CALENDAR_MIN_HEIGHT }}
         >
           <span className="text-sm text-[var(--app-fg-muted)]">
-            Cargando calendario...
+            {t("loadingCalendar")}
           </span>
         </div>
       </div>
@@ -309,7 +314,7 @@ export function UniversityWeeklyCalendar({
     >
       <div className="mb-3">
         <h3 className="text-sm font-semibold text-[var(--app-fg)]">
-          Calendario semanal
+          {t("weeklyCalendar")}
         </h3>
       </div>
       <div

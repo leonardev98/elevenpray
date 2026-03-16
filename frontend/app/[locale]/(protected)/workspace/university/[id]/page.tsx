@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/providers/auth-provider";
 import { CreateCourseModal, type CreateCourseFormValues } from "./components/CreateCourseModal";
 import { UniversityOnboardingWizard } from "./components/UniversityOnboardingWizard";
@@ -10,13 +12,18 @@ import { ClassSessionDetailModal } from "./components/ClassSessionDetailModal";
 import { useStudyUniversity } from "@/app/lib/study-university/hooks";
 import { toast } from "@/app/lib/toast";
 
+const WORKSPACE_NOT_FOUND = /workspace not found/i;
+
 export default function UniversityWorkspacePage() {
   const params = useParams();
+  const router = useRouter();
   const workspaceId = params.id as string;
   const { token } = useAuth();
+  const t = useTranslations("university");
   const university = useStudyUniversity(workspaceId, token);
   const [draftSlot, setDraftSlot] = useState<{ date: string; startTime: string; endTime: string } | null>(null);
   const loadUniversity = university.load;
+  const isWorkspaceNotFound = Boolean(university.error && WORKSPACE_NOT_FOUND.test(university.error));
 
   useEffect(() => {
     void loadUniversity();
@@ -29,6 +36,21 @@ export default function UniversityWorkspacePage() {
         : null,
     [university.selectedSession, university.state.courses],
   );
+
+  if (isWorkspaceNotFound) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] p-8 text-center">
+        <p className="text-lg font-medium text-[var(--app-fg)]">{t("workspaceNotFound")}</p>
+        <p className="text-sm text-[var(--app-fg)]/70">{t("workspaceNotFoundDescription")}</p>
+        <Link
+          href="/dashboard"
+          className="rounded-xl bg-[var(--app-navy)] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+        >
+          {t("backToDashboard")}
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -51,21 +73,31 @@ export default function UniversityWorkspacePage() {
         onComplete={async (payload) => {
           const startDate = payload.startDate?.trim() || undefined;
           const endDate = payload.endDate?.trim() || undefined;
-          await university.upsertConfig({
-            ...payload,
-            startDate,
-            endDate,
-            onboardingCompleted: true,
-            onboardingStep: 3,
-          });
-          await university.createSemester({
-            name: payload.currentSemesterLabel,
-            startDate,
-            endDate,
-            isCurrent: true,
-            creditGoal: payload.creditGoal,
-          });
-          university.setCreateCourseOpen(true);
+          try {
+            await university.upsertConfig({
+              ...payload,
+              startDate,
+              endDate,
+              onboardingCompleted: true,
+              onboardingStep: 3,
+            });
+            await university.createSemester({
+              name: payload.currentSemesterLabel,
+              startDate,
+              endDate,
+              isCurrent: true,
+              creditGoal: payload.creditGoal,
+            });
+            university.setCreateCourseOpen(true);
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            if (WORKSPACE_NOT_FOUND.test(message)) {
+              toast.error(t("workspaceNotFound"), t("workspaceNotFoundDescription"));
+              router.push("/dashboard");
+            } else {
+              toast.error(t("onboarding.saving"), message);
+            }
+          }
         }}
       />
 
@@ -91,10 +123,7 @@ export default function UniversityWorkspacePage() {
           if (canGenerateSessions) {
             await university.generateSessions({ semesterId: currentSemesterId });
           } else if (currentSemesterId) {
-            toast.warning(
-              "Curso creado",
-              "No se generaron sesiones automáticas: el semestre no tiene fechas de inicio y fin configuradas.",
-            );
+            toast.warning(t("courseCreated"), t("noSessionsGenerated"));
           }
         }}
       />

@@ -64,6 +64,7 @@ export function getWellnessTypeIds(): WorkspaceTypeId[] {
 }
 
 export function getWorkspaceTypeForParent(parentId: WorkspaceParentId): WorkspaceTypeId | null {
+  if (parentId === "wellness") return null;
   return PARENT_TO_WORKSPACE_TYPE[parentId] ?? null;
 }
 

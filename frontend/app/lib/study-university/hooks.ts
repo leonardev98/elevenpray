@@ -43,15 +43,19 @@ export function useStudyUniversity(workspaceId: string, token: string | null) {
       setState(data);
       if (!data.config?.onboardingCompleted) setOnboardingOpen(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error loading study workspace");
-      // Mock fallback keeps the UI usable when backend data is not ready yet.
-      setState({
-        ...UNIVERSITY_WORKSPACE_MOCK_STATE,
-        stats: {
-          ...UNIVERSITY_WORKSPACE_MOCK_STATE.stats,
-        },
-      });
-      setOnboardingOpen(true);
+      const message = err instanceof Error ? err.message : "Error loading study workspace";
+      setError(message);
+      // Do not open onboarding for "Workspace not found" — workspace does not exist.
+      const isNotFound = /workspace not found/i.test(message);
+      if (!isNotFound) {
+        setState({
+          ...UNIVERSITY_WORKSPACE_MOCK_STATE,
+          stats: {
+            ...UNIVERSITY_WORKSPACE_MOCK_STATE.stats,
+          },
+        });
+        setOnboardingOpen(true);
+      }
     } finally {
       setLoading(false);
     }

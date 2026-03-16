@@ -36,6 +36,12 @@
   --app-routine-item-border: #e5e7eb;
   --app-slot-am: #e8f0fe;
   --app-slot-pm: #f3e8f6;
+  /* Sombras modo claro: más visibles para modales y superficies elevadas */
+  --app-shadow-modal: 0 20px 40px -12px rgba(160, 160, 170, 0.08), 0 8px 16px -6px rgba(160, 160, 170, 0.06);
+  --app-shadow-input: 0 1px 2px rgba(160, 160, 170, 0.06);
+  --app-shadow-button: 0 1px 4px rgba(160, 160, 170, 0.08);
+  --app-shadow-card: 0 1px 3px rgba(160, 160, 170, 0.06);
+  --app-sidebar-active-bg: #e8eaef;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -92,6 +98,11 @@
   --app-routine-item-border: #1F2937;
   --app-slot-am: #1a2744;
   --app-slot-pm: #2a1f3d;
+  --app-shadow-modal: 0 25px 50px -12px rgba(80, 85, 95, 0.45), 0 12px 24px -8px rgba(80, 85, 95, 0.35);
+  --app-shadow-input: 0 1px 3px rgba(80, 85, 95, 0.3);
+  --app-shadow-button: 0 2px 8px rgba(80, 85, 95, 0.35);
+  --app-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --app-sidebar-active-bg: rgba(79, 140, 255, 0.12);
   --background: #0B0F14;
   --foreground: #E6EDF3;
   --card: #111827;
@@ -142,6 +153,175 @@
 }
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #3A475D;
+}
+
+/* Sombras de app (modales, inputs): usan variables para modo claro/oscuro */
+.shadow-app-modal {
+  box-shadow: var(--app-shadow-modal);
+}
+.shadow-app-input {
+  box-shadow: var(--app-shadow-input);
+}
+.shadow-app-button {
+  box-shadow: var(--app-shadow-button);
+}
+.shadow-app-card {
+  box-shadow: var(--app-shadow-card);
+}
+
+/* Input number con spinner personalizado: ocultar flechas nativas (evitar bloque blanco en dark) */
+.number-input-custom-spinner input[type="number"]::-webkit-inner-spin-button,
+.number-input-custom-spinner input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+  -webkit-appearance: none;
+}
+.number-input-custom-spinner input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Date picker desplegable: aprovecha el bloque rectangular (ancho completo, filas compactas) */
+.date-picker-popover {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  color: var(--app-fg);
+  background: var(--app-surface);
+  min-width: 280px;
+  width: var(--date-picker-width, 280px);
+  box-sizing: border-box;
+  font-size: 0.75rem;
+  overflow: visible;
+  padding: 0.5rem 0.75rem;
+}
+.date-picker-popover .rdp-root {
+  --rdp-accent-color: var(--app-primary);
+  --rdp-accent-background-color: var(--app-primary-soft);
+  --rdp-today-color: var(--app-primary);
+  --rdp-range_start-date-background-color: var(--app-primary);
+  --rdp-range_end-date-background-color: var(--app-primary);
+  /* Ancho: 7 columnas ocupan todo el bloque */
+  --rdp-cell-size: calc((var(--date-picker-width, 280px) - 1.5rem) / 7);
+  --rdp-day-width: var(--rdp-cell-size);
+  --rdp-day_button-width: calc(var(--rdp-cell-size) - 2px);
+  /* Altura compacta para aprovechar el rectángulo sin filas excesivamente altas */
+  --rdp-day-height: min(var(--rdp-cell-size), 28px);
+  --rdp-day_button-height: calc(min(var(--rdp-cell-size), 28px) - 2px);
+  --rdp-nav_button-height: 2rem;
+  --rdp-nav_button-width: 2rem;
+  --rdp-nav-height: 2rem;
+  --rdp-caption-font-size: 0.8125rem;
+  --rdp-dropdown-gap: 0.5rem;
+  --rdp-weekday-padding: 0.125rem 0;
+}
+.date-picker-popover .rdp-months {
+  width: 100%;
+  max-width: 100%;
+}
+.date-picker-popover .rdp-month_grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.date-picker-popover .rdp-day {
+  width: var(--rdp-day-width);
+  height: var(--rdp-day-height);
+  padding: 0;
+  vertical-align: middle;
+  text-align: center;
+  box-sizing: border-box;
+}
+.date-picker-popover .rdp-root * {
+  color: inherit;
+  font-family: inherit;
+}
+/* Flechas de navegación más grandes */
+.date-picker-popover .rdp-chevron {
+  fill: var(--app-fg);
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.date-picker-popover .rdp-day_button:hover {
+  background: var(--app-highlight);
+  color: var(--app-fg);
+}
+/* Bloques de mes y año a la izquierda */
+.date-picker-popover .rdp-month_caption {
+  font-size: var(--rdp-caption-font-size);
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  gap: var(--rdp-dropdown-gap);
+}
+/* Desplegables de mes/año: mes con espacio para nombres largos (ej. Septiembre), año compacto */
+.date-picker-popover select,
+.date-picker-popover .rdp-dropdown_root {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--app-fg);
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: 0.3125rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  min-height: 1.75rem;
+  flex: 0 0 auto;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.date-picker-popover .rdp-dropdown_root select {
+  width: 100%;
+  min-width: 0;
+}
+/* Mes: ancho que se adapta al texto del mes (el bloque sigue al CaptionLabel) */
+.date-picker-popover .rdp-dropdown_root:first-of-type {
+  width: fit-content;
+  min-width: 3.5rem;
+  max-width: 12rem;
+}
+/* Año: bloque compacto */
+.date-picker-popover .rdp-dropdown_root:last-of-type {
+  min-width: 4rem;
+  max-width: 5.5rem;
+}
+.date-picker-popover .rdp-dropdowns {
+  gap: var(--rdp-dropdown-gap);
+  flex: 0 0 auto;
+  min-width: 0;
+  justify-content: flex-start;
+}
+/* Ligera separación entre cabecera y días de la semana */
+.date-picker-popover .rdp-weekdays {
+  margin-top: 0.5rem;
+}
+.date-picker-popover .rdp-weekdays th,
+.date-picker-popover .rdp-weekday {
+  font-size: 0.8125rem;
+  opacity: 0.85;
+  padding: 0.125rem 0;
+  text-align: center;
+}
+.date-picker-popover .rdp-week {
+  line-height: 1;
+}
+.date-picker-popover .rdp-day_button {
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 0.875rem;
+}
+/* Día seleccionado: mismo tamaño de número que el resto y círculo (no óvalo) */
+.date-picker-popover .rdp-selected {
+  font-weight: normal;
+  font-size: inherit;
+}
+.date-picker-popover .rdp-selected .rdp-day_button {
+  width: calc(min(var(--rdp-cell-size), 28px) - 2px);
+  height: calc(min(var(--rdp-cell-size), 28px) - 2px);
+  border-radius: 50%;
 }
 
 /* Toasts (Sileo): paleta del sistema — tema claro: azul marino; tema oscuro: blanco */
