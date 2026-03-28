@@ -11,7 +11,7 @@ export function getAuthHeaders(token: string | null): HeadersInit {
 }
 
 export async function fetchHealth(): Promise<{ status: string; message: string }> {
-  const res = await fetch(`${baseUrl}/`, { cache: "no-store" });
+  const res = await fetch(`${baseUrl}/health`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al conectar con el backend");
   return res.json();
 }

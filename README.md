@@ -1,17 +1,16 @@
 # ElevenPray
 
-App de rutinas semanales (estilo Notion) con **frontend** (Next.js) y **backend** (NestJS). La base de datos está en Supabase (PostgreSQL). Pensado para clonar y trabajar en equipo.
+App de rutinas semanales (estilo Notion) con **frontend** (Next.js), **app móvil** (Expo / React Native) y **backend** (NestJS). La base de datos está en Supabase (PostgreSQL). Pensado para clonar y trabajar en equipo.
 
-**Frontend y backend son independientes:** no hay `package.json` en la raíz. Cada uno instala y corre en su carpeta (`frontend/` o `backend/`). Tras un `git pull`, basta con `cd frontend && npm install && npm run dev` (y lo mismo en `backend/`) sin instalar nada en la raíz.
+**Cada app tiene su propia carpeta y `package.json`:** no hay `package.json` en la raíz. Tras un `git pull`, instala y ejecuta en `frontend/`, `backend/` y, si trabajas en móvil, en `mobile/`.
 
 ## Arquitectura
 
 ```
-Frontend (Next.js, puerto 3000)
-        ↓
-Backend API (NestJS, puerto 8080)
-        ↓
-Supabase PostgreSQL
+Frontend web (Next.js, puerto 3000) ──┐
+App móvil (Expo) ─────────────────────┼──→ Backend API (NestJS, puerto 8080)
+                                      ↓
+                            Supabase PostgreSQL
 ```
 
 El frontend **nunca** se conecta a la base de datos; todo pasa por el backend.
@@ -24,6 +23,7 @@ El frontend **nunca** se conecta a la base de datos; todo pasa por el backend.
 | `backend/`  | API NestJS. Auth JWT, usuarios, rutinas. |
 | `database/` | **Migraciones SQL** del schema. Necesarias para que el backend funcione. |
 | `docs/`     | Documentación (arquitectura, API, diseño, setup). |
+| `mobile/`   | Expo (React Native). Mismo API que el web; ver `mobile/README.md`. |
 
 ## Cómo empezar (desarrollo local)
 
@@ -87,12 +87,34 @@ npm run dev
 
 Abre **http://localhost:3000**. Ya puedes registrarte e iniciar sesión.
 
+### 5. App móvil (opcional)
+
+```bash
+cd mobile
+npm install
+cp .env.example .env
+```
+
+Ajusta `EXPO_PUBLIC_API_URL` en `mobile/.env` (en **Android emulator** suele ser `http://10.0.2.2:8080`; en **iOS Simulator** `http://localhost:8080`). Con el backend ya en marcha:
+
+```bash
+npx expo start
+```
+
+Detalles: [mobile/README.md](mobile/README.md). Web y móvil se **publican por separado**; solo comparten la URL del API en producción.
+
 ## Después de `git pull`
 
 Si tras hacer pull algo falla (p. ej. frontend no arranca o falta un paquete):
 
 ```bash
 cd frontend && npm install && npm run dev
+```
+
+y, si usas la app móvil:
+
+```bash
+cd mobile && npm install && npx expo start
 ```
 
 y en otra terminal, si usas el backend:
@@ -106,7 +128,7 @@ Cada carpeta tiene sus propias dependencias; no hace falta instalar nada en la r
 ## Resumen para tu compañero
 
 - **Sí subas la carpeta `database/`** al repo. Así él puede ejecutar las migraciones en su Supabase (o en el que compartáis) y tener el mismo schema.
-- No necesita tus `.env`: clona el repo, crea su proyecto en Supabase (o usa el mismo), ejecuta las migraciones, rellena su propio `backend/.env` y `frontend/.env.local`, y corre backend y frontend. Cero dependencias de tu máquina.
+- No necesita tus `.env`: clona el repo, crea su proyecto en Supabase (o usa el mismo), ejecuta las migraciones, rellena su propio `backend/.env`, `frontend/.env.local` y, si usa móvil, `mobile/.env` (desde `mobile/.env.example`). Cero dependencias de tu máquina.
 
 ## Variables de entorno
 
@@ -114,8 +136,9 @@ Cada carpeta tiene sus propias dependencias; no hace falta instalar nada en la r
 |----------|---------------|-----------------|
 | Backend  | `backend/.env` | `DATABASE_URL`, `JWT_SECRET` |
 | Frontend | `frontend/.env.local` | `NEXT_PUBLIC_API_URL` |
+| Móvil    | `mobile/.env` | `EXPO_PUBLIC_API_URL` |
 
-Detalles en `backend/README.md` y `frontend/README.md`.
+Detalles en `backend/README.md`, `frontend/README.md` y `mobile/README.md`.
 
 ## Build para producción
 
@@ -124,4 +147,4 @@ cd backend  && npm run build
 cd frontend && npm run build
 ```
 
-Despliega cada parte por separado (p. ej. frontend en Vercel, backend en Railway o Render). En producción configura CORS y las URLs en el frontend según tu dominio.
+Despliega cada parte por separado (p. ej. frontend en Vercel, backend en Railway o Render, builds iOS/Android con [EAS](https://docs.expo.dev/eas/) o stores). En producción configura CORS, HTTPS en el API, y las URLs públicas del API en **web** (`NEXT_PUBLIC_API_URL`) y **móvil** (`EXPO_PUBLIC_API_URL`).

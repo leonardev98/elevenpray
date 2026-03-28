@@ -9,4 +9,10 @@ export class AppController {
   getHello() {
     return this.appService.getHello();
   }
+
+  /** Comprobación explícita (útil detrás de proxies / apps móviles). */
+  @Get('health')
+  health() {
+    return this.appService.getHello();
+  }
 }
