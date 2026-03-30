@@ -1,0 +1,1 @@
+enum RoutineSlot { am, pm }
