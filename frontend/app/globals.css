@@ -77,32 +77,35 @@
 }
 
 .dark {
-  /* Routine editor / modern dark dashboard palette (Linear, Vercel, Notion style) */
-  --app-navy: #4F8CFF;
-  --app-white: #ffffff;
-  --app-bg: #0B0F14;
-  --app-fg: #E6EDF3;
-  --app-fg-secondary: #B4BDC7;
-  --app-fg-muted: #CBD2D9;
-  --app-fg-title: #F1F5F9;
-  --app-surface: #111827;
-  --app-surface-elevated: #1A2233;
-  --app-border: #2A3446;
-  --app-primary: #4F8CFF;
-  --app-primary-hover: #3A78F6;
-  --app-primary-soft: #1F3A70;
-  --app-accent: #1F3A70;
-  --app-highlight: #2A3446;
-  --app-surface-soft: #1A2233;
-  --app-routine-item-bg: #0F1623;
-  --app-routine-item-border: #1F2937;
-  --app-slot-am: #1a2744;
-  --app-slot-pm: #2a1f3d;
-  --app-shadow-modal: 0 25px 50px -12px rgba(80, 85, 95, 0.45), 0 12px 24px -8px rgba(80, 85, 95, 0.35);
-  --app-shadow-input: 0 1px 3px rgba(80, 85, 95, 0.3);
-  --app-shadow-button: 0 2px 8px rgba(80, 85, 95, 0.35);
-  --app-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
-  --app-sidebar-active-bg: rgba(79, 140, 255, 0.12);
+  /* Student companion: Calm / Apple Health inspired — warm dark, soft sage accent */
+  --app-navy: #6eb5a8;
+  --app-navy-muted: #5a9d91;
+  --app-white: #f5f5f4;
+  --app-bg: #121214;
+  --app-fg: #ececea;
+  --app-fg-secondary: #a8a8a4;
+  --app-fg-muted: #787874;
+  --app-fg-title: #f5f5f4;
+  --app-surface: #1c1c1f;
+  --app-surface-elevated: #252528;
+  --app-border: #2e2e32;
+  --app-primary: #6eb5a8;
+  --app-primary-hover: #5ca899;
+  --app-primary-soft: rgba(110, 181, 168, 0.14);
+  --app-accent: rgba(110, 181, 168, 0.2);
+  --app-highlight: #2e2e32;
+  --app-surface-soft: #18181a;
+  --app-routine-item-bg: #1c1c1f;
+  --app-routine-item-border: #2e2e32;
+  --app-slot-am: rgba(110, 181, 168, 0.12);
+  --app-slot-pm: rgba(180, 140, 200, 0.1);
+  --app-radius-card: 1.125rem;
+  --app-radius-lg: 1.25rem;
+  --app-shadow-modal: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
+  --app-shadow-input: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --app-shadow-button: 0 2px 12px rgba(110, 181, 168, 0.15);
+  --app-shadow-card: 0 4px 24px rgba(0, 0, 0, 0.25);
+  --app-sidebar-active-bg: rgba(110, 181, 168, 0.12);
   --background: #0B0F14;
   --foreground: #E6EDF3;
   --card: #111827;
@@ -167,6 +170,72 @@
 }
 .shadow-app-card {
   box-shadow: var(--app-shadow-card);
+}
+
+/* Student shell — warm rounded surfaces */
+.student-card {
+  border-radius: var(--app-radius-card, 1.125rem);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-card);
+}
+.student-card-soft {
+  border-radius: var(--app-radius-card, 1.125rem);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-soft);
+}
+
+/* Calendario — colores por tipo de evento (tema oscuro). Aplica a las vistas semanal y diaria. */
+.schedule-calendar,
+.schedule-week {
+  --schedule-class-bg: rgba(139, 92, 246, 0.18);
+  --schedule-class-border: rgba(167, 139, 250, 0.45);
+  --schedule-class-tag: rgba(139, 92, 246, 0.35);
+  --schedule-class-strong: rgb(167, 139, 250);
+  --schedule-task-bg: rgba(45, 212, 191, 0.15);
+  --schedule-task-border: rgba(94, 234, 212, 0.4);
+  --schedule-task-tag: rgba(45, 212, 191, 0.3);
+  --schedule-task-strong: rgb(94, 234, 212);
+  --schedule-extra-bg: rgba(251, 191, 36, 0.14);
+  --schedule-extra-border: rgba(252, 211, 77, 0.4);
+  --schedule-extra-tag: rgba(251, 191, 36, 0.28);
+  --schedule-extra-strong: rgb(252, 211, 77);
+  --schedule-exam-bg: rgba(248, 113, 113, 0.16);
+  --schedule-exam-border: rgba(252, 165, 165, 0.42);
+  --schedule-exam-tag: rgba(248, 113, 113, 0.32);
+  --schedule-exam-strong: rgb(252, 165, 165);
+}
+
+.schedule-grid-cell {
+  transition: background 120ms ease;
+}
+.schedule-grid-cell:hover {
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+  cursor: cell;
+}
+.schedule-event-block {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--app-border);
+  padding: 6px 8px;
+  text-align: left;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+.schedule-event-block:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+.schedule-event-block::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  background: var(--schedule-strong, var(--app-primary));
 }
 
 /* Input number con spinner personalizado: ocultar flechas nativas (evitar bloque blanco en dark) */

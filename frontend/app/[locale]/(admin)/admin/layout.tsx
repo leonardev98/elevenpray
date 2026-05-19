@@ -24,7 +24,7 @@ export default function AdminLayout({
       return;
     }
     if ((user.role ?? "user") !== "platform_admin") {
-      router.replace("/dashboard");
+      router.replace("/app");
     }
   }, [isLoading, token, user, router]);
 
@@ -92,7 +92,7 @@ export default function AdminLayout({
             {user.name}
           </span>
           <Link
-            href="/dashboard"
+            href="/app"
             className="rounded-lg border border-[var(--app-navy)]/50 px-3 py-2 text-sm text-[var(--app-navy)] hover:bg-[var(--app-navy)]/10"
           >
             Ir a la app

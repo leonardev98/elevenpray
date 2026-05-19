@@ -109,7 +109,7 @@ export function Landing() {
 
   useEffect(() => {
     if (isLoading) return;
-    if (token && user) router.replace("/dashboard");
+    if (token && user) router.replace("/app");
   }, [isLoading, token, user, router]);
 
   // Lenis: scroll suave solo en la landing

@@ -31,7 +31,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const initial: Theme =
       stored && ["light", "dark", "system"].includes(stored)
         ? stored
-        : "system";
+        : "dark";
     setThemeState(initial);
     setMounted(true);
   }, []);

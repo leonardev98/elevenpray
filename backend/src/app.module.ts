@@ -33,6 +33,9 @@ import { S3Module } from './s3/s3.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
+      ...(process.env.DATABASE_URL?.includes('supabase.co')
+        ? { ssl: { rejectUnauthorized: false } }
+        : {}),
       autoLoadEntities: true,
       synchronize: false,
     }),
