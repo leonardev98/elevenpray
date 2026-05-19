@@ -308,17 +308,3 @@ export const MOCK_COMMUNITY: MockCommunityNote[] = [
     likes: 31,
   },
 ];
-
-export const MOCK_WELLBEING_TIMELINE = [
-  { date: "Lun", mood: "🙂", label: "Bien" },
-  { date: "Mar", mood: "😐", label: "Normal" },
-  { date: "Mié", mood: "😟", label: "Medio mal" },
-  { date: "Jue", mood: "🙂", label: "Bien" },
-  { date: "Vie", mood: "😄", label: "Excelente" },
-];
-
-export const MOCK_SELF_HELP = [
-  { id: "h1", title: "Respiración 4-7-8", duration: "3 min", type: "breathing" },
-  { id: "h2", title: "Pausa visual — descanso de pantalla", duration: "5 min", type: "visual" },
-  { id: "h3", title: "Reencuadre ante el bloqueo", duration: "8 min", type: "cognitive" },
-];

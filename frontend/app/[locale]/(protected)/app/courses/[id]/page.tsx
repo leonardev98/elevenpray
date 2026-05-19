@@ -1,64 +1,47 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MOCK_COURSES } from "../../lib/mock-student-data";
-import { ScreenPlaceholder } from "../../components/ScreenPlaceholder";
+import { Link } from "@/i18n/navigation";
+import { getCourseById } from "../../lib/mock-course-data";
+import { CourseDetailHeader } from "../../components/courses/CourseDetailHeader";
+import { CourseTabs } from "../../components/courses/CourseTabs";
 import { StudentPageShell } from "../../components/StudentPageShell";
-import { BookOpen, Layers, Sparkles } from "lucide-react";
 
 export default function StudentCourseDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const t = useTranslations("studentCourses");
-  const course = MOCK_COURSES.find((c) => c.id === id) ?? MOCK_COURSES[0];
+  const course = getCourseById(id);
+
+  if (!course) {
+    return (
+      <StudentPageShell hideTopBar maxWidth="max-w-6xl">
+        <div className="py-20 text-center">
+          <p className="text-lg text-[var(--app-fg)]">{t("courseNotFound")}</p>
+          <Link
+            href="/app/courses"
+            className="mt-4 inline-block text-sm text-[var(--app-primary)] hover:underline"
+          >
+            {t("backToCourses")}
+          </Link>
+        </div>
+      </StudentPageShell>
+    );
+  }
 
   return (
-    <StudentPageShell title={course.name}>
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="mb-6 w-full justify-start rounded-xl bg-[var(--app-surface)] p-1">
-          <TabsTrigger value="overview" className="rounded-lg">
-            {t("tabOverview")}
-          </TabsTrigger>
-          <TabsTrigger value="materials" className="rounded-lg">
-            {t("tabMaterials")}
-          </TabsTrigger>
-          <TabsTrigger value="flashcards" className="rounded-lg">
-            {t("tabFlashcards")}
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview">
-          <div className="student-card space-y-3 p-6">
-            <p className="text-sm text-[var(--app-fg-secondary)]">{course.professor}</p>
-            <p className="text-[var(--app-fg)]">{t("overviewMock")}</p>
-          </div>
-        </TabsContent>
-        <TabsContent value="materials">
-          <ScreenPlaceholder
-            icon={BookOpen}
-            title={t("materialsTitle")}
-            description={t("materialsDesc")}
-            badge={t("comingSoon")}
-          />
-        </TabsContent>
-        <TabsContent value="flashcards">
-          <ScreenPlaceholder
-            icon={Layers}
-            title={t("flashcardsTitle")}
-            description={t("flashcardsDesc")}
-            badge={t("comingSoon")}
-          />
-        </TabsContent>
-      </Tabs>
-      <div className="mt-6">
-        <ScreenPlaceholder
-          icon={Sparkles}
-          title={t("aiTitle")}
-          description={t("aiDesc")}
-          badge={t("comingSoon")}
-        />
-      </div>
+    <StudentPageShell hideTopBar maxWidth="max-w-6xl">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15 }}
+        className="relative"
+      >
+        <CourseDetailHeader course={course} />
+        <CourseTabs course={course} />
+      </motion.div>
     </StudentPageShell>
   );
 }

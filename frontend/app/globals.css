@@ -185,6 +185,20 @@
   background: var(--app-surface-soft);
 }
 
+@keyframes wellbeing-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+
+.wellbeing-breathe-circle {
+  animation: wellbeing-breathe var(--breathe-duration, 4s) ease-in-out infinite;
+}
+
 /* Calendario — colores por tipo de evento (tema oscuro). Aplica a las vistas semanal y diaria. */
 .schedule-calendar,
 .schedule-week {
@@ -236,6 +250,30 @@
   border-top-left-radius: 14px;
   border-bottom-left-radius: 14px;
   background: var(--schedule-strong, var(--app-primary));
+}
+
+/* Cursos — acentos por color (badges, hover, tabs) */
+.course-card {
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.course-day-chip {
+  border-radius: 9999px;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.65rem;
+  color: var(--app-fg-secondary);
+}
+.course-progress-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--app-surface-soft);
+  overflow: hidden;
+}
+.course-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 300ms ease;
 }
 
 /* Input number con spinner personalizado: ocultar flechas nativas (evitar bloque blanco en dark) */
