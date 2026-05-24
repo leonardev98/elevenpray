@@ -9,7 +9,9 @@
       "root": "backend",
       "entrypoint": "src/main.ts",
       "framework": "nestjs",
-      "routePrefix": "/_/backend"
+      "routePrefix": "/_/backend",
+      "installCommand": "npm install",
+      "buildCommand": "npm run build"
     }
   }
 }
