@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { getCoursesForList } from "../lib/mock-course-data";
+import type { MockCourseExtended } from "../lib/mock-course-data";
 import { AddCourseModal } from "../components/courses/AddCourseModal";
 import { CourseCard } from "../components/courses/CourseCard";
 import { CoursesEmptyState } from "../components/courses/CoursesEmptyState";
@@ -12,8 +13,18 @@ import { StudentPageShell } from "../components/StudentPageShell";
 
 export default function StudentCoursesPage() {
   const t = useTranslations("studentCourses");
-  const courses = getCoursesForList();
+  const [courses, setCourses] = useState<MockCourseExtended[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+
+  const refreshCourses = useCallback(() => {
+    setCourses(getCoursesForList());
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      refreshCourses();
+    });
+  }, [refreshCourses]);
 
   return (
     <StudentPageShell>
@@ -47,7 +58,7 @@ export default function StudentCoursesPage() {
         )}
       </motion.div>
 
-      <AddCourseModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <AddCourseModal open={modalOpen} onClose={() => setModalOpen(false)} onSuccess={refreshCourses} />
     </StudentPageShell>
   );
 }

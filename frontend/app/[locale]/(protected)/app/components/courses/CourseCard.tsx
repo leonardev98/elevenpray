@@ -14,25 +14,42 @@ interface CourseCardProps {
 export function CourseCard({ course }: CourseCardProps) {
   const t = useTranslations("studentCourses");
   const styles = getCourseAccentStyles(course.accent);
+  const hex = course.colorHex ?? null;
+  const showProfessor = course.professor && course.professor !== "—";
 
   return (
     <Link
       href={`/app/courses/${course.id}`}
-      className={cn(
-        "course-card student-card flex flex-col p-5 transition",
-        styles.hoverBorder,
-      )}
+      className={cn("course-card student-card flex flex-col p-5 transition", styles.hoverBorder)}
+      style={
+        hex
+          ? {
+              borderLeftWidth: 3,
+              borderLeftStyle: "solid",
+              borderLeftColor: hex,
+            }
+          : undefined
+      }
     >
       <span
         className={cn(
           "inline-block w-fit rounded-lg border px-2.5 py-0.5 text-xs font-semibold",
-          styles.badge,
+          !hex && styles.badge,
         )}
+        style={
+          hex
+            ? {
+                backgroundColor: `${hex}26`,
+                borderColor: hex,
+                color: "rgb(255 255 255 / 0.95)",
+              }
+            : undefined
+        }
       >
         {course.code}
       </span>
       <h3 className="mt-3 text-lg font-semibold text-[var(--app-fg)]">{course.name}</h3>
-      <p className="mt-1 text-sm text-[var(--app-fg-secondary)]">{course.professor}</p>
+      {showProfessor ? <p className="mt-1 text-sm text-[var(--app-fg-secondary)]">{course.professor}</p> : null}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {course.classDays.map((day) => (
           <span key={day} className="course-day-chip">
@@ -41,7 +58,7 @@ export function CourseCard({ course }: CourseCardProps) {
         ))}
       </div>
       <div className="mt-4 space-y-1.5">
-        <CourseProgressBar percent={course.progressPercent} accent={course.accent} />
+        <CourseProgressBar percent={course.progressPercent} accent={course.accent} colorHex={hex} />
         <p className="text-xs text-[var(--app-fg-muted)]">
           {t("weeksProgress", {
             current: course.weeksCurrent,

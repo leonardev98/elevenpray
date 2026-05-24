@@ -55,6 +55,7 @@ export interface Course {
   workspaceId: string;
   semesterId: string | null;
   name: string;
+  code: string | null;
   professor: string | null;
   credits: number | null;
   classroom: string | null;

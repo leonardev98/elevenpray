@@ -1,52 +1,55 @@
 "use client";
 
-import { format } from "date-fns";
-import { enUS, es } from "date-fns/locale";
-import { useLocale, useTranslations } from "next-intl";
-import { MOCK_COURSES, MOCK_TASKS } from "../lib/mock-student-data";
+import { useState } from "react";
 import { StudentPageShell } from "../components/StudentPageShell";
+import { NewTaskModal } from "./components/NewTaskModal";
+import { TasksCalendarView } from "./components/calendar/TasksCalendarView";
+import { TasksKanbanView } from "./components/kanban/TasksKanbanView";
+import { TasksListView } from "./components/list/TasksListView";
+import { TasksPageHeader } from "./components/TasksPageHeader";
+import { TasksSidebar } from "./components/TasksSidebar";
+import type { TaskStatus, TaskViewMode } from "./lib/tasks-mock-data";
 
 export default function StudentTasksPage() {
-  const t = useTranslations("studentTasks");
-  const locale = useLocale() as "es" | "en";
-  const dateFnsLocale = locale === "en" ? enUS : es;
-  const dueSoon = MOCK_TASKS.filter((task) => task.status !== "done");
+  const [viewMode, setViewMode] = useState<TaskViewMode>("list");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalDefaultStatus, setModalDefaultStatus] = useState<TaskStatus>("pending");
+
+  function openModal(status: TaskStatus = "pending") {
+    setModalDefaultStatus(status);
+    setModalOpen(true);
+  }
 
   return (
-    <StudentPageShell title={t("title")}>
-      <section>
-        <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-[var(--app-fg-muted)]">
-          {t("dueSoon")}
-        </h2>
-        <div className="space-y-2">
-          {dueSoon.map((task) => {
-            const course = MOCK_COURSES.find((c) => c.id === task.courseId);
-            return (
-              <div
-                key={task.id}
-                className="student-card flex flex-wrap items-center justify-between gap-2 p-4"
-              >
-                <div>
-                  <p className="font-medium text-[var(--app-fg)]">{task.title}</p>
-                  <p className="text-sm text-[var(--app-fg-secondary)]">
-                    {format(new Date(task.dueDate), "EEEE d MMM", { locale: dateFnsLocale })}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {course && (
-                    <span className={`rounded-lg border px-2 py-0.5 text-xs ${course.color}`}>
-                      {course.code}
-                    </span>
-                  )}
-                  <span className="rounded-full bg-[var(--app-primary-soft)] px-2.5 py-1 text-xs text-[var(--app-primary)]">
-                    {task.status === "in_progress" ? t("inProgress") : t("pending")}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+    <StudentPageShell hideTopBar maxWidth="max-w-7xl">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-[7] space-y-4">
+          <TasksPageHeader
+            viewMode={viewMode}
+            onViewChange={setViewMode}
+            onNewTask={() => openModal("pending")}
+          />
+
+          <div
+            key={viewMode}
+            className="tasks-view-fade"
+          >
+            {viewMode === "list" && <TasksListView />}
+            {viewMode === "kanban" && <TasksKanbanView onAddTask={openModal} />}
+            {viewMode === "calendar" && <TasksCalendarView />}
+          </div>
         </div>
-      </section>
+
+        <div className="min-w-0 flex-[3] shrink-0 lg:sticky lg:top-20">
+          <TasksSidebar />
+        </div>
+      </div>
+
+      <NewTaskModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        defaultStatus={modalDefaultStatus}
+      />
     </StudentPageShell>
   );
 }

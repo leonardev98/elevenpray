@@ -1,14 +1,39 @@
 import { MOCK_COURSES, type MockCourse } from "./mock-student-data";
+import { isMockCoursesEnabled, loadPersistedStudentCourses } from "./student-courses-storage";
+import type { CourseScheduleSlot, StudentCourseStored } from "./student-courses-storage";
+
+export {
+  getCourseClasses,
+  getCourseFlashcards,
+  getCourseQuizHistoryDetailed,
+  QUIZ_ACTIVE_C1,
+  QUIZ_ACTIVE_QUESTIONS_C1,
+} from "./course-detail-rich-mocks";
+export type {
+  MockCourseClassSession,
+  MockFlashcard,
+  MockQuizActive,
+  MockQuizHistoryItem,
+  MockQuizHistoryQuestion,
+  MockQuizQuestion,
+} from "./course-detail-rich-mocks";
 
 export type CourseAccent = "violet" | "teal" | "amber" | "rose" | "sky" | "emerald";
 
 export type MockCourseExtended = MockCourse & {
   accent: CourseAccent;
   classDays: string[];
+  /** Letras en círculos (ej. L, X, V); si falta, la UI acorta el nombre del día. */
+  classDayLetters?: string[];
   progressPercent: number;
   weeksCurrent: number;
   weeksTotal: number;
   streakDays: number;
+  colorHex?: string | null;
+  modality?: string | null;
+  scheduleStart?: string | null;
+  scheduleEnd?: string | null;
+  scheduleSlots?: CourseScheduleSlot[] | null;
 };
 
 export type MockCourseNote = {
@@ -17,6 +42,8 @@ export type MockCourseNote = {
   dateLabel: string;
   preview: string;
   body: string;
+  classLabel?: string;
+  readMinutes?: number;
 };
 
 export type TaskDueStatus = "overdue" | "soon" | "ok";
@@ -25,16 +52,21 @@ export type MockCourseTask = {
   id: string;
   title: string;
   dueDate: string;
-  dueStatus: TaskDueStatus;
+  dueStatus?: TaskDueStatus;
   done: boolean;
+  priority?: "alta" | "media" | "baja";
+  taskStatus?: "pending" | "in_progress" | "completed";
+  description?: string;
+  progressPercent?: number;
 };
 
 export type MockCourseFile = {
   id: string;
-  type: "pdf" | "image";
+  type: "pdf" | "image" | "other";
   name: string;
   size: string;
   uploadedAt: string;
+  classLabel?: string;
 };
 
 export type MockCourseQuiz = {
@@ -45,18 +77,24 @@ export type MockCourseQuiz = {
   date: string;
 };
 
-/** Cambiar a true para probar el estado vacío en la lista */
-export const SHOW_COURSES_EMPTY = false;
+/** Solo desarrollo: `NEXT_PUBLIC_STUDENT_MOCK_COURSES=true` muestra cursos de demo en lugar del almacenamiento local. */
+
+function persistedToExtended(c: StudentCourseStored): MockCourseExtended {
+  return { ...c, accent: c.accent as CourseAccent };
+}
 
 export const MOCK_COURSES_EXTENDED: MockCourseExtended[] = [
   {
     ...MOCK_COURSES[0],
     accent: "teal",
     classDays: ["Lunes", "Miércoles", "Viernes"],
-    progressPercent: 45,
-    weeksCurrent: 6,
+    classDayLetters: ["L", "X", "V"],
+    progressPercent: 18.75,
+    weeksCurrent: 3,
     weeksTotal: 16,
     streakDays: 12,
+    colorHex: "#0D9488",
+    modality: "Presencial",
   },
   {
     ...MOCK_COURSES[1],
@@ -92,29 +130,44 @@ const NOTES_BY_COURSE: Record<string, MockCourseNote[]> = {
     {
       id: "n1",
       title: "Límites y continuidad",
-      dateLabel: "hace 2 días",
+      dateLabel: "hace 3 días",
+      classLabel: "Clase 2",
+      readMinutes: 5,
       preview:
-        "Definición formal de límite. Teorema del sándwich y continuidad en intervalos cerrados…",
+        "Los límites son fundamentales para entender el cálculo. Cuando x se aproxima a un valor, estudiamos el comportamiento de f(x) sin necesidad de evaluar exactamente en ese punto…",
       body:
-        "Definición formal de límite:\n\nlim(x→a) f(x) = L significa que para todo ε > 0 existe δ > 0 tal que si 0 < |x - a| < δ entonces |f(x) - L| < ε.\n\nTeorema del sándwich: si g(x) ≤ f(x) ≤ h(x) y lim g = lim h = L, entonces lim f = L.",
+        "Los límites son fundamentales para entender el cálculo. Cuando x se aproxima a un valor, estudiamos el comportamiento de f(x) sin necesidad de evaluar exactamente en ese punto.\n\nDefinición formal: lim(x→a) f(x) = L si para todo ε > 0 existe δ > 0…",
     },
     {
       id: "n2",
-      title: "Derivadas — reglas básicas",
-      dateLabel: "hace 5 días",
+      title: "Derivadas — regla de la cadena",
+      dateLabel: "hace 1 día",
+      classLabel: "Clase 4",
+      readMinutes: 5,
       preview:
-        "Regla del producto, cociente y cadena. Ejemplos con funciones trigonométricas…",
+        "La regla de la cadena se aplica cuando tenemos funciones compuestas del tipo f(g(x)). La derivada es el producto de la derivada exterior evaluada en g(x) por la derivada interior…",
       body:
-        "Regla del producto: (fg)' = f'g + fg'\nRegla del cociente: (f/g)' = (f'g - fg') / g²\nRegla de la cadena: (f∘g)' = f'(g(x)) · g'(x)",
+        "La regla de la cadena se aplica cuando tenemos funciones compuestas del tipo f(g(x)). La derivada es f'(g(x)) · g'(x).\n\nEjemplo: si h(x) = (x² + 1)³, entonces h'(x) = 3(x² + 1)² · 2x.",
     },
     {
       id: "n3",
-      title: "Integrales definidas",
-      dateLabel: "hace 1 semana",
+      title: "Integrales por partes",
+      dateLabel: "hace 2 horas",
+      classLabel: "Clase 6",
+      readMinutes: 5,
       preview:
-        "Teorema fundamental del cálculo. Partes 1 y 2. Área bajo la curva…",
+        "La fórmula de integración por partes es: ∫u dv = uv - ∫v du. Se usa cuando el integrando es un producto de dos funciones de distinta naturaleza (algebraica y transcendente, por ejemplo)…",
       body:
-        "Teorema fundamental del cálculo:\n\nSi F es una antiderivada de f en [a,b], entonces ∫ₐᵇ f(x)dx = F(b) - F(a).",
+        "La fórmula de integración por partes es: ∫u dv = uv - ∫v du. Se usa cuando el integrando es producto de dos funciones distintas.\n\nElegir u y dv sigue la regla LIATE para priorizar u.",
+    },
+    {
+      id: "n4",
+      title: "Repaso antes del parcial",
+      dateLabel: "hace 5 días",
+      classLabel: "Clase 1",
+      readMinutes: 3,
+      preview: "Resumen de funciones elementales y propiedades básicas del límite…",
+      body: "Repaso rápido: dominio, imagen, composición y funciones inversas.",
     },
   ],
   c2: [
@@ -190,10 +243,43 @@ const NOTES_BY_COURSE: Record<string, MockCourseNote[]> = {
 
 const TASKS_BY_COURSE: Record<string, MockCourseTask[]> = {
   c1: [
-    { id: "t1", title: "Entrega PC2 — Integrales", dueDate: "15 may", dueStatus: "overdue", done: true },
-    { id: "t2", title: "Ejercicios cap. 5 (pág. 120-135)", dueDate: "20 may", dueStatus: "soon", done: true },
-    { id: "t3", title: "Leer sílabo unidad 6", dueDate: "22 may", dueStatus: "ok", done: false },
-    { id: "t4", title: "Preparar exposición grupal", dueDate: "28 may", dueStatus: "ok", done: false },
+    {
+      id: "t1",
+      title: "Entrega PC2 — Integrales",
+      dueDate: "mié 20 may",
+      done: false,
+      priority: "alta",
+      taskStatus: "pending",
+      description: "Resolver la práctica calificada sobre integrales definidas e indefinidas.",
+    },
+    {
+      id: "t2",
+      title: "Proyecto final — Derivadas",
+      dueDate: "vie 30 may",
+      done: false,
+      priority: "alta",
+      taskStatus: "in_progress",
+      progressPercent: 40,
+      description: "Aplicación de derivadas a un problema de optimización con informe escrito.",
+    },
+    {
+      id: "t3",
+      title: "Taller de límites",
+      dueDate: "dom 18 may",
+      done: true,
+      priority: "media",
+      taskStatus: "completed",
+      description: "Ejercicios guiados en clase sobre límites laterales.",
+    },
+    {
+      id: "t4",
+      title: "Quiz capítulo 3",
+      dueDate: "jue 22 may",
+      done: false,
+      priority: "media",
+      taskStatus: "pending",
+      description: "Evaluación corta sobre continuidad y teorema del valor intermedio.",
+    },
   ],
   c2: [
     { id: "t1", title: "Informe laboratorio 4", dueDate: "18 may", dueStatus: "overdue", done: false },
@@ -217,9 +303,38 @@ const TASKS_BY_COURSE: Record<string, MockCourseTask[]> = {
 
 const FILES_BY_COURSE: Record<string, MockCourseFile[]> = {
   c1: [
-    { id: "f1", type: "pdf", name: "Sílabo_Calculo_I.pdf", size: "2.4 MB", uploadedAt: "12 abr" },
-    { id: "f2", type: "pdf", name: "PC2_Enunciado.pdf", size: "890 KB", uploadedAt: "5 may" },
-    { id: "f3", type: "image", name: "Grafico_limites.png", size: "340 KB", uploadedAt: "10 may" },
+    {
+      id: "f1",
+      type: "pdf",
+      name: "Silabo_Matematica_2026.pdf",
+      size: "1.2 MB",
+      uploadedAt: "subido hace 3 semanas",
+      classLabel: "Clase 1",
+    },
+    {
+      id: "f2",
+      type: "pdf",
+      name: "Ejercicios_Limites.pdf",
+      size: "3.4 MB",
+      uploadedAt: "subido hace 2 semanas",
+      classLabel: "Clase 2",
+    },
+    {
+      id: "f3",
+      type: "image",
+      name: "Formula_Derivadas.png",
+      size: "890 KB",
+      uploadedAt: "subido hace 1 semana",
+      classLabel: "Clase 3",
+    },
+    {
+      id: "f4",
+      type: "pdf",
+      name: "Apuntes_Integrales.pdf",
+      size: "2.1 MB",
+      uploadedAt: "subido ayer",
+      classLabel: "Clase 6",
+    },
   ],
   c2: [
     { id: "f1", type: "pdf", name: "Lab4_Protocolo.pdf", size: "1.1 MB", uploadedAt: "8 may" },
@@ -240,8 +355,9 @@ const FILES_BY_COURSE: Record<string, MockCourseFile[]> = {
 
 const QUIZZES_BY_COURSE: Record<string, MockCourseQuiz[]> = {
   c1: [
-    { id: "q1", title: "Quiz: Derivadas básicas", status: "completed", score: "8/10", date: "10 may" },
-    { id: "q2", title: "Quiz: Límites", status: "pending", date: "22 may" },
+    { id: "q1", title: "Quiz: Límites básicos", status: "completed", score: "9/10", date: "hace 1 semana" },
+    { id: "q2", title: "Quiz: Derivadas", status: "completed", score: "7/10", date: "hace 3 días" },
+    { id: "q3", title: "Quiz capítulo 6", status: "completed", score: "4/10", date: "hace 1 día" },
   ],
   c2: [
     { id: "q1", title: "Quiz: Cinemática", status: "completed", score: "9/10", date: "8 may" },
@@ -257,28 +373,28 @@ const QUIZZES_BY_COURSE: Record<string, MockCourseQuiz[]> = {
   ],
 };
 
-const DEFAULT_COURSE_ID = "c1";
-
 export function getCoursesForList(): MockCourseExtended[] {
-  return SHOW_COURSES_EMPTY ? [] : MOCK_COURSES_EXTENDED;
+  if (isMockCoursesEnabled()) return MOCK_COURSES_EXTENDED;
+  return loadPersistedStudentCourses().map(persistedToExtended);
 }
 
 export function getCourseById(id: string): MockCourseExtended | undefined {
-  return MOCK_COURSES_EXTENDED.find((c) => c.id === id);
+  if (isMockCoursesEnabled()) return MOCK_COURSES_EXTENDED.find((c) => c.id === id);
+  return loadPersistedStudentCourses().map(persistedToExtended).find((c) => c.id === id);
 }
 
 export function getCourseNotes(courseId: string): MockCourseNote[] {
-  return NOTES_BY_COURSE[courseId] ?? NOTES_BY_COURSE[DEFAULT_COURSE_ID];
+  return NOTES_BY_COURSE[courseId] ?? [];
 }
 
 export function getCourseTasks(courseId: string): MockCourseTask[] {
-  return TASKS_BY_COURSE[courseId] ?? TASKS_BY_COURSE[DEFAULT_COURSE_ID];
+  return TASKS_BY_COURSE[courseId] ?? [];
 }
 
 export function getCourseFiles(courseId: string): MockCourseFile[] {
-  return FILES_BY_COURSE[courseId] ?? FILES_BY_COURSE[DEFAULT_COURSE_ID];
+  return FILES_BY_COURSE[courseId] ?? [];
 }
 
 export function getCourseQuizzes(courseId: string): MockCourseQuiz[] {
-  return QUIZZES_BY_COURSE[courseId] ?? QUIZZES_BY_COURSE[DEFAULT_COURSE_ID];
+  return QUIZZES_BY_COURSE[courseId] ?? [];
 }

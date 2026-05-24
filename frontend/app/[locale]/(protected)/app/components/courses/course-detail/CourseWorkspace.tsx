@@ -1,0 +1,157 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import {
+  getCourseClasses,
+  getCourseFiles,
+  getCourseFlashcards,
+  getCourseNotes,
+  getCourseQuizHistoryDetailed,
+  getCourseTasks,
+  type MockCourseExtended,
+  type MockCourseTask,
+  type MockFlashcard,
+} from "../../../lib/mock-course-data";
+import { CourseAiDrawer } from "./CourseAiDrawer";
+import { CourseAiFab } from "./CourseAiFab";
+import { CourseDetailHeaderRedesign } from "./CourseDetailHeaderRedesign";
+import { CourseDetailTabBar, type CourseTabId } from "./CourseDetailTabBar";
+import { ApuntesTab } from "./tabs/ApuntesTab";
+import { ArchivosTab } from "./tabs/ArchivosTab";
+import { ClasesTab } from "./tabs/ClasesTab";
+import { FlashcardsTab } from "./tabs/FlashcardsTab";
+import { QuizzesTab } from "./tabs/QuizzesTab";
+import { TareasTab } from "./tabs/TareasTab";
+
+const TAB_MOTION = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.15 },
+};
+
+const IA_EASE = "[transition-timing-function:cubic-bezier(0.16,1,0.3,1)]";
+
+interface CourseWorkspaceProps {
+  course: MockCourseExtended;
+}
+
+export function CourseWorkspace({ course }: CourseWorkspaceProps) {
+  const [tabActivo, setTabActivo] = useState<CourseTabId>("apuntes");
+  const [panelIA, setPanelIA] = useState(false);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [modoEstudioFlashcards, setModoEstudioFlashcards] = useState(false);
+  const [flashcards, setFlashcards] = useState<MockFlashcard[]>(() => getCourseFlashcards(course.id));
+
+  useEffect(() => {
+    // Sincronizar con mocks al cambiar de curso (estado local solo en sesión).
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset explícito al cambiar course.id
+    setFlashcards(getCourseFlashcards(course.id));
+  }, [course.id]);
+
+  const handleAddFlashcard = useCallback((card: MockFlashcard) => {
+    setFlashcards((prev) => [{ ...card, nueva: true }, ...prev]);
+  }, []);
+
+  const handleFlashcardNuevaEnd = useCallback((id: string) => {
+    setFlashcards((prev) => prev.map((c) => (c.id === id ? { ...c, nueva: undefined } : c)));
+  }, []);
+
+  const notes = useMemo(() => getCourseNotes(course.id), [course.id]);
+  const tasks = useMemo(() => getCourseTasks(course.id), [course.id]);
+  const files = useMemo(() => getCourseFiles(course.id), [course.id]);
+  const classes = useMemo(() => getCourseClasses(course.id), [course.id]);
+  const quizHistory = useMemo(() => getCourseQuizHistoryDetailed(course.id), [course.id]);
+
+  const stats = useMemo(() => {
+    const tareasCompletadas = tasks.filter((t: MockCourseTask) => {
+      if (t.taskStatus === "completed") return true;
+      return t.done;
+    }).length;
+    return {
+      apuntes: notes.length,
+      archivos: files.length,
+      flashcards: flashcards.length,
+      tareasCompletadas,
+    };
+  }, [notes.length, files.length, flashcards.length, tasks]);
+
+  return (
+    <>
+      <div
+        className={cn(
+          "flex w-full min-w-0 flex-col text-[var(--app-fg)] lg:flex-row lg:items-stretch",
+          panelIA && "lg:gap-0",
+        )}
+      >
+        <div
+          className={cn(
+            "min-w-0 flex-1 transition-[max-width] duration-[280ms] lg:max-w-none",
+            IA_EASE,
+            panelIA ? "lg:max-w-[calc(100%-380px)]" : "lg:max-w-full",
+          )}
+        >
+          <CourseDetailHeaderRedesign course={course} stats={stats} />
+
+          <CourseDetailTabBar course={course} tabActivo={tabActivo} onTabChange={setTabActivo} />
+
+          <div className="mt-6 min-h-[320px]">
+            <AnimatePresence mode="wait">
+              <motion.div key={tabActivo} {...TAB_MOTION}>
+                {tabActivo === "apuntes" && (
+                  <ApuntesTab
+                    course={course}
+                    notes={notes}
+                    selectedNoteId={selectedNoteId}
+                    onSelectNote={setSelectedNoteId}
+                  />
+                )}
+                {tabActivo === "clases" && <ClasesTab course={course} classes={classes} />}
+                {tabActivo === "tareas" && <TareasTab course={course} tasks={tasks} />}
+                {tabActivo === "archivos" && <ArchivosTab course={course} files={files} />}
+                {tabActivo === "flashcards" && (
+                  <FlashcardsTab
+                    course={course}
+                    cards={flashcards}
+                    studyOpen={modoEstudioFlashcards}
+                    onStudyOpen={setModoEstudioFlashcards}
+                    onAddFlashcard={handleAddFlashcard}
+                    onFlashcardNuevaEnd={handleFlashcardNuevaEnd}
+                  />
+                )}
+                {tabActivo === "quizzes" && <QuizzesTab course={course} history={quizHistory} />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {panelIA ? (
+          <button
+            type="button"
+            className="fixed inset-0 z-[120] bg-black/60 lg:hidden"
+            aria-label="Cerrar asistente"
+            onClick={() => setPanelIA(false)}
+          />
+        ) : null}
+
+        <div
+          className={cn(
+            "z-[130] flex max-h-[100dvh] w-[380px] max-w-[100vw] shrink-0 flex-col transition-[transform,width] duration-[280ms]",
+            IA_EASE,
+            "fixed inset-y-0 right-0 lg:static lg:inset-auto lg:h-auto lg:max-h-none",
+            panelIA
+              ? "translate-x-0"
+              : "pointer-events-none translate-x-full lg:translate-x-0 lg:pointer-events-none",
+            panelIA ? "lg:w-[380px] lg:overflow-visible" : "lg:w-0 lg:overflow-hidden",
+          )}
+        >
+          <CourseAiDrawer open={panelIA} onClose={() => setPanelIA(false)} courseName={course.name} />
+        </div>
+      </div>
+
+      <CourseAiFab panelOpen={panelIA} onToggle={() => setPanelIA((p) => !p)} />
+    </>
+  );
+}

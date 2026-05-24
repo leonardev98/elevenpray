@@ -6,15 +6,18 @@ import {
   BookOpen,
   Calendar,
   ClipboardList,
+  CreditCard,
   Heart,
   Home,
   Menu,
   Sparkles,
+  Trophy,
   User,
   Users,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SidebarStreakCompact } from "../gamification/components/SidebarStreakCompact";
 
 const NAV_ITEMS = [
   { href: "/app", key: "home", icon: Home, exact: true },
@@ -22,8 +25,10 @@ const NAV_ITEMS = [
   { href: "/app/courses", key: "courses", icon: BookOpen },
   { href: "/app/tasks", key: "tasks", icon: ClipboardList },
   { href: "/app/wellbeing", key: "wellbeing", icon: Heart },
+  { href: "/app/logros", key: "achievements", icon: Trophy },
   { href: "/app/study", key: "study", icon: Sparkles },
   { href: "/app/community", key: "community", icon: Users },
+  { href: "/app/plan", key: "plan", icon: CreditCard },
   { href: "/app/profile", key: "profile", icon: User },
 ] as const;
 
@@ -85,7 +90,7 @@ export function StudentSidebar({
         )}
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 px-2 pb-4" aria-label={t("label")}>
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-2" aria-label={t("label")}>
         {NAV_ITEMS.map((item) => {
           const { href, key, icon: Icon } = item;
           const exact = "exact" in item ? item.exact : false;
@@ -126,6 +131,27 @@ export function StudentSidebar({
           );
         })}
       </nav>
+
+      <SidebarStreakCompact collapsed={collapsed} />
+
+      <div className="border-t border-[var(--app-border)] px-3 py-4">
+        <Link
+          href="/app"
+          onClick={onCloseMobile}
+          className={cn(
+            "flex items-center gap-2.5",
+            collapsed && "justify-center",
+          )}
+          aria-label="Mitsyy"
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--app-primary-soft)] text-sm font-bold text-[var(--app-primary)]">
+            M
+          </div>
+          {!collapsed && (
+            <span className="text-xs text-[var(--app-fg-muted)]">Mitsyy</span>
+          )}
+        </Link>
+      </div>
     </aside>
   );
 }

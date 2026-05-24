@@ -185,6 +185,146 @@
   background: var(--app-surface-soft);
 }
 
+@keyframes task-alert-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.animate-task-alert {
+  animation: task-alert-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes task-check-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-task-check {
+  animation: task-check-pop 200ms ease-out;
+}
+
+@keyframes tasks-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes streak-circle-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-streak-circle-pop {
+  animation: streak-circle-pop 400ms ease-out forwards;
+}
+
+@keyframes streak-today-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 8px 2px rgba(249, 115, 22, 0.3);
+  }
+}
+
+.animate-streak-today-pulse {
+  animation: streak-today-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes streak-today-pulse-accent {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--app-primary) 40%, transparent);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 8px 2px color-mix(in srgb, var(--app-primary) 30%, transparent);
+  }
+}
+
+.animate-streak-today-pulse-accent {
+  animation: streak-today-pulse-accent 1.5s ease-in-out infinite;
+}
+
+@keyframes streak-count-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-streak-count-pop {
+  animation: streak-count-pop 400ms ease-out;
+}
+
+@keyframes gamification-circle-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-gamification-circle-in {
+  animation: gamification-circle-in 300ms ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes level-trophy-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.animate-level-trophy-pulse {
+  animation: level-trophy-pulse 1.2s ease-in-out infinite;
+}
+
+.tasks-view-fade {
+  animation: tasks-fade-in 150ms ease-out;
+}
+
 @keyframes wellbeing-breathe {
   0%,
   100% {

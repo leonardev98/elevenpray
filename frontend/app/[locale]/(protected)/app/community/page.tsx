@@ -1,43 +1,61 @@
 "use client";
 
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { Users } from "lucide-react";
-import { MOCK_COMMUNITY } from "../lib/mock-student-data";
-import { ScreenPlaceholder } from "../components/ScreenPlaceholder";
+import type { CommunityTab, PostType } from "./community-types";
 import { StudentPageShell } from "../components/StudentPageShell";
-import { Button } from "@/components/ui/button";
+import { CommunityTabs } from "./components/CommunityTabs";
+import { CommunitySidebar } from "./components/CommunitySidebar";
+import { NewPostModal } from "./components/NewPostModal";
+import { FeedTab } from "./components/feed/FeedTab";
+import { QuestionsTab } from "./components/questions/QuestionsTab";
+import { TemplatesTab } from "./components/templates/TemplatesTab";
 
 export default function StudentCommunityPage() {
   const t = useTranslations("studentCommunity");
+  const [activeTab, setActiveTab] = useState<CommunityTab>("feed");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalDefaultType, setModalDefaultType] = useState<PostType>("apunte");
+
+  function openModal(type: PostType = "apunte") {
+    setModalDefaultType(type);
+    setModalOpen(true);
+  }
 
   return (
-    <StudentPageShell title={t("title")}>
-      <ScreenPlaceholder
-        icon={Users}
-        title={t("heroTitle")}
-        description={t("heroDesc")}
-        badge={t("comingSoon")}
-        className="mb-8"
-      />
-      <div className="space-y-3">
-        <h2 className="text-sm font-medium text-[var(--app-fg-secondary)]">{t("previewFeed")}</h2>
-        {MOCK_COMMUNITY.map((note) => (
-          <article key={note.id} className="student-card p-5">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-xs font-medium text-[var(--app-primary)]">{note.course}</p>
-                <p className="mt-1 font-medium text-[var(--app-fg)]">{note.author}</p>
-              </div>
-              <span className="text-xs text-[var(--app-fg-muted)]">{note.university}</span>
-            </div>
-            <p className="mt-3 text-sm text-[var(--app-fg-secondary)]">{note.preview}</p>
-            <p className="mt-3 text-xs text-[var(--app-fg-muted)]">{t("likes", { count: note.likes })}</p>
-          </article>
-        ))}
+    <StudentPageShell title={t("title")} maxWidth="max-w-7xl">
+      <CommunityTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-[7] lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              {activeTab === "feed" && <FeedTab onOpenModal={() => openModal("apunte")} />}
+              {activeTab === "questions" && (
+                <QuestionsTab onOpenModal={(type) => openModal(type)} />
+              )}
+              {activeTab === "templates" && <TemplatesTab />}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className="min-w-0 flex-[3] shrink-0 lg:sticky lg:top-20">
+          <CommunitySidebar />
+        </div>
       </div>
-      <Button type="button" disabled className="mt-6 w-full rounded-xl opacity-60">
-        {t("shareNotes")}
-      </Button>
+
+      <NewPostModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        defaultType={modalDefaultType}
+      />
     </StudentPageShell>
   );
 }

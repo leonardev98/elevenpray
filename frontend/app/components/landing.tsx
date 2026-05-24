@@ -13,6 +13,7 @@ import { AuroraBackground } from "@/components/ui/aurora-background";
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 import { FloatingNav } from "@/components/ui/floating-navbar";
+import { LandingPricingSection } from "./landing-pricing-section";
 
 // Imágenes referenciales Unsplash (productividad, estudios, bienestar, plantillas)
 const UNSPLASH = {
@@ -145,7 +146,7 @@ export function Landing() {
           { name: t("navProduct"), link: "#domains" },
           { name: t("navSolutions"), link: "#testimonials" },
           { name: t("navTemplates"), link: "#plantillas" },
-          { name: t("navPricing"), link: "/register" },
+          { name: t("navPricing"), link: "#pricing" },
         ]}
         rightContent={
           <>
@@ -319,6 +320,8 @@ export function Landing() {
           </div>
         </section>
 
+        <LandingPricingSection />
+
         {/* Plantillas + Tu nueva rutina */}
         <section id="plantillas" className="border-t border-[var(--app-border)] bg-white py-16 dark:bg-[#0d0d0d]">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -389,7 +392,7 @@ export function Landing() {
                 <h4 className="font-semibold text-white dark:text-[var(--app-fg)]">{t("footerProduct")}</h4>
                 <ul className="mt-3 space-y-2 text-sm text-white/80 dark:text-[var(--app-fg)]/80">
                   <li><Link href="/register" className="hover:underline hover:text-white dark:hover:text-[var(--app-fg)]">{t("navTemplates")}</Link></li>
-                  <li><Link href="/register" className="hover:underline hover:text-white dark:hover:text-[var(--app-fg)]">{t("navPricing")}</Link></li>
+                  <li><Link href="#pricing" className="hover:underline hover:text-white dark:hover:text-[var(--app-fg)]">{t("navPricing")}</Link></li>
                 </ul>
               </div>
               <div>

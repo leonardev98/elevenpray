@@ -1,19 +1,37 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getCourseById } from "../../lib/mock-course-data";
-import { CourseDetailHeader } from "../../components/courses/CourseDetailHeader";
-import { CourseTabs } from "../../components/courses/CourseTabs";
+import type { MockCourseExtended } from "../../lib/mock-course-data";
+import { CourseWorkspace } from "../../components/courses/course-detail/CourseWorkspace";
 import { StudentPageShell } from "../../components/StudentPageShell";
 
 export default function StudentCourseDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const t = useTranslations("studentCourses");
-  const course = getCourseById(id);
+  const tCommon = useTranslations("common");
+  const [course, setCourse] = useState<MockCourseExtended | null | undefined>(undefined);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setCourse(getCourseById(id) ?? null);
+    });
+  }, [id]);
+
+  if (course === undefined) {
+    return (
+      <StudentPageShell hideTopBar maxWidth="max-w-6xl">
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <p className="text-sm text-[var(--app-fg-muted)]">{tCommon("loading")}</p>
+        </div>
+      </StudentPageShell>
+    );
+  }
 
   if (!course) {
     return (
@@ -32,15 +50,14 @@ export default function StudentCourseDetailPage() {
   }
 
   return (
-    <StudentPageShell hideTopBar maxWidth="max-w-6xl">
+    <StudentPageShell hideTopBar maxWidth="max-w-7xl">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
         className="relative"
       >
-        <CourseDetailHeader course={course} />
-        <CourseTabs course={course} />
+        <CourseWorkspace course={course} />
       </motion.div>
     </StudentPageShell>
   );

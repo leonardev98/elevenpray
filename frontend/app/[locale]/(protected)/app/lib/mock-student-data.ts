@@ -172,7 +172,7 @@ export const MOCK_SCHEDULE_EVENTS: MockScheduleEvent[] = [
     id: "e13",
     date: dayOffset(-1),
     kind: "class",
-    title: "Cálculo I",
+    title: "Matemática",
     subtitle: "Repaso parcial",
     startTime: "08:00",
     endTime: "10:00",
@@ -180,22 +180,13 @@ export const MOCK_SCHEDULE_EVENTS: MockScheduleEvent[] = [
   },
 ];
 
-export type MockCommunityNote = {
-  id: string;
-  course: string;
-  university: string;
-  author: string;
-  preview: string;
-  likes: number;
-};
-
 export const MOCK_COURSES: MockCourse[] = [
   {
     id: "c1",
-    name: "Cálculo I",
-    code: "MAT101",
+    name: "Matemática",
+    code: "MAT150",
     color: "bg-teal-500/20 text-teal-300 border-teal-500/30",
-    professor: "Dr. García",
+    professor: "Juan",
     pendingTasks: 2,
   },
   {
@@ -228,7 +219,7 @@ export const MOCK_CLASSES_TODAY: MockClassSession[] = [
   {
     id: "s1",
     courseId: "c1",
-    title: "Cálculo I",
+    title: "Matemática",
     startTime: "08:00",
     endTime: "10:00",
     room: "A-204",
@@ -279,32 +270,5 @@ export const MOCK_TASKS: MockTask[] = [
     title: "Quiz capítulo 7",
     dueDate: "2026-05-25",
     status: "pending",
-  },
-];
-
-export const MOCK_COMMUNITY: MockCommunityNote[] = [
-  {
-    id: "n1",
-    course: "Cálculo I — UNI",
-    university: "UNI",
-    author: "Ana R.",
-    preview: "Resumen de integrales por partes para el parcial…",
-    likes: 24,
-  },
-  {
-    id: "n2",
-    course: "Física General — UPC",
-    university: "UPC",
-    author: "Luis M.",
-    preview: "Apuntes clase 12: cinemática rotacional con ejemplos…",
-    likes: 18,
-  },
-  {
-    id: "n3",
-    course: "Programación I — PUCP",
-    university: "PUCP",
-    author: "Carla S.",
-    preview: "Plantilla de estructuras de datos en Python para el TP…",
-    likes: 31,
   },
 ];

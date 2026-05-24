@@ -51,6 +51,7 @@ function normalizeCourse(raw: Record<string, unknown>): Course {
     workspaceId: String(raw.workspaceId ?? raw.workspace_id),
     semesterId: (raw.semesterId ?? raw.semester_id ?? null) as string | null,
     name: String(raw.name ?? ""),
+    code: (raw.code ?? null) as string | null,
     professor: (raw.professor ?? null) as string | null,
     credits: parseNumber(raw.credits),
     classroom: (raw.classroom ?? null) as string | null,

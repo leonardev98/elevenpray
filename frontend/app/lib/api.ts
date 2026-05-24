@@ -1,4 +1,7 @@
-const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const baseUrl =
+  process.env.NEXT_PUBLIC_API_URL ??
+  process.env.NEXT_PUBLIC_BACKEND_URL ??
+  "http://localhost:8080";
 
 export function getBaseUrl() {
   return baseUrl;

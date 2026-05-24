@@ -1,0 +1,64 @@
+"use client";
+
+import { CalendarDays, Columns, List, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { TaskViewMode } from "../lib/tasks-mock-data";
+
+const VIEW_OPTIONS: {
+  id: TaskViewMode;
+  icon: typeof List;
+  tooltip: string;
+}[] = [
+  { id: "list", icon: List, tooltip: "Vista lista" },
+  { id: "kanban", icon: Columns, tooltip: "Vista kanban" },
+  { id: "calendar", icon: CalendarDays, tooltip: "Vista calendario" },
+];
+
+interface TasksPageHeaderProps {
+  viewMode: TaskViewMode;
+  onViewChange: (mode: TaskViewMode) => void;
+  onNewTask: () => void;
+}
+
+export function TasksPageHeader({ viewMode, onViewChange, onNewTask }: TasksPageHeaderProps) {
+  return (
+    <header className="grid grid-cols-1 items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
+      <h1 className="text-2xl font-semibold text-[var(--app-fg)] md:justify-self-start">
+        Tareas
+      </h1>
+
+      <div className="flex items-center justify-center gap-1 justify-self-center rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-1">
+        {VIEW_OPTIONS.map(({ id, icon: Icon, tooltip }) => {
+          const active = viewMode === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              title={tooltip}
+              aria-label={tooltip}
+              aria-pressed={active}
+              onClick={() => onViewChange(id)}
+              className={cn(
+                "rounded-lg p-2 transition-colors duration-150",
+                active
+                  ? "bg-[var(--app-primary-soft)] text-[var(--app-primary)]"
+                  : "text-[var(--app-fg-muted)] hover:text-[var(--app-fg-secondary)]",
+              )}
+            >
+              <Icon className="h-5 w-5" aria-hidden />
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={onNewTask}
+        className="inline-flex items-center justify-center gap-2 justify-self-center rounded-xl bg-[var(--app-primary)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--app-primary-hover)] md:justify-self-end"
+      >
+        <Plus className="h-4 w-4" aria-hidden />
+        Nueva tarea
+      </button>
+    </header>
+  );
+}

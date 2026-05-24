@@ -19,6 +19,9 @@ export class Course {
   name: string;
 
   @Column({ type: 'text', nullable: true })
+  code: string | null;
+
+  @Column({ type: 'text', nullable: true })
   professor: string | null;
 
   @Column({ type: 'numeric', precision: 6, scale: 2, nullable: true })

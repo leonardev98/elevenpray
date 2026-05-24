@@ -2,13 +2,15 @@
 
 import { format } from "date-fns";
 import { enUS, es } from "date-fns/locale";
-import { Flame, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { MOCK_CLASSES_TODAY, MOCK_COURSES, MOCK_TASKS } from "./lib/mock-student-data";
 import { useCheckIn } from "./components/check-in-context";
 import { StudentPageShell } from "./components/StudentPageShell";
+import { DailyXpCard } from "./gamification/components/DailyXpCard";
+import { StreakCard } from "./gamification/components/StreakCard";
 
 export default function StudentHomePage() {
   const t = useTranslations("studentHome");
@@ -26,6 +28,13 @@ export default function StudentHomePage() {
   return (
     <StudentPageShell>
       <div className="space-y-6">
+        <DailyXpCard />
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <StreakCard variant="estudio" staggerOnMount />
+          <StreakCard variant="tareas" staggerOnMount />
+        </div>
+
         {!checkedInToday && (
           <button
             type="button"
@@ -46,12 +55,6 @@ export default function StudentHomePage() {
             <Play className="mr-2 h-4 w-4" />
             {t("startStudy")}
           </Button>
-          <div className="student-card-soft flex items-center gap-2 px-4 py-2.5">
-            <Flame className="h-5 w-5 text-amber-400" aria-hidden />
-            <span className="text-sm text-[var(--app-fg)]">
-              {t("streak", { days: 5 })}
-            </span>
-          </div>
         </div>
 
         <section>

@@ -251,12 +251,14 @@ export class StudyUniversityService {
     dto.schedules.forEach((s) => this.assertValidTimeRange(s.startTime, s.endTime));
 
     const count = await this.courseRepo.count({ where: { workspaceId, userId } });
+    const codeTrimmed = dto.code?.trim();
     const course = await this.courseRepo.save(
       this.courseRepo.create({
         workspaceId,
         userId,
         semesterId: dto.semesterId ?? null,
         name: dto.name,
+        code: codeTrimmed && codeTrimmed.length > 0 ? codeTrimmed : null,
         professor: dto.professor ?? null,
         credits:
           dto.credits !== undefined && Number.isFinite(Number(dto.credits))
