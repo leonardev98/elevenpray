@@ -2,9 +2,10 @@
 
 import { useRef, useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, type Formatters } from "react-day-picker";
 import { Calendar } from "lucide-react";
 import { useLocale } from "next-intl";
+import { format } from "date-fns";
 import { es, enUS, type Locale } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import "react-day-picker/style.css";
@@ -42,16 +43,15 @@ export function DatePicker({
   }, []);
 
   /** Días de la semana con 3 letras (lun, mar, mié…) y mes con mayúscula inicial (Marzo) */
-  const formatters = useMemo(
+  const formatters = useMemo<Partial<Formatters>>(
     () => ({
-      formatWeekdayName: (weekday: Date, _options: unknown, dateLib: { format: (d: Date, fmt: string) => string }) =>
-        dateLib.format(weekday, "ccc"),
-      formatMonthDropdown: (month: Date, dateLib: { format: (d: Date, fmt: string) => string }) => {
-        const name = dateLib.format(month, "LLLL");
+      formatWeekdayName: (weekday) => format(weekday, "ccc", { locale }),
+      formatMonthDropdown: (month) => {
+        const name = format(month, "LLLL", { locale });
         return name.charAt(0).toUpperCase() + name.slice(1);
       },
     }),
-    [],
+    [locale],
   );
 
   useEffect(() => {
