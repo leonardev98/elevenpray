@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Patch, Body, UseGuards } from '@nestjs/common';
-import { AuthService, PublicUser } from './auth.service';
+import { AuthService } from './auth.service';
+import type { PublicUser } from './public-user.interface';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';

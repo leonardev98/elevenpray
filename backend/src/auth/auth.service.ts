@@ -6,6 +6,9 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import type { JwtPayload } from '../common/decorators/current-user.decorator';
+import type { PublicUser } from './public-user.interface';
+
+export type { PublicUser } from './public-user.interface';
 
 const SEED_EMAIL = 'admin@localhost';
 const SEED_PASSWORD = 'admin';
@@ -113,12 +116,4 @@ export class AuthService implements OnModuleInit {
     const h = await this.hashPassword(password);
     return h === hash;
   }
-}
-
-export interface PublicUser {
-  id: string;
-  email: string;
-  name: string;
-  role: 'user' | 'platform_admin';
-  avatarUrl: string | null;
 }
