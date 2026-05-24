@@ -7,11 +7,28 @@
     },
     "backend": {
       "root": "backend",
-      "entrypoint": "dist/main.js",
+      "entrypoint": "vercel.js",
       "framework": "nestjs",
       "routePrefix": "/_/backend",
       "installCommand": "npm ci",
-      "buildCommand": "npm run build"
+      "buildCommand": "npm run build",
+      "includeFiles": [
+        "backend/node_modules/typeorm/**",
+        "backend/node_modules/@nestjs/**",
+        "backend/node_modules/pg/**",
+        "backend/node_modules/pg-*/**",
+        "backend/node_modules/postgres-*/**",
+        "backend/node_modules/reflect-metadata/**",
+        "backend/node_modules/class-transformer/**",
+        "backend/node_modules/class-validator/**",
+        "backend/node_modules/passport/**",
+        "backend/node_modules/passport-jwt/**",
+        "backend/node_modules/rxjs/**",
+        "backend/node_modules/tslib/**",
+        "backend/node_modules/uuid/**",
+        "backend/node_modules/@aws-sdk/**",
+        "backend/node_modules/free-translate/**"
+      ]
     }
   }
 }
