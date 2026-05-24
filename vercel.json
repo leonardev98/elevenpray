@@ -7,6 +7,8 @@
     },
     "backend": {
       "root": "backend",
+      "entrypoint": "src/main.ts",
+      "framework": "nestjs",
       "routePrefix": "/_/backend"
     }
   }
