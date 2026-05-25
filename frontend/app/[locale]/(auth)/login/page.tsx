@@ -78,11 +78,20 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
   const next = getAllowedNext(searchParams.get("next"));
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const router = useRouter();
   const t = useTranslations("auth");
   const tCommon = useTranslations("common");
   const tLanding = useTranslations("landing");
+
+  async function handleGoogleLogin() {
+    try {
+      // Google OAuth flow with NextAuth
+      window.location.href = "/api/auth/signin/google";
+    } catch (err) {
+      toast.error("Error", "No se pudo iniciar sesión con Google");
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -142,7 +151,8 @@ export default function LoginPage() {
                 <button
                   key={id}
                   type="button"
-                  disabled
+                  onClick={id === "google" ? handleGoogleLogin : undefined}
+                  disabled={id !== "google"}
                   aria-label={label}
                   className="flex flex-col items-center gap-1.5 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] py-3 text-[var(--app-fg)]/70 opacity-75 transition hover:border-[var(--app-navy)]/30 hover:bg-[var(--app-navy)]/5 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[var(--app-navy)]/40 focus:ring-offset-2 focus:ring-offset-[var(--app-bg)] disabled:cursor-not-allowed disabled:opacity-70"
                 >
