@@ -78,7 +78,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
   const next = getAllowedNext(searchParams.get("next"));
-  const { login, googleLogin } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
   const t = useTranslations("auth");
   const tCommon = useTranslations("common");

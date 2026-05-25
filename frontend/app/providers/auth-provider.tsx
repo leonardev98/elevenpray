@@ -3,7 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
 import type { PublicUser } from "../lib/auth-api";
-import { login as apiLogin, register as apiRegister, me, googleLogin as apiGoogleLogin } from "../lib/auth-api";
+import { login as apiLogin, register as apiRegister, me } from "../lib/auth-api";
 
 const TOKEN_KEY = "elevenpray_token";
 const USER_KEY = "elevenpray_user";
@@ -14,7 +14,6 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
-  googleLogin: (idToken: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: PublicUser) => void;
   refreshUser: () => Promise<void>;
@@ -113,23 +112,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  const googleLogin = useCallback(async (idToken: string) => {
-    const { accessToken, user: u } = await apiGoogleLogin(idToken);
-    
-    // Store in HttpOnly cookie
-    setCookie(TOKEN_KEY, accessToken, { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/"
-    });
-    
-    localStorage.setItem(USER_KEY, JSON.stringify(u));
-    setToken(accessToken);
-    setUser(u);
-  }, []);
-
   const logout = useCallback(() => {
     deleteCookie(TOKEN_KEY);
     localStorage.removeItem(TOKEN_KEY);
@@ -165,8 +147,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(() => ({
-    user, token, isLoading, login, register, googleLogin, logout, updateUser, refreshUser
-  }), [user, token, isLoading, login, register, googleLogin, logout, updateUser, refreshUser]);
+    user, token, isLoading, login, register, logout, updateUser, refreshUser
+  }), [user, token, isLoading, login, register, logout, updateUser, refreshUser]);
 
   return (
     <AuthContext.Provider value={value}>
