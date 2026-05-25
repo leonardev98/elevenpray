@@ -57,12 +57,6 @@ export function StudentTopBar({ onOpenMenu, title }: StudentTopBarProps) {
           )}
         </div>
       </div>
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-sm font-semibold text-[var(--app-primary)]"
-        aria-hidden
-      >
-        {displayName.charAt(0).toUpperCase()}
-      </div>
     </header>
   );
 }
