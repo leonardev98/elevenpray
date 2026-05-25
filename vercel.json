@@ -30,8 +30,7 @@
         "backend/node_modules/rxjs/**",
         "backend/node_modules/tslib/**",
         "backend/node_modules/uuid/**",
-        "backend/node_modules/@aws-sdk/**",
-        "backend/node_modules/free-translate/**"
+        "backend/node_modules/@aws-sdk/**"
       ]
     }
   }
