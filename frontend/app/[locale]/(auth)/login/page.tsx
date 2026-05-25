@@ -8,6 +8,7 @@ import { useAuth } from "../../../providers/auth-provider";
 import { ThemeToggle } from "../../../components/theme-toggle";
 import { toast } from "../../../lib/toast";
 import { LocaleSwitcher } from "../../../components/locale-switcher";
+import { signIn } from "@/auth";
 
 const MOCK_PROVIDERS = [
   { id: "google", label: "Google" },
@@ -86,8 +87,8 @@ export default function LoginPage() {
 
   async function handleGoogleLogin() {
     try {
-      // Google OAuth flow with NextAuth
-      window.location.href = "/api/auth/signin/google";
+      // Google OAuth flow with NextAuth v5
+      await signIn("google", { callbackUrl: next });
     } catch (err) {
       toast.error("Error", "No se pudo iniciar sesión con Google");
     }
