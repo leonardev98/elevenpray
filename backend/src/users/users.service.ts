@@ -18,15 +18,25 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
 
+  async findByGoogleSub(googleSub: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { googleSub } });
+  }
+
   async create(data: {
     email: string;
     name: string;
-    passwordHash: string;
+    passwordHash?: string | null;
     role?: 'user' | 'platform_admin';
+    googleSub?: string | null;
+    avatarUrl?: string | null;
   }): Promise<User> {
     const user = this.userRepository.create({
-      ...data,
+      email: data.email,
+      name: data.name,
+      passwordHash: data.passwordHash ?? null,
       role: data.role ?? 'user',
+      googleSub: data.googleSub ?? null,
+      avatarUrl: data.avatarUrl ?? null,
     });
     return this.userRepository.save(user);
   }
@@ -36,8 +46,9 @@ export class UsersService {
     data: {
       name?: string;
       email?: string;
-      passwordHash?: string;
+      passwordHash?: string | null;
       avatarUrl?: string | null;
+      googleSub?: string | null;
     },
   ): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
@@ -55,6 +66,7 @@ export class UsersService {
     if (data.name !== undefined) user.name = data.name;
     if (data.passwordHash !== undefined) user.passwordHash = data.passwordHash;
     if (data.avatarUrl !== undefined) user.avatarUrl = data.avatarUrl;
+    if (data.googleSub !== undefined) user.googleSub = data.googleSub;
 
     return this.userRepository.save(user);
   }

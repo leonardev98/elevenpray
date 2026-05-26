@@ -16,14 +16,17 @@ export class User {
   @Column({ type: 'text' })
   name: string;
 
-  @Column({ name: 'password_hash', type: 'text' })
-  passwordHash: string;
+  @Column({ name: 'password_hash', type: 'text', nullable: true })
+  passwordHash: string | null;
 
   @Column({ type: 'text', default: 'user' })
   role: 'user' | 'platform_admin';
 
   @Column({ name: 'avatar_url', type: 'text', nullable: true })
   avatarUrl: string | null;
+
+  @Column({ name: 'google_sub', type: 'text', nullable: true })
+  googleSub: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

@@ -1,5 +1,13 @@
-import { Injectable, UnauthorizedException, ConflictException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  OnModuleInit,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { OAuth2Client } from 'google-auth-library';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
@@ -16,10 +24,19 @@ const SEED_NAME = 'Admin';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
+  private readonly googleClient: OAuth2Client | null;
+  private readonly googleClientId: string | undefined;
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.googleClientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    this.googleClient = this.googleClientId
+      ? new OAuth2Client(this.googleClientId)
+      : null;
+  }
 
   async onModuleInit(): Promise<void> {
     const existing = await this.usersService.findByEmail(SEED_EMAIL);
@@ -47,9 +64,69 @@ export class AuthService implements OnModuleInit {
 
   async login(dto: LoginDto): Promise<{ accessToken: string; user: PublicUser }> {
     const user = await this.usersService.findByEmail(dto.email);
-    if (!user || !(await this.verifyPassword(dto.password, user.passwordHash))) {
+    if (!user || !user.passwordHash) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    const valid = await this.verifyPassword(dto.password, user.passwordHash);
+    if (!valid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const accessToken = this.jwtService.sign(this.payloadFrom(user));
+    return { accessToken, user: this.toPublic(user) };
+  }
+
+  async loginWithGoogle(
+    idToken: string,
+  ): Promise<{ accessToken: string; user: PublicUser }> {
+    if (!this.googleClient || !this.googleClientId) {
+      throw new InternalServerErrorException(
+        'Google login is not configured on this server',
+      );
+    }
+
+    let payload;
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken,
+        audience: this.googleClientId,
+      });
+      payload = ticket.getPayload();
+    } catch {
+      throw new UnauthorizedException('Invalid Google ID token');
+    }
+
+    if (!payload || !payload.sub || !payload.email) {
+      throw new UnauthorizedException('Invalid Google ID token');
+    }
+    if (payload.email_verified === false) {
+      throw new UnauthorizedException('Google email is not verified');
+    }
+
+    const sub = payload.sub;
+    const email = payload.email;
+    const name =
+      payload.name?.trim() || payload.given_name?.trim() || email.split('@')[0];
+    const picture = payload.picture ?? null;
+
+    let user = await this.usersService.findByGoogleSub(sub);
+    if (!user) {
+      const existingByEmail = await this.usersService.findByEmail(email);
+      if (existingByEmail) {
+        user = await this.usersService.update(existingByEmail.id, {
+          googleSub: sub,
+          avatarUrl: existingByEmail.avatarUrl ?? picture,
+        });
+      } else {
+        user = await this.usersService.create({
+          email,
+          name,
+          passwordHash: null,
+          googleSub: sub,
+          avatarUrl: picture,
+        });
+      }
+    }
+
     const accessToken = this.jwtService.sign(this.payloadFrom(user));
     return { accessToken, user: this.toPublic(user) };
   }
@@ -84,7 +161,7 @@ export class AuthService implements OnModuleInit {
     newPassword: string,
   ): Promise<void> {
     const user = await this.usersService.findById(userId);
-    if (!user)
+    if (!user || !user.passwordHash)
       throw new UnauthorizedException('Invalid credentials');
     const valid = await this.verifyPassword(currentPassword, user.passwordHash);
     if (!valid)

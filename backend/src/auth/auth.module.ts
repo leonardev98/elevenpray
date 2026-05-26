@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
+    ConfigModule,
     UsersModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

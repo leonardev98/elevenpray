@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import type { PublicUser } from './public-user.interface';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ProfilePhotoUploadUrlDto } from './dto/profile-photo-upload-url.dto';
@@ -38,6 +39,13 @@ export class AuthController {
     @Body() dto: LoginDto,
   ): Promise<{ accessToken: string; user: PublicUser }> {
     return this.authService.login(dto);
+  }
+
+  @Post('google')
+  async loginWithGoogle(
+    @Body() dto: GoogleLoginDto,
+  ): Promise<{ accessToken: string; user: PublicUser }> {
+    return this.authService.loginWithGoogle(dto.idToken);
   }
 
   @Get('me')

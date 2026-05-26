@@ -79,6 +79,11 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
+  /**
+   * Persiste una sesión ya obtenida (por ejemplo tras intercambiar un
+   * id_token de Google contra el backend) sin volver a llamar al API.
+   */
+  setSession: (token: string, user: PublicUser) => void;
   logout: () => void;
   updateUser: (user: PublicUser) => void;
   refreshUser: () => Promise<void>;
@@ -157,6 +162,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const setSession = useCallback((accessToken: string, u: PublicUser) => {
+    persistSession(accessToken, u);
+    setToken(accessToken);
+    setUser(u);
+  }, []);
+
   const logout = useCallback(() => {
     clearSession();
     setToken(null);
@@ -190,8 +201,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, token, isLoading, login, register, logout, updateUser, refreshUser }),
-    [user, token, isLoading, login, register, logout, updateUser, refreshUser],
+    () => ({
+      user,
+      token,
+      isLoading,
+      login,
+      register,
+      setSession,
+      logout,
+      updateUser,
+      refreshUser,
+    }),
+    [
+      user,
+      token,
+      isLoading,
+      login,
+      register,
+      setSession,
+      logout,
+      updateUser,
+      refreshUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
