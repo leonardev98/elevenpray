@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useFilter } from "react-aria";
 import {
   Button,
@@ -12,7 +12,7 @@ import {
   ListBoxItem,
   Popover,
 } from "react-aria-components";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, PlusCircle } from "lucide-react";
 import type { Key } from "react-aria-components";
 import { cn } from "@/lib/utils";
 import {
@@ -21,7 +21,7 @@ import {
   type StudentOnboardingOption,
 } from "@/data/peru-student-onboarding";
 
-type ComboOption = StudentOnboardingOption | { id: string; label: string; textValue: string };
+type ComboOption = StudentOnboardingOption | { id: string; label: string; textValue: string; shortName?: string };
 
 export function StudentSearchableField({
   id,
@@ -32,6 +32,8 @@ export function StudentSearchableField({
   inputPlaceholder,
   onValueChange,
   isInvalid,
+  errorMessage,
+  icon,
 }: {
   id: string;
   label: string;
@@ -41,6 +43,8 @@ export function StudentSearchableField({
   inputPlaceholder: string;
   onValueChange: (value: string) => void;
   isInvalid?: boolean;
+  errorMessage?: string;
+  icon?: ReactNode;
 }) {
   const { contains } = useFilter({ sensitivity: "base" });
   const [inputValue, setInputValue] = useState("");
@@ -79,16 +83,11 @@ export function StudentSearchableField({
   }, [resolved]);
 
   const showOtherField = selectedKey === STUDENT_ONBOARDING_OTHER_ID;
-  const inputClass = cn(
-    "w-full min-w-0 flex-1 rounded-xl border bg-[var(--app-surface)] px-4 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none transition-colors",
-    isInvalid
-      ? "border-red-500/60 focus:border-red-500/70 focus:ring-2 focus:ring-red-500/20"
-      : "border-[var(--app-border)] focus:border-[var(--app-primary)]/50 focus:ring-2 focus:ring-[var(--app-primary)]/20",
-  );
+  const showError = Boolean(isInvalid && errorMessage);
 
   const listBoxItemClass = ({ isFocused, isSelected }: { isFocused?: boolean; isSelected?: boolean }) =>
     cn(
-      "cursor-pointer px-3 py-2.5 text-sm outline-none transition-colors",
+      "flex cursor-pointer items-center justify-between gap-3 px-3 py-2.5 text-sm outline-none transition-colors",
       isFocused && "bg-[var(--app-primary-soft)] text-[var(--app-fg)]",
       isSelected && !isFocused && "bg-[var(--app-primary)]/10 font-medium text-[var(--app-fg)]",
     );
@@ -124,35 +123,60 @@ export function StudentSearchableField({
         </Label>
         <Group
           className={cn(
-            "flex w-full min-w-0 items-stretch gap-0 overflow-hidden rounded-xl border shadow-sm transition-colors",
+            "flex w-full min-w-0 items-stretch gap-0 overflow-hidden rounded-xl border bg-[var(--app-surface)] shadow-sm transition-colors",
             isInvalid
-              ? "border-red-500/60 ring-red-500/10 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-red-500/20"
+              ? "border-red-500/60 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-red-500/20"
               : "border-[var(--app-border)] has-[[data-focused]]:border-[var(--app-primary)]/50 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-[var(--app-primary)]/20",
           )}
         >
+          {icon && (
+            <div className="flex shrink-0 items-center justify-center pl-3 text-[var(--app-fg-muted)]">
+              {icon}
+            </div>
+          )}
           <Input
             id={id}
             placeholder={inputPlaceholder}
-            className={cn(inputClass, "rounded-r-none border-0 bg-transparent py-3 ring-0 focus:ring-0")}
+            className={cn(
+              "w-full min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none ring-0 focus:ring-0",
+              icon && "pl-2",
+            )}
           />
-          <Button className="flex shrink-0 items-center justify-center border-l border-[var(--app-border)] bg-[var(--app-surface)] px-3 text-[var(--app-fg-muted)] pressed:bg-[var(--app-primary-soft)] outline-none transition-colors">
+          <Button className="flex shrink-0 items-center justify-center border-l border-[var(--app-border)] bg-[var(--app-surface-soft)] px-3 text-[var(--app-fg-muted)] outline-none transition-colors pressed:bg-[var(--app-primary-soft)] hover:text-[var(--app-fg)]">
             <ChevronDown className="size-4" aria-hidden />
           </Button>
         </Group>
         <Popover className="entering:animate-in entering:fade-in-0 entering:zoom-in-95 exiting:animate-out exiting:fade-out-0 exiting:zoom-out-95 min-w-[var(--trigger-width)] max-w-[var(--trigger-width)]">
           <ListBox
             items={items}
-            className="max-h-60 overflow-y-auto rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] py-1 shadow-lg outline-none"
+            className="max-h-72 overflow-y-auto rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] py-1 shadow-lg outline-none"
           >
-            {(item) => (
-              <ListBoxItem
-                id={item.id}
-                textValue={item.textValue}
-                className={({ isFocused, isSelected }) => listBoxItemClass({ isFocused, isSelected })}
-              >
-                {item.label}
-              </ListBoxItem>
-            )}
+            {(item) => {
+              const isOther = item.id === STUDENT_ONBOARDING_OTHER_ID;
+              return (
+                <ListBoxItem
+                  id={item.id}
+                  textValue={item.textValue}
+                  className={({ isFocused, isSelected }) => listBoxItemClass({ isFocused, isSelected })}
+                >
+                  {isOther ? (
+                    <span className="flex items-center gap-2 text-[var(--app-primary)]">
+                      <PlusCircle className="size-4" aria-hidden />
+                      <span>{item.label}</span>
+                    </span>
+                  ) : (
+                    <>
+                      <span className="truncate">{item.label}</span>
+                      {"shortName" in item && item.shortName && (
+                        <span className="ml-2 shrink-0 rounded-md border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--app-fg-secondary)]">
+                          {item.shortName}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </ListBoxItem>
+              );
+            }}
           </ListBox>
         </Popover>
       </ComboBox>
@@ -174,12 +198,24 @@ export function StudentSearchableField({
             onChange={(e) => setOtherDetail(e.target.value)}
             maxLength={120}
             placeholder={otherInputPlaceholder}
-            className={cn(inputClass, "mt-2", !showOtherField && "pointer-events-none")}
+            className={cn(
+              "mt-2 w-full rounded-xl border bg-[var(--app-surface)] px-4 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none transition-colors",
+              isInvalid
+                ? "border-red-500/60 focus:border-red-500/70 focus:ring-2 focus:ring-red-500/20"
+                : "border-[var(--app-border)] focus:border-[var(--app-primary)]/50 focus:ring-2 focus:ring-[var(--app-primary)]/20",
+              !showOtherField && "pointer-events-none",
+            )}
             tabIndex={showOtherField ? 0 : -1}
             aria-hidden={!showOtherField}
           />
         </div>
       </div>
+
+      {showError && (
+        <p className="mt-1.5 text-xs font-medium text-red-500" role="alert">
+          {errorMessage}
+        </p>
+      )}
     </div>
   );
 }

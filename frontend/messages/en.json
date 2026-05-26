@@ -215,13 +215,19 @@
   },
   "onboardingStudent": {
     "title": "Tell us about you",
-    "subtitle": "Your study companion for university life.",
-    "name": "Name",
-    "namePlaceholder": "Your name",
+    "subtitle": "Personalize Mitsyy for your university and major. It only takes a minute.",
+    "welcomeBack": "Hi, {name} 👋",
+    "sectionPersonal": "Personal information",
+    "sectionAcademic": "Academic information",
+    "name": "Full name",
+    "namePlaceholder": "e.g. María Fernández",
+    "nameError": "Please enter your name.",
     "university": "University",
     "universityPlaceholder": "Search by name or acronym…",
+    "universityError": "Select or type your university.",
     "career": "Major",
     "careerPlaceholder": "Search for your major…",
+    "careerError": "Select or type your major.",
     "otherUniversity": "My university is not on the list",
     "otherUniversityPlaceholder": "Enter your university’s full name",
     "otherCareer": "My major is not on the list",
@@ -234,7 +240,9 @@
     "periodSummer": "Summer (Verano)",
     "cycleHint": "We use the common Peru format (year and period). Stored as e.g. 2025-I.",
     "cyclePlaceholder": "e.g. 2025-I",
-    "submit": "Enter Mitsyy"
+    "cycleCurrent": "Selected term:",
+    "submit": "Enter Mitsyy",
+    "editLater": "You can update this information anytime from your profile."
   },
   "studentNav": {
     "label": "Main navigation",

@@ -215,13 +215,19 @@
   },
   "onboardingStudent": {
     "title": "Cuéntanos sobre ti",
-    "subtitle": "Tu compañero de estudio para la universidad peruana.",
-    "name": "Nombre",
-    "namePlaceholder": "Tu nombre",
+    "subtitle": "Personaliza Mitsyy para tu universidad y carrera. Solo te tomará un minuto.",
+    "welcomeBack": "Hola, {name} 👋",
+    "sectionPersonal": "Información personal",
+    "sectionAcademic": "Información académica",
+    "name": "Nombre completo",
+    "namePlaceholder": "Ej. María Fernández",
+    "nameError": "Por favor, escribe tu nombre.",
     "university": "Universidad",
     "universityPlaceholder": "Busca por nombre o siglas…",
+    "universityError": "Selecciona o escribe tu universidad.",
     "career": "Carrera",
     "careerPlaceholder": "Busca tu carrera…",
+    "careerError": "Selecciona o escribe tu carrera.",
     "otherUniversity": "Mi universidad no aparece en la lista",
     "otherUniversityPlaceholder": "Escribe el nombre completo de tu universidad",
     "otherCareer": "Mi carrera no aparece en la lista",
@@ -234,7 +240,9 @@
     "periodSummer": "Verano",
     "cycleHint": "Usamos el formato habitual en Perú (año y periodo).",
     "cyclePlaceholder": "Ej. 2025-I",
-    "submit": "Entrar a Mitsyy"
+    "cycleCurrent": "Ciclo seleccionado:",
+    "submit": "Entrar a Mitsyy",
+    "editLater": "Podrás actualizar esta información en cualquier momento desde tu perfil."
   },
   "studentNav": {
     "label": "Navegación principal",
