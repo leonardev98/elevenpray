@@ -159,11 +159,12 @@ export function Landing() {
               {t("signIn")}
             </Link>
             <Link
-              href="/register"
-              className="rounded-full bg-[var(--app-fg)] px-4 py-2 text-sm font-medium text-[var(--app-bg)] transition hover:opacity-90 dark:bg-white dark:text-[var(--app-black)] dark:hover:bg-white/90"
-            >
-              {t("startFree")}
-            </Link>
+                href="/register"
+                // Agregamos bg-black text-white para el modo claro, y dark:bg-white dark:text-black para el oscuro
+                className="rounded-full bg-black text-white dark:bg-white dark:text-black px-4 py-2 text-sm font-medium transition hover:opacity-90"
+              >
+                {t("startFree")}
+              </Link>
           </>
         }
       />

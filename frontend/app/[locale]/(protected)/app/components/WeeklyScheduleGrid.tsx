@@ -257,12 +257,24 @@ export function WeeklyScheduleGrid({
             minHeight: GRID_HEIGHT,
           }}
         >
+          {/* Líneas maestras que cruzan de lado a lado */}
+          {hourMarks.map((min) => (
+            <div
+              key={`master-line-${min}`}
+              className="pointer-events-none absolute right-0 z-0 border-t border-[var(--app-border)]/60"
+              style={{
+                left: TIME_AXIS_WIDTH,
+                top: (min - DAY_START_MINUTES) * PIXELS_PER_MINUTE,
+              }}
+            />
+          ))}
+
           {/* Eje de tiempo */}
           <div className="relative" style={{ height: GRID_HEIGHT }}>
             {hourMarks.map((min) => (
               <div
                 key={min}
-                className="absolute right-2 -translate-y-1/2 text-[10px] font-medium text-[var(--app-fg-muted)]"
+                className="absolute right-2 -translate-y-full text-[10px] font-medium text-[var(--app-fg-muted)]"
                 style={{ top: (min - DAY_START_MINUTES) * PIXELS_PER_MINUTE }}
               >
                 {formatHourLabel(min, locale)}
@@ -282,15 +294,6 @@ export function WeeklyScheduleGrid({
                 )}
                 style={{ height: GRID_HEIGHT }}
               >
-                {/* Líneas horarias de fondo */}
-                {hourMarks.map((min) => (
-                  <div
-                    key={min}
-                    className="pointer-events-none absolute left-0 right-0 border-t border-[var(--app-border)]/60"
-                    style={{ top: (min - DAY_START_MINUTES) * PIXELS_PER_MINUTE }}
-                  />
-                ))}
-
                 {/* Slots clickeables */}
                 {slotMarks.map((min) => (
                   <button
@@ -321,11 +324,11 @@ export function WeeklyScheduleGrid({
 
                 {/* Eventos */}
                 {dayLaid.map((event) => {
-                  const top = (event.startMin - DAY_START_MINUTES) * PIXELS_PER_MINUTE;
+                  const top = (event.startMin - DAY_START_MINUTES) * PIXELS_PER_MINUTE + 1;
                   const height = Math.max(
                     (event.endMin - event.startMin) * PIXELS_PER_MINUTE - GAP_PX,
                     28,
-                  );
+                  ) - 1;
                   const widthPct = 100 / event.totalColumns;
                   const leftPct = (event.column / event.totalColumns) * 100;
                   return (
