@@ -1,16 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   getCourseFiles,
-  getCourseFlashcards,
-  getCourseQuizHistoryDetailed,
   getCourseTasks,
   type MockCourseExtended,
   type MockCourseTask,
-  type MockFlashcard,
 } from "../../../lib/mock-course-data";
 import { useCourseNotes } from "../../../lib/course-notes-store";
 import { CourseAiDrawer } from "./CourseAiDrawer";
@@ -41,27 +38,10 @@ export function CourseWorkspace({ course }: CourseWorkspaceProps) {
   const [tabActivo, setTabActivo] = useState<CourseTabId>("apuntes");
   const [panelIA, setPanelIA] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [modoEstudioFlashcards, setModoEstudioFlashcards] = useState(false);
-  const [flashcards, setFlashcards] = useState<MockFlashcard[]>(() => getCourseFlashcards(course.id));
-
-  useEffect(() => {
-    // Sincronizar con mocks al cambiar de curso (estado local solo en sesión).
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset explícito al cambiar course.id
-    setFlashcards(getCourseFlashcards(course.id));
-  }, [course.id]);
-
-  const handleAddFlashcard = useCallback((card: MockFlashcard) => {
-    setFlashcards((prev) => [{ ...card, nueva: true }, ...prev]);
-  }, []);
-
-  const handleFlashcardNuevaEnd = useCallback((id: string) => {
-    setFlashcards((prev) => prev.map((c) => (c.id === id ? { ...c, nueva: undefined } : c)));
-  }, []);
 
   const notes = useCourseNotes(course.id);
   const tasks = useMemo(() => getCourseTasks(course.id), [course.id]);
   const files = useMemo(() => getCourseFiles(course.id), [course.id]);
-  const quizHistory = useMemo(() => getCourseQuizHistoryDetailed(course.id), [course.id]);
 
   const stats = useMemo(() => {
     const tareasCompletadas = tasks.filter((t: MockCourseTask) => {
@@ -71,10 +51,10 @@ export function CourseWorkspace({ course }: CourseWorkspaceProps) {
     return {
       apuntes: notes.length,
       archivos: files.length,
-      flashcards: flashcards.length,
+      flashcards: 0,
       tareasCompletadas,
     };
-  }, [notes.length, files.length, flashcards.length, tasks]);
+  }, [notes.length, files.length, tasks]);
 
   return (
     <>
@@ -108,17 +88,8 @@ export function CourseWorkspace({ course }: CourseWorkspaceProps) {
                 {tabActivo === "clases" && <ClasesTab course={course} />}
                 {tabActivo === "tareas" && <TareasTab course={course} tasks={tasks} />}
                 {tabActivo === "archivos" && <ArchivosTab course={course} files={files} />}
-                {tabActivo === "flashcards" && (
-                  <FlashcardsTab
-                    course={course}
-                    cards={flashcards}
-                    studyOpen={modoEstudioFlashcards}
-                    onStudyOpen={setModoEstudioFlashcards}
-                    onAddFlashcard={handleAddFlashcard}
-                    onFlashcardNuevaEnd={handleFlashcardNuevaEnd}
-                  />
-                )}
-                {tabActivo === "quizzes" && <QuizzesTab course={course} history={quizHistory} />}
+                {tabActivo === "flashcards" && <FlashcardsTab course={course} />}
+                {tabActivo === "quizzes" && <QuizzesTab course={course} />}
               </motion.div>
             </AnimatePresence>
           </div>

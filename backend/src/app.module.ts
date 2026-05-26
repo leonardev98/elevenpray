@@ -26,6 +26,7 @@ import { SkinFaceMappingModule } from './skin-face-mapping/skin-face-mapping.mod
 import { LearningModule } from './learning/learning.module';
 import { StudyUniversityModule } from './study-university/study-university.module';
 import { S3Module } from './s3/s3.module';
+import { CommunityModule } from './community/community.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { S3Module } from './s3/s3.module';
     ContainersModule,
     BlocksModule,
     DashboardModule,
+    CommunityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

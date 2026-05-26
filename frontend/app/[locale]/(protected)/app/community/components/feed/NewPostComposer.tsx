@@ -1,11 +1,16 @@
 "use client";
 
+import { useAuth } from "@/app/providers/auth-provider";
 import { UserAvatar } from "../UserAvatar";
+import { authorColorClass, getAuthorInitial } from "../../community-utils";
 
 export function NewPostComposer({ onOpen }: { onOpen: () => void }) {
+  const { user } = useAuth();
+  const name = user?.name ?? "Tú";
+
   return (
     <div className="student-card mb-6 flex gap-3 bg-[var(--app-surface-elevated)] p-4">
-      <UserAvatar initial="A" colorClass="bg-[var(--app-primary)]" />
+      <UserAvatar initial={getAuthorInitial(name)} colorClass={authorColorClass(name)} />
       <button
         type="button"
         onClick={onOpen}

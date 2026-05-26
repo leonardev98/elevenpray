@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   InternalServerErrorException,
@@ -13,18 +14,26 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { StudyUniversityService } from './study-university.service';
 import {
+  CombinedQuizPreviewDto,
   CompleteFocusSessionDto,
   CreateAssignmentDto,
   CreateClassSessionDto,
   CreateCourseDto,
+  CreateCourseNoteDto,
+  CreateFlashcardDto,
   CreateFocusSessionDto,
   CreateGradeItemDto,
+  CreateQuizAttemptDto,
+  CreateQuizDto,
   CreateSemesterDto,
   GenerateSessionsDto,
   ReorderCoursesDto,
   UpdateAssignmentStatusDto,
   UpdateClassSessionDto,
   UpdateClassSessionNotesDto,
+  UpdateCourseNoteDto,
+  UpdateFlashcardDto,
+  UpdateQuizDto,
   UpdateSemesterDto,
   UpsertAttendanceDto,
   UpsertStudyWorkspaceConfigDto,
@@ -204,5 +213,167 @@ export class StudyUniversityController {
     @Body() dto: CompleteFocusSessionDto,
   ) {
     return this.studyUniversityService.completeFocusSession(workspaceId, userId, focusSessionId, dto);
+  }
+
+  // ----- Flashcards -----
+
+  @Get('courses/:courseId/flashcards')
+  listFlashcards(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('courseId') courseId: string,
+  ) {
+    return this.studyUniversityService.listFlashcards(workspaceId, userId, courseId);
+  }
+
+  @Post('courses/:courseId/flashcards')
+  createFlashcard(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('courseId') courseId: string,
+    @Body() dto: CreateFlashcardDto,
+  ) {
+    return this.studyUniversityService.createFlashcard(workspaceId, userId, courseId, dto);
+  }
+
+  @Patch('flashcards/:flashcardId')
+  updateFlashcard(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('flashcardId') flashcardId: string,
+    @Body() dto: UpdateFlashcardDto,
+  ) {
+    return this.studyUniversityService.updateFlashcard(workspaceId, userId, flashcardId, dto);
+  }
+
+  @Delete('flashcards/:flashcardId')
+  deleteFlashcard(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('flashcardId') flashcardId: string,
+  ) {
+    return this.studyUniversityService.deleteFlashcard(workspaceId, userId, flashcardId);
+  }
+
+  // ----- Quizzes -----
+
+  @Get('courses/:courseId/quizzes')
+  listQuizzes(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('courseId') courseId: string,
+  ) {
+    return this.studyUniversityService.listQuizzes(workspaceId, userId, courseId);
+  }
+
+  @Post('courses/:courseId/quizzes')
+  async createQuiz(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('courseId') courseId: string,
+    @Body() dto: CreateQuizDto,
+  ) {
+    try {
+      return await this.studyUniversityService.createQuiz(workspaceId, userId, courseId, dto);
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      const message = err instanceof Error ? err.message : String(err);
+      throw new InternalServerErrorException(message);
+    }
+  }
+
+  @Get('quizzes/:quizId')
+  getQuiz(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('quizId') quizId: string,
+  ) {
+    return this.studyUniversityService.getQuizDetail(workspaceId, userId, quizId);
+  }
+
+  @Patch('quizzes/:quizId')
+  updateQuiz(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('quizId') quizId: string,
+    @Body() dto: UpdateQuizDto,
+  ) {
+    return this.studyUniversityService.updateQuiz(workspaceId, userId, quizId, dto);
+  }
+
+  @Delete('quizzes/:quizId')
+  deleteQuiz(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('quizId') quizId: string,
+  ) {
+    return this.studyUniversityService.deleteQuiz(workspaceId, userId, quizId);
+  }
+
+  @Post('quizzes/combined/preview')
+  getCombinedQuizPreview(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: CombinedQuizPreviewDto,
+  ) {
+    return this.studyUniversityService.getCombinedQuizPreview(workspaceId, userId, dto);
+  }
+
+  @Post('quizzes/attempts')
+  createQuizAttempt(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: CreateQuizAttemptDto,
+  ) {
+    return this.studyUniversityService.createQuizAttempt(workspaceId, userId, dto);
+  }
+
+  @Get('courses/:courseId/quiz-attempts')
+  listQuizAttempts(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('courseId') courseId: string,
+  ) {
+    return this.studyUniversityService.listQuizAttempts(workspaceId, userId, courseId);
+  }
+
+  // ----- Course notes -----
+
+  @Get('courses/:courseId/notes')
+  listCourseNotes(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('courseId') courseId: string,
+  ) {
+    return this.studyUniversityService.listCourseNotes(workspaceId, userId, courseId);
+  }
+
+  @Post('courses/:courseId/notes')
+  createCourseNote(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('courseId') courseId: string,
+    @Body() dto: CreateCourseNoteDto,
+  ) {
+    return this.studyUniversityService.createCourseNote(workspaceId, userId, courseId, dto);
+  }
+
+  @Patch('notes/:noteId')
+  updateCourseNote(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('noteId') noteId: string,
+    @Body() dto: UpdateCourseNoteDto,
+  ) {
+    return this.studyUniversityService.updateCourseNote(workspaceId, userId, noteId, dto);
+  }
+
+  @Delete('notes/:noteId')
+  deleteCourseNote(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('noteId') noteId: string,
+  ) {
+    return this.studyUniversityService.deleteCourseNote(workspaceId, userId, noteId);
   }
 }

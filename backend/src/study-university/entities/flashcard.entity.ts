@@ -5,8 +5,17 @@ export class Flashcard {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'deck_id', type: 'uuid' })
-  deckId: string;
+  @Column({ name: 'deck_id', type: 'uuid', nullable: true })
+  deckId: string | null;
+
+  @Column({ name: 'workspace_id', type: 'uuid', nullable: true })
+  workspaceId: string | null;
+
+  @Column({ name: 'course_id', type: 'uuid', nullable: true })
+  courseId: string | null;
+
+  @Column({ name: 'class_session_id', type: 'uuid', nullable: true })
+  classSessionId: string | null;
 
   @Column({ type: 'text' })
   question: string;

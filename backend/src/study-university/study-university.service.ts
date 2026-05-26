@@ -13,9 +13,14 @@ import { AttendanceRecord } from './entities/attendance-record.entity';
 import { ClassSession } from './entities/class-session.entity';
 import { Course } from './entities/course.entity';
 import { CourseSchedule } from './entities/course-schedule.entity';
+import { CourseNote } from './entities/course-note.entity';
 import { Flashcard } from './entities/flashcard.entity';
 import { FlashcardDeck } from './entities/flashcard-deck.entity';
 import { GradeItem } from './entities/grade-item.entity';
+import { Quiz } from './entities/quiz.entity';
+import { QuizAttempt, type QuizAttemptAnswer } from './entities/quiz-attempt.entity';
+import { QuizQuestion } from './entities/quiz-question.entity';
+import { QuizQuestionOption } from './entities/quiz-question-option.entity';
 import { Reminder } from './entities/reminder.entity';
 import { Semester } from './entities/semester.entity';
 import { StudyFocusSession } from './entities/study-focus-session.entity';
@@ -23,18 +28,26 @@ import { StudyWorkspaceConfig } from './entities/study-workspace-config.entity';
 import type { DashboardEntry, DashboardWorkspaceSummary } from '../dashboard/dashboard.types';
 import type { ScheduleConflict, UniversityWeekday } from './study-university.types';
 import {
+  CombinedQuizPreviewDto,
   CompleteFocusSessionDto,
   CreateAssignmentDto,
   CreateClassSessionDto,
   CreateCourseDto,
+  CreateCourseNoteDto,
+  CreateFlashcardDto,
   CreateFocusSessionDto,
   CreateGradeItemDto,
+  CreateQuizAttemptDto,
+  CreateQuizDto,
   CreateSemesterDto,
   GenerateSessionsDto,
   ReorderCoursesDto,
   UpdateAssignmentStatusDto,
   UpdateClassSessionDto,
   UpdateClassSessionNotesDto,
+  UpdateCourseNoteDto,
+  UpdateFlashcardDto,
+  UpdateQuizDto,
   UpdateSemesterDto,
   UpsertAttendanceDto,
   UpsertStudyWorkspaceConfigDto,
@@ -101,6 +114,16 @@ export class StudyUniversityService {
     private readonly deckRepo: Repository<FlashcardDeck>,
     @InjectRepository(Flashcard)
     private readonly flashcardRepo: Repository<Flashcard>,
+    @InjectRepository(Quiz)
+    private readonly quizRepo: Repository<Quiz>,
+    @InjectRepository(QuizQuestion)
+    private readonly quizQuestionRepo: Repository<QuizQuestion>,
+    @InjectRepository(QuizQuestionOption)
+    private readonly quizOptionRepo: Repository<QuizQuestionOption>,
+    @InjectRepository(QuizAttempt)
+    private readonly quizAttemptRepo: Repository<QuizAttempt>,
+    @InjectRepository(CourseNote)
+    private readonly courseNoteRepo: Repository<CourseNote>,
     @InjectRepository(StudyFocusSession)
     private readonly focusRepo: Repository<StudyFocusSession>,
     @InjectRepository(Reminder)
@@ -409,6 +432,12 @@ export class StudyUniversityService {
     const course = await this.courseRepo.findOne({ where: { id: dto.courseId, workspaceId, userId } });
     if (!course) throw new NotFoundException('Course not found');
 
+    let classNumber = dto.classNumber ?? null;
+    if (classNumber == null) {
+      const count = await this.sessionRepo.count({ where: { workspaceId, courseId: dto.courseId } });
+      classNumber = count + 1;
+    }
+
     const session = this.sessionRepo.create({
       workspaceId,
       semesterId: dto.semesterId ?? course.semesterId ?? null,
@@ -419,6 +448,8 @@ export class StudyUniversityService {
       endTime: dto.endTime,
       classroom: dto.classroom ?? course.classroom ?? null,
       title: dto.title ?? course.name,
+      classNumber,
+      unitLabel: dto.unitLabel ?? null,
       generatedFromSchedule: false,
     });
     return this.sessionRepo.save(session);
@@ -437,6 +468,9 @@ export class StudyUniversityService {
     if (dto.startTime !== undefined) session.startTime = dto.startTime;
     if (dto.endTime !== undefined) session.endTime = dto.endTime;
     if (dto.classroom !== undefined) session.classroom = dto.classroom ?? null;
+    if (dto.title !== undefined) session.title = dto.title ?? null;
+    if (dto.classNumber !== undefined) session.classNumber = dto.classNumber ?? null;
+    if (dto.unitLabel !== undefined) session.unitLabel = dto.unitLabel ?? null;
     const startTime = session.startTime;
     const endTime = session.endTime;
     this.assertValidTimeRange(startTime, endTime);
@@ -683,5 +717,580 @@ export class StudyUniversityService {
       });
     }
     return summaries;
+  }
+
+  // ====================================================================
+  // Flashcards
+  // ====================================================================
+
+  private async ensureCourse(
+    workspaceId: string,
+    userId: string,
+    courseId: string,
+  ): Promise<Course> {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const course = await this.courseRepo.findOne({ where: { id: courseId, workspaceId, userId } });
+    if (!course) throw new NotFoundException('Course not found');
+    return course;
+  }
+
+  private async ensureClassSessionInCourse(
+    workspaceId: string,
+    courseId: string,
+    classSessionId: string,
+  ): Promise<ClassSession> {
+    const session = await this.sessionRepo.findOne({
+      where: { id: classSessionId, workspaceId, courseId },
+    });
+    if (!session) throw new NotFoundException('Class session not found in course');
+    return session;
+  }
+
+  async listFlashcards(workspaceId: string, userId: string, courseId: string) {
+    await this.ensureCourse(workspaceId, userId, courseId);
+    const flashcards = await this.flashcardRepo.find({
+      where: { workspaceId, courseId },
+      order: { createdAt: 'DESC' },
+    });
+    const sessionIds = Array.from(
+      new Set(flashcards.map((f) => f.classSessionId).filter((id): id is string => Boolean(id))),
+    );
+    const sessions = sessionIds.length
+      ? await this.sessionRepo.find({ where: { id: In(sessionIds) } })
+      : [];
+    const sessionMap = new Map(sessions.map((s) => [s.id, s]));
+    return flashcards.map((card) => ({
+      id: card.id,
+      courseId: card.courseId,
+      workspaceId: card.workspaceId,
+      classSessionId: card.classSessionId,
+      classNumber: card.classSessionId ? sessionMap.get(card.classSessionId)?.classNumber ?? null : null,
+      classTitle: card.classSessionId ? sessionMap.get(card.classSessionId)?.title ?? null : null,
+      question: card.question,
+      answer: card.answer,
+      hint: card.hint,
+      createdAt: card.createdAt,
+      updatedAt: card.updatedAt,
+    }));
+  }
+
+  async createFlashcard(
+    workspaceId: string,
+    userId: string,
+    courseId: string,
+    dto: CreateFlashcardDto,
+  ) {
+    const course = await this.ensureCourse(workspaceId, userId, courseId);
+    if (dto.classSessionId) {
+      await this.ensureClassSessionInCourse(workspaceId, courseId, dto.classSessionId);
+    }
+    const flashcard = this.flashcardRepo.create({
+      workspaceId,
+      courseId: course.id,
+      classSessionId: dto.classSessionId ?? null,
+      deckId: null,
+      question: dto.question,
+      answer: dto.answer,
+      hint: dto.hint ?? null,
+    });
+    return this.flashcardRepo.save(flashcard);
+  }
+
+  async updateFlashcard(
+    workspaceId: string,
+    userId: string,
+    flashcardId: string,
+    dto: UpdateFlashcardDto,
+  ) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const flashcard = await this.flashcardRepo.findOne({ where: { id: flashcardId, workspaceId } });
+    if (!flashcard) throw new NotFoundException('Flashcard not found');
+    if (dto.classSessionId !== undefined && dto.classSessionId !== null && flashcard.courseId) {
+      await this.ensureClassSessionInCourse(workspaceId, flashcard.courseId, dto.classSessionId);
+      flashcard.classSessionId = dto.classSessionId;
+    } else if (dto.classSessionId === null) {
+      flashcard.classSessionId = null;
+    }
+    if (dto.question !== undefined) flashcard.question = dto.question;
+    if (dto.answer !== undefined) flashcard.answer = dto.answer;
+    if (dto.hint !== undefined) flashcard.hint = dto.hint ?? null;
+    return this.flashcardRepo.save(flashcard);
+  }
+
+  async deleteFlashcard(workspaceId: string, userId: string, flashcardId: string) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const flashcard = await this.flashcardRepo.findOne({ where: { id: flashcardId, workspaceId } });
+    if (!flashcard) throw new NotFoundException('Flashcard not found');
+    await this.flashcardRepo.delete({ id: flashcardId });
+    return { ok: true };
+  }
+
+  // ====================================================================
+  // Quizzes
+  // ====================================================================
+
+  private validateQuizQuestionPayload(question: CreateQuizDto['questions'][number]): void {
+    if (question.type === 'multiple_choice') {
+      const options = question.options ?? [];
+      if (options.length < 2) {
+        throw new BadRequestException('multiple_choice questions need at least 2 options');
+      }
+      if (!options.some((o) => o.isCorrect)) {
+        throw new BadRequestException('multiple_choice questions need at least one correct option');
+      }
+    } else if (question.type === 'true_false') {
+      const options = question.options ?? [];
+      if (options.length !== 2) {
+        throw new BadRequestException('true_false questions need exactly 2 options');
+      }
+      if (!options.some((o) => o.isCorrect)) {
+        throw new BadRequestException('true_false questions need a correct option');
+      }
+    } else if (question.type === 'short_answer') {
+      if (!question.expectedAnswer || !question.expectedAnswer.trim()) {
+        throw new BadRequestException('short_answer questions need an expectedAnswer');
+      }
+    }
+  }
+
+  async listQuizzes(workspaceId: string, userId: string, courseId: string) {
+    await this.ensureCourse(workspaceId, userId, courseId);
+    const quizzes = await this.quizRepo.find({
+      where: { workspaceId, courseId },
+      order: { createdAt: 'DESC' },
+    });
+    if (quizzes.length === 0) return [];
+
+    const quizIds = quizzes.map((q) => q.id);
+    const sessionIds = Array.from(
+      new Set(quizzes.map((q) => q.classSessionId).filter((id): id is string => Boolean(id))),
+    );
+    const [questions, sessions] = await Promise.all([
+      this.quizQuestionRepo.find({ where: { quizId: In(quizIds) } }),
+      sessionIds.length ? this.sessionRepo.find({ where: { id: In(sessionIds) } }) : Promise.resolve([] as ClassSession[]),
+    ]);
+    const countMap = new Map<string, number>();
+    for (const q of questions) {
+      countMap.set(q.quizId, (countMap.get(q.quizId) ?? 0) + 1);
+    }
+    const sessionMap = new Map(sessions.map((s) => [s.id, s]));
+    return quizzes.map((quiz) => ({
+      id: quiz.id,
+      workspaceId: quiz.workspaceId,
+      courseId: quiz.courseId,
+      classSessionId: quiz.classSessionId,
+      classNumber: quiz.classSessionId ? sessionMap.get(quiz.classSessionId)?.classNumber ?? null : null,
+      classTitle: quiz.classSessionId ? sessionMap.get(quiz.classSessionId)?.title ?? null : null,
+      title: quiz.title,
+      description: quiz.description,
+      difficulty: quiz.difficulty,
+      questionCount: countMap.get(quiz.id) ?? 0,
+      createdAt: quiz.createdAt,
+      updatedAt: quiz.updatedAt,
+    }));
+  }
+
+  async createQuiz(
+    workspaceId: string,
+    userId: string,
+    courseId: string,
+    dto: CreateQuizDto,
+  ) {
+    const course = await this.ensureCourse(workspaceId, userId, courseId);
+    if (dto.classSessionId) {
+      await this.ensureClassSessionInCourse(workspaceId, courseId, dto.classSessionId);
+    }
+    if (!dto.questions || dto.questions.length === 0) {
+      throw new BadRequestException('Quiz requires at least one question');
+    }
+    dto.questions.forEach((q) => this.validateQuizQuestionPayload(q));
+
+    const quiz = await this.quizRepo.save(
+      this.quizRepo.create({
+        workspaceId,
+        courseId: course.id,
+        classSessionId: dto.classSessionId ?? null,
+        userId,
+        title: dto.title,
+        description: dto.description ?? null,
+        difficulty: dto.difficulty ?? 3,
+      }),
+    );
+
+    const questionEntities: QuizQuestion[] = dto.questions.map((q, idx) =>
+      this.quizQuestionRepo.create({
+        quizId: quiz.id,
+        type: q.type,
+        prompt: q.prompt,
+        explanation: q.explanation ?? null,
+        expectedAnswer: q.expectedAnswer ?? null,
+        position: idx,
+      }),
+    );
+    const optionEntities: QuizQuestionOption[] = [];
+    const savedQuestions = await this.quizQuestionRepo.save(questionEntities);
+
+    savedQuestions.forEach((question, qIdx) => {
+      const payload = dto.questions[qIdx];
+      if (payload.options && payload.options.length > 0) {
+        payload.options.forEach((opt, oIdx) => {
+          optionEntities.push(
+            this.quizOptionRepo.create({
+              questionId: question.id,
+              label: opt.label,
+              text: opt.text,
+              isCorrect: opt.isCorrect,
+              position: oIdx,
+            }),
+          );
+        });
+      }
+    });
+    if (optionEntities.length > 0) {
+      await this.quizOptionRepo.save(optionEntities);
+    }
+
+    return this.getQuizDetail(workspaceId, userId, quiz.id);
+  }
+
+  async updateQuiz(
+    workspaceId: string,
+    userId: string,
+    quizId: string,
+    dto: UpdateQuizDto,
+  ) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const quiz = await this.quizRepo.findOne({ where: { id: quizId, workspaceId } });
+    if (!quiz) throw new NotFoundException('Quiz not found');
+    if (dto.classSessionId !== undefined && dto.classSessionId !== null) {
+      await this.ensureClassSessionInCourse(workspaceId, quiz.courseId, dto.classSessionId);
+      quiz.classSessionId = dto.classSessionId;
+    } else if (dto.classSessionId === null) {
+      quiz.classSessionId = null;
+    }
+    if (dto.title !== undefined) quiz.title = dto.title;
+    if (dto.description !== undefined) quiz.description = dto.description ?? null;
+    if (dto.difficulty !== undefined) quiz.difficulty = dto.difficulty;
+    return this.quizRepo.save(quiz);
+  }
+
+  async deleteQuiz(workspaceId: string, userId: string, quizId: string) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const quiz = await this.quizRepo.findOne({ where: { id: quizId, workspaceId } });
+    if (!quiz) throw new NotFoundException('Quiz not found');
+    await this.quizRepo.delete({ id: quizId });
+    return { ok: true };
+  }
+
+  async getQuizDetail(workspaceId: string, userId: string, quizId: string) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const quiz = await this.quizRepo.findOne({ where: { id: quizId, workspaceId } });
+    if (!quiz) throw new NotFoundException('Quiz not found');
+    const questions = await this.quizQuestionRepo.find({
+      where: { quizId },
+      order: { position: 'ASC' },
+    });
+    const questionIds = questions.map((q) => q.id);
+    const options = questionIds.length
+      ? await this.quizOptionRepo.find({
+          where: { questionId: In(questionIds) },
+          order: { position: 'ASC' },
+        })
+      : [];
+    const session = quiz.classSessionId
+      ? await this.sessionRepo.findOne({ where: { id: quiz.classSessionId } })
+      : null;
+    return {
+      id: quiz.id,
+      workspaceId: quiz.workspaceId,
+      courseId: quiz.courseId,
+      classSessionId: quiz.classSessionId,
+      classNumber: session?.classNumber ?? null,
+      classTitle: session?.title ?? null,
+      title: quiz.title,
+      description: quiz.description,
+      difficulty: quiz.difficulty,
+      createdAt: quiz.createdAt,
+      updatedAt: quiz.updatedAt,
+      questions: questions.map((q) => ({
+        id: q.id,
+        type: q.type,
+        prompt: q.prompt,
+        explanation: q.explanation,
+        expectedAnswer: q.expectedAnswer,
+        position: q.position,
+        options: options
+          .filter((o) => o.questionId === q.id)
+          .map((o) => ({
+            id: o.id,
+            label: o.label,
+            text: o.text,
+            isCorrect: o.isCorrect,
+            position: o.position,
+          })),
+      })),
+    };
+  }
+
+  async getCombinedQuizPreview(
+    workspaceId: string,
+    userId: string,
+    dto: CombinedQuizPreviewDto,
+  ) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    if (!dto.quizIds || dto.quizIds.length === 0) {
+      throw new BadRequestException('quizIds is required');
+    }
+    const quizzes = await this.quizRepo.find({ where: { id: In(dto.quizIds), workspaceId } });
+    if (quizzes.length === 0) {
+      throw new NotFoundException('No quizzes found for the requested ids');
+    }
+    const sessionIds = Array.from(
+      new Set(quizzes.map((q) => q.classSessionId).filter((id): id is string => Boolean(id))),
+    );
+    const [questions, sessions] = await Promise.all([
+      this.quizQuestionRepo.find({
+        where: { quizId: In(quizzes.map((q) => q.id)) },
+        order: { position: 'ASC' },
+      }),
+      sessionIds.length ? this.sessionRepo.find({ where: { id: In(sessionIds) } }) : Promise.resolve([] as ClassSession[]),
+    ]);
+    const options = questions.length
+      ? await this.quizOptionRepo.find({
+          where: { questionId: In(questions.map((q) => q.id)) },
+          order: { position: 'ASC' },
+        })
+      : [];
+    const sessionMap = new Map(sessions.map((s) => [s.id, s]));
+    const quizMap = new Map(quizzes.map((q) => [q.id, q]));
+
+    const shuffled = [...questions].sort(() => Math.random() - 0.5);
+    return {
+      quizIds: quizzes.map((q) => q.id),
+      classSessionIds: sessionIds,
+      classNumbers: sessionIds
+        .map((id) => sessionMap.get(id)?.classNumber ?? null)
+        .filter((n): n is number => typeof n === 'number')
+        .sort((a, b) => a - b),
+      courseId: quizzes[0].courseId,
+      questions: shuffled.map((q) => {
+        const parentQuiz = quizMap.get(q.quizId);
+        const session = parentQuiz?.classSessionId ? sessionMap.get(parentQuiz.classSessionId) : null;
+        return {
+          id: q.id,
+          quizId: q.quizId,
+          quizTitle: parentQuiz?.title ?? '',
+          classNumber: session?.classNumber ?? null,
+          type: q.type,
+          prompt: q.prompt,
+          explanation: q.explanation,
+          expectedAnswer: q.expectedAnswer,
+          options: options
+            .filter((o) => o.questionId === q.id)
+            .map((o) => ({
+              id: o.id,
+              label: o.label,
+              text: o.text,
+              isCorrect: o.isCorrect,
+            })),
+        };
+      }),
+    };
+  }
+
+  async createQuizAttempt(
+    workspaceId: string,
+    userId: string,
+    dto: CreateQuizAttemptDto,
+  ) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    if (!dto.sourceQuizIds || dto.sourceQuizIds.length === 0) {
+      throw new BadRequestException('sourceQuizIds is required');
+    }
+    const quizzes = await this.quizRepo.find({
+      where: { id: In(dto.sourceQuizIds), workspaceId },
+    });
+    if (quizzes.length === 0) {
+      throw new NotFoundException('No quizzes found for the requested ids');
+    }
+    const courseId = quizzes[0].courseId;
+    const questionIds = (dto.answers ?? []).map((a) => a.questionId);
+    const [questions, options] = await Promise.all([
+      questionIds.length
+        ? this.quizQuestionRepo.find({ where: { id: In(questionIds) } })
+        : Promise.resolve([] as QuizQuestion[]),
+      questionIds.length
+        ? this.quizOptionRepo.find({ where: { questionId: In(questionIds) } })
+        : Promise.resolve([] as QuizQuestionOption[]),
+    ]);
+    const questionMap = new Map(questions.map((q) => [q.id, q]));
+    const optionsByQuestion = new Map<string, QuizQuestionOption[]>();
+    for (const opt of options) {
+      const list = optionsByQuestion.get(opt.questionId) ?? [];
+      list.push(opt);
+      optionsByQuestion.set(opt.questionId, list);
+    }
+
+    const detailedAnswers: QuizAttemptAnswer[] = [];
+    let correctCount = 0;
+    for (const a of dto.answers) {
+      const question = questionMap.get(a.questionId);
+      if (!question) continue;
+      let correct = false;
+      if (question.type === 'multiple_choice' || question.type === 'true_false') {
+        const opts = optionsByQuestion.get(question.id) ?? [];
+        const correctIds = opts.filter((o) => o.isCorrect).map((o) => o.id).sort();
+        const selected = (a.selectedOptionIds ?? [a.selectedOptionId].filter(Boolean)) as string[];
+        const sel = [...selected].sort();
+        correct =
+          correctIds.length === sel.length &&
+          correctIds.every((id, idx) => id === sel[idx]);
+      } else if (question.type === 'short_answer') {
+        const expected = (question.expectedAnswer ?? '').trim().toLowerCase();
+        const given = (a.textAnswer ?? '').trim().toLowerCase();
+        correct = expected.length > 0 && expected === given;
+      }
+      if (correct) correctCount += 1;
+      detailedAnswers.push({
+        questionId: question.id,
+        selectedOptionId: a.selectedOptionId ?? null,
+        selectedOptionIds: a.selectedOptionIds,
+        textAnswer: a.textAnswer ?? null,
+        correct,
+      });
+    }
+
+    const totalQuestions = dto.answers.length;
+    const passed = totalQuestions > 0 && correctCount / totalQuestions >= 0.6;
+
+    const attempt = this.quizAttemptRepo.create({
+      workspaceId,
+      courseId,
+      userId,
+      sourceKind: dto.sourceKind,
+      sourceQuizIds: dto.sourceQuizIds,
+      classSessionIds: dto.classSessionIds ?? null,
+      totalQuestions,
+      correctCount,
+      passed,
+      durationSeconds: dto.durationSeconds ?? null,
+      answers: detailedAnswers,
+      completedAt: new Date(),
+    });
+    const saved = await this.quizAttemptRepo.save(attempt);
+    // Devolvemos el mismo shape que `listQuizAttempts` para que el cliente
+    // pueda renderizar el intento recién creado (necesita `sourceQuizTitles`).
+    const quizMap = new Map(quizzes.map((q) => [q.id, q]));
+    return this.serializeQuizAttempt(saved, quizMap);
+  }
+
+  private serializeQuizAttempt(
+    a: QuizAttempt,
+    quizMap: Map<string, Quiz>,
+  ) {
+    return {
+      id: a.id,
+      sourceKind: a.sourceKind,
+      sourceQuizIds: a.sourceQuizIds,
+      sourceQuizTitles: (a.sourceQuizIds ?? [])
+        .map((id) => quizMap.get(id)?.title ?? '')
+        .filter(Boolean),
+      classSessionIds: a.classSessionIds,
+      totalQuestions: a.totalQuestions,
+      correctCount: a.correctCount,
+      passed: a.passed,
+      durationSeconds: a.durationSeconds,
+      startedAt: a.startedAt,
+      completedAt: a.completedAt,
+      answers: a.answers,
+    };
+  }
+
+  async listQuizAttempts(workspaceId: string, userId: string, courseId: string) {
+    await this.ensureCourse(workspaceId, userId, courseId);
+    const attempts = await this.quizAttemptRepo.find({
+      where: { workspaceId, courseId, userId },
+      order: { completedAt: 'DESC' },
+      take: 30,
+    });
+    const quizIds = Array.from(
+      new Set(attempts.flatMap((a) => a.sourceQuizIds ?? [])),
+    );
+    const quizzes = quizIds.length
+      ? await this.quizRepo.find({ where: { id: In(quizIds) } })
+      : [];
+    const quizMap = new Map(quizzes.map((q) => [q.id, q]));
+    return attempts.map((a) => this.serializeQuizAttempt(a, quizMap));
+  }
+
+  // ====================================================================
+  // Course notes
+  // ====================================================================
+
+  async listCourseNotes(workspaceId: string, userId: string, courseId: string) {
+    await this.ensureCourse(workspaceId, userId, courseId);
+    return this.courseNoteRepo.find({
+      where: { workspaceId, courseId, userId },
+      order: { updatedAt: 'DESC' },
+    });
+  }
+
+  async createCourseNote(
+    workspaceId: string,
+    userId: string,
+    courseId: string,
+    dto: CreateCourseNoteDto,
+  ) {
+    await this.ensureCourse(workspaceId, userId, courseId);
+    if (dto.classSessionId) {
+      await this.ensureClassSessionInCourse(workspaceId, courseId, dto.classSessionId);
+    }
+    const note = this.courseNoteRepo.create({
+      workspaceId,
+      courseId,
+      userId,
+      classSessionId: dto.classSessionId ?? null,
+      title: dto.title,
+      contentJson: dto.contentJson ?? null,
+      preview: dto.preview ?? null,
+      colorAccent: dto.colorAccent ?? null,
+      icon: dto.icon ?? 'book',
+      readMinutes: dto.readMinutes ?? 1,
+    });
+    return this.courseNoteRepo.save(note);
+  }
+
+  async updateCourseNote(
+    workspaceId: string,
+    userId: string,
+    noteId: string,
+    dto: UpdateCourseNoteDto,
+  ) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const note = await this.courseNoteRepo.findOne({ where: { id: noteId, workspaceId, userId } });
+    if (!note) throw new NotFoundException('Course note not found');
+    if (dto.title !== undefined) note.title = dto.title;
+    if (dto.contentJson !== undefined) note.contentJson = dto.contentJson;
+    if (dto.preview !== undefined) note.preview = dto.preview ?? null;
+    if (dto.colorAccent !== undefined) note.colorAccent = dto.colorAccent ?? null;
+    if (dto.icon !== undefined) note.icon = dto.icon;
+    if (dto.readMinutes !== undefined) note.readMinutes = dto.readMinutes;
+    if (dto.classSessionId !== undefined) {
+      if (dto.classSessionId === null) {
+        note.classSessionId = null;
+      } else {
+        await this.ensureClassSessionInCourse(workspaceId, note.courseId, dto.classSessionId);
+        note.classSessionId = dto.classSessionId;
+      }
+    }
+    return this.courseNoteRepo.save(note);
+  }
+
+  async deleteCourseNote(workspaceId: string, userId: string, noteId: string) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const note = await this.courseNoteRepo.findOne({ where: { id: noteId, workspaceId, userId } });
+    if (!note) throw new NotFoundException('Course note not found');
+    await this.courseNoteRepo.delete({ id: noteId });
+    return { ok: true };
   }
 }

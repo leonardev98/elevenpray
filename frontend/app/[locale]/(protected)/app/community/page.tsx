@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { CommunityTab, PostType } from "./community-types";
@@ -17,11 +17,23 @@ export default function StudentCommunityPage() {
   const [activeTab, setActiveTab] = useState<CommunityTab>("feed");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalDefaultType, setModalDefaultType] = useState<PostType>("apunte");
+  const [feedRefreshKey, setFeedRefreshKey] = useState(0);
+  const [questionsRefreshKey, setQuestionsRefreshKey] = useState(0);
 
-  function openModal(type: PostType = "apunte") {
+  const openModal = useCallback((type: PostType = "apunte") => {
     setModalDefaultType(type);
     setModalOpen(true);
-  }
+  }, []);
+
+  const handleCreated = useCallback(() => {
+    if (modalDefaultType === "pregunta") {
+      setQuestionsRefreshKey((k) => k + 1);
+      setActiveTab("questions");
+    } else {
+      setFeedRefreshKey((k) => k + 1);
+      setActiveTab("feed");
+    }
+  }, [modalDefaultType]);
 
   return (
     <StudentPageShell title={t("title")} maxWidth="max-w-7xl">
@@ -37,9 +49,17 @@ export default function StudentCommunityPage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              {activeTab === "feed" && <FeedTab onOpenModal={() => openModal("apunte")} />}
+              {activeTab === "feed" && (
+                <FeedTab
+                  onOpenModal={() => openModal("apunte")}
+                  refreshKey={feedRefreshKey}
+                />
+              )}
               {activeTab === "questions" && (
-                <QuestionsTab onOpenModal={(type) => openModal(type)} />
+                <QuestionsTab
+                  onOpenModal={(type) => openModal(type)}
+                  refreshKey={questionsRefreshKey}
+                />
               )}
               {activeTab === "templates" && <TemplatesTab />}
             </motion.div>
@@ -55,6 +75,7 @@ export default function StudentCommunityPage() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         defaultType={modalDefaultType}
+        onCreated={handleCreated}
       />
     </StudentPageShell>
   );

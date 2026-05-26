@@ -222,6 +222,16 @@ export class CreateClassSessionDto {
   @IsOptional()
   @IsString()
   title?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  classNumber?: number;
+
+  @IsOptional()
+  @IsString()
+  unitLabel?: string;
 }
 
 export class UpdateClassSessionNotesDto {
@@ -256,6 +266,20 @@ export class UpdateClassSessionDto {
   @IsOptional()
   @IsString()
   classroom?: string;
+
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  classNumber?: number;
+
+  @IsOptional()
+  @IsString()
+  unitLabel?: string;
 }
 
 export class CreateAssignmentDto {
@@ -367,4 +391,264 @@ export class CompleteFocusSessionDto {
   @IsOptional()
   @IsIn(['completed', 'cancelled'])
   status?: 'completed' | 'cancelled';
+}
+
+// === Flashcards =========================================================
+
+export class CreateFlashcardDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(500)
+  question: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(2000)
+  answer: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  hint?: string;
+
+  @IsOptional()
+  @IsUUID()
+  classSessionId?: string;
+}
+
+export class UpdateFlashcardDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(500)
+  question?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(2000)
+  answer?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  hint?: string;
+
+  @IsOptional()
+  @IsUUID()
+  classSessionId?: string;
+}
+
+// === Quizzes ============================================================
+
+export class CreateQuizOptionDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(8)
+  label: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(500)
+  text: string;
+
+  @IsBoolean()
+  isCorrect: boolean;
+}
+
+export class CreateQuizQuestionDto {
+  @IsIn(['multiple_choice', 'true_false', 'short_answer'])
+  type: 'multiple_choice' | 'true_false' | 'short_answer';
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(1000)
+  prompt: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  explanation?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  expectedAnswer?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateQuizOptionDto)
+  options?: CreateQuizOptionDto[];
+}
+
+export class CreateQuizDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(160)
+  title: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  description?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  difficulty?: number;
+
+  @IsOptional()
+  @IsUUID()
+  classSessionId?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateQuizQuestionDto)
+  questions: CreateQuizQuestionDto[];
+}
+
+export class UpdateQuizDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(160)
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  description?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  difficulty?: number;
+
+  @IsOptional()
+  @IsUUID()
+  classSessionId?: string;
+}
+
+export class CombinedQuizPreviewDto {
+  @IsArray()
+  @IsUUID('4', { each: true })
+  quizIds: string[];
+}
+
+export class QuizAttemptAnswerDto {
+  @IsUUID()
+  questionId: string;
+
+  @IsOptional()
+  @IsUUID()
+  selectedOptionId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  selectedOptionIds?: string[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  textAnswer?: string;
+}
+
+export class CreateQuizAttemptDto {
+  @IsIn(['quiz', 'combined'])
+  sourceKind: 'quiz' | 'combined';
+
+  @IsArray()
+  @IsUUID('4', { each: true })
+  sourceQuizIds: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  classSessionIds?: string[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => QuizAttemptAnswerDto)
+  answers: QuizAttemptAnswerDto[];
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  durationSeconds?: number;
+}
+
+// === Course notes =======================================================
+
+export class CreateCourseNoteDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(160)
+  title: string;
+
+  @IsOptional()
+  @IsObject()
+  contentJson?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsString()
+  preview?: string;
+
+  @IsOptional()
+  @IsString()
+  colorAccent?: string;
+
+  @IsOptional()
+  @IsString()
+  icon?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  readMinutes?: number;
+
+  @IsOptional()
+  @IsUUID()
+  classSessionId?: string;
+}
+
+export class UpdateCourseNoteDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(160)
+  title?: string;
+
+  @IsOptional()
+  @IsObject()
+  contentJson?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsString()
+  preview?: string;
+
+  @IsOptional()
+  @IsString()
+  colorAccent?: string;
+
+  @IsOptional()
+  @IsString()
+  icon?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  readMinutes?: number;
+
+  @IsOptional()
+  @IsUUID()
+  classSessionId?: string;
 }

@@ -465,7 +465,34 @@
     "tabPlaceholder": "Available in the next phase."
   },
   "studentCommunity": {
-    "title": "Community"
+    "title": "Community",
+    "actions": {
+      "publish": "Publish",
+      "publishing": "Publishing...",
+      "edit": "Edit",
+      "delete": "Delete",
+      "report": "Report",
+      "reply": "Reply",
+      "save": "Save",
+      "cancel": "Cancel",
+      "send": "Send"
+    },
+    "report": {
+      "title": "Report",
+      "submit": "Send report",
+      "submitting": "Sending...",
+      "success": "Report sent. Thanks for helping keep the community healthy.",
+      "details": "Details (optional)",
+      "detailsPlaceholder": "Tell us more so we can review the case...",
+      "reasonLegend": "Reason",
+      "reasons": {
+        "spam": "Spam or advertising",
+        "inappropriate": "Inappropriate content",
+        "harassment": "Harassment or offensive language",
+        "misinformation": "Misinformation",
+        "other": "Other"
+      }
+    }
   },
   "studentProfile": {
     "title": "Profile",

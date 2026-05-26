@@ -32,6 +32,12 @@ export class ClassSession {
   @Column({ type: 'text', nullable: true })
   title: string | null;
 
+  @Column({ name: 'class_number', type: 'int', nullable: true })
+  classNumber: number | null;
+
+  @Column({ name: 'unit_label', type: 'text', nullable: true })
+  unitLabel: string | null;
+
   @Column({ name: 'notes_html', type: 'text', nullable: true })
   notesHtml: string | null;
 

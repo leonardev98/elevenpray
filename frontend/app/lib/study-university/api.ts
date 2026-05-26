@@ -3,18 +3,24 @@ import type {
   Assignment,
   AttendanceStatus,
   ClassSession,
+  CombinedQuizPreview,
   Course,
   CourseColorToken,
+  CourseFlashcard,
+  CourseNote,
   CourseSchedule,
   CourseType,
+  FocusStatus,
   GradeItem,
+  QuizAttempt,
+  QuizDetail,
+  QuizSummary,
   ScheduleConflict,
   Semester,
   StudyFocusSession,
   UniversityWorkspaceConfig,
   UniversityWorkspaceState,
   Weekday,
-  FocusStatus,
 } from "./types";
 
 const baseStudyUrl = (workspaceId: string) =>
@@ -166,7 +172,7 @@ function normalizeState(data: Record<string, unknown>): UniversityWorkspaceState
 async function fetchJson<T>(
   url: string,
   token: string,
-  method: "GET" | "POST" | "PATCH" = "GET",
+  method: "GET" | "POST" | "PATCH" | "DELETE" = "GET",
   body?: unknown,
 ): Promise<T> {
   const res = await fetch(url, {
@@ -398,4 +404,311 @@ export async function completeUniversityFocusSession(
     "PATCH",
     { status },
   );
+}
+
+// ============================================================
+// Class session metadata (classNumber / unitLabel)
+// ============================================================
+
+export async function updateUniversityClassSessionMetadata(
+  token: string,
+  workspaceId: string,
+  sessionId: string,
+  payload: {
+    classNumber?: number;
+    unitLabel?: string | null;
+    title?: string;
+    sessionDate?: string;
+    startTime?: string;
+    endTime?: string;
+    classroom?: string | null;
+  },
+): Promise<ClassSession> {
+  const raw = await fetchJson<Record<string, unknown>>(
+    `${baseStudyUrl(workspaceId)}/sessions/${sessionId}`,
+    token,
+    "PATCH",
+    payload,
+  );
+  return {
+    id: String(raw.id),
+    workspaceId: String(raw.workspaceId ?? raw.workspace_id),
+    semesterId: (raw.semesterId ?? raw.semester_id ?? null) as string | null,
+    courseId: String(raw.courseId ?? raw.course_id),
+    scheduleId: (raw.scheduleId ?? raw.schedule_id ?? null) as string | null,
+    sessionDate: String(raw.sessionDate ?? raw.session_date),
+    startTime: String(raw.startTime ?? raw.start_time),
+    endTime: String(raw.endTime ?? raw.end_time),
+    classroom: (raw.classroom ?? null) as string | null,
+    title: (raw.title ?? null) as string | null,
+    notesHtml: (raw.notesHtml ?? raw.notes_html ?? null) as string | null,
+    notesJson: (raw.notesJson ?? raw.notes_json ?? null) as Record<string, unknown> | null,
+    aiSummaryMock: (raw.aiSummaryMock ?? raw.ai_summary_mock ?? null) as string | null,
+    generatedFromSchedule: Boolean(raw.generatedFromSchedule ?? raw.generated_from_schedule ?? false),
+  };
+}
+
+export async function createUniversityClassSession(
+  token: string,
+  workspaceId: string,
+  payload: {
+    courseId: string;
+    sessionDate: string;
+    startTime: string;
+    endTime: string;
+    title?: string;
+    classroom?: string | null;
+    classNumber?: number;
+    unitLabel?: string | null;
+  },
+): Promise<{ id: string; classNumber: number | null }> {
+  const raw = await fetchJson<Record<string, unknown>>(
+    `${baseStudyUrl(workspaceId)}/sessions`,
+    token,
+    "POST",
+    payload,
+  );
+  return {
+    id: String(raw.id),
+    classNumber:
+      typeof raw.classNumber === "number"
+        ? raw.classNumber
+        : typeof raw.class_number === "number"
+          ? raw.class_number
+          : null,
+  };
+}
+
+// ============================================================
+// Flashcards
+// ============================================================
+
+export async function listCourseFlashcards(
+  token: string,
+  workspaceId: string,
+  courseId: string,
+): Promise<CourseFlashcard[]> {
+  return fetchJson(`${baseStudyUrl(workspaceId)}/courses/${courseId}/flashcards`, token);
+}
+
+export async function createCourseFlashcard(
+  token: string,
+  workspaceId: string,
+  courseId: string,
+  payload: {
+    question: string;
+    answer: string;
+    hint?: string;
+    classSessionId?: string;
+  },
+): Promise<CourseFlashcard> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/courses/${courseId}/flashcards`,
+    token,
+    "POST",
+    payload,
+  );
+}
+
+export async function updateCourseFlashcard(
+  token: string,
+  workspaceId: string,
+  flashcardId: string,
+  payload: {
+    question?: string;
+    answer?: string;
+    hint?: string | null;
+    classSessionId?: string | null;
+  },
+): Promise<CourseFlashcard> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/flashcards/${flashcardId}`,
+    token,
+    "PATCH",
+    payload,
+  );
+}
+
+export async function deleteCourseFlashcard(
+  token: string,
+  workspaceId: string,
+  flashcardId: string,
+): Promise<{ ok: boolean }> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/flashcards/${flashcardId}`,
+    token,
+    "DELETE",
+  );
+}
+
+// ============================================================
+// Quizzes
+// ============================================================
+
+export interface CreateQuizPayload {
+  title: string;
+  description?: string;
+  difficulty?: number;
+  classSessionId?: string;
+  questions: Array<{
+    type: "multiple_choice" | "true_false" | "short_answer";
+    prompt: string;
+    explanation?: string;
+    expectedAnswer?: string;
+    options?: Array<{
+      label: string;
+      text: string;
+      isCorrect: boolean;
+    }>;
+  }>;
+}
+
+export async function listCourseQuizzes(
+  token: string,
+  workspaceId: string,
+  courseId: string,
+): Promise<QuizSummary[]> {
+  return fetchJson(`${baseStudyUrl(workspaceId)}/courses/${courseId}/quizzes`, token);
+}
+
+export async function createCourseQuiz(
+  token: string,
+  workspaceId: string,
+  courseId: string,
+  payload: CreateQuizPayload,
+): Promise<QuizDetail> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/courses/${courseId}/quizzes`,
+    token,
+    "POST",
+    payload,
+  );
+}
+
+export async function getQuizDetail(
+  token: string,
+  workspaceId: string,
+  quizId: string,
+): Promise<QuizDetail> {
+  return fetchJson(`${baseStudyUrl(workspaceId)}/quizzes/${quizId}`, token);
+}
+
+export async function deleteQuiz(
+  token: string,
+  workspaceId: string,
+  quizId: string,
+): Promise<{ ok: boolean }> {
+  return fetchJson(`${baseStudyUrl(workspaceId)}/quizzes/${quizId}`, token, "DELETE");
+}
+
+export async function getCombinedQuizPreview(
+  token: string,
+  workspaceId: string,
+  quizIds: string[],
+): Promise<CombinedQuizPreview> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/quizzes/combined/preview`,
+    token,
+    "POST",
+    { quizIds },
+  );
+}
+
+export async function createQuizAttempt(
+  token: string,
+  workspaceId: string,
+  payload: {
+    sourceKind: "quiz" | "combined";
+    sourceQuizIds: string[];
+    classSessionIds?: string[];
+    answers: Array<{
+      questionId: string;
+      selectedOptionId?: string;
+      selectedOptionIds?: string[];
+      textAnswer?: string;
+    }>;
+    durationSeconds?: number;
+  },
+): Promise<QuizAttempt> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/quizzes/attempts`,
+    token,
+    "POST",
+    payload,
+  );
+}
+
+export async function listQuizAttempts(
+  token: string,
+  workspaceId: string,
+  courseId: string,
+): Promise<QuizAttempt[]> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/courses/${courseId}/quiz-attempts`,
+    token,
+  );
+}
+
+// ============================================================
+// Course notes
+// ============================================================
+
+export async function listCourseNotes(
+  token: string,
+  workspaceId: string,
+  courseId: string,
+): Promise<CourseNote[]> {
+  return fetchJson(`${baseStudyUrl(workspaceId)}/courses/${courseId}/notes`, token);
+}
+
+export async function createCourseNote(
+  token: string,
+  workspaceId: string,
+  courseId: string,
+  payload: {
+    title: string;
+    contentJson?: Record<string, unknown>;
+    preview?: string;
+    colorAccent?: string;
+    icon?: string;
+    readMinutes?: number;
+    classSessionId?: string;
+  },
+): Promise<CourseNote> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/courses/${courseId}/notes`,
+    token,
+    "POST",
+    payload,
+  );
+}
+
+export async function updateCourseNote(
+  token: string,
+  workspaceId: string,
+  noteId: string,
+  payload: Partial<{
+    title: string;
+    contentJson: Record<string, unknown>;
+    preview: string;
+    colorAccent: string;
+    icon: string;
+    readMinutes: number;
+    classSessionId: string | null;
+  }>,
+): Promise<CourseNote> {
+  return fetchJson(
+    `${baseStudyUrl(workspaceId)}/notes/${noteId}`,
+    token,
+    "PATCH",
+    payload,
+  );
+}
+
+export async function deleteCourseNote(
+  token: string,
+  workspaceId: string,
+  noteId: string,
+): Promise<{ ok: boolean }> {
+  return fetchJson(`${baseStudyUrl(workspaceId)}/notes/${noteId}`, token, "DELETE");
 }

@@ -158,6 +158,119 @@ export interface Flashcard {
   reviewCount: number;
 }
 
+/** Flashcard enriquecida que devuelve el endpoint `/courses/:id/flashcards`. */
+export interface CourseFlashcard {
+  id: string;
+  courseId: string;
+  workspaceId: string;
+  classSessionId: string | null;
+  classNumber: number | null;
+  classTitle: string | null;
+  question: string;
+  answer: string;
+  hint: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type QuizQuestionType = "multiple_choice" | "true_false" | "short_answer";
+
+export interface QuizOption {
+  id: string;
+  label: string;
+  text: string;
+  isCorrect: boolean;
+  position?: number;
+}
+
+export interface QuizQuestion {
+  id: string;
+  type: QuizQuestionType;
+  prompt: string;
+  explanation: string | null;
+  expectedAnswer: string | null;
+  position: number;
+  options: QuizOption[];
+}
+
+export interface QuizSummary {
+  id: string;
+  workspaceId: string;
+  courseId: string;
+  classSessionId: string | null;
+  classNumber: number | null;
+  classTitle: string | null;
+  title: string;
+  description: string | null;
+  difficulty: number;
+  questionCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuizDetail extends Omit<QuizSummary, "questionCount"> {
+  questions: QuizQuestion[];
+}
+
+export interface CombinedQuizQuestion {
+  id: string;
+  quizId: string;
+  quizTitle: string;
+  classNumber: number | null;
+  type: QuizQuestionType;
+  prompt: string;
+  explanation: string | null;
+  expectedAnswer: string | null;
+  options: QuizOption[];
+}
+
+export interface CombinedQuizPreview {
+  quizIds: string[];
+  classSessionIds: string[];
+  classNumbers: number[];
+  courseId: string;
+  questions: CombinedQuizQuestion[];
+}
+
+export interface QuizAttemptAnswer {
+  questionId: string;
+  selectedOptionId?: string | null;
+  selectedOptionIds?: string[];
+  textAnswer?: string | null;
+  correct: boolean;
+}
+
+export interface QuizAttempt {
+  id: string;
+  sourceKind: "quiz" | "combined";
+  sourceQuizIds: string[] | null;
+  sourceQuizTitles: string[];
+  classSessionIds: string[] | null;
+  totalQuestions: number;
+  correctCount: number;
+  passed: boolean;
+  durationSeconds: number | null;
+  startedAt: string;
+  completedAt: string | null;
+  answers: QuizAttemptAnswer[] | null;
+}
+
+export interface CourseNote {
+  id: string;
+  workspaceId: string;
+  courseId: string;
+  classSessionId: string | null;
+  userId: string;
+  title: string;
+  contentJson: Record<string, unknown> | null;
+  preview: string | null;
+  colorAccent: string | null;
+  icon: string;
+  readMinutes: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface StudyFocusSession {
   id: string;
   workspaceId: string;

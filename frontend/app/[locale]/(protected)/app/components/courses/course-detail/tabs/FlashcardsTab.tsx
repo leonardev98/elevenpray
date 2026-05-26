@@ -1,21 +1,42 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronLeft, ChevronRight, Play, Plus, RotateCcw, Trophy, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  RotateCcw,
+  Sparkles,
+  Trash2,
+  Trophy,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/app/providers/auth-provider";
 import { courseHex } from "../course-detail-utils";
-import type { MockCourseExtended, MockFlashcard } from "../../../../lib/mock-course-data";
+import type { CourseFlashcard } from "@/app/lib/study-university/types";
+import type { MockCourseExtended } from "../../../../lib/mock-course-data";
+import { useCourseClasses } from "../../../../lib/course-classes-store";
+import { useStudyBackendLink } from "../../../../lib/study-backend-link";
+import { useCourseFlashcards } from "../../../../lib/course-flashcards-store";
 
 interface FlashcardStudyFullscreenProps {
   open: boolean;
   courseName: string;
   hex: string;
-  cards: MockFlashcard[];
+  cards: CourseFlashcard[];
   onClose: () => void;
 }
 
-export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose }: FlashcardStudyFullscreenProps) {
+export function FlashcardStudyFullscreen({
+  open,
+  courseName,
+  hex,
+  cards,
+  onClose,
+}: FlashcardStudyFullscreenProps) {
   const [order, setOrder] = useState<string[]>(() => cards.map((c) => c.id));
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -79,11 +100,17 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
         <>
           <header className="shrink-0 border-b-[0.5px] border-[var(--border)] px-4 py-3">
             <div className="mx-auto flex max-w-4xl items-center gap-3">
-              <button type="button" onClick={onClose} className="rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
+              >
                 <X className="h-5 w-5" />
               </button>
               <div className="min-w-0 flex-1 text-center">
-                <p className="truncate text-sm font-medium text-[var(--text-primary)]">Flashcards — {courseName}</p>
+                <p className="truncate text-sm font-medium text-[var(--text-primary)]">
+                  Flashcards — {courseName}
+                </p>
                 <p className="text-xs text-[var(--text-muted)]">
                   {idx + 1} / {order.length}
                 </p>
@@ -124,13 +151,27 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
                 style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
               >
                 <div className="absolute inset-0 flex flex-col rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-6 [backface-visibility:hidden]">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Pregunta</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                      Pregunta
+                    </p>
+                    {current?.classNumber != null ? (
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                        style={{ color: hex, backgroundColor: `${hex}22` }}
+                      >
+                        Clase {current.classNumber}
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="mt-4 flex flex-1 items-center justify-center text-center text-lg font-semibold text-[var(--text-primary)]">
                     {current?.question}
                   </p>
                 </div>
                 <div className="absolute inset-0 flex flex-col rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Respuesta</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Respuesta
+                  </p>
                   <p
                     className="mt-4 flex flex-1 items-center justify-center text-center text-lg font-semibold"
                     style={{ color: hex }}
@@ -184,14 +225,19 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
           </div>
 
           {hint && !flipped && (
-            <p className="pb-4 text-center text-xs text-[var(--text-muted)]">Toca la tarjeta para revelar la respuesta</p>
+            <p className="pb-4 text-center text-xs text-[var(--text-muted)]">
+              Toca la tarjeta para revelar la respuesta
+            </p>
           )}
 
           <div className="flex justify-center gap-1.5 pb-6">
             {order.map((id, i) => (
               <span
                 key={`${id}-${i}`}
-                className={cn("h-2 w-2 rounded-full bg-[var(--border-strong)]", i === idx && "scale-110")}
+                className={cn(
+                  "h-2 w-2 rounded-full bg-[var(--border-strong)]",
+                  i === idx && "scale-110",
+                )}
                 style={i === idx ? { backgroundColor: hex } : undefined}
               />
             ))}
@@ -207,9 +253,7 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <button
               type="button"
-              onClick={() => {
-                reset();
-              }}
+              onClick={reset}
               className="rounded-[var(--radius-md)] border-[0.5px] border-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-subtle)]"
             >
               Repetir difíciles
@@ -228,443 +272,334 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
   );
 }
 
-const MAX_LEN = 200;
-const CLASS_OPTIONS: (number | null)[] = [null, 1, 2, 3, 4, 5, 6];
-
-function buildFilterPills(cards: MockFlashcard[]): string[] {
-  const labels = new Set(cards.map((c) => c.classLabel));
-  const ordered: string[] = [];
-  for (const l of labels) {
-    if (l !== "Sin clase") ordered.push(l);
-  }
-  ordered.sort((a, b) => {
-    const na = Number.parseInt(a.replace(/\D+/g, ""), 10) || 0;
-    const nb = Number.parseInt(b.replace(/\D+/g, ""), 10) || 0;
-    return na - nb;
-  });
-  if (labels.has("Sin clase")) ordered.push("Sin clase");
-  return ["Todas", ...ordered];
-}
-
 interface FlashcardsTabProps {
   course: MockCourseExtended;
-  cards: MockFlashcard[];
-  studyOpen: boolean;
-  onStudyOpen: (open: boolean) => void;
-  onAddFlashcard: (card: MockFlashcard) => void;
-  onFlashcardNuevaEnd: (id: string) => void;
 }
 
-export function FlashcardsTab({
-  course,
-  cards,
-  studyOpen,
-  onStudyOpen,
-  onAddFlashcard,
-  onFlashcardNuevaEnd,
-}: FlashcardsTabProps) {
+export function FlashcardsTab({ course }: FlashcardsTabProps) {
   const hex = courseHex(course);
-  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const { token } = useAuth();
+  const { workspaceId, courseMap, classMap, ensureCourse } = useStudyBackendLink(token);
+  const serverCourseId = courseMap[course.id] ?? null;
+  const { items, loading, remove, reload } = useCourseFlashcards(
+    token,
+    workspaceId,
+    serverCourseId,
+  );
+
+  const classes = useCourseClasses(course.id);
+
+  useEffect(() => {
+    if (token && course && !serverCourseId) {
+      void ensureCourse(course);
+    }
+  }, [token, course, serverCourseId, ensureCourse]);
+
+  useEffect(() => {
+    if (serverCourseId) {
+      void reload();
+    }
+  }, [serverCourseId, reload]);
+
+  const allClassNumbers = useMemo(() => {
+    const set = new Set<number>();
+    classes.forEach((c) => set.add(c.number));
+    items.forEach((f) => {
+      if (f.classNumber != null) set.add(f.classNumber);
+    });
+    return [...set].sort((a, b) => a - b);
+  }, [classes, items]);
+
+  // server-session -> classNumber lookup
+  const sessionToNumber = useMemo(() => {
+    const m = new Map<string, number>();
+    classes.forEach((c) => {
+      const serverId = classMap[c.id];
+      if (serverId) m.set(serverId, c.number);
+    });
+    items.forEach((f) => {
+      if (f.classSessionId && f.classNumber != null) {
+        m.set(f.classSessionId, f.classNumber);
+      }
+    });
+    return m;
+  }, [classes, classMap, items]);
+
+  const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
   const [flipped, setFlipped] = useState<Record<string, boolean>>({});
-  const [filter, setFilter] = useState("Todas");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [claseSel, setClaseSel] = useState<number | null>(null);
-  const [pregunta, setPregunta] = useState("");
-  const [respuesta, setRespuesta] = useState("");
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastClaseLabel, setToastClaseLabel] = useState("");
+  const [classFilter, setClassFilter] = useState<number | "all">("all");
+  const [rangeFrom, setRangeFrom] = useState<number | null>(null);
+  const [rangeTo, setRangeTo] = useState<number | null>(null);
+  const [studyDeck, setStudyDeck] = useState<CourseFlashcard[] | null>(null);
 
-  const filterPills = useMemo(() => buildFilterPills(cards), [cards]);
-  const activeFilter = filterPills.includes(filter) ? filter : "Todas";
+  const filteredCards = useMemo(() => {
+    if (classFilter === "all") return items;
+    return items.filter((c) => {
+      if (c.classNumber == null && c.classSessionId == null) return false;
+      const num = c.classNumber ?? sessionToNumber.get(c.classSessionId ?? "") ?? null;
+      return num === classFilter;
+    });
+  }, [items, classFilter, sessionToNumber]);
 
-  const filtered = useMemo(() => {
-    if (activeFilter === "Todas") return cards;
-    return cards.filter((c) => c.classLabel === activeFilter);
-  }, [cards, activeFilter]);
-
-  useEffect(() => {
-    const nuevas = cards.filter((c) => c.nueva).map((c) => c.id);
-    if (nuevas.length === 0) return;
-    const t = window.setTimeout(() => {
-      nuevas.forEach((id) => onFlashcardNuevaEnd(id));
-    }, 500);
-    return () => window.clearTimeout(t);
-  }, [cards, onFlashcardNuevaEnd]);
-
-  useEffect(() => {
-    if (!toastVisible) return;
-    const t = window.setTimeout(() => setToastVisible(false), 3000);
-    return () => window.clearTimeout(t);
-  }, [toastVisible]);
+  const selectedCount = useMemo(
+    () => Object.values(selectedIds).filter(Boolean).length,
+    [selectedIds],
+  );
 
   function toggleSelect(id: string) {
-    setSelected((s) => ({ ...s, [id]: !s[id] }));
+    setSelectedIds((s) => ({ ...s, [id]: !s[id] }));
   }
 
-  function toggleFlip(id: string, e: React.MouseEvent) {
-    e.stopPropagation();
-    setFlipped((f) => ({ ...f, [id]: !f[id] }));
+  function clearSelection() {
+    setSelectedIds({});
   }
 
-  const studyDeck = useMemo(() => {
-    const ids = Object.entries(selected)
-      .filter(([, v]) => v)
-      .map(([k]) => k);
-    if (ids.length) return cards.filter((c) => ids.includes(c.id));
-    return cards;
-  }, [cards, selected]);
-
-  function closeModal() {
-    setModalOpen(false);
-    setClaseSel(null);
-    setPregunta("");
-    setRespuesta("");
+  function selectByRange() {
+    if (rangeFrom == null || rangeTo == null) return;
+    const min = Math.min(rangeFrom, rangeTo);
+    const max = Math.max(rangeFrom, rangeTo);
+    const next: Record<string, boolean> = {};
+    for (const card of items) {
+      const num = card.classNumber ?? sessionToNumber.get(card.classSessionId ?? "") ?? null;
+      if (num != null && num >= min && num <= max) {
+        next[card.id] = true;
+      }
+    }
+    setSelectedIds(next);
   }
 
-  function guardarFlashcard() {
-    const q = pregunta.trim();
-    const a = respuesta.trim();
-    if (!q || !a) return;
-    const classLabel = claseSel === null ? "Sin clase" : `Clase ${claseSel}`;
-    const classFilter = claseSel === null ? 0 : claseSel;
-    onAddFlashcard({
-      id: String(Date.now()),
-      question: q,
-      answer: a,
-      classLabel,
-      classFilter,
-      classId: claseSel,
-    });
-    setToastClaseLabel(classLabel);
-    setToastVisible(true);
-    closeModal();
+  function startStudy(cards: CourseFlashcard[]) {
+    if (cards.length === 0) return;
+    const shuffled = [...cards].sort(() => Math.random() - 0.5);
+    setStudyDeck(shuffled);
   }
 
-  const previewEmpty = !pregunta.trim() && !respuesta.trim();
-  const canSave = Boolean(pregunta.trim() && respuesta.trim());
+  function studySelection() {
+    const sel = items.filter((c) => selectedIds[c.id]);
+    if (sel.length === 0) {
+      startStudy(items);
+      return;
+    }
+    startStudy(sel);
+  }
 
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">Flashcards</h2>
+        <div>
+          <h2 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+            Flashcards
+          </h2>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            {items.length} totales · selección {selectedCount}
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-1 rounded-[var(--radius-md)] bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
-          >
-            <Plus className="h-3.5 w-3.5" aria-hidden />
-            Crear flashcard
-          </button>
-          <button
-            type="button"
-            onClick={() => onStudyOpen(true)}
-            className="inline-flex items-center gap-1 rounded-[var(--radius-md)] border-[0.5px] border-[var(--accent)] px-3 py-1.5 text-xs font-medium text-[var(--accent)] hover:bg-[var(--accent-subtle)]"
+            disabled={items.length === 0}
+            onClick={studySelection}
+            className="inline-flex items-center gap-1 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-fg)] disabled:opacity-40"
+            style={{ backgroundColor: hex }}
           >
             <Play className="h-3.5 w-3.5" aria-hidden />
-            Estudiar selección
+            {selectedCount > 0 ? `Estudiar selección (${selectedCount})` : "Estudiar todas"}
+          </button>
+          {selectedCount > 0 ? (
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="inline-flex items-center gap-1 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            >
+              Limpiar
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="mb-4 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-3">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Estudiar rango de clases
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-[var(--text-muted)]">Desde</span>
+          <select
+            value={rangeFrom ?? ""}
+            onChange={(e) => setRangeFrom(e.target.value ? Number(e.target.value) : null)}
+            className="rounded-[var(--radius-sm)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] px-2 py-1 text-xs text-[var(--text-primary)] focus:border-[var(--accent)]"
+          >
+            <option value="">—</option>
+            {allClassNumbers.map((n) => (
+              <option key={n} value={n}>
+                Clase {n}
+              </option>
+            ))}
+          </select>
+          <span className="text-xs text-[var(--text-muted)]">hasta</span>
+          <select
+            value={rangeTo ?? ""}
+            onChange={(e) => setRangeTo(e.target.value ? Number(e.target.value) : null)}
+            className="rounded-[var(--radius-sm)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] px-2 py-1 text-xs text-[var(--text-primary)] focus:border-[var(--accent)]"
+          >
+            <option value="">—</option>
+            {allClassNumbers.map((n) => (
+              <option key={n} value={n}>
+                Clase {n}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={selectByRange}
+            disabled={rangeFrom == null || rangeTo == null}
+            className="inline-flex items-center gap-1 rounded-[var(--radius-md)] border-[0.5px] border-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--accent)] hover:bg-[var(--accent-subtle)] disabled:opacity-40"
+          >
+            <Sparkles className="h-3 w-3" aria-hidden />
+            Seleccionar rango
           </button>
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {filterPills.map((pill) => (
+      {allClassNumbers.length > 0 ? (
+        <div className="mb-4 flex flex-wrap gap-2">
           <button
-            key={pill}
             type="button"
-            onClick={() => setFilter(pill)}
+            onClick={() => setClassFilter("all")}
             className={cn(
               "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-              activeFilter === pill
+              classFilter === "all"
                 ? "bg-[var(--accent-subtle)] text-[var(--accent)]"
                 : "bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
             )}
           >
-            {pill}
+            Todas
           </button>
-        ))}
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((c) => {
-          const isFl = flipped[c.id] ?? false;
-          const isSel = selected[c.id] ?? false;
-          return (
-            <motion.div
-              key={c.id}
-              initial={c.nueva ? { opacity: 0, scale: 0.9 } : undefined}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+          {allClassNumbers.map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setClassFilter(n)}
               className={cn(
-                "relative h-[140px] overflow-hidden rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] [perspective:1000px]",
-                isSel && "ring-1",
+                "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                classFilter === n
+                  ? "bg-[var(--accent-subtle)] text-[var(--accent)]"
+                  : "bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
               )}
-              style={
-                isSel
-                  ? { boxShadow: `0 0 0 1px ${hex}, inset 0 0 40px ${hex}14` }
-                  : { borderLeftWidth: 3, borderLeftColor: hex }
-              }
             >
-              <button
-                type="button"
-                onClick={() => toggleSelect(c.id)}
-                className={cn(
-                  "absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-[var(--radius-sm)] border-[0.5px] text-[10px]",
-                  isSel
-                    ? "border-[var(--accent)] bg-[var(--accent-subtle)] text-[var(--accent)]"
-                    : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)]",
-                )}
-                aria-pressed={isSel}
-              >
-                {isSel ? <Check className="h-3 w-3" /> : null}
-              </button>
-              <button
-                type="button"
-                className="relative h-full w-full text-left transition-transform duration-300 [transform-style:preserve-3d]"
-                style={{ transform: isFl ? "rotateY(180deg)" : "rotateY(0deg)" }}
-                onClick={() => setFlipped((f) => ({ ...f, [c.id]: !f[c.id] }))}
-              >
-                <div className="absolute inset-0 flex flex-col p-3 [backface-visibility:hidden]">
-                  <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Pregunta</p>
-                  <p className="mt-1 line-clamp-3 flex-1 text-center text-sm font-semibold leading-snug text-[var(--text-primary)]">
-                    {c.question}
-                  </p>
-                  <div className="flex items-end justify-between">
-                    <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">{c.classLabel}</span>
-                    <button
-                      type="button"
-                      className="rounded p-0.5 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                      onClick={(e) => toggleFlip(c.id, e)}
-                      aria-label="Voltear"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-                <div className="absolute inset-0 flex flex-col p-3 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                  <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Respuesta</p>
-                  <p className="mt-1 line-clamp-3 flex-1 text-center text-sm font-semibold" style={{ color: hex }}>
-                    {c.answer}
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    <span className="rounded-[var(--radius-sm)] bg-[var(--accent-subtle)] px-1.5 py-0.5 text-[9px] text-[var(--accent)]">Fácil</span>
-                    <span className="rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] px-1.5 py-0.5 text-[9px] text-[var(--warning)]">Normal</span>
-                    <span className="rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--error)_12%,transparent)] px-1.5 py-0.5 text-[9px] text-[var(--error)]">Difícil</span>
-                  </div>
-                  <button type="button" className="absolute bottom-2 right-2 p-0.5" onClick={(e) => toggleFlip(c.id, e)} aria-label="Voltear">
-                    <RotateCcw className="h-3.5 w-3.5 text-[var(--text-muted)]" />
-                  </button>
-                </div>
-              </button>
-            </motion.div>
-          );
-        })}
-      </div>
+              Clase {n}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
-      <AnimatePresence>
-        {modalOpen ? (
-          <motion.div
-            key="fc-modal-overlay"
-            role="presentation"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
-            onClick={() => closeModal()}
-          >
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="fc-modal-title"
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-[var(--radius-xl)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-elevated)] p-7 shadow-[var(--shadow-md)]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mb-6 flex items-start justify-between gap-3">
-                <div>
-                  <h2 id="fc-modal-title" className="text-lg font-semibold text-[var(--text-primary)]">
-                    Nueva Flashcard
-                  </h2>
-                  <p className="mt-1 text-xs text-[var(--text-muted)]">Curso: {course.name}</p>
-                </div>
+      {loading ? (
+        <p className="py-12 text-center text-sm text-[var(--text-muted)]">Cargando flashcards…</p>
+      ) : filteredCards.length === 0 ? (
+        <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] p-12 text-center">
+          <Sparkles className="mx-auto mb-3 h-6 w-6 text-[var(--text-muted)]" aria-hidden />
+          <p className="text-sm text-[var(--text-primary)]">
+            No hay flashcards{classFilter !== "all" ? ` para la clase ${classFilter}` : " todavía"}
+          </p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            Crea flashcards desde la vista de cada clase.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredCards.map((c) => {
+            const isFl = flipped[c.id] ?? false;
+            const isSel = selectedIds[c.id] ?? false;
+            const num = c.classNumber ?? sessionToNumber.get(c.classSessionId ?? "") ?? null;
+            return (
+              <motion.div
+                key={c.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.18 }}
+                className={cn(
+                  "relative h-[150px] overflow-hidden rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] [perspective:1000px]",
+                  isSel && "ring-1",
+                )}
+                style={
+                  isSel
+                    ? { boxShadow: `0 0 0 1px ${hex}, inset 0 0 40px ${hex}14`, borderLeftWidth: 3, borderLeftColor: hex }
+                    : { borderLeftWidth: 3, borderLeftColor: hex }
+                }
+              >
                 <button
                   type="button"
-                  onClick={() => closeModal()}
-                  className="rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)]"
-                  aria-label="Cerrar"
+                  onClick={() => toggleSelect(c.id)}
+                  className={cn(
+                    "absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-[var(--radius-sm)] border-[0.5px] text-[10px]",
+                    isSel
+                      ? "text-[var(--accent-fg)]"
+                      : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)]",
+                  )}
+                  style={isSel ? { backgroundColor: hex, borderColor: hex } : undefined}
+                  aria-pressed={isSel}
                 >
-                  <X className="h-5 w-5" />
+                  {isSel ? <Check className="h-3 w-3" /> : null}
                 </button>
-              </div>
-
-              <div className="space-y-5">
-                <div>
-                  <p className="mb-2 text-xs font-semibold text-[var(--text-primary)]">Clase</p>
-                  <div className="flex flex-wrap gap-2">
-                    {CLASS_OPTIONS.map((n) => {
-                      const active = claseSel === n;
-                      const label = n === null ? "Sin clase" : `Clase ${n}`;
-                      return (
-                        <button
-                          key={label}
-                          type="button"
-                          onClick={() => setClaseSel(n)}
-                          className={cn(
-                            "rounded-full border-[0.5px] px-3 py-1 text-xs font-medium transition-colors",
-                            active
-                              ? "text-[var(--text-primary)]"
-                              : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
-                          )}
-                          style={
-                            active
-                              ? {
-                                  borderColor: hex,
-                                  backgroundColor: `${hex}26`,
-                                }
-                              : undefined
-                          }
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: hex }} aria-hidden />
-                    <span className="text-xs font-semibold text-[var(--text-primary)]">Pregunta</span>
-                    <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">Frente</span>
-                  </div>
-                  <textarea
-                    value={pregunta}
-                    onChange={(e) => setPregunta(e.target.value.slice(0, MAX_LEN))}
-                    rows={4}
-                    placeholder="¿Qué quieres recordar? Ej: ¿Cuál es la derivada de xⁿ?"
-                    className={cn(
-                      "w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] p-3 text-sm text-[var(--text-primary)] outline-none transition-[border-color] duration-150",
-                      "placeholder:text-[var(--text-muted)]",
-                      "focus:border-[var(--accent)]",
-                    )}
-                  />
-                  <p className="mt-1 text-right text-xs text-[var(--text-muted)]">
-                    {pregunta.length} / {MAX_LEN}
-                  </p>
-                </div>
-
-                <div>
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span
-                      className="h-2 w-2 shrink-0 rounded-full border-2 border-dashed border-[var(--border-strong)]"
-                      style={{ backgroundColor: `${hex}33` }}
-                      aria-hidden
-                    />
-                    <span className="text-xs font-semibold text-[var(--text-primary)]">Respuesta</span>
-                    <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">Reverso</span>
-                  </div>
-                  <textarea
-                    value={respuesta}
-                    onChange={(e) => setRespuesta(e.target.value.slice(0, MAX_LEN))}
-                    rows={4}
-                    placeholder="La respuesta correcta. Ej: nxⁿ⁻¹"
-                    className={cn(
-                      "w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] p-3 text-sm text-[var(--text-primary)] outline-none transition-[border-color] duration-150",
-                      "placeholder:text-[var(--text-muted)]",
-                      "focus:border-[var(--accent)]",
-                    )}
-                  />
-                  <p className="mt-1 text-right text-xs text-[var(--text-muted)]">
-                    {respuesta.length} / {MAX_LEN}
-                  </p>
-                </div>
-
-                <div className="border-t-[0.5px] border-[var(--border)] pt-4">
-                  <p className="mb-2 text-xs text-[var(--text-muted)]">Vista previa</p>
-                  <div className={cn("grid grid-cols-2 gap-2", previewEmpty && "opacity-40")}>
-                    <div
-                      className="flex h-20 flex-col rounded-[var(--radius-sm)] border-[0.5px] p-2"
-                      style={{ borderColor: hex }}
-                    >
-                      <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Pregunta</p>
-                      <p className="mt-auto line-clamp-2 text-center text-sm text-[var(--text-primary)]">
-                        {pregunta.trim() ? (
-                          pregunta.trim()
-                        ) : (
-                          <span className="text-[var(--text-muted)]">Escribe la pregunta</span>
-                        )}
-                      </p>
-                    </div>
-                    <div
-                      className="flex h-20 flex-col rounded-[var(--radius-sm)] border-[0.5px] p-2"
-                      style={{ borderColor: hex }}
-                    >
-                      <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Respuesta</p>
-                      <p className="mt-auto line-clamp-2 text-center text-sm text-[var(--text-primary)]">
-                        {respuesta.trim() ? (
-                          respuesta.trim()
-                        ) : (
-                          <span className="text-[var(--text-muted)]">Escribe la respuesta</span>
-                        )}
-                      </p>
+                <button
+                  type="button"
+                  className="relative h-full w-full text-left transition-transform duration-300 [transform-style:preserve-3d]"
+                  style={{ transform: isFl ? "rotateY(180deg)" : "rotateY(0deg)" }}
+                  onClick={() => setFlipped((f) => ({ ...f, [c.id]: !f[c.id] }))}
+                >
+                  <div className="absolute inset-0 flex flex-col p-3 [backface-visibility:hidden]">
+                    <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                      Pregunta
+                    </p>
+                    <p className="mt-1 line-clamp-3 flex-1 text-center text-sm font-semibold leading-snug text-[var(--text-primary)]">
+                      {c.question}
+                    </p>
+                    <div className="flex items-end justify-between">
+                      <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
+                        {num != null ? `Clase ${num}` : "Sin clase"}
+                      </span>
+                      <span
+                        className="rounded p-0.5 text-[var(--text-muted)]"
+                        aria-hidden
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                      </span>
                     </div>
                   </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
-                  <button type="button" onClick={() => closeModal()} className="text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)]">
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!canSave}
-                    onClick={guardarFlashcard}
-                    className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-[var(--accent)] px-[18px] py-[10px] text-sm font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)] disabled:opacity-40"
-                  >
-                    <Check className="h-4 w-4" aria-hidden />
-                    Guardar flashcard
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {toastVisible ? (
-          <motion.div
-            key="fc-toast"
-            role="status"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            transition={{ duration: 0.25 }}
-            className="fixed bottom-6 left-6 z-[60] flex max-w-[min(100vw-2rem,320px)] items-start gap-3 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 py-3 shadow-[var(--shadow-md)]"
-            style={{ borderLeftWidth: 3, borderLeftColor: hex }}
-          >
-            <Check className="mt-0.5 h-5 w-5 shrink-0" style={{ color: hex }} aria-hidden />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[var(--text-primary)]">Flashcard creada</p>
-              <p className="text-xs text-[var(--text-muted)]">{toastClaseLabel}</p>
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+                  <div className="absolute inset-0 flex flex-col p-3 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                    <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                      Respuesta
+                    </p>
+                    <p
+                      className="mt-1 line-clamp-3 flex-1 text-center text-sm font-semibold"
+                      style={{ color: hex }}
+                    >
+                      {c.answer}
+                    </p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void remove(c.id)}
+                  className="absolute bottom-2 right-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--error)]"
+                  aria-label="Eliminar flashcard"
+                >
+                  <Trash2 className="h-3 w-3" aria-hidden />
+                </button>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
 
       <AnimatePresence>
-        {studyOpen && (
+        {studyDeck && (
           <FlashcardStudyFullscreen
             key={studyDeck.map((c) => c.id).join("-")}
-            open={studyOpen}
+            open
             courseName={course.name}
             hex={hex}
             cards={studyDeck}
-            onClose={() => onStudyOpen(false)}
+            onClose={() => setStudyDeck(null)}
           />
         )}
       </AnimatePresence>

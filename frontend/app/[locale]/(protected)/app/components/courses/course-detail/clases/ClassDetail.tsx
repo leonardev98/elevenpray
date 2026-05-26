@@ -24,6 +24,8 @@ import { ClassContentSection } from "./ClassContentSection";
 import { ClassFilesSection } from "./ClassFilesSection";
 import { ClassTaskSection } from "./ClassTaskSection";
 import { ClassAiSection } from "./ClassAiSection";
+import { ClassFlashcardsSection } from "./ClassFlashcardsSection";
+import { ClassQuizzesSection } from "./ClassQuizzesSection";
 
 interface ClassDetailProps {
   course: MockCourseExtended;
@@ -316,6 +318,10 @@ export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
             />
 
             <ClassFilesSection classId={cls.id} attachments={cls.attachments} />
+
+            <ClassFlashcardsSection course={course} cls={cls} hex={hex} />
+
+            <ClassQuizzesSection course={course} cls={cls} hex={hex} />
 
             <ClassTaskSection
               classId={cls.id}
