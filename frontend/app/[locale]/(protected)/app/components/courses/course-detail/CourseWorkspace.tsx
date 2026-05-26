@@ -130,7 +130,7 @@ export function CourseWorkspace({ course }: CourseWorkspaceProps) {
         {panelIA ? (
           <button
             type="button"
-            className="fixed inset-0 z-[120] bg-black/60 lg:hidden"
+            className="fixed inset-0 z-[120] bg-black/50 lg:hidden"
             aria-label="Cerrar asistente"
             onClick={() => setPanelIA(false)}
           />

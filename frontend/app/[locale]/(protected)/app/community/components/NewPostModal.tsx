@@ -41,7 +41,7 @@ export function NewPostModal({ open, onClose, defaultType = "apunte" }: NewPostM
       {open && (
         <motion.div
           {...modalBackdrop}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Nueva publicación"
@@ -49,7 +49,7 @@ export function NewPostModal({ open, onClose, defaultType = "apunte" }: NewPostM
         >
           <motion.div
             {...modalPanel}
-            className={`relative w-full max-w-lg rounded-2xl border-2 bg-[var(--app-surface)] p-6 shadow-app-modal ${MODAL_BORDER_BY_TYPE[contentType]}`}
+            className={`relative w-full max-w-lg rounded-[var(--radius-xl)] border-[0.5px] bg-[var(--bg-elevated)] p-6 shadow-[var(--shadow-md)] ${MODAL_BORDER_BY_TYPE[contentType]}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
@@ -118,7 +118,7 @@ export function NewPostModal({ open, onClose, defaultType = "apunte" }: NewPostM
             <div className="flex justify-end">
               <button
                 type="button"
-                className="rounded-xl bg-[var(--app-primary)] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--app-primary-hover)]"
+                className="rounded-[var(--radius-md)] bg-[var(--accent)] px-[18px] py-[10px] text-sm font-medium text-[var(--accent-fg)] transition-colors hover:bg-[var(--accent-hover)]"
               >
                 Publicar
               </button>

@@ -54,8 +54,8 @@ export function CommunitySidebar() {
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                 activeUniversity === uni
-                  ? "bg-[var(--app-primary)] text-white"
-                  : "bg-[var(--app-surface-soft)] text-[var(--app-fg-muted)] hover:text-[var(--app-fg)]",
+                  ? "bg-[var(--accent)] text-[var(--accent-fg)]"
+                  : "bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
               )}
             >
               {uni}
@@ -101,9 +101,9 @@ export function CommunitySidebar() {
               </div>
               <div className="flex items-center gap-1.5">
                 {index === 0 && (
-                  <Award className="h-4 w-4 text-amber-400" aria-label="Primer lugar" />
+                  <Award className="h-4 w-4 text-[var(--xp)]" aria-label="Primer lugar" />
                 )}
-                <span className="rounded-full bg-[var(--app-surface-soft)] px-2 py-0.5 text-[10px] text-[var(--app-fg-muted)]">
+                <span className="rounded-[var(--radius-sm)] bg-[var(--bg-input)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
                   {user.contributions} aportes
                 </span>
               </div>

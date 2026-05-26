@@ -32,7 +32,7 @@ const TooltipPopup = React.forwardRef<
   <TooltipPrimitive.Popup
     ref={ref}
     className={cn(
-      "z-50 max-w-[min(var(--available-width),20rem)] rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-xs text-[var(--app-fg)] outline-none",
+      "z-50 max-w-[min(var(--available-width),20rem)] rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-elevated)] px-3 py-2 text-xs text-[var(--text-primary)] shadow-[var(--shadow-md)] outline-none",
       "data-[closed]:pointer-events-none data-[closed]:opacity-0 data-[entering]:animate-in data-[entering]:fade-in-0 data-[entering]:zoom-in-95 data-[exiting]:animate-out data-[exiting]:fade-out-0 data-[exiting]:zoom-out-95",
       className
     )}

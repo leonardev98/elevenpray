@@ -32,24 +32,24 @@ export type StudentCourseStored = {
 const STORAGE_KEY = "mitsyy_student_courses_v1";
 
 const ACCENT_TO_COLOR: Record<StudentCourseAccent, string> = {
-  teal: "bg-teal-500/20 text-teal-300 border-teal-500/30",
-  violet: "bg-violet-500/20 text-violet-300 border-violet-500/30",
-  amber: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  rose: "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  sky: "bg-sky-500/20 text-sky-300 border-sky-500/30",
-  emerald: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  teal: "bg-[var(--course-1-bg)] text-[var(--course-1-fg)] border-[var(--course-1-fg)]/30",
+  violet: "bg-[var(--course-4-bg)] text-[var(--course-4-fg)] border-[var(--course-4-fg)]/30",
+  amber: "bg-[var(--course-2-bg)] text-[var(--course-2-fg)] border-[var(--course-2-fg)]/30",
+  rose: "bg-[var(--course-6-bg)] text-[var(--course-6-fg)] border-[var(--course-6-fg)]/30",
+  sky: "bg-[var(--course-3-bg)] text-[var(--course-3-fg)] border-[var(--course-3-fg)]/30",
+  emerald: "bg-[var(--course-5-bg)] text-[var(--course-5-fg)] border-[var(--course-5-fg)]/30",
 };
 
-/** Paleta del modal → acento interno (progreso / tabs). */
+/** Paleta Paper del modal → acento interno (progreso / tabs). */
 export function hexToStudentAccent(hex: string): StudentCourseAccent {
   const n = hex.trim().toLowerCase();
-  if (n === "#0d9488") return "teal";
-  if (n === "#7c3aed") return "violet";
-  if (n === "#2563eb") return "sky";
-  if (n === "#d97706") return "amber";
-  if (n === "#dc2626") return "rose";
-  if (n === "#059669") return "emerald";
-  if (n === "#db2777") return "rose";
+  if (n === "#3d5a2f") return "teal";
+  if (n === "#4a5a6b") return "violet";
+  if (n === "#6b5a3d") return "sky";
+  if (n === "#8a6e3d") return "amber";
+  if (n === "#6b3d3d") return "rose";
+  if (n === "#8a5a3d") return "emerald";
+  if (n === "#7a8a9f") return "violet";
   return "teal";
 }
 

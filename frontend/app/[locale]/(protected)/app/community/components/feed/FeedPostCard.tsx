@@ -101,15 +101,15 @@ export function FeedPostCard({
         </div>
       )}
 
-      <footer className="flex flex-wrap items-center gap-4 border-t border-[var(--app-border)] pt-4">
+      <footer className="flex flex-wrap items-center gap-4 border-t-[0.5px] border-[var(--border)] pt-4">
         <motion.button
           type="button"
           onClick={toggleLike}
           whileTap={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 0.15 }}
           className={cn(
-            "flex items-center gap-1.5 text-sm transition-colors hover:text-white",
-            liked ? "text-red-400/80" : "text-[var(--app-fg-muted)]",
+            "flex items-center gap-1.5 text-sm transition-colors hover:text-[var(--text-primary)]",
+            liked ? "text-[var(--error)]" : "text-[var(--text-muted)]",
           )}
         >
           <Heart className={cn("h-4 w-4", liked && "fill-current")} aria-hidden />
@@ -118,7 +118,7 @@ export function FeedPostCard({
         <button
           type="button"
           onClick={() => setCommentsOpen((o) => !o)}
-          className="flex items-center gap-1.5 text-sm text-[var(--app-fg-muted)] transition-colors hover:text-white"
+          className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
         >
           <MessageCircle className="h-4 w-4" aria-hidden />
           {post.comments}
@@ -127,8 +127,8 @@ export function FeedPostCard({
           type="button"
           onClick={() => setBookmarked((b) => !b)}
           className={cn(
-            "flex items-center gap-1.5 text-sm transition-colors hover:text-white",
-            bookmarked ? "text-[var(--app-primary)]" : "text-[var(--app-fg-muted)]",
+            "flex items-center gap-1.5 text-sm transition-colors hover:text-[var(--text-primary)]",
+            bookmarked ? "text-[var(--accent)]" : "text-[var(--text-muted)]",
           )}
           aria-label={bookmarked ? "Quitar guardado" : "Guardar"}
         >
@@ -136,7 +136,7 @@ export function FeedPostCard({
         </button>
         <button
           type="button"
-          className="flex items-center gap-1.5 text-sm text-[var(--app-fg-muted)] transition-colors hover:text-white"
+          className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
           aria-label="Compartir"
         >
           <Share2 className="h-4 w-4" aria-hidden />

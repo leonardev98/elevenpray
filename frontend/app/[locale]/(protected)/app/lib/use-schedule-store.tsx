@@ -36,14 +36,12 @@ type ScheduleStore = {
 const ScheduleStoreContext = createContext<ScheduleStore | null>(null);
 
 const COURSE_COLOR_POOL = [
-  "bg-teal-500/20 text-teal-300 border-teal-500/30",
-  "bg-violet-500/20 text-violet-300 border-violet-500/30",
-  "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  "bg-sky-500/20 text-sky-300 border-sky-500/30",
-  "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30",
-  "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+  "bg-[var(--course-1-bg)] text-[var(--course-1-fg)] border-[var(--course-1-fg)]/30",
+  "bg-[var(--course-2-bg)] text-[var(--course-2-fg)] border-[var(--course-2-fg)]/30",
+  "bg-[var(--course-3-bg)] text-[var(--course-3-fg)] border-[var(--course-3-fg)]/30",
+  "bg-[var(--course-4-bg)] text-[var(--course-4-fg)] border-[var(--course-4-fg)]/30",
+  "bg-[var(--course-5-bg)] text-[var(--course-5-fg)] border-[var(--course-5-fg)]/30",
+  "bg-[var(--course-6-bg)] text-[var(--course-6-fg)] border-[var(--course-6-fg)]/30",
 ];
 
 function generateId(prefix: string): string {

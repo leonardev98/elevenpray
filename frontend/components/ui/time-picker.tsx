@@ -53,25 +53,25 @@ export function TimePicker({
       className={cn("flex min-w-0 flex-col gap-1", className)}
     >
       {label != null && (
-        <Label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/70">
+        <Label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-muted)]">
           {label}
         </Label>
       )}
       <DateInput
         className={cn(
-          "flex min-w-0 flex-shrink items-center gap-0.5 overflow-hidden rounded-xl border bg-white/5 px-2 py-1.5 text-sm text-white outline-none transition",
-          "border-white/20 hover:border-white/40",
-          "focus-within:border-blue-500/60 focus-within:ring-2 focus-within:ring-blue-500/40",
+          "flex min-w-0 flex-shrink items-center gap-0.5 overflow-hidden rounded-[var(--radius-md)] border-[0.5px] bg-[var(--bg-input)] px-3 py-[10px] text-sm text-[var(--text-primary)] outline-none transition-colors",
+          "border-[var(--border)] hover:border-[var(--border-strong)]",
+          "focus-within:border-[var(--accent)]",
           isInvalid &&
-            "border-red-500/60 focus-within:border-red-500/60 focus-within:ring-red-500/40",
+            "border-[var(--error)] focus-within:border-[var(--error)]",
         )}
       >
         {(segment) => (
           <DateSegment
             segment={segment}
             className={cn(
-              "inline rounded px-0.5 py-0.5 text-white outline-none placeholder:text-white/40",
-              "focus:bg-white/10 focus:caret-white",
+              "inline rounded-[var(--radius-sm)] px-0.5 py-0.5 text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]",
+              "focus:bg-[var(--accent-subtle)] focus:text-[var(--accent)]",
               "type-literal:min-w-[1.25rem] type-literal:text-center",
             )}
           />

@@ -73,24 +73,24 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[500] flex flex-col bg-zinc-950"
+      className="fixed inset-0 z-[500] flex flex-col bg-[var(--bg-base)]"
     >
       {!done ? (
         <>
-          <header className="shrink-0 border-b border-zinc-800 px-4 py-3">
+          <header className="shrink-0 border-b-[0.5px] border-[var(--border)] px-4 py-3">
             <div className="mx-auto flex max-w-4xl items-center gap-3">
-              <button type="button" onClick={onClose} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800">
+              <button type="button" onClick={onClose} className="rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]">
                 <X className="h-5 w-5" />
               </button>
               <div className="min-w-0 flex-1 text-center">
-                <p className="truncate text-sm font-medium text-white">Flashcards — {courseName}</p>
-                <p className="text-xs text-zinc-500">
+                <p className="truncate text-sm font-medium text-[var(--text-primary)]">Flashcards — {courseName}</p>
+                <p className="text-xs text-[var(--text-muted)]">
                   {idx + 1} / {order.length}
                 </p>
               </div>
               <span className="w-9" />
             </div>
-            <div className="mx-auto mt-2 h-1 max-w-4xl overflow-hidden rounded-full bg-zinc-800">
+            <div className="mx-auto mt-2 h-1 max-w-4xl overflow-hidden rounded-full bg-[var(--bg-input)]">
               <div
                 className="h-full rounded-full transition-all"
                 style={{
@@ -106,7 +106,7 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
               type="button"
               onClick={goPrev}
               disabled={idx === 0}
-              className="hidden shrink-0 rounded-full border border-zinc-700 p-3 text-zinc-300 hover:bg-zinc-800 disabled:opacity-30 sm:block"
+              className="hidden shrink-0 rounded-full border-[0.5px] border-[var(--border-strong)] p-3 text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] disabled:opacity-30 sm:block"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
@@ -123,14 +123,14 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
                 className="relative h-full w-full transition-transform duration-300 [transform-style:preserve-3d]"
                 style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
               >
-                <div className="absolute inset-0 flex flex-col rounded-xl border border-zinc-800 bg-zinc-900 p-6 [backface-visibility:hidden]">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Pregunta</p>
-                  <p className="mt-4 flex flex-1 items-center justify-center text-center text-lg font-semibold text-white">
+                <div className="absolute inset-0 flex flex-col rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-6 [backface-visibility:hidden]">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Pregunta</p>
+                  <p className="mt-4 flex flex-1 items-center justify-center text-center text-lg font-semibold text-[var(--text-primary)]">
                     {current?.question}
                   </p>
                 </div>
-                <div className="absolute inset-0 flex flex-col rounded-xl border border-zinc-800 bg-zinc-900 p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Respuesta</p>
+                <div className="absolute inset-0 flex flex-col rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Respuesta</p>
                   <p
                     className="mt-4 flex flex-1 items-center justify-center text-center text-lg font-semibold"
                     style={{ color: hex }}
@@ -144,7 +144,7 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
                         e.stopPropagation();
                         nextFromRating("easy");
                       }}
-                      className="rounded-lg bg-emerald-900/50 px-4 py-2 text-sm font-medium text-emerald-200"
+                      className="rounded-[var(--radius-md)] bg-[var(--accent-subtle)] px-4 py-2 text-sm font-medium text-[var(--accent)]"
                     >
                       Fácil
                     </button>
@@ -154,7 +154,7 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
                         e.stopPropagation();
                         nextFromRating("normal");
                       }}
-                      className="rounded-lg bg-amber-900/50 px-4 py-2 text-sm font-medium text-amber-200"
+                      className="rounded-[var(--radius-md)] bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] px-4 py-2 text-sm font-medium text-[var(--warning)]"
                     >
                       Normal
                     </button>
@@ -164,7 +164,7 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
                         e.stopPropagation();
                         nextFromRating("difficult");
                       }}
-                      className="rounded-lg bg-red-900/50 px-4 py-2 text-sm font-medium text-red-200"
+                      className="rounded-[var(--radius-md)] bg-[color-mix(in_srgb,var(--error)_12%,transparent)] px-4 py-2 text-sm font-medium text-[var(--error)]"
                     >
                       Difícil
                     </button>
@@ -177,21 +177,21 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
               type="button"
               onClick={goNext}
               disabled={idx >= order.length - 1}
-              className="hidden shrink-0 rounded-full border border-zinc-700 p-3 text-zinc-300 hover:bg-zinc-800 disabled:opacity-30 sm:block"
+              className="hidden shrink-0 rounded-full border-[0.5px] border-[var(--border-strong)] p-3 text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] disabled:opacity-30 sm:block"
             >
               <ChevronRight className="h-6 w-6" />
             </button>
           </div>
 
           {hint && !flipped && (
-            <p className="pb-4 text-center text-xs text-zinc-500">Toca la tarjeta para revelar la respuesta</p>
+            <p className="pb-4 text-center text-xs text-[var(--text-muted)]">Toca la tarjeta para revelar la respuesta</p>
           )}
 
           <div className="flex justify-center gap-1.5 pb-6">
             {order.map((id, i) => (
               <span
                 key={`${id}-${i}`}
-                className={cn("h-2 w-2 rounded-full bg-zinc-700", i === idx && "scale-110")}
+                className={cn("h-2 w-2 rounded-full bg-[var(--border-strong)]", i === idx && "scale-110")}
                 style={i === idx ? { backgroundColor: hex } : undefined}
               />
             ))}
@@ -200,8 +200,8 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
           <Trophy className="mb-4 h-14 w-14" style={{ color: hex }} />
-          <h2 className="text-xl font-semibold text-white">¡Sesión completada!</h2>
-          <p className="mt-3 text-sm text-zinc-400">
+          <h2 className="text-xl font-semibold text-[var(--text-primary)]">¡Sesión completada!</h2>
+          <p className="mt-3 text-sm text-[var(--text-muted)]">
             Fácil: {counts.easy} · Normal: {counts.normal} · Difícil: {counts.difficult}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -210,14 +210,14 @@ export function FlashcardStudyFullscreen({ open, courseName, hex, cards, onClose
               onClick={() => {
                 reset();
               }}
-              className="rounded-lg border border-[var(--app-primary)] px-5 py-2.5 text-sm font-medium text-[var(--app-primary)]"
+              className="rounded-[var(--radius-md)] border-[0.5px] border-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-subtle)]"
             >
               Repetir difíciles
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg bg-[var(--app-primary)] px-5 py-2.5 text-sm font-medium text-white"
+              className="rounded-[var(--radius-md)] bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
             >
               Terminar
             </button>
@@ -346,12 +346,12 @@ export function FlashcardsTab({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">Flashcards</h2>
+        <h2 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">Flashcards</h2>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-1 rounded-lg bg-[var(--app-primary)] px-2.5 py-1.5 text-xs font-medium text-white"
+            className="inline-flex items-center gap-1 rounded-[var(--radius-md)] bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
           >
             <Plus className="h-3.5 w-3.5" aria-hidden />
             Crear flashcard
@@ -359,7 +359,7 @@ export function FlashcardsTab({
           <button
             type="button"
             onClick={() => onStudyOpen(true)}
-            className="inline-flex items-center gap-1 rounded-lg border border-[var(--app-primary)] px-2.5 py-1.5 text-xs font-medium text-[var(--app-primary)]"
+            className="inline-flex items-center gap-1 rounded-[var(--radius-md)] border-[0.5px] border-[var(--accent)] px-3 py-1.5 text-xs font-medium text-[var(--accent)] hover:bg-[var(--accent-subtle)]"
           >
             <Play className="h-3.5 w-3.5" aria-hidden />
             Estudiar selección
@@ -375,7 +375,9 @@ export function FlashcardsTab({
             onClick={() => setFilter(pill)}
             className={cn(
               "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-              activeFilter === pill ? "bg-zinc-700 text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-zinc-200",
+              activeFilter === pill
+                ? "bg-[var(--accent-subtle)] text-[var(--accent)]"
+                : "bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
             )}
           >
             {pill}
@@ -394,7 +396,7 @@ export function FlashcardsTab({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
               className={cn(
-                "relative h-[140px] overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800/50 [perspective:1000px]",
+                "relative h-[140px] overflow-hidden rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] [perspective:1000px]",
                 isSel && "ring-1",
               )}
               style={
@@ -407,8 +409,10 @@ export function FlashcardsTab({
                 type="button"
                 onClick={() => toggleSelect(c.id)}
                 className={cn(
-                  "absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded border text-[10px]",
-                  isSel ? "border-white/50 bg-white/20 text-white" : "border-zinc-600 bg-zinc-900/80 text-zinc-400",
+                  "absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-[var(--radius-sm)] border-[0.5px] text-[10px]",
+                  isSel
+                    ? "border-[var(--accent)] bg-[var(--accent-subtle)] text-[var(--accent)]"
+                    : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)]",
                 )}
                 aria-pressed={isSel}
               >
@@ -421,15 +425,15 @@ export function FlashcardsTab({
                 onClick={() => setFlipped((f) => ({ ...f, [c.id]: !f[c.id] }))}
               >
                 <div className="absolute inset-0 flex flex-col p-3 [backface-visibility:hidden]">
-                  <p className="text-[9px] font-medium uppercase tracking-wider text-zinc-500">Pregunta</p>
-                  <p className="mt-1 line-clamp-3 flex-1 text-center text-sm font-semibold leading-snug text-white">
+                  <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Pregunta</p>
+                  <p className="mt-1 line-clamp-3 flex-1 text-center text-sm font-semibold leading-snug text-[var(--text-primary)]">
                     {c.question}
                   </p>
                   <div className="flex items-end justify-between">
-                    <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-400">{c.classLabel}</span>
+                    <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">{c.classLabel}</span>
                     <button
                       type="button"
-                      className="rounded p-0.5 text-zinc-500 hover:text-white"
+                      className="rounded p-0.5 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                       onClick={(e) => toggleFlip(c.id, e)}
                       aria-label="Voltear"
                     >
@@ -438,17 +442,17 @@ export function FlashcardsTab({
                   </div>
                 </div>
                 <div className="absolute inset-0 flex flex-col p-3 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                  <p className="text-[9px] font-medium uppercase tracking-wider text-zinc-500">Respuesta</p>
+                  <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Respuesta</p>
                   <p className="mt-1 line-clamp-3 flex-1 text-center text-sm font-semibold" style={{ color: hex }}>
                     {c.answer}
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    <span className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-[9px] text-emerald-200">Fácil</span>
-                    <span className="rounded bg-amber-900/40 px-1.5 py-0.5 text-[9px] text-amber-200">Normal</span>
-                    <span className="rounded bg-red-900/40 px-1.5 py-0.5 text-[9px] text-red-200">Difícil</span>
+                    <span className="rounded-[var(--radius-sm)] bg-[var(--accent-subtle)] px-1.5 py-0.5 text-[9px] text-[var(--accent)]">Fácil</span>
+                    <span className="rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] px-1.5 py-0.5 text-[9px] text-[var(--warning)]">Normal</span>
+                    <span className="rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--error)_12%,transparent)] px-1.5 py-0.5 text-[9px] text-[var(--error)]">Difícil</span>
                   </div>
                   <button type="button" className="absolute bottom-2 right-2 p-0.5" onClick={(e) => toggleFlip(c.id, e)} aria-label="Voltear">
-                    <RotateCcw className="h-3.5 w-3.5 text-zinc-500" />
+                    <RotateCcw className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                   </button>
                 </div>
               </button>
@@ -466,7 +470,7 @@ export function FlashcardsTab({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-4"
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
             onClick={() => closeModal()}
           >
             <motion.div
@@ -477,20 +481,20 @@ export function FlashcardsTab({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-950 p-7 shadow-2xl"
+              className="max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-[var(--radius-xl)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-elevated)] p-7 shadow-[var(--shadow-md)]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-6 flex items-start justify-between gap-3">
                 <div>
-                  <h2 id="fc-modal-title" className="text-lg font-semibold text-white">
+                  <h2 id="fc-modal-title" className="text-lg font-semibold text-[var(--text-primary)]">
                     Nueva Flashcard
                   </h2>
-                  <p className="mt-1 text-xs text-zinc-500">Curso: {course.name}</p>
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">Curso: {course.name}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => closeModal()}
-                  className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-800 hover:text-white"
+                  className="rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)]"
                   aria-label="Cerrar"
                 >
                   <X className="h-5 w-5" />
@@ -499,7 +503,7 @@ export function FlashcardsTab({
 
               <div className="space-y-5">
                 <div>
-                  <p className="mb-2 text-xs font-semibold text-zinc-300">Clase</p>
+                  <p className="mb-2 text-xs font-semibold text-[var(--text-primary)]">Clase</p>
                   <div className="flex flex-wrap gap-2">
                     {CLASS_OPTIONS.map((n) => {
                       const active = claseSel === n;
@@ -510,8 +514,10 @@ export function FlashcardsTab({
                           type="button"
                           onClick={() => setClaseSel(n)}
                           className={cn(
-                            "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                            active ? "text-white" : "border-zinc-600 bg-zinc-900 text-zinc-400 hover:text-zinc-200",
+                            "rounded-full border-[0.5px] px-3 py-1 text-xs font-medium transition-colors",
+                            active
+                              ? "text-[var(--text-primary)]"
+                              : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
                           )}
                           style={
                             active
@@ -532,8 +538,8 @@ export function FlashcardsTab({
                 <div>
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: hex }} aria-hidden />
-                    <span className="text-xs font-semibold text-white">Pregunta</span>
-                    <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-medium text-zinc-400">Frente</span>
+                    <span className="text-xs font-semibold text-[var(--text-primary)]">Pregunta</span>
+                    <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">Frente</span>
                   </div>
                   <textarea
                     value={pregunta}
@@ -541,12 +547,12 @@ export function FlashcardsTab({
                     rows={4}
                     placeholder="¿Qué quieres recordar? Ej: ¿Cuál es la derivada de xⁿ?"
                     className={cn(
-                      "w-full rounded-md border border-zinc-700 bg-zinc-900 p-3 text-sm text-zinc-100 outline-none transition-[border-color,box-shadow] duration-150",
-                      "placeholder:text-zinc-500",
-                      "focus:border-[var(--app-primary)] focus:shadow-[0_0_0_3px_rgba(13,148,136,0.2)]",
+                      "w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] p-3 text-sm text-[var(--text-primary)] outline-none transition-[border-color] duration-150",
+                      "placeholder:text-[var(--text-muted)]",
+                      "focus:border-[var(--accent)]",
                     )}
                   />
-                  <p className="mt-1 text-right text-xs text-zinc-500">
+                  <p className="mt-1 text-right text-xs text-[var(--text-muted)]">
                     {pregunta.length} / {MAX_LEN}
                   </p>
                 </div>
@@ -554,12 +560,12 @@ export function FlashcardsTab({
                 <div>
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <span
-                      className="h-2 w-2 shrink-0 rounded-full border-2 border-dashed border-zinc-600"
+                      className="h-2 w-2 shrink-0 rounded-full border-2 border-dashed border-[var(--border-strong)]"
                       style={{ backgroundColor: `${hex}33` }}
                       aria-hidden
                     />
-                    <span className="text-xs font-semibold text-white">Respuesta</span>
-                    <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-medium text-zinc-400">Reverso</span>
+                    <span className="text-xs font-semibold text-[var(--text-primary)]">Respuesta</span>
+                    <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">Reverso</span>
                   </div>
                   <textarea
                     value={respuesta}
@@ -567,42 +573,42 @@ export function FlashcardsTab({
                     rows={4}
                     placeholder="La respuesta correcta. Ej: nxⁿ⁻¹"
                     className={cn(
-                      "w-full rounded-md border border-zinc-700 bg-zinc-900 p-3 text-sm text-zinc-100 outline-none transition-[border-color,box-shadow] duration-150",
-                      "placeholder:text-zinc-500",
-                      "focus:border-[var(--app-primary)] focus:shadow-[0_0_0_3px_rgba(13,148,136,0.2)]",
+                      "w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] p-3 text-sm text-[var(--text-primary)] outline-none transition-[border-color] duration-150",
+                      "placeholder:text-[var(--text-muted)]",
+                      "focus:border-[var(--accent)]",
                     )}
                   />
-                  <p className="mt-1 text-right text-xs text-zinc-500">
+                  <p className="mt-1 text-right text-xs text-[var(--text-muted)]">
                     {respuesta.length} / {MAX_LEN}
                   </p>
                 </div>
 
-                <div className="border-t border-zinc-800/80 pt-4">
-                  <p className="mb-2 text-xs text-zinc-500">Vista previa</p>
+                <div className="border-t-[0.5px] border-[var(--border)] pt-4">
+                  <p className="mb-2 text-xs text-[var(--text-muted)]">Vista previa</p>
                   <div className={cn("grid grid-cols-2 gap-2", previewEmpty && "opacity-40")}>
                     <div
-                      className="flex h-20 flex-col rounded-md border p-2"
+                      className="flex h-20 flex-col rounded-[var(--radius-sm)] border-[0.5px] p-2"
                       style={{ borderColor: hex }}
                     >
-                      <p className="text-[9px] font-medium uppercase tracking-wider text-zinc-500">Pregunta</p>
-                      <p className="mt-auto line-clamp-2 text-center text-sm text-white">
+                      <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Pregunta</p>
+                      <p className="mt-auto line-clamp-2 text-center text-sm text-[var(--text-primary)]">
                         {pregunta.trim() ? (
                           pregunta.trim()
                         ) : (
-                          <span className="text-zinc-500">Escribe la pregunta</span>
+                          <span className="text-[var(--text-muted)]">Escribe la pregunta</span>
                         )}
                       </p>
                     </div>
                     <div
-                      className="flex h-20 flex-col rounded-md border p-2"
+                      className="flex h-20 flex-col rounded-[var(--radius-sm)] border-[0.5px] p-2"
                       style={{ borderColor: hex }}
                     >
-                      <p className="text-[9px] font-medium uppercase tracking-wider text-zinc-500">Respuesta</p>
-                      <p className="mt-auto line-clamp-2 text-center text-sm text-white">
+                      <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Respuesta</p>
+                      <p className="mt-auto line-clamp-2 text-center text-sm text-[var(--text-primary)]">
                         {respuesta.trim() ? (
                           respuesta.trim()
                         ) : (
-                          <span className="text-zinc-500">Escribe la respuesta</span>
+                          <span className="text-[var(--text-muted)]">Escribe la respuesta</span>
                         )}
                       </p>
                     </div>
@@ -610,14 +616,14 @@ export function FlashcardsTab({
                 </div>
 
                 <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
-                  <button type="button" onClick={() => closeModal()} className="text-sm text-zinc-500 hover:text-white">
+                  <button type="button" onClick={() => closeModal()} className="text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)]">
                     Cancelar
                   </button>
                   <button
                     type="button"
                     disabled={!canSave}
                     onClick={guardarFlashcard}
-                    className="inline-flex items-center gap-2 rounded-lg bg-[var(--app-primary)] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+                    className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-[var(--accent)] px-[18px] py-[10px] text-sm font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)] disabled:opacity-40"
                   >
                     <Check className="h-4 w-4" aria-hidden />
                     Guardar flashcard
@@ -638,13 +644,13 @@ export function FlashcardsTab({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.25 }}
-            className="fixed bottom-6 left-6 z-[60] flex max-w-[min(100vw-2rem,320px)] items-start gap-3 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 shadow-xl"
+            className="fixed bottom-6 left-6 z-[60] flex max-w-[min(100vw-2rem,320px)] items-start gap-3 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 py-3 shadow-[var(--shadow-md)]"
             style={{ borderLeftWidth: 3, borderLeftColor: hex }}
           >
             <Check className="mt-0.5 h-5 w-5 shrink-0" style={{ color: hex }} aria-hidden />
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white">Flashcard creada</p>
-              <p className="text-xs text-zinc-500">{toastClaseLabel}</p>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">Flashcard creada</p>
+              <p className="text-xs text-[var(--text-muted)]">{toastClaseLabel}</p>
             </div>
           </motion.div>
         ) : null}

@@ -5,157 +5,226 @@
 /* Dark mode por clase (toggle), no por preferencia del sistema */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Tipografía: Inter (SaaS/startup style — Stripe, Linear, Vercel) */
-/* Pesos: 400 (normal), 500 (medium), 600 (semibold), 700 (bold) */
+/* Paper Design System — Mitsyy
+ * Cuaderno premium digital. Fondos cálidos (sepia/beige en light, marrón muy oscuro en dark).
+ * Marca: verde bosque oscuro (#3D5A2F) en light, verde salvia claro (#A8C087) en dark.
+ * Cero violeta, cero neón, cero gradientes, cero sombras coloridas.
+ * Default = dark (cuaderno nocturno).
+ */
 
-/* Paleta Mitsyy: negro, blanco, azul marino */
 :root {
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-hero: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-hero: var(--font-sans);
   --font-fallback: system-ui, -apple-system, sans-serif;
-  --app-black: #0a0a0a;
-  --app-white: #f9f9f9;
-  --app-navy: #0f1e33;
-  --app-navy-muted: #1a3050;
-  --app-bg: #f9f9f9;
-  --app-fg: #0a0a0a;
-  --app-surface: #ffffff;
-  --app-border: #e5e5e5;
-  --app-accent: #0f1e33;
-  --app-highlight: #0f1e33;
-  /* Optional: workspace sections (e.g. skincare) – softer surfaces, AM/PM */
-  --app-surface-soft: #f5f5f4;
-  --app-surface-elevated: #ffffff;
-  --app-fg-secondary: #6B7280;
-  --app-fg-muted: #9CA3AF;
-  --app-fg-title: #0a0a0a;
-  --app-primary: #0f1e33;
-  --app-primary-hover: #0a1628;
-  --app-primary-soft: #e8f0fe;
-  --app-routine-item-bg: #f9fafb;
-  --app-routine-item-border: #e5e7eb;
-  --app-slot-am: #e8f0fe;
-  --app-slot-pm: #f3e8f6;
-  /* Sombras modo claro: más visibles para modales y superficies elevadas */
-  --app-shadow-modal: 0 20px 40px -12px rgba(160, 160, 170, 0.08), 0 8px 16px -6px rgba(160, 160, 170, 0.06);
-  --app-shadow-input: 0 1px 2px rgba(160, 160, 170, 0.06);
-  --app-shadow-button: 0 1px 4px rgba(160, 160, 170, 0.08);
-  --app-shadow-card: 0 1px 3px rgba(160, 160, 170, 0.06);
-  --app-sidebar-active-bg: #e8eaef;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --accent-hover: #4A6B3A;
+  --error: #B85C5C;
+  --success: #4A6B3A;
+  --warning: #C5A572;
+  --info: #7A8A9F;
+}
+
+/* Modo oscuro (default) — Paper */
+:root,
+[data-theme="dark"],
+.dark {
+  --bg-base: #1A1815;
+  --bg-surface: #252119;
+  --bg-elevated: #2E2A20;
+  --bg-input: #332E25;
+  --border: #332E25;
+  --border-strong: #3D3833;
+  --text-primary: #F5F1E8;
+  --text-body: #D4CFC2;
+  --text-muted: #8A8478;
+  --text-disabled: #5C574E;
+  --accent: #A8C087;
+  --accent-fg: #1F1B14;
+  --accent-subtle: #2E3A23;
+  --racha: #A8C087;
+  --xp: #C5A572;
+  --course-1-bg: #2E3A23; --course-1-fg: #A8C087;
+  --course-2-bg: #3A2F1F; --course-2-fg: #D4B580;
+  --course-3-bg: #332A1F; --course-3-fg: #C5B595;
+  --course-4-bg: #1F2A33; --course-4-fg: #8FA5BC;
+  --course-5-bg: #3A2A1F; --course-5-fg: #D49E80;
+  --course-6-bg: #2A1F1F; --course-6-fg: #C58080;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+
+  /* Alias legacy --app-* → Paper */
+  --app-bg: var(--bg-base);
+  --app-fg: var(--text-primary);
+  --app-fg-secondary: var(--text-body);
+  --app-fg-muted: var(--text-muted);
+  --app-fg-title: var(--text-primary);
+  --app-surface: var(--bg-surface);
+  --app-surface-soft: var(--bg-base);
+  --app-surface-elevated: var(--bg-elevated);
+  --app-border: var(--border);
+  --app-highlight: var(--bg-elevated);
+  --app-navy: var(--accent);
+  --app-navy-muted: var(--accent-hover);
+  --app-primary: var(--accent);
+  --app-primary-hover: var(--accent-hover);
+  --app-primary-soft: var(--accent-subtle);
+  --app-accent: var(--accent-subtle);
+  --app-sidebar-active-bg: var(--accent-subtle);
+  --app-white: var(--accent-fg);
+  --app-black: var(--text-primary);
+  --app-routine-item-bg: var(--bg-surface);
+  --app-routine-item-border: var(--border);
+  --app-slot-am: var(--course-1-bg);
+  --app-slot-pm: var(--course-3-bg);
+  --app-shadow-modal: var(--shadow-md);
+  --app-shadow-input: var(--shadow-sm);
+  --app-shadow-button: var(--shadow-sm);
+  --app-shadow-card: var(--shadow-sm);
+  --app-radius-card: var(--radius-lg);
+  --app-radius-lg: var(--radius-xl);
+
+  /* Alias shadcn → Paper */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-fg);
+  --secondary: var(--bg-elevated);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-input);
+  --muted-foreground: var(--text-muted);
+  --destructive: var(--error);
+  --input: var(--bg-input);
+  --ring: var(--accent);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--bg-surface);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--accent-fg);
+  --sidebar-accent: var(--accent-subtle);
+  --sidebar-accent-foreground: var(--accent);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--accent);
+  --chart-1: var(--course-1-fg);
+  --chart-2: var(--course-2-fg);
+  --chart-3: var(--course-3-fg);
+  --chart-4: var(--course-4-fg);
+  --chart-5: var(--course-5-fg);
 }
 
-.dark {
-  /* Student companion: Calm / Apple Health inspired — warm dark, soft sage accent */
-  --app-navy: #6eb5a8;
-  --app-navy-muted: #5a9d91;
-  --app-white: #f5f5f4;
-  --app-bg: #121214;
-  --app-fg: #ececea;
-  --app-fg-secondary: #a8a8a4;
-  --app-fg-muted: #787874;
-  --app-fg-title: #f5f5f4;
-  --app-surface: #1c1c1f;
-  --app-surface-elevated: #252528;
-  --app-border: #2e2e32;
-  --app-primary: #6eb5a8;
-  --app-primary-hover: #5ca899;
-  --app-primary-soft: rgba(110, 181, 168, 0.14);
-  --app-accent: rgba(110, 181, 168, 0.2);
-  --app-highlight: #2e2e32;
-  --app-surface-soft: #18181a;
-  --app-routine-item-bg: #1c1c1f;
-  --app-routine-item-border: #2e2e32;
-  --app-slot-am: rgba(110, 181, 168, 0.12);
-  --app-slot-pm: rgba(180, 140, 200, 0.1);
-  --app-radius-card: 1.125rem;
-  --app-radius-lg: 1.25rem;
-  --app-shadow-modal: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
-  --app-shadow-input: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --app-shadow-button: 0 2px 12px rgba(110, 181, 168, 0.15);
-  --app-shadow-card: 0 4px 24px rgba(0, 0, 0, 0.25);
-  --app-sidebar-active-bg: rgba(110, 181, 168, 0.12);
-  --background: #0B0F14;
-  --foreground: #E6EDF3;
-  --card: #111827;
-  --card-foreground: #E6EDF3;
-  --popover: #1A2233;
-  --popover-foreground: #E6EDF3;
-  --primary: #4F8CFF;
-  --primary-foreground: #ffffff;
-  --secondary: #1A2233;
-  --secondary-foreground: #E6EDF3;
-  --muted: #1A2233;
-  --muted-foreground: #CBD2D9;
-  --accent: #1A2233;
-  --accent-foreground: #E6EDF3;
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: #2A3446;
-  --input: #2A3446;
-  --ring: #4F8CFF;
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: #111827;
-  --sidebar-foreground: #E6EDF3;
-  --sidebar-primary: #4F8CFF;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1A2233;
-  --sidebar-accent-foreground: #E6EDF3;
-  --sidebar-border: #2A3446;
-  --sidebar-ring: #4F8CFF;
+/* Modo claro — Paper */
+[data-theme="light"],
+.light {
+  --bg-base: #F8F4EC;
+  --bg-surface: #FFFCF5;
+  --bg-elevated: #FFFFFF;
+  --bg-input: #F0EBE0;
+  --border: #E8E2D5;
+  --border-strong: #D8D2C2;
+  --text-primary: #1F1B14;
+  --text-body: #3D3833;
+  --text-muted: #7A7368;
+  --text-disabled: #B8AF9F;
+  --accent: #3D5A2F;
+  --accent-fg: #FFFCF5;
+  --accent-subtle: #E8EFD9;
+  --racha: #3D5A2F;
+  --xp: #8A6E3D;
+  --course-1-bg: #E8EFD9; --course-1-fg: #3D5A2F;
+  --course-2-bg: #F0E5D0; --course-2-fg: #8A6E3D;
+  --course-3-bg: #E5DCD0; --course-3-fg: #6B5A3D;
+  --course-4-bg: #DCE0E5; --course-4-fg: #4A5A6B;
+  --course-5-bg: #E8DCD0; --course-5-fg: #8A5A3D;
+  --course-6-bg: #E0D8D8; --course-6-fg: #6B3D3D;
+  --shadow-sm: 0 1px 2px rgba(31,27,20,0.04);
+  --shadow-md: 0 4px 12px rgba(31,27,20,0.08);
+
+  /* Alias legacy --app-* → Paper (los aliases referencian las vars de arriba) */
+  --app-bg: var(--bg-base);
+  --app-fg: var(--text-primary);
+  --app-fg-secondary: var(--text-body);
+  --app-fg-muted: var(--text-muted);
+  --app-fg-title: var(--text-primary);
+  --app-surface: var(--bg-surface);
+  --app-surface-soft: var(--bg-base);
+  --app-surface-elevated: var(--bg-elevated);
+  --app-border: var(--border);
+  --app-highlight: var(--bg-elevated);
+  --app-navy: var(--accent);
+  --app-navy-muted: var(--accent-hover);
+  --app-primary: var(--accent);
+  --app-primary-hover: var(--accent-hover);
+  --app-primary-soft: var(--accent-subtle);
+  --app-accent: var(--accent-subtle);
+  --app-sidebar-active-bg: var(--accent-subtle);
+  --app-white: var(--accent-fg);
+  --app-black: var(--text-primary);
+  --app-routine-item-bg: var(--bg-surface);
+  --app-routine-item-border: var(--border);
+  --app-slot-am: var(--course-1-bg);
+  --app-slot-pm: var(--course-3-bg);
+  --app-shadow-modal: var(--shadow-md);
+  --app-shadow-input: var(--shadow-sm);
+  --app-shadow-button: var(--shadow-sm);
+  --app-shadow-card: var(--shadow-sm);
+
+  /* Alias shadcn → Paper */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-fg);
+  --secondary: var(--bg-elevated);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-input);
+  --muted-foreground: var(--text-muted);
+  --destructive: var(--error);
+  --input: var(--bg-input);
+  --ring: var(--accent);
+  --sidebar: var(--bg-surface);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--accent-fg);
+  --sidebar-accent: var(--accent-subtle);
+  --sidebar-accent-foreground: var(--accent);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--accent);
+  --chart-1: var(--course-1-fg);
+  --chart-2: var(--course-2-fg);
+  --chart-3: var(--course-3-fg);
+  --chart-4: var(--course-4-fg);
+  --chart-5: var(--course-5-fg);
 }
 
-/* Dark mode scrollbar */
-.dark {
-  scrollbar-color: #2A3446 #0B0F14;
+/* Scrollbar Paper (mismo look en light y dark) */
+:root,
+.dark,
+.light {
+  scrollbar-color: var(--border-strong) var(--bg-base);
 }
-.dark ::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-.dark ::-webkit-scrollbar-track {
-  background: #0B0F14;
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
 }
-.dark ::-webkit-scrollbar-thumb {
-  background: #2A3446;
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
   border-radius: 4px;
 }
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #3A475D;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 /* Sombras de app (modales, inputs): usan variables para modo claro/oscuro */
@@ -247,11 +316,11 @@
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--racha) 40%, transparent);
   }
   50% {
     opacity: 0.7;
-    box-shadow: 0 0 8px 2px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 0 8px 2px color-mix(in srgb, var(--racha) 30%, transparent);
   }
 }
 
@@ -339,25 +408,25 @@
   animation: wellbeing-breathe var(--breathe-duration, 4s) ease-in-out infinite;
 }
 
-/* Calendario — colores por tipo de evento (tema oscuro). Aplica a las vistas semanal y diaria. */
+/* Calendario — colores Paper por tipo de evento (light/dark). */
 .schedule-calendar,
 .schedule-week {
-  --schedule-class-bg: rgba(139, 92, 246, 0.18);
-  --schedule-class-border: rgba(167, 139, 250, 0.45);
-  --schedule-class-tag: rgba(139, 92, 246, 0.35);
-  --schedule-class-strong: rgb(167, 139, 250);
-  --schedule-task-bg: rgba(45, 212, 191, 0.15);
-  --schedule-task-border: rgba(94, 234, 212, 0.4);
-  --schedule-task-tag: rgba(45, 212, 191, 0.3);
-  --schedule-task-strong: rgb(94, 234, 212);
-  --schedule-extra-bg: rgba(251, 191, 36, 0.14);
-  --schedule-extra-border: rgba(252, 211, 77, 0.4);
-  --schedule-extra-tag: rgba(251, 191, 36, 0.28);
-  --schedule-extra-strong: rgb(252, 211, 77);
-  --schedule-exam-bg: rgba(248, 113, 113, 0.16);
-  --schedule-exam-border: rgba(252, 165, 165, 0.42);
-  --schedule-exam-tag: rgba(248, 113, 113, 0.32);
-  --schedule-exam-strong: rgb(252, 165, 165);
+  --schedule-class-bg: var(--course-1-bg);
+  --schedule-class-border: color-mix(in srgb, var(--course-1-fg) 45%, transparent);
+  --schedule-class-tag: color-mix(in srgb, var(--course-1-fg) 25%, transparent);
+  --schedule-class-strong: var(--course-1-fg);
+  --schedule-task-bg: var(--accent-subtle);
+  --schedule-task-border: color-mix(in srgb, var(--accent) 40%, transparent);
+  --schedule-task-tag: color-mix(in srgb, var(--accent) 25%, transparent);
+  --schedule-task-strong: var(--accent);
+  --schedule-extra-bg: var(--course-2-bg);
+  --schedule-extra-border: color-mix(in srgb, var(--course-2-fg) 45%, transparent);
+  --schedule-extra-tag: color-mix(in srgb, var(--course-2-fg) 25%, transparent);
+  --schedule-extra-strong: var(--course-2-fg);
+  --schedule-exam-bg: color-mix(in srgb, var(--error) 14%, transparent);
+  --schedule-exam-border: color-mix(in srgb, var(--error) 45%, transparent);
+  --schedule-exam-tag: color-mix(in srgb, var(--error) 28%, transparent);
+  --schedule-exam-strong: var(--error);
 }
 
 .schedule-grid-cell {
@@ -370,15 +439,15 @@
 .schedule-event-block {
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
-  border: 1px solid var(--app-border);
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--border);
   padding: 6px 8px;
   text-align: left;
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
 }
 .schedule-event-block:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-md);
 }
 .schedule-event-block::before {
   content: "";
@@ -387,9 +456,9 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-  background: var(--schedule-strong, var(--app-primary));
+  border-top-left-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+  background: var(--schedule-strong, var(--accent));
 }
 
 /* Cursos — acentos por color (badges, hover, tabs) */
@@ -571,14 +640,12 @@
   border-radius: 50%;
 }
 
-/* Toasts (Sileo): paleta del sistema — tema claro: azul marino; tema oscuro: blanco */
-:root {
-  --toast-fill: var(--app-navy);
-  --toast-text: var(--app-white);
-}
-.dark {
-  --toast-fill: var(--app-white);
-  --toast-text: var(--app-black);
+/* Toasts (Sileo): paleta Paper — verde bosque/salvia, mismo look en ambos modos */
+:root,
+.dark,
+.light {
+  --toast-fill: var(--accent);
+  --toast-text: var(--accent-fg);
 }
 
 /* Forzar paleta en todos los estados del toast (success, error, etc.) */
@@ -847,6 +914,7 @@
   --color-app-accent: var(--app-accent);
   --color-app-highlight: var(--app-highlight);
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -865,8 +933,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
+  /* Paper: --accent es la marca; Tailwind `bg-accent` se usa para fondos suaves → mapeamos a accent-subtle */
+  --color-accent-foreground: var(--accent);
+  --color-accent: var(--accent-subtle);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -879,13 +948,14 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Radios Paper — fijos en px, no relativos a --radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 28px;
 }
 
 /* Mobile-first: tap targets mínimos y evitar zoom en inputs */
@@ -893,13 +963,14 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 body {
-  background: var(--app-bg);
-  color: var(--app-fg);
+  background: var(--bg-base);
+  color: var(--text-body);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-body);
   letter-spacing: var(--letter-spacing-normal);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 /* Áreas seguras para notch/home en móviles */
 @supports (padding: env(safe-area-inset-bottom)) {

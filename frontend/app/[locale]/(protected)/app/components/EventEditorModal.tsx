@@ -23,13 +23,13 @@ const KIND_ORDER: ScheduleEventKind[] = ["class", "task", "exam", "extra"];
 
 const KIND_CHIP_STYLES: Record<ScheduleEventKind, string> = {
   class:
-    "data-[active=true]:border-violet-400/60 data-[active=true]:bg-violet-500/20 data-[active=true]:text-violet-200",
+    "data-[active=true]:border-[var(--course-1-fg)]/40 data-[active=true]:bg-[var(--course-1-bg)] data-[active=true]:text-[var(--course-1-fg)]",
   task:
-    "data-[active=true]:border-teal-400/60 data-[active=true]:bg-teal-500/20 data-[active=true]:text-teal-200",
+    "data-[active=true]:border-[var(--accent)]/40 data-[active=true]:bg-[var(--accent-subtle)] data-[active=true]:text-[var(--accent)]",
   exam:
-    "data-[active=true]:border-rose-400/60 data-[active=true]:bg-rose-500/20 data-[active=true]:text-rose-200",
+    "data-[active=true]:border-[var(--error)]/40 data-[active=true]:bg-[color-mix(in_srgb,var(--error)_14%,transparent)] data-[active=true]:text-[var(--error)]",
   extra:
-    "data-[active=true]:border-amber-400/60 data-[active=true]:bg-amber-500/20 data-[active=true]:text-amber-200",
+    "data-[active=true]:border-[var(--course-2-fg)]/40 data-[active=true]:bg-[var(--course-2-bg)] data-[active=true]:text-[var(--course-2-fg)]",
 };
 
 function todayKey(): string {
@@ -165,7 +165,7 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[120] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          className="fixed inset-0 z-[120] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="event-editor-title"
@@ -352,7 +352,7 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
               </div>
 
               {error && (
-                <p className="rounded-lg bg-red-500/15 px-3 py-2 text-xs text-red-300">{error}</p>
+                <p className="rounded-[var(--radius-md)] bg-[color-mix(in_srgb,var(--error)_12%,transparent)] px-3 py-2 text-xs text-[var(--error)]">{error}</p>
               )}
             </div>
 
@@ -361,7 +361,7 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/10"
+                  className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border-[0.5px] border-[color-mix(in_srgb,var(--error)_30%,transparent)] px-3 py-2 text-xs font-medium text-[var(--error)] transition hover:bg-[color-mix(in_srgb,var(--error)_8%,transparent)]"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   {t("editor.delete")}

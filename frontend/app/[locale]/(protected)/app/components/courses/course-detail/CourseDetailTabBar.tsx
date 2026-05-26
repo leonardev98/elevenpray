@@ -31,7 +31,7 @@ export function CourseDetailTabBar({ course, tabActivo, onTabChange }: CourseDet
   const hex = courseHex(course);
 
   return (
-    <div className="border-b border-zinc-800/80">
+    <div className="border-b-[0.5px] border-[var(--border)]">
       <div
         role="tablist"
         aria-label="Secciones del curso"
@@ -48,7 +48,9 @@ export function CourseDetailTabBar({ course, tabActivo, onTabChange }: CourseDet
               onClick={() => onTabChange(t.id)}
               className={cn(
                 "shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors duration-150",
-                active ? "text-white" : "border-transparent text-zinc-500 hover:text-zinc-300",
+                active
+                  ? "text-[var(--text-primary)]"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]",
               )}
               style={
                 active

@@ -15,9 +15,9 @@ export function BadgeCard({ insignia }: BadgeCardProps) {
   return (
     <div
       className={cn(
-        "student-card flex flex-col items-center gap-3 p-4 text-center transition-all duration-150 hover:scale-[1.03] hover:shadow-lg",
+        "student-card flex flex-col items-center gap-3 p-4 text-center transition-all duration-150 hover:scale-[1.03]",
         unlocked
-          ? "border-[#F59E0B]/30 bg-[var(--app-surface-elevated)]"
+          ? "border-[var(--xp)]/30 bg-[var(--bg-elevated)]"
           : "opacity-60",
       )}
     >
@@ -25,17 +25,17 @@ export function BadgeCard({ insignia }: BadgeCardProps) {
         <div
           className={cn(
             "flex h-14 w-14 items-center justify-center rounded-full",
-            unlocked ? "bg-[#F59E0B]/15" : "bg-[var(--app-surface-soft)]",
+            unlocked ? "bg-[color-mix(in_srgb,var(--xp)_15%,transparent)]" : "bg-[var(--bg-input)]",
           )}
         >
           <GamificationIcon
             name={insignia.icono}
-            className={cn("h-7 w-7", unlocked ? "text-[#F59E0B]" : "text-[var(--app-fg-muted)]")}
+            className={cn("h-7 w-7", unlocked ? "text-[var(--xp)]" : "text-[var(--text-muted)]")}
           />
         </div>
         {!unlocked && (
-          <div className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--app-surface)] ring-2 ring-[var(--app-border)]">
-            <Lock className="h-2.5 w-2.5 text-[var(--app-fg-muted)]" />
+          <div className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--bg-surface)] ring-2 ring-[var(--border)]">
+            <Lock className="h-2.5 w-2.5 text-[var(--text-muted)]" />
           </div>
         )}
       </div>
@@ -44,26 +44,26 @@ export function BadgeCard({ insignia }: BadgeCardProps) {
         <p
           className={cn(
             "text-sm font-semibold",
-            unlocked ? "text-[var(--app-fg)]" : "text-[var(--app-fg-muted)]",
+            unlocked ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]",
           )}
         >
           {insignia.nombre}
         </p>
-        <p className="text-[10px] text-[var(--app-fg-muted)]">{insignia.descripcion}</p>
+        <p className="text-[10px] text-[var(--text-muted)]">{insignia.descripcion}</p>
       </div>
 
       {unlocked ? (
-        <p className="text-[10px] text-[var(--app-fg-muted)]">Obtenida el {insignia.fecha}</p>
+        <p className="text-[10px] text-[var(--text-muted)]">Obtenida el {insignia.fecha}</p>
       ) : (
         <div className="w-full space-y-1">
-          <div className="flex justify-between text-[10px] text-[var(--app-fg-muted)]">
+          <div className="flex justify-between text-[10px] text-[var(--text-muted)]">
             <span>
               {insignia.progreso} / {insignia.total}
             </span>
           </div>
-          <div className="h-1 overflow-hidden rounded-full bg-[var(--app-surface-soft)]">
+          <div className="h-1 overflow-hidden rounded-full bg-[var(--bg-input)]">
             <div
-              className="h-full rounded-full bg-[var(--app-fg-muted)]"
+              className="h-full rounded-full bg-[var(--text-muted)]"
               style={{ width: `${(insignia.progreso / insignia.total) * 100}%` }}
             />
           </div>

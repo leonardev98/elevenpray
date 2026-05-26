@@ -136,7 +136,7 @@ export const RESOURCES: ResourceItem[] = [
     title: "Técnica 5-4-3-2-1 para la ansiedad",
     readTime: "6 min de lectura",
     tag: "Ansiedad",
-    tagColor: "bg-violet-500/15 text-violet-300",
+    tagColor: "bg-[var(--course-4-bg)] text-[var(--course-4-fg)]",
     icon: "BookHeart",
   },
   {
@@ -144,7 +144,7 @@ export const RESOURCES: ResourceItem[] = [
     title: "Cómo estudiar sin agotarte",
     readTime: "4 min de lectura",
     tag: "Productividad",
-    tagColor: "bg-sky-500/15 text-sky-300",
+    tagColor: "bg-[var(--course-3-bg)] text-[var(--course-3-fg)]",
     icon: "BarChart2",
   },
   {
@@ -152,7 +152,7 @@ export const RESOURCES: ResourceItem[] = [
     title: "Dormir bien antes de un examen",
     readTime: "5 min de lectura",
     tag: "Descanso",
-    tagColor: "bg-indigo-500/15 text-indigo-300",
+    tagColor: "bg-[var(--course-4-bg)] text-[var(--course-4-fg)]",
     icon: "Moon",
   },
   {
@@ -160,7 +160,7 @@ export const RESOURCES: ResourceItem[] = [
     title: "Qué hacer cuando te bloqueas",
     readTime: "3 min de lectura",
     tag: "Bloqueo mental",
-    tagColor: "bg-amber-500/15 text-amber-300",
+    tagColor: "bg-[var(--course-2-bg)] text-[var(--course-2-fg)]",
     icon: "Zap",
   },
 ];

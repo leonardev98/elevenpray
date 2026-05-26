@@ -28,12 +28,12 @@ interface QuizzesTabProps {
 function DifficultyDots({ filled, total, hex }: { filled: number; total: number; hex: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-zinc-500">Dificultad</span>
+      <span className="text-xs text-[var(--text-muted)]">Dificultad</span>
       <div className="flex gap-1">
         {Array.from({ length: total }, (_, i) => (
           <span
             key={i}
-            className={cn("h-2 w-2 rounded-full", i < filled ? "" : "bg-zinc-700")}
+            className={cn("h-2 w-2 rounded-full", i < filled ? "" : "bg-[var(--bg-input)]")}
             style={i < filled ? { backgroundColor: hex } : undefined}
           />
         ))}
@@ -87,7 +87,7 @@ function QuizFullscreen({
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="fixed inset-0 z-[500] flex flex-col items-center justify-center bg-zinc-950 px-6"
+        className="fixed inset-0 z-[500] flex flex-col items-center justify-center bg-[var(--bg-base)] px-6"
       >
         <motion.div
           animate={{ scale: [1, 1.04, 1] }}
@@ -96,13 +96,13 @@ function QuizFullscreen({
         >
           <Trophy className="h-16 w-16" style={{ color: hex }} />
         </motion.div>
-        <h2 className="text-xl font-semibold text-white">¡Quiz completado!</h2>
-        <p className="mt-4 text-3xl font-semibold text-white">8 / 10</p>
-        <p className="text-sm text-zinc-500">80% de aciertos</p>
-        <span className="mt-3 rounded-full border border-emerald-800/50 bg-emerald-950/40 px-4 py-1 text-sm font-medium text-emerald-300">
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">¡Quiz completado!</h2>
+        <p className="mt-4 text-3xl font-semibold text-[var(--text-primary)]">8 / 10</p>
+        <p className="text-sm text-[var(--text-muted)]">80% de aciertos</p>
+        <span className="mt-3 rounded-full border-[0.5px] border-[color-mix(in_srgb,var(--success)_30%,transparent)] bg-[color-mix(in_srgb,var(--success)_14%,transparent)] px-4 py-1 text-sm font-medium text-[var(--success)]">
           Aprobado
         </span>
-        <div className="mt-6 h-2 w-full max-w-sm overflow-hidden rounded-full bg-zinc-800">
+        <div className="mt-6 h-2 w-full max-w-sm overflow-hidden rounded-full bg-[var(--bg-input)]">
           <motion.div
             className="h-full rounded-full"
             style={{ backgroundColor: hex }}
@@ -112,22 +112,22 @@ function QuizFullscreen({
           />
         </div>
         <div className="mt-8 grid max-w-sm grid-cols-2 gap-3 text-sm">
-          <p className="text-emerald-400">Correctas: 8</p>
-          <p className="text-red-400">Incorrectas: 2</p>
-          <p className="text-zinc-500">Tiempo: 8:45</p>
-          <p className="text-zinc-500">Clases: 3, 4, 6</p>
+          <p className="text-[var(--success)]">Correctas: 8</p>
+          <p className="text-[var(--error)]">Incorrectas: 2</p>
+          <p className="text-[var(--text-muted)]">Tiempo: 8:45</p>
+          <p className="text-[var(--text-muted)]">Clases: 3, 4, 6</p>
         </div>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <button
             type="button"
-            className="rounded-lg border border-[var(--app-primary)] px-5 py-2.5 text-sm font-medium text-[var(--app-primary)]"
+            className="rounded-[var(--radius-md)] border-[0.5px] border-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-subtle)]"
           >
             Ver respuestas
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg bg-[var(--app-primary)] px-5 py-2.5 text-sm font-medium text-white"
+            className="rounded-[var(--radius-md)] bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
           >
             Terminar
           </button>
@@ -137,24 +137,28 @@ function QuizFullscreen({
   }
 
   return (
-    <div className="fixed inset-0 z-[500] flex flex-col bg-zinc-950">
-      <header className="shrink-0 border-b border-zinc-800 px-4 py-3">
+    <div className="fixed inset-0 z-[500] flex flex-col bg-[var(--bg-base)]">
+      <header className="shrink-0 border-b-[0.5px] border-[var(--border)] px-4 py-3">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
+          >
             <X className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1 text-center">
-            <p className="truncate text-sm font-medium text-white">{title}</p>
-            <p className="text-xs text-zinc-500">
+            <p className="truncate text-sm font-medium text-[var(--text-primary)]">{title}</p>
+            <p className="text-xs text-[var(--text-muted)]">
               Pregunta {q?.number ?? qIdx + 1} de 10
             </p>
           </div>
-          <span className="inline-flex items-center gap-1 text-xs text-zinc-500">
+          <span className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)]">
             <Clock className="h-3.5 w-3.5" />
             12:34
           </span>
         </div>
-        <div className="mx-auto mt-2 h-1 max-w-3xl overflow-hidden rounded-full bg-zinc-800">
+        <div className="mx-auto mt-2 h-1 max-w-3xl overflow-hidden rounded-full bg-[var(--bg-input)]">
           <div
             className="h-full rounded-full transition-all"
             style={{ width: `${((qIdx + 1) / 10) * 100}%`, backgroundColor: hex }}
@@ -163,8 +167,8 @@ function QuizFullscreen({
       </header>
 
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8">
-        <p className="mb-6 text-center text-xl font-semibold leading-snug text-white">
-          <span className="text-zinc-500">{q?.number}.</span> {q?.prompt}
+        <p className="mb-6 text-center text-xl font-semibold leading-snug text-[var(--text-primary)]">
+          <span className="text-[var(--text-muted)]">{q?.number}.</span> {q?.prompt}
         </p>
         <div className="space-y-3">
           {q?.options.map((opt) => {
@@ -183,22 +187,28 @@ function QuizFullscreen({
                   setShowNext(true);
                 }}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg border px-4 py-3.5 text-left text-sm transition-colors",
-                  !picked && "border-zinc-700 bg-zinc-900/80 hover:border-zinc-500",
-                  showGreen && "border-emerald-600 bg-emerald-950/50 text-white",
-                  showRed && "border-red-600 bg-red-950/50 text-white",
-                  picked && !chosen && isCorrect && "border-emerald-600 bg-emerald-950/40",
+                  "flex w-full items-center gap-3 rounded-[var(--radius-md)] border-[0.5px] px-4 py-3.5 text-left text-sm transition-colors",
+                  !picked &&
+                    "border-[var(--border-strong)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-[var(--accent)]",
+                  showGreen &&
+                    "border-[var(--success)] bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-[var(--text-primary)]",
+                  showRed &&
+                    "border-[var(--error)] bg-[color-mix(in_srgb,var(--error)_12%,transparent)] text-[var(--text-primary)]",
+                  picked &&
+                    !chosen &&
+                    isCorrect &&
+                    "border-[var(--success)] bg-[color-mix(in_srgb,var(--success)_10%,transparent)]",
                 )}
               >
                 <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-[var(--accent-fg)]"
                   style={{ backgroundColor: hex }}
                 >
                   {opt.label}
                 </span>
                 <span className="flex-1">{opt.text}</span>
-                {picked && isCorrect ? <Check className="h-5 w-5 shrink-0 text-emerald-400" /> : null}
-                {picked && chosen && !isCorrect ? <X className="h-5 w-5 shrink-0 text-red-400" /> : null}
+                {picked && isCorrect ? <Check className="h-5 w-5 shrink-0 text-[var(--success)]" /> : null}
+                {picked && chosen && !isCorrect ? <X className="h-5 w-5 shrink-0 text-[var(--error)]" /> : null}
               </button>
             );
           })}
@@ -222,7 +232,7 @@ function QuizFullscreen({
                   setShowNext(false);
                 }
               }}
-              className="rounded-lg bg-[var(--app-primary)] px-8 py-3 text-sm font-semibold text-white"
+              className="rounded-[var(--radius-md)] bg-[var(--accent)] px-8 py-3 text-sm font-semibold text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
             >
               Siguiente pregunta
             </button>
@@ -244,10 +254,10 @@ export function QuizzesTab({ course, history }: QuizzesTabProps) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">Quizzes</h2>
+        <h2 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">Quizzes</h2>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--app-primary)] px-3 py-2 text-xs font-semibold text-white"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-[var(--accent)] px-3 py-2 text-xs font-semibold text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
         >
           <Sparkles className="h-3.5 w-3.5" aria-hidden />
           Generar con IA
@@ -256,36 +266,39 @@ export function QuizzesTab({ course, history }: QuizzesTabProps) {
 
       {featured && (
         <div
-          className="mb-8 rounded-xl border-2 bg-zinc-900/40 p-5"
+          className="mb-8 rounded-[var(--radius-lg)] border-2 bg-[var(--bg-surface)] p-5"
           style={{ borderColor: hex }}
         >
-          <span className="mb-2 inline-block rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200">
+          <span className="mb-2 inline-block rounded-full bg-[color-mix(in_srgb,var(--xp)_18%,transparent)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--xp)]">
             Recomendado
           </span>
-          <h3 className="text-lg font-semibold text-white">{featured.title}</h3>
-          <p className="mt-1 text-xs text-zinc-500">{featured.subtitle}</p>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)]">{featured.title}</h3>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">{featured.subtitle}</p>
           <div className="mt-4">
             <DifficultyDots filled={featured.difficultyFilled} total={5} hex={hex} />
           </div>
           <button
             type="button"
             onClick={() => setQuizOpen(true)}
-            className="mt-5 w-full rounded-lg bg-[var(--app-primary)] py-3 text-sm font-semibold text-white"
+            className="mt-5 w-full rounded-[var(--radius-md)] bg-[var(--accent)] py-3 text-sm font-semibold text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
           >
             Iniciar quiz
           </button>
         </div>
       )}
 
-      <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">Historial</p>
+      <p className="mb-3 text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">Historial</p>
       {history.length === 0 ? (
-        <p className="py-8 text-center text-sm text-zinc-500">No hay quizzes completados aún.</p>
+        <p className="py-8 text-center text-sm text-[var(--text-muted)]">No hay quizzes completados aún.</p>
       ) : (
       <ul className="space-y-3">
         {history.map((item) => {
           const exp = expanded === item.id;
           return (
-            <li key={item.id} className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/30">
+            <li
+              key={item.id}
+              className="overflow-hidden rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)]"
+            >
               <button
                 type="button"
                 onClick={() => setExpanded(exp ? null : item.id)}
@@ -293,39 +306,41 @@ export function QuizzesTab({ course, history }: QuizzesTabProps) {
               >
                 <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0" style={{ color: hex }} />
                 <div className="min-w-0 flex-1">
-                  <h4 className="font-semibold text-white">{item.title}</h4>
-                  <p className="text-xs text-zinc-500">{item.completedAt}</p>
-                  <p className="text-xs text-zinc-500">{item.classesLine}</p>
-                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-zinc-800">
+                  <h4 className="font-semibold text-[var(--text-primary)]">{item.title}</h4>
+                  <p className="text-xs text-[var(--text-muted)]">{item.completedAt}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{item.classesLine}</p>
+                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--bg-input)]">
                     <div className="h-full rounded-full" style={{ width: `${item.percent}%`, backgroundColor: hex }} />
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span className="text-lg font-semibold text-white">{item.scoreLabel}</span>
+                  <span className="text-lg font-semibold text-[var(--text-primary)]">{item.scoreLabel}</span>
                   <span
                     className={cn(
                       "rounded-full px-2 py-0.5 text-[10px] font-medium",
-                      item.passed ? "bg-emerald-950/50 text-emerald-300" : "bg-red-950/50 text-red-300",
+                      item.passed
+                        ? "bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-[var(--success)]"
+                        : "bg-[color-mix(in_srgb,var(--error)_12%,transparent)] text-[var(--error)]",
                     )}
                   >
                     {item.passed ? "Aprobado" : "Reprobado"}
                   </span>
-                  <ChevronRight className={cn("mt-1 h-5 w-5 text-zinc-500", exp && "rotate-90")} />
+                  <ChevronRight className={cn("mt-1 h-5 w-5 text-[var(--text-muted)]", exp && "rotate-90")} />
                 </div>
               </button>
               <div
                 className={cn(
-                  "overflow-hidden border-t border-zinc-800 transition-[max-height] duration-200",
+                  "overflow-hidden border-t-[0.5px] border-[var(--border)] transition-[max-height] duration-200",
                   exp ? "max-h-64" : "max-h-0",
                 )}
               >
                 <ul className="space-y-2 px-4 py-3">
                   {item.questions.map((qq) => (
-                    <li key={qq.id} className="flex items-center gap-2 text-sm text-zinc-300">
+                    <li key={qq.id} className="flex items-center gap-2 text-sm text-[var(--text-body)]">
                       {qq.correct ? (
-                        <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                        <Check className="h-4 w-4 shrink-0 text-[var(--success)]" />
                       ) : (
-                        <X className="h-4 w-4 shrink-0 text-red-500" />
+                        <X className="h-4 w-4 shrink-0 text-[var(--error)]" />
                       )}
                       <span className="line-clamp-2">{qq.prompt}</span>
                     </li>

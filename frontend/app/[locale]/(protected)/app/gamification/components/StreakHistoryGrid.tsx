@@ -11,13 +11,13 @@ interface StreakHistoryGridProps {
 
 export function StreakHistoryGrid({ semanas, variant }: StreakHistoryGridProps) {
   const isEstudio = variant === "estudio";
-  const activeColor = isEstudio ? "bg-[#F97316]" : "bg-[var(--app-primary)]";
+  const activeColor = isEstudio ? "bg-[var(--racha)]" : "bg-[var(--accent)]";
 
   return (
     <div className="mt-4 space-y-2">
       <div className="flex justify-end gap-1 pr-0">
         {DAY_LABELS.map((label) => (
-          <span key={label} className="w-6 text-center text-[10px] text-[var(--app-fg-muted)]">
+          <span key={label} className="w-6 text-center text-[10px] text-[var(--text-muted)]">
             {label}
           </span>
         ))}
@@ -28,8 +28,8 @@ export function StreakHistoryGrid({ semanas, variant }: StreakHistoryGridProps) 
           <div
             key={weekIndex}
             className={cn(
-              "flex justify-end gap-1 rounded-lg py-1",
-              fullWeek && "bg-[var(--app-primary)]/10",
+              "flex justify-end gap-1 rounded-[var(--radius-sm)] py-1",
+              fullWeek && "bg-[var(--accent-subtle)]",
             )}
           >
             {semana.map((done, dayIndex) => (
@@ -38,8 +38,8 @@ export function StreakHistoryGrid({ semanas, variant }: StreakHistoryGridProps) 
                 className={cn(
                   "flex h-6 w-6 items-center justify-center rounded-full border",
                   done
-                    ? cn(activeColor, "border-transparent text-white")
-                    : "border-[var(--app-border)] bg-[var(--app-surface-soft)]",
+                    ? cn(activeColor, "border-transparent text-[var(--accent-fg)]")
+                    : "border-[var(--border)] bg-[var(--bg-input)]",
                 )}
               >
                 {done && <Check className="h-2.5 w-2.5" strokeWidth={3} />}

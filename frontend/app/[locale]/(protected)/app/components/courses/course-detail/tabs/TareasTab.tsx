@@ -20,15 +20,15 @@ function displayStatus(t: MockCourseTask): "pending" | "in_progress" | "complete
 }
 
 const PRIORITY_CLASS = {
-  alta: "border-red-900/50 bg-red-950/50 text-red-300",
-  media: "border-amber-900/40 bg-amber-950/40 text-amber-200",
-  baja: "border-zinc-700 bg-zinc-800 text-zinc-400",
+  alta: "border-[color-mix(in_srgb,var(--error)_30%,transparent)] bg-[color-mix(in_srgb,var(--error)_12%,transparent)] text-[var(--error)]",
+  media: "border-[color-mix(in_srgb,var(--warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]",
+  baja: "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)]",
 };
 
 const STATUS_CLASS = {
-  pending: "border-zinc-700 bg-zinc-800 text-zinc-400",
-  in_progress: "border-amber-800/50 bg-amber-950/30 text-amber-200",
-  completed: "border-emerald-800/50 bg-emerald-950/30 text-emerald-300",
+  pending: "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)]",
+  in_progress: "border-[color-mix(in_srgb,var(--warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]",
+  completed: "border-[color-mix(in_srgb,var(--success)_30%,transparent)] bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-[var(--success)]",
 };
 
 const STATUS_LABEL: Record<"pending" | "in_progress" | "completed", string> = {
@@ -70,10 +70,10 @@ export function TareasTab({ course, tasks }: TareasTabProps) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">Tareas del curso</h2>
+        <h2 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">Tareas del curso</h2>
         <button
           type="button"
-          className="inline-flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 py-1.5 text-xs font-medium text-zinc-200"
+          className="inline-flex items-center gap-1 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
         >
           + Nueva tarea
         </button>
@@ -88,8 +88,8 @@ export function TareasTab({ course, tasks }: TareasTabProps) {
             className={cn(
               "rounded-full px-3 py-1 text-xs font-medium transition-colors",
               filter === f
-                ? "bg-[var(--app-primary)] text-white"
-                : "bg-zinc-800 text-zinc-400 hover:text-zinc-200",
+                ? "bg-[var(--accent)] text-[var(--accent-fg)]"
+                : "bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
             )}
           >
             {f === "todas" ? "Todas" : f === "pendientes" ? "Pendientes" : "Completadas"}
@@ -108,7 +108,7 @@ export function TareasTab({ course, tasks }: TareasTabProps) {
             <li
               key={task.id}
               className={cn(
-                "overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/30 transition-[border-color] duration-150 hover:border-l-[3px]",
+                "overflow-hidden rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] transition-[border-color] duration-150 hover:border-l-[3px]",
               )}
               style={{ borderLeftColor: exp ? hex : undefined }}
             >
@@ -118,24 +118,26 @@ export function TareasTab({ course, tasks }: TareasTabProps) {
                   onClick={() => toggleDone(task.id)}
                   className={cn(
                     "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-transform duration-150",
-                    done ? "scale-95 border-emerald-500 bg-emerald-500" : "border-zinc-500 bg-transparent",
+                    done
+                      ? "scale-95 border-[var(--success)] bg-[var(--success)]"
+                      : "border-[var(--border-strong)] bg-transparent",
                   )}
                   aria-pressed={done}
                 >
-                  {done ? <span className="h-2 w-2 rounded-sm bg-white" /> : null}
+                  {done ? <span className="h-2 w-2 rounded-sm bg-[var(--accent-fg)]" /> : null}
                 </button>
                 <div className={cn("min-w-0 flex-1", done && "opacity-60")}>
-                  <p className={cn("font-semibold text-white", done && "line-through")}>{task.title}</p>
-                  <p className="mt-1 inline-flex items-center gap-1 text-xs text-zinc-500">
+                  <p className={cn("font-semibold text-[var(--text-primary)]", done && "line-through")}>{task.title}</p>
+                  <p className="mt-1 inline-flex items-center gap-1 text-xs text-[var(--text-muted)]">
                     <CalendarDays className="h-3 w-3" aria-hidden />
                     {task.dueDate}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-medium", PRIORITY_CLASS[prio])}>
+                  <span className={cn("rounded-full border-[0.5px] px-2 py-0.5 text-[10px] font-medium", PRIORITY_CLASS[prio])}>
                     {prio === "alta" ? "Alta" : prio === "media" ? "Media" : "Baja"}
                   </span>
-                  <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-medium", STATUS_CLASS[st])}>
+                  <span className={cn("rounded-full border-[0.5px] px-2 py-0.5 text-[10px] font-medium", STATUS_CLASS[st])}>
                     {STATUS_LABEL[st]}
                     {done ? " ✓" : ""}
                   </span>
@@ -143,16 +145,16 @@ export function TareasTab({ course, tasks }: TareasTabProps) {
                 <button
                   type="button"
                   onClick={() => setExpandedId(exp ? null : task.id)}
-                  className="self-center p-1 text-zinc-500 hover:text-white"
+                  className="self-center p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   aria-expanded={exp}
                 >
                   <ChevronRight className={cn("h-5 w-5 transition-transform", exp && "rotate-90")} />
                 </button>
               </div>
               {exp && (
-                <div className="border-t border-zinc-800 px-3 pb-3 pt-2">
-                  <p className="text-sm text-zinc-400">{task.description ?? "Sin descripción."}</p>
-                  <p className="mb-2 mt-3 text-xs text-zinc-500">Progreso manual</p>
+                <div className="border-t-[0.5px] border-[var(--border)] px-3 pb-3 pt-2">
+                  <p className="text-sm text-[var(--text-body)]">{task.description ?? "Sin descripción."}</p>
+                  <p className="mb-2 mt-3 text-xs text-[var(--text-muted)]">Progreso manual</p>
                   <div className="flex flex-wrap gap-2">
                     {[0, 25, 50, 75, 100].map((p) => (
                       <button
@@ -161,15 +163,17 @@ export function TareasTab({ course, tasks }: TareasTabProps) {
                         onClick={() => setManualProgress((prev) => ({ ...prev, [task.id]: p }))}
                         className={cn(
                           "rounded-full px-2.5 py-1 text-[10px] font-medium",
-                          prog === p ? "bg-[var(--app-primary)] text-white" : "bg-zinc-800 text-zinc-400",
+                          prog === p
+                            ? "bg-[var(--accent)] text-[var(--accent-fg)]"
+                            : "bg-[var(--bg-input)] text-[var(--text-muted)]",
                         )}
                       >
                         {p}%
                       </button>
                     ))}
                   </div>
-                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-zinc-800">
-                    <div className="h-full rounded-full bg-zinc-600" style={{ width: `${prog}%` }} />
+                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--bg-input)]">
+                    <div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${prog}%` }} />
                   </div>
                 </div>
               )}

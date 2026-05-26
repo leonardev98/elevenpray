@@ -38,30 +38,32 @@ export function XpWeekChart() {
               onMouseLeave={() => setHoveredIndex(null)}
             >
               {hoveredIndex === index && (
-                <div className="absolute bottom-full mb-2 whitespace-nowrap rounded-md bg-[var(--app-surface-elevated)] px-2 py-1 text-[10px] text-[var(--app-fg)] shadow-lg">
+                <div className="absolute bottom-full mb-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--bg-elevated)] px-2 py-1 text-[10px] text-[var(--text-primary)] shadow-[var(--shadow-md)]">
                   {DAY_FULL[day.dia] ?? day.dia} — {day.xp} XP
                 </div>
               )}
               <div
                 className={cn(
-                  "w-full max-w-[40px] rounded-t-md bg-[var(--app-primary)] transition-all",
-                  isToday && "ring-2 ring-[var(--app-primary)] ring-offset-2 ring-offset-[var(--app-surface)]",
+                  "w-full max-w-[40px] rounded-t-[var(--radius-sm)] bg-[var(--xp)] transition-all",
+                  isToday && "ring-2 ring-[var(--xp)] ring-offset-2 ring-offset-[var(--bg-surface)]",
                 )}
                 style={{
                   height: heightPx,
                   opacity: isMax ? 1 : day.xp === 0 ? 0.15 : 0.35 + (day.xp / maxXp) * 0.55,
                 }}
               />
-              <span className="mt-2 text-[10px] text-[var(--app-fg-muted)]">{day.dia}</span>
-              <span className="text-[10px] font-medium text-[var(--app-fg-secondary)]">{day.xp}</span>
+              <span className="mt-2 text-[10px] text-[var(--text-muted)]">{day.dia}</span>
+              <span className="text-[10px] font-medium text-[var(--text-body)]">{day.xp}</span>
             </div>
           );
         })}
       </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-[var(--app-border)] pt-4">
-        <p className="text-sm font-semibold text-[var(--app-fg)]">{totalXp} XP esta semana</p>
-        <p className="flex items-center gap-1 text-xs text-emerald-400">
+      <div className="mt-4 flex items-center justify-between border-t-[0.5px] border-[var(--border)] pt-4">
+        <p className="text-sm font-semibold text-[var(--text-primary)]">
+          <span className="text-[var(--xp)]">{totalXp} XP</span> esta semana
+        </p>
+        <p className="flex items-center gap-1 text-xs text-[var(--success)]">
           <TrendingUp className="h-3.5 w-3.5" />+ {data.comparacionSemana.porcentaje}% vs semana pasada
         </p>
       </div>

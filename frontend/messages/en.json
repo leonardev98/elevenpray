@@ -229,7 +229,9 @@
     "profile": "Profile",
     "collapse": "Collapse menu",
     "expand": "Expand menu",
-    "close": "Close menu"
+    "close": "Close menu",
+    "themeLight": "Light theme",
+    "themeDark": "Dark theme"
   },
   "studentPlan": {
     "title": "My plan",

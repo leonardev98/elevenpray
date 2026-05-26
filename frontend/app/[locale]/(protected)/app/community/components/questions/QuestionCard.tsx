@@ -20,8 +20,8 @@ export function QuestionCard({ question }: { question: CommunityQuestion }) {
       >
         <motion.div
           className={cn(
-            "flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-2 py-1.5",
-            question.hasAcceptedAnswer ? "text-green-500" : "text-[var(--app-fg-muted)]",
+            "flex shrink-0 flex-col items-center gap-0.5 rounded-[var(--radius-sm)] px-2 py-1.5",
+            question.hasAcceptedAnswer ? "text-[var(--success)]" : "text-[var(--text-muted)]",
           )}
         >
           {question.hasAcceptedAnswer ? (

@@ -15,11 +15,11 @@ const MOOD_ICONS: Record<MoodId, LucideIcon> = {
 };
 
 const MOOD_COLORS: Record<MoodId, string> = {
-  excellent: "text-green-400",
-  good: "text-teal-400",
-  normal: "text-[var(--app-fg-muted)]",
-  low: "text-amber-400",
-  bad: "text-red-400",
+  excellent: "text-[var(--success)]",
+  good: "text-[var(--course-1-fg)]",
+  normal: "text-[var(--text-muted)]",
+  low: "text-[var(--warning)]",
+  bad: "text-[var(--error)]",
 };
 
 function getTodayIndex(): number {
@@ -40,17 +40,17 @@ export function EmotionalWeekSection() {
           return (
             <div
               key={day}
-              className={`flex min-w-[2.5rem] flex-col items-center gap-2 rounded-xl border px-2 py-3 transition-all duration-150 ${
+              className={`flex min-w-[2.5rem] flex-col items-center gap-2 rounded-[var(--radius-md)] border-[0.5px] px-2 py-3 transition-all duration-150 ${
                 isToday
-                  ? "border-[var(--app-primary)]/60 bg-[var(--app-surface-elevated)]"
-                  : "border-[var(--app-border)] bg-[var(--app-surface-soft)]"
+                  ? "border-[var(--accent)]/60 bg-[var(--bg-elevated)]"
+                  : "border-[var(--border)] bg-[var(--bg-input)]"
               }`}
             >
-              <span className="text-[10px] text-[var(--app-fg-muted)]">{day}</span>
+              <span className="text-[10px] text-[var(--text-muted)]">{day}</span>
               {Icon && mood ? (
                 <Icon className={`h-5 w-5 ${MOOD_COLORS[mood]}`} aria-hidden />
               ) : (
-                <span className="text-sm text-[var(--app-fg-muted)]">—</span>
+                <span className="text-sm text-[var(--text-muted)]">—</span>
               )}
             </div>
           );

@@ -39,9 +39,9 @@ export function DailyXpCard() {
             {data.xpHoy} / {data.xpMetaDiaria} XP
           </span>
         </div>
-        <div className="h-2.5 overflow-hidden rounded-full bg-[var(--app-surface-soft)]">
+        <div className="h-2.5 overflow-hidden rounded-full bg-[var(--bg-input)]">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-primary-hover,var(--app-primary))] transition-[width] duration-[800ms] ease-out"
+            className="h-full rounded-full bg-[var(--accent)] transition-[width] duration-[800ms] ease-out"
             style={{ width: `${barWidth}%` }}
           />
         </div>
@@ -50,10 +50,10 @@ export function DailyXpCard() {
             <div key={act.id} className="group relative">
               <div
                 className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-lg border transition",
+                  "flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] border-[0.5px] transition",
                   act.completado
-                    ? "border-emerald-500/30 bg-emerald-500/10"
-                    : "border-[var(--app-border)] bg-[var(--app-surface-soft)]",
+                    ? "border-[var(--success)]/30 bg-[var(--accent-subtle)]"
+                    : "border-[var(--border)] bg-[var(--bg-input)]",
                 )}
                 title={act.label}
               >
@@ -61,14 +61,14 @@ export function DailyXpCard() {
                   name={act.icono}
                   className={cn(
                     "h-4 w-4",
-                    act.completado ? "text-emerald-400" : "text-[var(--app-fg-muted)]",
+                    act.completado ? "text-[var(--success)]" : "text-[var(--text-muted)]",
                   )}
                 />
                 {act.completado && (
-                  <Check className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-emerald-500 p-0.5 text-white" />
+                  <Check className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-[var(--success)] p-0.5 text-[var(--accent-fg)]" />
                 )}
               </div>
-              <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--app-surface-elevated)] px-2 py-1 text-[10px] text-[var(--app-fg)] opacity-0 shadow-lg transition group-hover:opacity-100">
+              <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--bg-elevated)] px-2 py-1 text-[10px] text-[var(--text-primary)] opacity-0 shadow-[var(--shadow-md)] transition group-hover:opacity-100">
                 +{act.xp} XP
               </div>
             </div>
@@ -84,7 +84,7 @@ export function DailyXpCard() {
               cy="32"
               r="28"
               fill="none"
-              stroke="var(--app-surface-soft)"
+              stroke="var(--bg-input)"
               strokeWidth="4"
             />
             <circle
@@ -92,18 +92,18 @@ export function DailyXpCard() {
               cy="32"
               r="28"
               fill="none"
-              stroke="var(--app-primary)"
+              stroke="var(--xp)"
               strokeWidth="4"
               strokeDasharray={`${(data.user.xpActual / data.user.xpSiguienteNivel) * 175.9} 175.9`}
               strokeLinecap="round"
             />
           </svg>
           <div className="flex flex-col items-center">
-            <span className="text-[10px] text-[var(--app-fg-muted)]">Nivel</span>
-            <span className="text-2xl font-bold text-[var(--app-fg)]">{data.user.nivel}</span>
+            <span className="text-[10px] text-[var(--text-muted)]">Nivel</span>
+            <span className="text-2xl font-bold text-[var(--xp)]">{data.user.nivel}</span>
           </div>
         </div>
-        <p className="mt-1 text-[10px] text-[var(--app-fg-muted)]">{xpFaltante} XP para nivel {data.user.nivel + 1}</p>
+        <p className="mt-1 text-[10px] text-[var(--text-muted)]">{xpFaltante} XP para nivel {data.user.nivel + 1}</p>
       </div>
     </div>
   );

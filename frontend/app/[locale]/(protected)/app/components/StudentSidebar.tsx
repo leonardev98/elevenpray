@@ -10,7 +10,9 @@ import {
   Heart,
   Home,
   Menu,
+  Moon,
   Sparkles,
+  Sun,
   Trophy,
   User,
   Users,
@@ -18,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarStreakCompact } from "../gamification/components/SidebarStreakCompact";
+import { useTheme } from "@/app/providers/theme-provider";
 
 const NAV_ITEMS = [
   { href: "/app", key: "home", icon: Home, exact: true },
@@ -47,6 +50,8 @@ export function StudentSidebar({
 }: StudentSidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("studentNav");
+  const { resolvedTheme, toggleTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname === href || pathname?.startsWith(`${href}/`);
@@ -54,25 +59,27 @@ export function StudentSidebar({
   return (
     <aside
       className={cn(
-        "flex h-full flex-col border-r border-[var(--app-border)] bg-[var(--app-surface-soft)]",
+        "flex h-full flex-col border-r-[0.5px] border-[var(--border)] bg-[var(--bg-surface)]",
         collapsed ? "w-[76px]" : "w-64",
         mobileOpen ? "flex" : "hidden lg:flex",
       )}
     >
       <div className="flex items-center justify-between gap-2 px-3 py-5">
         <Link href="/app" onClick={onCloseMobile} className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-primary-soft)] text-lg font-bold text-[var(--app-primary)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--accent-subtle)] text-lg font-semibold text-[var(--accent)]">
             M
           </div>
           {!collapsed && (
-            <span className="text-lg font-semibold tracking-tight text-[var(--app-fg)]">Mitsyy</span>
+            <span className="text-[1.35rem] font-semibold text-[var(--text-primary)]">
+              Mitsyy
+            </span>
           )}
         </Link>
         {onToggleCollapse && (
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="hidden rounded-xl p-2 text-[var(--app-fg-secondary)] hover:bg-[var(--app-surface-elevated)] lg:flex"
+            className="hidden rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] lg:flex"
             aria-label={collapsed ? t("expand") : t("collapse")}
           >
             <Menu className="h-5 w-5" />
@@ -82,7 +89,7 @@ export function StudentSidebar({
           <button
             type="button"
             onClick={onCloseMobile}
-            className="rounded-xl p-2 text-[var(--app-fg-secondary)] hover:bg-[var(--app-surface-elevated)] lg:hidden"
+            className="rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] lg:hidden"
             aria-label={t("close")}
           >
             <X className="h-5 w-5" />
@@ -103,27 +110,16 @@ export function StudentSidebar({
               onClick={onCloseMobile}
               title={collapsed ? t(key) : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-2 py-2 transition",
+                "group flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 transition-colors",
+                active
+                  ? "bg-[var(--accent-subtle)] text-[var(--accent)]"
+                  : "text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]",
                 collapsed && "justify-center px-2",
               )}
             >
-              <span
-                className={cn(
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition",
-                  active
-                    ? "bg-[var(--app-primary)] text-[var(--app-bg)] shadow-sm"
-                    : "bg-transparent text-[var(--app-fg-secondary)] group-hover:text-[var(--app-fg)]",
-                )}
-              >
-                <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 2} aria-hidden />
-              </span>
+              <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.25 : 2} aria-hidden />
               {!collapsed && (
-                <span
-                  className={cn(
-                    "text-sm font-medium",
-                    active ? "text-[var(--app-primary)]" : "text-[var(--app-fg-secondary)]",
-                  )}
-                >
+                <span className="text-sm font-medium">
                   {t(key)}
                 </span>
               )}
@@ -134,7 +130,31 @@ export function StudentSidebar({
 
       <SidebarStreakCompact collapsed={collapsed} />
 
-      <div className="border-t border-[var(--app-border)] px-3 py-4">
+      <div className="border-t-[0.5px] border-[var(--border)] px-2 py-3">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          title={collapsed ? t(isDark ? "themeLight" : "themeDark") : undefined}
+          aria-label={t(isDark ? "themeLight" : "themeDark")}
+          className={cn(
+            "group flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]",
+            collapsed && "justify-center px-2",
+          )}
+        >
+          {isDark ? (
+            <Sun className="h-5 w-5 shrink-0" aria-hidden />
+          ) : (
+            <Moon className="h-5 w-5 shrink-0" aria-hidden />
+          )}
+          {!collapsed && (
+            <span className="text-sm font-medium">
+              {t(isDark ? "themeLight" : "themeDark")}
+            </span>
+          )}
+        </button>
+      </div>
+
+      <div className="border-t-[0.5px] border-[var(--border)] px-3 py-4">
         <Link
           href="/app"
           onClick={onCloseMobile}
@@ -144,11 +164,11 @@ export function StudentSidebar({
           )}
           aria-label="Mitsyy"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--app-primary-soft)] text-sm font-bold text-[var(--app-primary)]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--accent-subtle)] text-sm font-semibold text-[var(--accent)]">
             M
           </div>
           {!collapsed && (
-            <span className="text-xs text-[var(--app-fg-muted)]">Mitsyy</span>
+            <span className="text-xs text-[var(--text-muted)]">Mitsyy</span>
           )}
         </Link>
       </div>

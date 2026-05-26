@@ -33,10 +33,10 @@ export function ApuntesTab({ course, notes, selectedNoteId, onSelectNote }: Apun
   return (
     <div>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">Apuntes</h2>
+        <h2 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">Apuntes</h2>
         <button
           type="button"
-          className="inline-flex items-center gap-1 rounded-lg bg-[var(--app-primary)] px-2.5 py-1.5 text-xs font-medium text-white hover:opacity-90"
+          className="inline-flex items-center gap-1 rounded-[var(--radius-md)] bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
         >
           <Plus className="h-3.5 w-3.5" aria-hidden />
           Nueva nota
@@ -45,12 +45,12 @@ export function ApuntesTab({ course, notes, selectedNoteId, onSelectNote }: Apun
 
       {notes.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <BookOpen className="mb-4 h-14 w-14 text-zinc-600" aria-hidden />
-          <p className="text-zinc-300">Aún no tienes apuntes en este curso</p>
-          <p className="mt-1 text-xs text-zinc-500">Crea tu primera nota para empezar</p>
+          <BookOpen className="mb-4 h-14 w-14 text-[var(--text-muted)]" aria-hidden />
+          <p className="text-[var(--text-primary)]">Aún no tienes apuntes en este curso</p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">Crea tu primera nota para empezar</p>
           <button
             type="button"
-            className="mt-6 inline-flex items-center gap-1 rounded-lg bg-[var(--app-primary)] px-4 py-2 text-sm font-medium text-white"
+            className="mt-6 inline-flex items-center gap-1 rounded-[var(--radius-md)] bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
           >
             <Plus className="h-4 w-4" aria-hidden />
             Nueva nota
@@ -64,22 +64,22 @@ export function ApuntesTab({ course, notes, selectedNoteId, onSelectNote }: Apun
                 type="button"
                 onClick={() => openNote(note)}
                 className={cn(
-                  "group flex w-full flex-col rounded-lg border border-zinc-800 bg-zinc-900/40 p-4 text-left transition-all duration-150",
-                  "border-l-[3px] hover:-translate-y-px hover:bg-zinc-800/50",
+                  "group flex w-full flex-col rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-4 text-left transition-all duration-150",
+                  "border-l-[3px] hover:-translate-y-px hover:bg-[var(--bg-elevated)]",
                 )}
                 style={{ borderLeftColor: hex }}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-white">{note.title}</h3>
+                  <h3 className="font-semibold text-[var(--text-primary)]">{note.title}</h3>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="text-xs text-zinc-500">{note.dateLabel}</span>
-                    <MoreHorizontal className="h-4 w-4 text-zinc-500" aria-hidden />
+                    <span className="text-xs text-[var(--text-muted)]">{note.dateLabel}</span>
+                    <MoreHorizontal className="h-4 w-4 text-[var(--text-muted)]" aria-hidden />
                   </div>
                 </div>
-                <p className="mt-2 line-clamp-2 text-sm text-zinc-500">{note.preview}</p>
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                <p className="mt-2 line-clamp-2 text-sm text-[var(--text-body)]">{note.preview}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
                   {note.classLabel ? (
-                    <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-400">
+                    <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
                       {note.classLabel}
                     </span>
                   ) : null}
@@ -103,7 +103,7 @@ export function ApuntesTab({ course, notes, selectedNoteId, onSelectNote }: Apun
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="fixed inset-0 z-[200] bg-black/70"
+              className="fixed inset-0 z-[200] bg-black/50"
               aria-label="Cerrar"
               onClick={() => onSelectNote(null)}
             />
@@ -112,21 +112,21 @@ export function ApuntesTab({ course, notes, selectedNoteId, onSelectNote }: Apun
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="fixed right-0 top-0 z-[210] flex h-full w-full flex-col border-l border-zinc-800 bg-zinc-950 shadow-2xl sm:w-[40%] sm:min-w-[320px] sm:max-w-[560px]"
+              className="fixed right-0 top-0 z-[210] flex h-full w-full flex-col border-l-[0.5px] border-[var(--border)] bg-[var(--bg-elevated)] shadow-[var(--shadow-md)] sm:w-[40%] sm:min-w-[320px] sm:max-w-[560px]"
             >
-              <div className="flex items-start justify-between gap-2 border-b border-zinc-800 px-4 py-3">
+              <div className="flex items-start justify-between gap-2 border-b-[0.5px] border-[var(--border)] px-4 py-3">
                 {editTitle ? (
                   <input
                     autoFocus
                     value={titleDraft}
                     onChange={(e) => setTitleDraft(e.target.value)}
                     onBlur={() => setEditTitle(false)}
-                    className="min-w-0 flex-1 border-0 bg-transparent text-lg font-semibold text-white outline-none"
+                    className="min-w-0 flex-1 border-0 bg-transparent text-lg font-semibold text-[var(--text-primary)] outline-none"
                   />
                 ) : (
                   <button
                     type="button"
-                    className="min-w-0 flex-1 truncate text-left text-lg font-semibold text-white"
+                    className="min-w-0 flex-1 truncate text-left text-lg font-semibold text-[var(--text-primary)]"
                     onClick={() => {
                       setTitleDraft(selected.title);
                       setEditTitle(true);
@@ -138,7 +138,7 @@ export function ApuntesTab({ course, notes, selectedNoteId, onSelectNote }: Apun
                 <button
                   type="button"
                   onClick={() => onSelectNote(null)}
-                  className="shrink-0 rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                  className="shrink-0 rounded-[var(--radius-md)] p-1.5 text-[var(--text-muted)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)]"
                   aria-label="Cerrar"
                 >
                   <X className="h-5 w-5" />
@@ -148,18 +148,18 @@ export function ApuntesTab({ course, notes, selectedNoteId, onSelectNote }: Apun
                 key={selected.id}
                 defaultValue={selected.body}
                 placeholder="Escribe tu apunte aquí..."
-                className="min-h-[240px] flex-1 resize-none border-0 bg-zinc-950 px-4 py-4 text-sm leading-relaxed text-zinc-200 outline-none placeholder:text-zinc-600"
+                className="min-h-[240px] flex-1 resize-none border-0 bg-[var(--bg-elevated)] px-4 py-4 text-sm leading-relaxed text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
               />
-              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800 px-4 py-3">
-                <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t-[0.5px] border-[var(--border)] px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
                   {selected.classLabel ? (
-                    <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px]">{selected.classLabel}</span>
+                    <span className="rounded-full bg-[var(--bg-input)] px-2 py-0.5 text-[10px]">{selected.classLabel}</span>
                   ) : null}
                   <span>{selected.dateLabel}</span>
                 </div>
                 <button
                   type="button"
-                  className="rounded-lg bg-[var(--app-primary)] px-4 py-2 text-sm font-medium text-white"
+                  className="rounded-[var(--radius-md)] bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-fg)] hover:bg-[var(--accent-hover)]"
                 >
                   Guardar
                 </button>

@@ -32,39 +32,39 @@ export function StreakCard({
         <div className="flex items-center gap-2">
           {isEstudio ? (
             <Flame
-              className={cn("h-5 w-5", racha.hoy ? "text-[#F97316]" : "text-[var(--app-fg-muted)]")}
+              className={cn("h-5 w-5", racha.hoy ? "text-[var(--racha)]" : "text-[var(--text-muted)]")}
             />
           ) : (
             <CheckCircle2
               className={cn(
                 "h-5 w-5",
-                racha.hoy ? "text-[var(--app-primary)]" : "text-[var(--app-fg-muted)]",
+                racha.hoy ? "text-[var(--accent)]" : "text-[var(--text-muted)]",
               )}
             />
           )}
           <span
             className={cn(
-              "text-2xl font-semibold text-[var(--app-fg)]",
+              "text-2xl font-semibold text-[var(--racha)]",
               streakJustCompleted && isEstudio && "animate-streak-count-pop",
             )}
           >
             {racha.actual}
           </span>
-          <span className="text-xs text-[var(--app-fg-muted)]">días seguidos</span>
+          <span className="text-xs text-[var(--text-muted)]">días seguidos</span>
         </div>
         <StreakWeekCircles semana={racha.semana} variant={variant} size="sm" />
         {!racha.hoy && (
-          <p className="text-xs text-[var(--app-fg-secondary)]">
+          <p className="text-xs text-[var(--text-body)]">
             ¡Completa una tarea hoy para llegar a {racha.actual + 1}!
           </p>
         )}
         <div>
-          <p className="text-xs font-medium text-[var(--app-fg)]">
-            {data.xpTareasSemana} XP esta semana
+          <p className="text-xs font-medium text-[var(--text-primary)]">
+            <span className="text-[var(--xp)]">{data.xpTareasSemana} XP</span> esta semana
           </p>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--app-surface-soft)]">
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--bg-input)]">
             <div
-              className="h-full rounded-full bg-[var(--app-primary)] transition-all"
+              className="h-full rounded-full bg-[var(--accent)] transition-all"
               style={{ width: `${Math.min((data.xpTareasSemana / 500) * 100, 100)}%` }}
             />
           </div>
@@ -77,11 +77,11 @@ export function StreakCard({
     <div className="student-card flex flex-col gap-4 p-5">
       <div className="flex items-center gap-2">
         {isEstudio ? (
-          <Flame className="h-5 w-5 text-[#F97316]" aria-hidden />
+          <Flame className="h-5 w-5 text-[var(--racha)]" aria-hidden />
         ) : (
-          <CheckCircle2 className="h-5 w-5 text-[var(--app-primary)]" aria-hidden />
+          <CheckCircle2 className="h-5 w-5 text-[var(--accent)]" aria-hidden />
         )}
-        <h3 className="text-sm font-semibold text-[var(--app-fg)]">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
           {isEstudio ? "Racha de Estudio" : "Racha de Tareas"}
         </h3>
       </div>
@@ -89,13 +89,13 @@ export function StreakCard({
       <div className="flex items-baseline gap-1">
         <span
           className={cn(
-            "text-5xl font-bold text-[var(--app-fg)]",
+            "text-5xl font-bold tracking-[-0.02em] text-[var(--racha)]",
             streakJustCompleted && isEstudio && "animate-streak-count-pop",
           )}
         >
           {racha.actual}
         </span>
-        <span className="text-sm text-[var(--app-fg-muted)]">días</span>
+        <span className="text-sm text-[var(--text-muted)]">días</span>
       </div>
 
       <StreakWeekCircles
@@ -105,15 +105,15 @@ export function StreakCard({
         staggerOnMount={staggerOnMount}
       />
 
-      <p className="text-xs text-[var(--app-fg-muted)]">Mejor racha: {racha.mejor} días</p>
+      <p className="text-xs text-[var(--text-muted)]">Mejor racha: {racha.mejor} días</p>
 
       {!racha.hoy && (
         <div
           className={cn(
-            "flex items-center gap-2 rounded-xl px-3 py-2 text-xs",
+            "flex items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-xs",
             isEstudio
-              ? "bg-orange-500/10 text-orange-300"
-              : "bg-[var(--app-primary)]/10 text-[var(--app-primary)]",
+              ? "bg-[color-mix(in_srgb,var(--racha)_12%,transparent)] text-[var(--racha)]"
+              : "bg-[var(--accent-subtle)] text-[var(--accent)]",
           )}
         >
           <AlertCircle className="h-4 w-4 shrink-0" />

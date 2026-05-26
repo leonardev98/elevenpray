@@ -20,7 +20,7 @@ export function LevelUpOverlay() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-300"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-300"
       role="dialog"
       aria-modal
       aria-labelledby="level-up-title"
@@ -30,15 +30,15 @@ export function LevelUpOverlay() {
         className="student-card max-w-sm w-full p-8 text-center animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        <Trophy className="mx-auto h-16 w-16 text-[#F59E0B] animate-level-trophy-pulse" />
-        <h2 id="level-up-title" className="mt-4 text-2xl font-bold text-[var(--app-fg)]">
-          ¡Subiste al Nivel {newLevel}!
+        <Trophy className="mx-auto h-16 w-16 text-[var(--xp)] animate-level-trophy-pulse" />
+        <h2 id="level-up-title" className="mt-4 text-2xl font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+          ¡Subiste al Nivel <span className="text-[var(--xp)]">{newLevel}</span>!
         </h2>
-        <p className="mt-2 text-[var(--app-primary)] font-medium">{newTitle}</p>
+        <p className="mt-2 font-medium text-[var(--accent)]">{newTitle}</p>
         <button
           type="button"
           onClick={closeLevelModal}
-          className="mt-6 w-full rounded-xl bg-[var(--app-primary)] py-3 text-sm font-semibold text-[var(--app-bg)] transition hover:opacity-90"
+          className="mt-6 w-full rounded-[var(--radius-md)] bg-[var(--accent)] py-3 text-sm font-semibold text-[var(--accent-fg)] transition-colors hover:bg-[var(--accent-hover)]"
         >
           ¡Genial!
         </button>

@@ -21,6 +21,17 @@ function getResolvedTheme(theme: Theme): "light" | "dark" {
   return theme === "system" ? "light" : theme;
 }
 
+function applyThemeToRoot(root: HTMLElement, resolved: "light" | "dark") {
+  if (resolved === "dark") {
+    root.classList.add("dark");
+    root.classList.remove("light");
+  } else {
+    root.classList.add("light");
+    root.classList.remove("dark");
+  }
+  root.setAttribute("data-theme", resolved);
+}
+
 interface ThemeContextValue {
   theme: Theme;
   setTheme: (t: Theme) => void;
@@ -50,8 +61,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!mounted || typeof document === "undefined") return;
     const root = document.documentElement;
     const resolved = getResolvedTheme(theme);
-    if (resolved === "dark") root.classList.add("dark");
-    else root.classList.remove("dark");
+    applyThemeToRoot(root, resolved);
     if (theme !== "system") localStorage.setItem(THEME_KEY, theme);
     else localStorage.setItem(THEME_KEY, "system");
   }, [theme, mounted]);
@@ -60,9 +70,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (theme !== "system" || typeof window === "undefined") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = () => {
-      const root = document.documentElement;
-      if (mq.matches) root.classList.add("dark");
-      else root.classList.remove("dark");
+      applyThemeToRoot(document.documentElement, mq.matches ? "dark" : "light");
     };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);

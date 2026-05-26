@@ -106,7 +106,7 @@ export default function StudentHomePage() {
                       {format(new Date(task.dueDate), "d MMM", { locale: dateFnsLocale })}
                     </p>
                   </div>
-                  <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-xs text-amber-300">
+                  <span className="rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] px-2.5 py-1 text-xs text-[var(--warning)]">
                     {t("pending")}
                   </span>
                 </div>

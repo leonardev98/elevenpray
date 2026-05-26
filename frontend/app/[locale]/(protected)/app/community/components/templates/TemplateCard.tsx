@@ -26,7 +26,7 @@ export function TemplateCard({ template }: { template: CommunityTemplate }) {
         </div>
         <button
           type="button"
-          className="mt-4 w-full rounded-xl border border-[var(--app-primary)] py-2 text-sm font-medium text-[var(--app-primary)] transition-colors hover:bg-[var(--app-primary)] hover:text-white"
+          className="mt-4 w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--accent)] py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--accent-fg)]"
         >
           Usar plantilla
         </button>

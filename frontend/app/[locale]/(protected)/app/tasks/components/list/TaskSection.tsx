@@ -7,9 +7,9 @@ import type { MockStudentTask } from "../../lib/tasks-mock-data";
 import { TaskCard } from "./TaskCard";
 
 const SECTION_ICONS = {
-  alert: { Icon: AlertCircle, className: "text-red-400" },
-  clock: { Icon: Clock, className: "text-amber-400" },
-  calendar: { Icon: Calendar, className: "text-[var(--app-fg-muted)]" },
+  alert: { Icon: AlertCircle, className: "text-[var(--error)]" },
+  clock: { Icon: Clock, className: "text-[var(--warning)]" },
+  calendar: { Icon: Calendar, className: "text-[var(--text-muted)]" },
 } as const;
 
 interface TaskSectionProps {

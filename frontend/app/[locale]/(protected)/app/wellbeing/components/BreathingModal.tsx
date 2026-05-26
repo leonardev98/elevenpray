@@ -7,9 +7,9 @@ import type { BreathingExercise, BreathingPhaseType } from "../wellbeing-types";
 import { useBreathingExercise } from "../hooks/useBreathingExercise";
 
 const PHASE_BORDER: Record<BreathingPhaseType, string> = {
-  inhale: "border-teal-400",
-  hold: "border-amber-400",
-  exhale: "border-blue-400",
+  inhale: "border-[var(--course-1-fg)]",
+  hold: "border-[var(--warning)]",
+  exhale: "border-[var(--course-3-fg)]",
 };
 
 interface BreathingModalProps {
@@ -44,7 +44,7 @@ export function BreathingModal({ exercise, open, onClose }: BreathingModalProps)
     reset();
   }
 
-  const borderClass = phaseType ? PHASE_BORDER[phaseType] : "border-[var(--app-primary)]";
+  const borderClass = phaseType ? PHASE_BORDER[phaseType] : "border-[var(--accent)]";
 
   return (
     <AnimatePresence>
@@ -53,7 +53,7 @@ export function BreathingModal({ exercise, open, onClose }: BreathingModalProps)
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
           role="dialog"
           aria-modal="true"
           aria-label={exercise.title}
@@ -64,7 +64,7 @@ export function BreathingModal({ exercise, open, onClose }: BreathingModalProps)
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-md rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-8 shadow-app-modal"
+            className="relative w-full max-w-md rounded-[var(--radius-xl)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-elevated)] p-8 shadow-[var(--shadow-md)]"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -81,13 +81,13 @@ export function BreathingModal({ exercise, open, onClose }: BreathingModalProps)
             </p>
 
             <div className="flex flex-col items-center">
-              <p className="mb-2 text-2xl font-semibold text-[var(--app-fg)]">{phaseLabel}</p>
-              <p className="mb-6 text-4xl font-mono font-bold tabular-nums text-[var(--app-primary)]">
+              <p className="mb-2 text-2xl font-semibold text-[var(--text-primary)]">{phaseLabel}</p>
+              <p className="mb-6 text-4xl font-mono font-bold tabular-nums text-[var(--accent)]">
                 {secondsLeft}
               </p>
 
               <div
-                className={`wellbeing-breathe-circle mb-8 flex h-48 w-48 items-center justify-center rounded-full border-4 bg-[var(--app-surface-soft)] ${borderClass}`}
+                className={`wellbeing-breathe-circle mb-8 flex h-48 w-48 items-center justify-center rounded-full border-4 bg-[var(--bg-input)] ${borderClass}`}
                 style={
                   {
                     "--breathe-duration": `${phaseDuration}s`,
@@ -96,9 +96,9 @@ export function BreathingModal({ exercise, open, onClose }: BreathingModalProps)
                 }
               />
 
-              <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-[var(--app-surface-soft)]">
+              <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-[var(--bg-input)]">
                 <div
-                  className="h-full rounded-full bg-[var(--app-primary)] transition-all duration-1000 ease-linear"
+                  className="h-full rounded-full bg-[var(--accent)] transition-all duration-1000 ease-linear"
                   style={{ width: `${roundProgress}%` }}
                 />
               </div>
@@ -107,7 +107,7 @@ export function BreathingModal({ exercise, open, onClose }: BreathingModalProps)
                 type="button"
                 onClick={togglePause}
                 aria-label={isPaused ? "Reanudar" : "Pausar"}
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--app-primary)] text-[var(--app-bg)] transition-opacity hover:opacity-90"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--accent-fg)] transition-colors hover:bg-[var(--accent-hover)]"
               >
                 {isPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
               </button>

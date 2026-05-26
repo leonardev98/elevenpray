@@ -28,7 +28,6 @@ const SUGGESTIONS = [
 
 const FOLLOW_UP = ["¿Un ejemplo más?", "Crea flashcard de esto", "Quiz sobre esto"];
 
-const ACCENT = "#0D9488";
 const IA_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 interface CourseAiDrawerProps {
@@ -59,7 +58,7 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 w-[380px] shrink-0 flex-col border-l border-zinc-800/60 bg-[#0c0e12]",
+        "flex h-full min-h-0 w-[380px] shrink-0 flex-col border-l-[0.5px] border-[var(--border)] bg-[var(--bg-surface)]",
         "transition-transform duration-[280ms]",
         open
           ? "translate-x-0"
@@ -69,16 +68,13 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
       aria-hidden={!open}
     >
       {/* Header */}
-      <div className="border-b border-zinc-800/60 bg-[#090b0e] px-4 pb-3 pt-3.5">
+      <div className="border-b-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] px-4 pb-3 pt-3.5">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <Sparkles className="h-[18px] w-[18px] shrink-0" style={{ color: ACCENT }} aria-hidden />
+            <Sparkles className="h-[18px] w-[18px] shrink-0 text-[var(--accent)]" aria-hidden />
             <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <span className="font-semibold text-white">Asistente IA</span>
-              <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                style={{ backgroundColor: "rgba(13, 148, 136, 0.2)", color: ACCENT }}
-              >
+              <span className="font-semibold text-[var(--text-primary)]">Asistente IA</span>
+              <span className="shrink-0 rounded-full bg-[var(--accent-subtle)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--accent)]">
                 Beta
               </span>
             </div>
@@ -86,21 +82,21 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-white"
+            className="shrink-0 rounded-[var(--radius-md)] p-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
             aria-label="Cerrar panel"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+        <p className="mt-2 text-xs leading-relaxed text-[var(--text-muted)]">
           Basado en tus apuntes, clases y archivos · {courseName}
         </p>
-        <div className="mt-3 h-px w-full bg-zinc-800/80" aria-hidden />
+        <div className="mt-3 h-px w-full bg-[var(--border)]" aria-hidden />
       </div>
 
       {/* Sugerencias */}
-      <div className="border-b border-zinc-800/60 bg-[#0c0e12] px-4 py-3">
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Sugerencias</p>
+      <div className="border-b-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">Sugerencias</p>
         <div className="flex flex-wrap gap-2">
           {SUGGESTIONS.map((s) => (
             <button
@@ -108,8 +104,8 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
               type="button"
               onClick={() => pushUser(s)}
               className={cn(
-                "rounded-md border border-zinc-700/90 bg-zinc-900/90 px-3 py-1.5 text-xs text-zinc-300 transition-colors duration-150 ease-out",
-                "hover:border-[#0D9488] hover:bg-[rgba(13,148,136,0.1)] hover:text-white",
+                "rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] px-3 py-1.5 text-xs text-[var(--text-body)] transition-colors duration-150 ease-out",
+                "hover:border-[var(--accent)] hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)]",
               )}
             >
               {s}
@@ -119,7 +115,7 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
       </div>
 
       {/* Chat */}
-      <div className="min-h-0 flex-1 overflow-y-auto bg-[#060708] px-4 py-4">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--bg-base)] px-4 py-4">
         <div className="space-y-3">
           {messages.map((m) =>
             m.role === "user" ? (
@@ -131,11 +127,8 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <div
-                  className="max-w-[85%] px-[14px] py-2.5 text-sm font-normal leading-snug text-white"
-                  style={{
-                    backgroundColor: ACCENT,
-                    borderRadius: "16px 16px 4px 16px",
-                  }}
+                  className="max-w-[85%] bg-[var(--accent)] px-[14px] py-2.5 text-sm font-normal leading-snug text-[var(--accent-fg)]"
+                  style={{ borderRadius: "16px 16px 4px 16px" }}
                 >
                   {m.text}
                 </div>
@@ -149,14 +142,14 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <div
-                  className="max-w-[92%] border-[0.5px] border-zinc-700/80 bg-[#1E2530] px-[14px] py-3 text-sm leading-[1.6] text-zinc-200"
+                  className="max-w-[92%] border-[0.5px] border-[var(--border)] bg-[var(--bg-elevated)] px-[14px] py-3 text-sm leading-[1.6] text-[var(--text-body)]"
                   style={{ borderRadius: "16px 16px 16px 4px" }}
                 >
                   <div className="mb-1.5 flex items-center gap-1.5">
-                    <Sparkles className="h-3 w-3 shrink-0" style={{ color: ACCENT }} aria-hidden />
-                    <span className="text-[11px] font-semibold text-zinc-400">Mitsyy IA</span>
+                    <Sparkles className="h-3 w-3 shrink-0 text-[var(--accent)]" aria-hidden />
+                    <span className="text-[11px] font-semibold text-[var(--text-muted)]">Mitsyy IA</span>
                   </div>
-                  <p className="text-sm text-zinc-300">{m.text}</p>
+                  <p className="text-sm text-[var(--text-body)]">{m.text}</p>
                 </div>
               </motion.div>
             ),
@@ -169,8 +162,8 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
                   type="button"
                   onClick={() => pushUser(f)}
                   className={cn(
-                    "rounded-md border border-[rgba(13,148,136,0.4)] bg-transparent px-2.5 py-1 text-[11px] font-medium transition-colors duration-150 ease-out",
-                    "text-[#0D9488] hover:border-[#0D9488] hover:bg-[rgba(13,148,136,0.1)]",
+                    "rounded-[var(--radius-md)] border-[0.5px] border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-transparent px-2.5 py-1 text-[11px] font-medium transition-colors duration-150 ease-out",
+                    "text-[var(--accent)] hover:border-[var(--accent)] hover:bg-[var(--accent-subtle)]",
                   )}
                 >
                   {f}
@@ -182,7 +175,7 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
       </div>
 
       {/* Input */}
-      <div className="shrink-0 border-t border-zinc-800/60 bg-[#090b0e] px-4 pb-3 pt-3">
+      <div className="shrink-0 border-t-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] px-4 pb-3 pt-3">
         <div className="flex items-end gap-2">
           <textarea
             value={draft}
@@ -196,8 +189,8 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
             rows={2}
             placeholder="Pregúntame algo del curso..."
             className={cn(
-              "max-h-[4.5rem] min-h-[2.75rem] flex-1 resize-none rounded-lg border-0 bg-transparent px-1 py-2 text-sm text-zinc-200 outline-none",
-              "placeholder:text-zinc-500",
+              "max-h-[4.5rem] min-h-[2.75rem] flex-1 resize-none rounded-[var(--radius-md)] border-0 bg-transparent px-1 py-2 text-sm text-[var(--text-primary)] outline-none",
+              "placeholder:text-[var(--text-muted)]",
             )}
           />
           <button
@@ -205,16 +198,15 @@ export function CourseAiDrawer({ open, onClose, courseName }: CourseAiDrawerProp
             disabled={!draft.trim()}
             onClick={sendDraft}
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-transform duration-150 ease-out",
-              "hover:scale-105 disabled:pointer-events-none disabled:opacity-40",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--accent-fg)] transition-transform duration-150 ease-out",
+              "hover:scale-105 hover:bg-[var(--accent-hover)] disabled:pointer-events-none disabled:opacity-40",
             )}
-            style={{ backgroundColor: ACCENT }}
             aria-label="Enviar"
           >
             <Send className="h-[14px] w-[14px]" />
           </button>
         </div>
-        <p className="mt-2 text-center text-[10px] text-zinc-600">Ctrl+Enter para enviar</p>
+        <p className="mt-2 text-center text-[10px] text-[var(--text-muted)]">Ctrl+Enter para enviar</p>
       </div>
     </aside>
   );

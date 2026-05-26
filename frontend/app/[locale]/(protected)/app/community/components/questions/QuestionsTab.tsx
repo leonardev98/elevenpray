@@ -14,7 +14,7 @@ export function QuestionsTab({ onOpenModal }: { onOpenModal: (type: PostType) =>
         <button
           type="button"
           onClick={() => onOpenModal("pregunta")}
-          className="rounded-xl bg-[var(--app-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--app-primary-hover)]"
+          className="rounded-[var(--radius-md)] bg-[var(--accent)] px-[18px] py-[10px] text-sm font-medium text-[var(--accent-fg)] transition-colors hover:bg-[var(--accent-hover)]"
         >
           + Hacer pregunta
         </button>

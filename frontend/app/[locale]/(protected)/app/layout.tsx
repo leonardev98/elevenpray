@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CheckInProvider } from "./components/check-in-context";
 import { GamificationProvider } from "./gamification/gamification-context";
 import { LevelUpOverlay } from "./gamification/components/LevelUpOverlay";
@@ -12,10 +12,6 @@ import { StudentShellProvider } from "./components/student-shell-context";
 export default function StudentAppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.classList.add("dark");
-  }, []);
 
   return (
     <RedirectToStudentOnboarding>

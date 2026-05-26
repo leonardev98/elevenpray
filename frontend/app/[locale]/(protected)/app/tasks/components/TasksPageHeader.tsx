@@ -54,7 +54,7 @@ export function TasksPageHeader({ viewMode, onViewChange, onNewTask }: TasksPage
       <button
         type="button"
         onClick={onNewTask}
-        className="inline-flex items-center justify-center gap-2 justify-self-center rounded-xl bg-[var(--app-primary)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--app-primary-hover)] md:justify-self-end"
+        className="inline-flex items-center justify-center gap-2 justify-self-center rounded-[var(--radius-md)] bg-[var(--accent)] px-[18px] py-[10px] text-sm font-medium text-[var(--accent-fg)] transition-colors hover:bg-[var(--accent-hover)] md:justify-self-end"
       >
         <Plus className="h-4 w-4" aria-hidden />
         Nueva tarea

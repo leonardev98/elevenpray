@@ -32,13 +32,13 @@ export function StudentTopBar({ onOpenMenu, title }: StudentTopBarProps) {
   const today = format(new Date(), "EEEE, d MMMM", { locale: dateFnsLocale });
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-[var(--app-border)] bg-[var(--app-bg)]/90 px-4 py-4 backdrop-blur-md lg:px-8">
+    <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] px-4 py-4 lg:px-8">
       <div className="flex min-w-0 items-center gap-3">
         {openMenu && (
           <button
             type="button"
             onClick={openMenu}
-            className="rounded-xl p-2 text-[var(--app-fg-secondary)] hover:bg-[var(--app-surface)] lg:hidden"
+            className="rounded-[var(--radius-md)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] lg:hidden"
             aria-label={t("openMenu")}
           >
             <Menu className="h-5 w-5" />
@@ -46,11 +46,11 @@ export function StudentTopBar({ onOpenMenu, title }: StudentTopBarProps) {
         )}
         <div className="min-w-0">
           {title ? (
-            <h1 className="truncate text-lg font-semibold text-[var(--app-fg)]">{title}</h1>
+            <h1 className="truncate text-lg font-semibold tracking-[-0.01em] text-[var(--text-primary)]">{title}</h1>
           ) : (
             <>
-              <p className="text-sm text-[var(--app-fg-secondary)] capitalize">{today}</p>
-              <h1 className="truncate text-xl font-semibold text-[var(--app-fg)]">
+              <p className="text-sm capitalize text-[var(--text-muted)]">{today}</p>
+              <h1 className="truncate text-xl font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
                 {t("greeting", { name: displayName })}
               </h1>
             </>

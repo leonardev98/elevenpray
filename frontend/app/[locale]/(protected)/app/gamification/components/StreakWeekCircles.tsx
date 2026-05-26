@@ -35,14 +35,14 @@ export function StreakWeekCircles({
 }: StreakWeekCirclesProps) {
   const { streakJustCompleted, clearStreakAnimation } = useGamification();
   const isEstudio = variant === "estudio";
-  const activeColor = isEstudio ? "bg-[#F97316]" : "bg-[var(--app-primary)]";
+  const activeColor = isEstudio ? "bg-[var(--racha)]" : "bg-[var(--accent)]";
   const glowClass = isEstudio
-    ? "shadow-[0_0_10px_rgba(249,115,22,0.5)]"
-    : "shadow-[0_0_10px_color-mix(in_srgb,var(--app-primary)_50%,transparent)]";
+    ? "shadow-[0_0_10px_color-mix(in_srgb,var(--racha)_50%,transparent)]"
+    : "shadow-[0_0_10px_color-mix(in_srgb,var(--accent)_50%,transparent)]";
   const pulseClass = isEstudio
     ? "animate-streak-today-pulse"
     : "animate-streak-today-pulse-accent";
-  const todayBorder = isEstudio ? "border-[#F97316]" : "border-[var(--app-primary)]";
+  const todayBorder = isEstudio ? "border-[var(--racha)]" : "border-[var(--accent)]";
 
   useEffect(() => {
     if (streakJustCompleted && isEstudio) {
@@ -55,7 +55,7 @@ export function StreakWeekCircles({
     <div className="flex flex-col gap-1">
       <div className="flex justify-between gap-1">
         {DAY_LABELS.map((label) => (
-          <span key={label} className="flex-1 text-center text-[10px] text-[var(--app-fg-muted)]">
+          <span key={label} className="flex-1 text-center text-[10px] text-[var(--text-muted)]">
             {label}
           </span>
         ))}
@@ -79,8 +79,8 @@ export function StreakWeekCircles({
                   SIZE_MAP[size],
                   "flex items-center justify-center rounded-full border-2 transition-all",
                   done
-                    ? cn(activeColor, "border-transparent text-white", isToday && glowClass)
-                    : "border-[var(--app-border)] bg-[var(--app-surface-soft)]",
+                    ? cn(activeColor, "border-transparent text-[var(--accent-fg)]", isToday && glowClass)
+                    : "border-[var(--border)] bg-[var(--bg-input)]",
                   !done && isToday && cn("border-dashed", todayBorder, pulseClass),
                   shouldPop && "animate-streak-circle-pop",
                 )}

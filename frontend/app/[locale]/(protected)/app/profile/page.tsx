@@ -68,9 +68,9 @@ export default function StudentProfilePage() {
 
       <Button
         type="button"
-        variant="outline"
+        variant="destructive"
         onClick={handleLogout}
-        className="mt-8 w-full rounded-xl border-red-500/30 text-red-400 hover:bg-red-500/10"
+        className="mt-8 w-full"
       >
         {t("logout")}
       </Button>

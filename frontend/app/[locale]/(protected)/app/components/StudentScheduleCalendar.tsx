@@ -20,10 +20,10 @@ const TIME_AXIS_WIDTH = 52;
 const GAP_PX = 4;
 
 const KIND_TAG: Record<ScheduleEventKind, string> = {
-  class: "bg-[var(--schedule-class-tag)] text-violet-200",
-  task: "bg-[var(--schedule-task-tag)] text-teal-200",
-  extra: "bg-[var(--schedule-extra-tag)] text-amber-200",
-  exam: "bg-[var(--schedule-exam-tag)] text-rose-200",
+  class: "bg-[var(--course-1-bg)] text-[var(--course-1-fg)]",
+  task: "bg-[var(--accent-subtle)] text-[var(--accent)]",
+  extra: "bg-[var(--course-2-bg)] text-[var(--course-2-fg)]",
+  exam: "bg-[color-mix(in_srgb,var(--error)_14%,transparent)] text-[var(--error)]",
 };
 
 const KIND_BG: Record<ScheduleEventKind, string> = {

@@ -25,44 +25,44 @@ export function TasksSidebar() {
           <StatCard
             value="2 urgentes"
             sub="hoy y mañana"
-            icon={<AlertCircle className="h-4 w-4 text-red-400" />}
+            icon={<AlertCircle className="h-4 w-4 text-[var(--error)]" />}
           />
           <StatCard
             value="40%"
             sub="en progreso"
-            icon={<TrendingUp className="h-4 w-4 text-[var(--app-primary)]" />}
+            icon={<TrendingUp className="h-4 w-4 text-[var(--accent)]" />}
           />
           <StatCard
             value="1 completada"
             sub="esta semana"
-            icon={<CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+            icon={<CheckCircle2 className="h-4 w-4 text-[var(--success)]" />}
           />
         </div>
       </section>
 
       <section>
         <SectionLabel>VENCE PRIMERO</SectionLabel>
-        <div className="student-card border-l-4 border-l-red-500 p-4">
+        <div className="student-card border-l-4 border-l-[var(--error)] p-4">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="font-semibold text-[var(--app-fg)]">{NEXT_DUE_TASK.title}</p>
+              <p className="font-semibold text-[var(--text-primary)]">{NEXT_DUE_TASK.title}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span
-                  className={`rounded-md border px-2 py-0.5 text-[10px] font-medium ${COURSE_STYLES[NEXT_DUE_TASK.courseCode].badge}`}
+                  className={`rounded-[var(--radius-sm)] border px-2 py-0.5 text-[10px] font-medium ${COURSE_STYLES[NEXT_DUE_TASK.courseCode].badge}`}
                 >
                   {NEXT_DUE_TASK.courseCode}
                 </span>
-                <span className="text-xs text-[var(--app-fg-muted)]">
+                <span className="text-xs text-[var(--text-muted)]">
                   mañana, miércoles 20 mayo
                 </span>
               </div>
             </div>
-            <AlertCircle className="h-5 w-5 shrink-0 animate-task-alert text-red-400" aria-hidden />
+            <AlertCircle className="h-5 w-5 shrink-0 animate-task-alert text-[var(--error)]" aria-hidden />
           </div>
           <div className="mt-3">
-            <p className="mb-1 text-xs text-[var(--app-fg-muted)]">Tiempo restante: 18 horas</p>
-            <div className="h-1.5 overflow-hidden rounded-full bg-[var(--app-surface-soft)]">
-              <div className="h-full w-[20%] rounded-full bg-red-500 transition-all" />
+            <p className="mb-1 text-xs text-[var(--text-muted)]">Tiempo restante: 18 horas</p>
+            <div className="h-1.5 overflow-hidden rounded-full bg-[var(--bg-input)]">
+              <div className="h-full w-[20%] rounded-full bg-[var(--error)] transition-all" />
             </div>
           </div>
         </div>

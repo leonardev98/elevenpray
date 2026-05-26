@@ -25,7 +25,7 @@ import {
   type CourseScheduleSlot,
 } from "../../lib/student-courses-storage";
 
-const COLOR_OPTIONS = ["#0D9488", "#7C3AED", "#2563EB", "#D97706", "#DC2626", "#059669", "#DB2777"] as const;
+const COLOR_OPTIONS = ["#3D5A2F", "#4A5A6B", "#6B5A3D", "#8A6E3D", "#6B3D3D", "#8A5A3D", "#7A8A9F"] as const;
 
 const DAY_MSG_KEYS = ["dayL", "dayM", "dayX", "dayJ", "dayV", "dayS", "dayD"] as const;
 
@@ -368,7 +368,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="add-course-title"
@@ -476,10 +476,10 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                           type="button"
                           onClick={() => setModalidad(value)}
                           className={cn(
-                            "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors duration-150",
+                            "inline-flex items-center gap-2 rounded-full border-[0.5px] px-3.5 py-2 text-sm font-medium transition-colors duration-150",
                             active
-                              ? "border-[var(--accent-hex)] bg-[color-mix(in_srgb,var(--accent-hex)_15%,transparent)] text-white"
-                              : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg-secondary)] hover:border-[var(--app-border)]",
+                              ? "border-[var(--accent-hex)] bg-[color-mix(in_srgb,var(--accent-hex)_15%,transparent)] text-[var(--text-primary)]"
+                              : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
                           )}
                         >
                           <Icon className={cn("size-4 shrink-0", active ? "text-[var(--accent-hex)]" : "opacity-80")} />
@@ -520,7 +520,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                           }}
                           aria-label={hex}
                         >
-                          {active ? <Check className="size-3.5 text-white drop-shadow" strokeWidth={3} /> : null}
+                          {active ? <Check className="size-3.5 text-[var(--accent-fg)] drop-shadow" strokeWidth={3} /> : null}
                         </button>
                       );
                     })}
@@ -556,7 +556,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                           }
                         >
                           {active ? (
-                            <Check className="absolute size-3.5 text-white" strokeWidth={3} aria-hidden />
+                            <Check className="absolute size-3.5 text-[var(--accent-fg)]" strokeWidth={3} aria-hidden />
                           ) : (
                             letter
                           )}
@@ -623,10 +623,10 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                       type="button"
                       onClick={switchToSameMode}
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-medium transition-colors duration-150",
+                        "inline-flex items-center gap-2 rounded-full border-[0.5px] px-3.5 py-2 text-xs font-medium transition-colors duration-150",
                         scheduleMode === "same"
-                          ? "border-[var(--accent-hex)] bg-[color-mix(in_srgb,var(--accent-hex)_15%,transparent)] text-white"
-                          : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg-secondary)] hover:border-[var(--app-border)]",
+                          ? "border-[var(--accent-hex)] bg-[color-mix(in_srgb,var(--accent-hex)_15%,transparent)] text-[var(--text-primary)]"
+                          : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
                       )}
                     >
                       {t("scheduleModeSame")}
@@ -635,10 +635,10 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                       type="button"
                       onClick={switchToPerDayMode}
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-medium transition-colors duration-150",
+                        "inline-flex items-center gap-2 rounded-full border-[0.5px] px-3.5 py-2 text-xs font-medium transition-colors duration-150",
                         scheduleMode === "perDay"
-                          ? "border-[var(--accent-hex)] bg-[color-mix(in_srgb,var(--accent-hex)_15%,transparent)] text-white"
-                          : "border-[var(--app-border)] bg-[var(--app-bg)] text-[var(--app-fg-secondary)] hover:border-[var(--app-border)]",
+                          ? "border-[var(--accent-hex)] bg-[color-mix(in_srgb,var(--accent-hex)_15%,transparent)] text-[var(--text-primary)]"
+                          : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
                       )}
                     >
                       {t("scheduleModePerDay")}
@@ -646,7 +646,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                   </div>
 
                   {scheduleMode === "perDay" && diasSeleccionados.length === 0 ? (
-                    <p className="mt-2 text-[11px] text-amber-200/80">{t("schedulePickDaysHint")}</p>
+                    <p className="mt-2 text-[11px] text-[var(--warning)]">{t("schedulePickDaysHint")}</p>
                   ) : null}
 
                   <p className="mt-3 text-[10px] font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">{t("schedulePresetsLabel")}</p>
@@ -778,7 +778,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                   )}
 
                   {scheduleErrorMsg ? (
-                    <p className="mt-2 text-xs text-rose-400" role="alert">
+                    <p className="mt-2 text-xs text-[var(--error)]" role="alert">
                       {scheduleErrorMsg}
                     </p>
                   ) : null}
@@ -802,11 +802,11 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                   >
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <span
-                        className="inline-block rounded-lg border px-2 py-0.5 text-xs font-semibold"
+                        className="inline-block rounded-[var(--radius-sm)] border px-2 py-0.5 text-xs font-semibold"
                         style={{
                           backgroundColor: `${colorSeleccionado}26`,
                           borderColor: colorSeleccionado,
-                          color: "rgb(255 255 255 / 0.92)",
+                          color: "var(--text-primary)",
                         }}
                       >
                         {codigoCurso.trim() ? codigoCurso.trim().toUpperCase() : t("previewCodePh")}
@@ -833,7 +833,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                         {[...diasSeleccionados].sort().map((d) => (
                           <span
                             key={d}
-                            className="flex size-7 items-center justify-center rounded-full border text-[10px] font-semibold text-white"
+                            className="flex size-7 items-center justify-center rounded-full border text-[10px] font-semibold text-[var(--text-primary)]"
                             style={{
                               borderColor: colorSeleccionado,
                               backgroundColor: `color-mix(in srgb, ${colorSeleccionado} 22%, transparent)`,
@@ -865,7 +865,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                     type="submit"
                     disabled={!canSave}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-opacity duration-200",
+                      "inline-flex items-center gap-2 rounded-[var(--radius-md)] px-[18px] py-[10px] text-sm font-semibold text-[var(--accent-fg)] transition-opacity duration-200",
                       canSave ? "opacity-100" : "cursor-not-allowed opacity-50",
                     )}
                     style={{ backgroundColor: colorSeleccionado }}

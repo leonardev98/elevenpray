@@ -32,17 +32,17 @@ export function SidebarStreakCompact({ collapsed = false }: SidebarStreakCompact
             <Flame
               className={cn(
                 "h-4 w-4 shrink-0",
-                estudio.hoy ? "text-[#F97316]" : "text-[var(--app-fg-muted)]",
+                estudio.hoy ? "text-[var(--racha)]" : "text-[var(--text-muted)]",
               )}
             />
             <div className={cn("flex items-center gap-1.5", collapsed && "flex-col")}>
-              <span className="text-lg font-semibold text-[var(--app-fg)]">{estudio.actual}</span>
+              <span className="text-lg font-semibold text-[var(--racha)]">{estudio.actual}</span>
               {estudio.hoy && (
-                <Check className="h-3.5 w-3.5 text-emerald-400" aria-label="Completado hoy" />
+                <Check className="h-3.5 w-3.5 text-[var(--success)]" aria-label="Completado hoy" />
               )}
             </div>
             {!collapsed && (
-              <span className="text-[10px] text-[var(--app-fg-muted)]">días de estudio</span>
+              <span className="text-[10px] text-[var(--text-muted)]">días de estudio</span>
             )}
           </div>
 
@@ -50,25 +50,25 @@ export function SidebarStreakCompact({ collapsed = false }: SidebarStreakCompact
             <CheckCircle2
               className={cn(
                 "h-4 w-4 shrink-0",
-                tareas.hoy ? "text-[var(--app-primary)]" : "text-[var(--app-fg-muted)]",
+                tareas.hoy ? "text-[var(--accent)]" : "text-[var(--text-muted)]",
               )}
             />
-            <span className="text-lg font-semibold text-[var(--app-fg)]">{tareas.actual}</span>
+            <span className="text-lg font-semibold text-[var(--accent)]">{tareas.actual}</span>
             {!collapsed && (
-              <span className="text-[10px] text-[var(--app-fg-muted)]">tareas seguidas</span>
+              <span className="text-[10px] text-[var(--text-muted)]">tareas seguidas</span>
             )}
           </div>
         </div>
       </Link>
 
       {showTooltip && !collapsed && (
-        <div className="absolute bottom-full left-4 right-4 z-50 mb-1 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-elevated)] p-3 text-xs shadow-lg">
-          <p className="flex items-center gap-1.5 text-[var(--app-fg)]">
-            <Flame className="h-3.5 w-3.5 text-[#F97316]" />
+        <div className="absolute bottom-full left-4 right-4 z-50 mb-1 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-elevated)] p-3 text-xs shadow-[var(--shadow-md)]">
+          <p className="flex items-center gap-1.5 text-[var(--text-primary)]">
+            <Flame className="h-3.5 w-3.5 text-[var(--racha)]" />
             Racha estudio: {estudio.actual} días · Mejor: {estudio.mejor}
           </p>
-          <p className="mt-1.5 flex items-center gap-1.5 text-[var(--app-fg-secondary)]">
-            <CheckCircle2 className="h-3.5 w-3.5 text-[var(--app-primary)]" />
+          <p className="mt-1.5 flex items-center gap-1.5 text-[var(--text-body)]">
+            <CheckCircle2 className="h-3.5 w-3.5 text-[var(--accent)]" />
             Racha tareas: {tareas.actual} días · Mejor: {tareas.mejor}
           </p>
         </div>

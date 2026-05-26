@@ -41,15 +41,15 @@ export function CourseCard({ course }: CourseCardProps) {
             ? {
                 backgroundColor: `${hex}26`,
                 borderColor: hex,
-                color: "rgb(255 255 255 / 0.95)",
+                color: "var(--text-primary)",
               }
             : undefined
         }
       >
         {course.code}
       </span>
-      <h3 className="mt-3 text-lg font-semibold text-[var(--app-fg)]">{course.name}</h3>
-      {showProfessor ? <p className="mt-1 text-sm text-[var(--app-fg-secondary)]">{course.professor}</p> : null}
+      <h3 className="mt-3 text-lg font-semibold tracking-[-0.01em] text-[var(--text-primary)]">{course.name}</h3>
+      {showProfessor ? <p className="mt-1 text-sm text-[var(--text-muted)]">{course.professor}</p> : null}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {course.classDays.map((day) => (
           <span key={day} className="course-day-chip">
@@ -59,7 +59,7 @@ export function CourseCard({ course }: CourseCardProps) {
       </div>
       <div className="mt-4 space-y-1.5">
         <CourseProgressBar percent={course.progressPercent} accent={course.accent} colorHex={hex} />
-        <p className="text-xs text-[var(--app-fg-muted)]">
+        <p className="text-xs text-[var(--text-muted)]">
           {t("weeksProgress", {
             current: course.weeksCurrent,
             total: course.weeksTotal,

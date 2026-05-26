@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 import { useGamification } from "../gamification-context";
 
 const MEDAL_COLORS: Record<number, string> = {
-  1: "#F59E0B",
-  2: "#9CA3AF",
-  3: "#B45309",
+  1: "var(--xp)",
+  2: "var(--text-muted)",
+  3: "var(--course-5-fg)",
 };
 
 export function RankingList() {
@@ -36,23 +36,23 @@ export function RankingList() {
           )}
           {entry.posicion > 3 && <span className="w-5" />}
           <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-[var(--accent-fg)]"
             style={{ backgroundColor: entry.avatarColor }}
           >
             {entry.nombre.charAt(0)}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="truncate font-medium text-[var(--app-fg)]">{entry.nombre}</p>
+              <p className="truncate font-medium text-[var(--text-primary)]">{entry.nombre}</p>
               {entry.esUsuario && (
-                <span className="shrink-0 rounded-full bg-[var(--app-primary)]/20 px-2 py-0.5 text-[10px] font-medium text-[var(--app-primary)]">
+                <span className="shrink-0 rounded-[var(--radius-sm)] bg-[var(--accent-subtle)] px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
                   Tú
                 </span>
               )}
             </div>
-            <p className="text-xs text-[var(--app-fg-muted)]">{entry.universidad}</p>
+            <p className="text-xs text-[var(--text-muted)]">{entry.universidad}</p>
           </div>
-          <span className="shrink-0 text-sm font-semibold text-[var(--app-fg)]">
+          <span className="shrink-0 text-sm font-semibold text-[var(--xp)]">
             {entry.xp.toLocaleString("es-PE")} XP
           </span>
         </div>

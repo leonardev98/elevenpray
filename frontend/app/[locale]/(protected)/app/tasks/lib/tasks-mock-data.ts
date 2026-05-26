@@ -145,14 +145,14 @@ export const KANBAN_COLUMNS: {
   dotColor: string;
   barColor: string;
 }[] = [
-  { id: "pending", label: "Por hacer", dotColor: "bg-zinc-500", barColor: "bg-zinc-500" },
+  { id: "pending", label: "Por hacer", dotColor: "bg-[var(--text-muted)]", barColor: "bg-[var(--text-muted)]" },
   {
     id: "in_progress",
     label: "En progreso",
-    dotColor: "bg-amber-400",
-    barColor: "bg-amber-400",
+    dotColor: "bg-[var(--warning)]",
+    barColor: "bg-[var(--warning)]",
   },
-  { id: "done", label: "Completado", dotColor: "bg-emerald-500", barColor: "bg-emerald-500" },
+  { id: "done", label: "Completado", dotColor: "bg-[var(--success)]", barColor: "bg-[var(--success)]" },
 ];
 
 const KANBAN_TASK_IDS: Record<KanbanColumnId, string[]> = {

@@ -90,7 +90,7 @@ export function DatePicker({
   const popoverContent = open && (
     <div
       ref={containerRef}
-      className="date-picker-popover fixed z-[210] rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] shadow-app-modal"
+      className="date-picker-popover fixed z-[210] rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-elevated)] shadow-[var(--shadow-md)]"
       style={{
         top: position.top,
         left: position.left,
@@ -123,12 +123,12 @@ export function DatePicker({
         ref={triggerRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2 text-left text-[var(--app-fg)] shadow-app-input"
+        className="flex w-full items-center gap-2 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] px-3 py-[10px] text-left text-[var(--text-primary)] transition-colors hover:border-[var(--border-strong)]"
       >
         <span className="flex-1">
           {value ? formatDisplayDate(value) : placeholder}
         </span>
-        <Calendar className="size-5 shrink-0 text-[var(--app-fg)]" aria-hidden />
+        <Calendar className="size-5 shrink-0 text-[var(--text-muted)]" aria-hidden />
       </button>
       {typeof document !== "undefined" && popoverContent && createPortal(popoverContent, document.body)}
     </div>
