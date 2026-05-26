@@ -24,24 +24,29 @@ export function DailyQuoteSection() {
 
   return (
     <section>
-      <div className="flex items-stretch gap-3 rounded-[var(--app-radius-card,1.125rem)] border border-[var(--app-border)] bg-[var(--app-surface-elevated)] p-5 shadow-[var(--app-shadow-card)]">
-        <Quote className="mt-0.5 h-5 w-5 shrink-0 text-[var(--app-primary)]" aria-hidden />
-        <div
-          className={`min-w-0 flex-1 transition-opacity duration-200 ${fading ? "opacity-0" : "opacity-100"}`}
-        >
-          <p className="text-base font-medium leading-relaxed text-[var(--app-fg)]">
-            {DAILY_QUOTES[quoteIndex]}
-          </p>
-          <p className="mt-2 text-xs text-[var(--app-fg-muted)]">Recuerda esto hoy</p>
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--app-border)] bg-gradient-to-br from-[var(--app-surface-elevated)] to-[var(--app-surface-soft)] p-6 shadow-[var(--app-shadow-card)] transition-all duration-300 hover:shadow-lg">
+        <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-[var(--app-primary)]/10" />
+        <div className="relative flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10">
+            <Quote className="h-6 w-6 text-[var(--app-primary)]" aria-hidden />
+          </div>
+          <div
+            className={`min-w-0 flex-1 transition-opacity duration-300 ${fading ? "opacity-0" : "opacity-100"}`}
+          >
+            <p className="text-lg font-medium leading-relaxed text-[var(--app-fg)]">
+              "{DAILY_QUOTES[quoteIndex]}"
+            </p>
+            <p className="mt-3 text-sm text-[var(--app-fg-secondary)]">✨ Tu inspiración diaria</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleRefresh}
+            aria-label="Cambiar frase"
+            className="shrink-0 self-start rounded-xl bg-[var(--app-surface)] p-2.5 text-[var(--app-fg-muted)] shadow-sm transition-all duration-200 hover:bg-[var(--app-primary)] hover:text-[var(--app-bg)] hover:shadow-md"
+          >
+            <RotateCcw className={`h-5 w-5 transition-transform duration-300 ${fading ? "rotate-180" : ""}`} />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleRefresh}
-          aria-label="Cambiar frase"
-          className="shrink-0 self-start rounded-lg p-1.5 text-[var(--app-fg-muted)] transition-colors duration-150 hover:bg-[var(--app-surface-soft)] hover:text-[var(--app-fg-secondary)]"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </button>
       </div>
     </section>
   );

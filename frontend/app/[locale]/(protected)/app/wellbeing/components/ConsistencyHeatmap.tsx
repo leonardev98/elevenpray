@@ -35,77 +35,90 @@ function getTooltip(weekIndex: number, dayIndex: number, level: HeatmapLevel): s
 export function ConsistencyHeatmap() {
   return (
     <section>
-      <SectionLabel>TU CONSISTENCIA</SectionLabel>
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <div className="min-w-0 flex-1">
-          <div className="overflow-x-auto">
-            <div className="inline-block min-w-0">
-              <div className="mb-1 grid grid-cols-7 gap-1 pl-0">
-                {HEATMAP_DAY_LABELS.map((label) => (
-                  <span
-                    key={label}
-                    className="w-2.5 text-center text-[10px] text-[var(--app-fg-muted)]"
-                  >
-                    {label}
-                  </span>
+      <div className="mb-4 flex items-center gap-2">
+        <Flame className="h-5 w-5 text-[var(--app-primary)]" />
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg-muted)]">
+          Tu Consistencia
+        </h2>
+      </div>
+      <div className="rounded-2xl border border-[var(--app-border)] bg-gradient-to-br from-[var(--app-surface-elevated)] to-[var(--app-surface)] p-5 shadow-[var(--app-shadow-card)] transition-all duration-300 hover:shadow-lg">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+          <div className="min-w-0 flex-1">
+            <div className="overflow-x-auto">
+              <div className="inline-block min-w-0">
+                <div className="mb-2 grid grid-cols-7 gap-1.5 pl-0">
+                  {HEATMAP_DAY_LABELS.map((label) => (
+                    <span
+                      key={label}
+                      className="w-3 text-center text-[10px] font-medium text-[var(--app-fg-muted)]"
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1.5">
+                  {HEATMAP_DATA.map((level, index) => {
+                    const weekIndex = Math.floor(index / 7);
+                    const dayIndex = index % 7;
+                    return (
+                      <div
+                        key={index}
+                        title={getTooltip(weekIndex, dayIndex, level)}
+                        className={`h-3 w-3 rounded-md transition-all duration-200 hover:scale-125 ${LEVEL_CLASSES[level]}`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center gap-2 text-[10px] text-[var(--app-fg-muted)]">
+              <span>Menos ←</span>
+              <div className="flex gap-1">
+                {([0, 1, 2, 3] as HeatmapLevel[]).map((level) => (
+                  <div
+                    key={level}
+                    className={`h-3 w-3 rounded-md ${LEVEL_CLASSES[level]}`}
+                  />
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-1">
-                {HEATMAP_DATA.map((level, index) => {
-                  const weekIndex = Math.floor(index / 7);
-                  const dayIndex = index % 7;
-                  return (
-                    <div
-                      key={index}
-                      title={getTooltip(weekIndex, dayIndex, level)}
-                      className={`h-2.5 w-2.5 rounded-sm transition-colors ${LEVEL_CLASSES[level]}`}
-                    />
-                  );
-                })}
+              <span>→ Más</span>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 flex-col gap-3 lg:w-52">
+            <div className="flex items-center gap-3 rounded-xl bg-[var(--app-surface)] p-3 shadow-sm transition-all duration-200 hover:shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--app-primary)]/10">
+                <Flame className="h-5 w-5 text-[var(--app-primary)]" aria-hidden />
+              </div>
+              <div>
+                <p className="text-xs text-[var(--app-fg-muted)]">Racha actual</p>
+                <p className="text-sm font-semibold text-[var(--app-fg)]">
+                  {HEATMAP_STATS.currentStreak} días
+                </p>
               </div>
             </div>
-          </div>
-
-          <div className="mt-4 flex items-center gap-2 text-[10px] text-[var(--app-fg-muted)]">
-            <span>Menos ←</span>
-            <div className="flex gap-1">
-              {([0, 1, 2, 3] as HeatmapLevel[]).map((level) => (
-                <div
-                  key={level}
-                  className={`h-2.5 w-2.5 rounded-sm ${LEVEL_CLASSES[level]}`}
-                />
-              ))}
+            <div className="flex items-center gap-3 rounded-xl bg-[var(--app-surface)] p-3 shadow-sm transition-all duration-200 hover:shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--app-primary)]/10">
+                <Star className="h-5 w-5 text-[var(--app-primary)]" aria-hidden />
+              </div>
+              <div>
+                <p className="text-xs text-[var(--app-fg-muted)]">Mejor racha</p>
+                <p className="text-sm font-semibold text-[var(--app-fg)]">
+                  {HEATMAP_STATS.bestStreak} días
+                </p>
+              </div>
             </div>
-            <span>→ Más</span>
-          </div>
-        </div>
-
-        <div className="student-card flex shrink-0 flex-col gap-4 p-5 lg:w-52">
-          <div className="flex items-center gap-3">
-            <Flame className="h-4 w-4 text-[var(--app-primary)]" aria-hidden />
-            <div>
-              <p className="text-xs text-[var(--app-fg-muted)]">Racha actual</p>
-              <p className="text-sm font-semibold text-[var(--app-fg)]">
-                {HEATMAP_STATS.currentStreak} días
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Star className="h-4 w-4 text-[var(--app-primary)]" aria-hidden />
-            <div>
-              <p className="text-xs text-[var(--app-fg-muted)]">Mejor racha</p>
-              <p className="text-sm font-semibold text-[var(--app-fg)]">
-                {HEATMAP_STATS.bestStreak} días
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Calendar className="h-4 w-4 text-[var(--app-primary)]" aria-hidden />
-            <div>
-              <p className="text-xs text-[var(--app-fg-muted)]">Este mes</p>
-              <p className="text-sm font-semibold text-[var(--app-fg)]">
-                {HEATMAP_STATS.activeDaysThisMonth} días activos
-              </p>
+            <div className="flex items-center gap-3 rounded-xl bg-[var(--app-surface)] p-3 shadow-sm transition-all duration-200 hover:shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--app-primary)]/10">
+                <Calendar className="h-5 w-5 text-[var(--app-primary)]" aria-hidden />
+              </div>
+              <div>
+                <p className="text-xs text-[var(--app-fg-muted)]">Este mes</p>
+                <p className="text-sm font-semibold text-[var(--app-fg)]">
+                  {HEATMAP_STATS.activeDaysThisMonth} días activos
+                </p>
+              </div>
             </div>
           </div>
         </div>

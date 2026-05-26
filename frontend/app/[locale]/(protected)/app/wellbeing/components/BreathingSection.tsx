@@ -18,8 +18,13 @@ export function BreathingSection() {
 
   return (
     <section>
-      <SectionLabel>RESPIRACIÓN GUIADA</SectionLabel>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="mb-4 flex items-center gap-2">
+        <Wind className="h-5 w-5 text-[var(--app-primary)]" />
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg-muted)]">
+          Respiración Guiada
+        </h2>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {BREATHING_EXERCISES.map((exercise) => {
           const Icon = EXERCISE_ICONS[exercise.id];
           return (
@@ -27,11 +32,14 @@ export function BreathingSection() {
               key={exercise.id}
               type="button"
               onClick={() => setActiveExercise(exercise)}
-              className="student-card flex flex-col items-start gap-3 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--app-primary)]/40"
+              className="group relative overflow-hidden rounded-2xl border border-[var(--app-border)] bg-gradient-to-br from-[var(--app-surface-elevated)] to-[var(--app-surface)] p-5 text-left transition-all duration-300 hover:border-[var(--app-primary)]/60 hover:shadow-lg hover:-translate-y-1"
             >
-              <Icon className="h-6 w-6 text-[var(--app-primary)]" aria-hidden />
-              <div>
-                <p className="font-semibold text-[var(--app-fg)]">{exercise.title}</p>
+              <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[var(--app-primary)]/10 transition-all duration-300 group-hover:scale-150" />
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--app-primary)]/10 transition-all duration-300 group-hover:bg-[var(--app-primary)] group-hover:shadow-lg">
+                <Icon className="h-6 w-6 text-[var(--app-primary)] transition-colors duration-300 group-hover:text-[var(--app-bg)]" aria-hidden />
+              </div>
+              <div className="relative mt-4">
+                <p className="font-semibold text-[var(--app-fg)] transition-colors duration-300 group-hover:text-[var(--app-primary)]">{exercise.title}</p>
                 <p className="mt-1 text-xs text-[var(--app-fg-muted)]">{exercise.durationLabel}</p>
               </div>
             </button>
