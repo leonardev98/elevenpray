@@ -5,9 +5,8 @@ import { enUS, es } from "date-fns/locale";
 import { Menu } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/app/providers/auth-provider";
-import { getStudentProfile } from "../lib/student-storage";
-import { useEffect, useState } from "react";
 import { useStudentShell } from "./student-shell-context";
+import { UserMenuButton } from "./UserMenuButton";
 
 interface StudentTopBarProps {
   onOpenMenu?: () => void;
@@ -21,14 +20,11 @@ export function StudentTopBar({ onOpenMenu, title }: StudentTopBarProps) {
   const t = useTranslations("studentHome");
   const locale = useLocale() as "es" | "en";
   const dateFnsLocale = locale === "en" ? enUS : es;
-  const [profileName, setProfileName] = useState<string | null>(null);
 
-  useEffect(() => {
-    const p = getStudentProfile();
-    setProfileName(p?.name ?? null);
-  }, []);
-
-  const displayName = profileName || user?.name?.split(" ")[0] || t("guest");
+  // Fuente de verdad: backend (`user.name`). El antiguo
+  // `getStudentProfile().name` de localStorage queda obsoleto porque puede
+  // contener datos del onboarding del usuario anterior (cross-account leak).
+  const displayName = user?.name?.split(" ")[0] || t("guest");
   const today = format(new Date(), "EEEE, d MMMM", { locale: dateFnsLocale });
 
   return (
@@ -56,6 +52,10 @@ export function StudentTopBar({ onOpenMenu, title }: StudentTopBarProps) {
             </>
           )}
         </div>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2">
+        <UserMenuButton />
       </div>
     </header>
   );

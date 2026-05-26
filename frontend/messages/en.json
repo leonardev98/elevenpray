@@ -290,6 +290,12 @@
       "overwhelmed": "Overwhelmed"
     }
   },
+  "userMenu": {
+    "openMenu": "Open user menu",
+    "profile": "My profile",
+    "logout": "Sign out",
+    "guest": "Guest"
+  },
   "studentHome": {
     "greeting": "Hi, {name}",
     "guest": "student",

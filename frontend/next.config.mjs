@@ -19,6 +19,11 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
+      // Avatares de Google (cuentas firmadas con Google OAuth)
+      { protocol: "https", hostname: "lh3.googleusercontent.com", pathname: "/**" },
+      // Fotos de perfil subidas a S3
+      { protocol: "https", hostname: "*.amazonaws.com", pathname: "/**" },
+      { protocol: "https", hostname: "*.s3.amazonaws.com", pathname: "/**" },
     ],
   },
 };

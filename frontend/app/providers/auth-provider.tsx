@@ -65,11 +65,33 @@ function persistSession(token: string, user: PublicUser) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
+/**
+ * Borra datos locales (onboarding, check-ins emocionales) que están scopeados
+ * al usuario. Se invoca en `logout()` y cuando `setSession`/`login`/`register`
+ * detectan que el usuario entrante es distinto del que estaba persistido.
+ * Las claves espejan las definidas en
+ * `app/[locale]/(protected)/app/lib/student-storage.ts`.
+ */
+const STUDENT_PROFILE_KEY = "mitsyy_student_profile";
+const CHECKIN_PREFIX = "mitsyy_checkin_";
+
+function clearUserScopedLocalData() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(STUDENT_PROFILE_KEY);
+  const toRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(CHECKIN_PREFIX)) toRemove.push(k);
+  }
+  toRemove.forEach((k) => localStorage.removeItem(k));
+}
+
 function clearSession() {
   deleteCookie(TOKEN_KEY, { path: "/" });
   if (typeof window !== "undefined") {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    clearUserScopedLocalData();
   }
 }
 
@@ -145,27 +167,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     hydrateAndValidate();
   }, [hydrateAndValidate]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { accessToken, user: u } = await apiLogin(email, password);
+  /**
+   * Si el usuario que llega es distinto del cacheado, limpiamos datos
+   * scopeados al usuario anterior (perfil onboarding, check-ins) para evitar
+   * que se mezclen entre cuentas en el mismo navegador.
+   */
+  function applySessionAndCleanup(accessToken: string, u: PublicUser) {
+    const previous = readStoredUser();
+    if (previous && previous.id !== u.id) {
+      clearUserScopedLocalData();
+    }
     persistSession(accessToken, u);
     setToken(accessToken);
     setUser(u);
+  }
+
+  const login = useCallback(async (email: string, password: string) => {
+    const { accessToken, user: u } = await apiLogin(email, password);
+    applySessionAndCleanup(accessToken, u);
   }, []);
 
   const register = useCallback(
     async (email: string, password: string, name: string) => {
       const { accessToken, user: u } = await apiRegister(email, password, name);
-      persistSession(accessToken, u);
-      setToken(accessToken);
-      setUser(u);
+      applySessionAndCleanup(accessToken, u);
     },
     [],
   );
 
   const setSession = useCallback((accessToken: string, u: PublicUser) => {
-    persistSession(accessToken, u);
-    setToken(accessToken);
-    setUser(u);
+    applySessionAndCleanup(accessToken, u);
   }, []);
 
   const logout = useCallback(() => {

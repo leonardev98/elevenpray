@@ -109,12 +109,35 @@ export class AuthService implements OnModuleInit {
     const picture = payload.picture ?? null;
 
     let user = await this.usersService.findByGoogleSub(sub);
-    if (!user) {
+
+    if (user) {
+      // Cuenta ya enlazada: mantenemos `name` sincronizado con Google y
+      // refrescamos avatar solo si el usuario no subió uno custom (las fotos
+      // custom viven en S3, las de Google contienen "googleusercontent.com").
+      const updates: { name?: string; avatarUrl?: string | null } = {};
+      if (name && user.name !== name) updates.name = name;
+      const hasCustomAvatar = !!(
+        user.avatarUrl && !user.avatarUrl.includes('googleusercontent.com')
+      );
+      if (!hasCustomAvatar && picture && user.avatarUrl !== picture) {
+        updates.avatarUrl = picture;
+      }
+      if (Object.keys(updates).length > 0) {
+        user = await this.usersService.update(user.id, updates);
+      }
+    } else {
       const existingByEmail = await this.usersService.findByEmail(email);
       if (existingByEmail) {
+        // Primer enlace: sincronizamos nombre desde Google y preservamos
+        // avatar custom (si existe).
+        const hasCustomAvatar = !!(
+          existingByEmail.avatarUrl &&
+          !existingByEmail.avatarUrl.includes('googleusercontent.com')
+        );
         user = await this.usersService.update(existingByEmail.id, {
           googleSub: sub,
-          avatarUrl: existingByEmail.avatarUrl ?? picture,
+          name,
+          avatarUrl: hasCustomAvatar ? existingByEmail.avatarUrl : picture,
         });
       } else {
         user = await this.usersService.create({
