@@ -21,8 +21,11 @@ import { cn } from "@/lib/utils";
 import {
   appendPersistedStudentCourse,
   buildStudentCourseFromInput,
+  buildStudentCourseUpdateFromInput,
+  updatePersistedStudentCourse,
   type CourseModality,
   type CourseScheduleSlot,
+  type StudentCourseStored,
 } from "../../lib/student-courses-storage";
 
 const COLOR_OPTIONS = ["#3D5A2F", "#4A5A6B", "#6B5A3D", "#8A6E3D", "#6B3D3D", "#8A5A3D", "#7A8A9F"] as const;
@@ -109,15 +112,31 @@ function ScheduleQuarterSelect({
   );
 }
 
+type CourseModalMode = "create" | "edit";
+
 interface AddCourseModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  /** "create" (default) o "edit". En edit es obligatorio pasar `initialCourse`. */
+  mode?: CourseModalMode;
+  initialCourse?: StudentCourseStored | null;
 }
 
-export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps) {
+function isValidModality(x: unknown): x is CourseModality {
+  return x === "Presencial" || x === "Remoto" || x === "Semipresencial";
+}
+
+export function AddCourseModal({
+  open,
+  onClose,
+  onSuccess,
+  mode = "create",
+  initialCourse = null,
+}: AddCourseModalProps) {
   const t = useTranslations("studentCourses");
   const tCommon = useTranslations("common");
+  const isEdit = mode === "edit" && initialCourse != null;
 
   const [nombreCurso, setNombreCurso] = useState("");
   const [codigoCurso, setCodigoCurso] = useState("");
@@ -145,6 +164,49 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
   useEffect(() => {
     if (!open) return;
     queueMicrotask(() => {
+      if (isEdit && initialCourse) {
+        const initialCode = (initialCourse.code ?? "").trim();
+        const initialProfessor = (initialCourse.professor ?? "").trim();
+        const initialClassDays = (initialCourse.classDays ?? []).filter((d) => d && d !== "—");
+        const initialSlots = (initialCourse.scheduleSlots ?? []).filter(
+          (s) => s.start?.trim() && s.end?.trim(),
+        );
+        const initialModality: CourseModality = isValidModality(initialCourse.modality)
+          ? initialCourse.modality
+          : "Presencial";
+        const initialWeeks = Math.min(
+          20,
+          Math.max(8, Math.round(Number(initialCourse.weeksTotal) || 16)),
+        );
+        const initialColor =
+          (initialCourse.colorHex ?? "").trim() !== ""
+            ? initialCourse.colorHex!
+            : COLOR_OPTIONS[0];
+
+        setNombreCurso(initialCourse.name ?? "");
+        setCodigoCurso(initialCode === "—" ? "" : initialCode);
+        setProfesor(initialProfessor === "—" ? "" : initialProfessor);
+        setColorSeleccionado(initialColor);
+        setDiasSeleccionados(initialClassDays);
+        setModalidad(initialModality);
+        setSemanas(initialWeeks);
+
+        if (initialSlots.length > 0) {
+          const map: Record<string, { start: string; end: string }> = {};
+          for (const s of initialSlots) map[s.day] = { start: s.start, end: s.end };
+          setScheduleMode("perDay");
+          setSameStart("");
+          setSameEnd("");
+          setPerDayMap(map);
+        } else {
+          setScheduleMode("same");
+          setSameStart(initialCourse.scheduleStart ?? "");
+          setSameEnd(initialCourse.scheduleEnd ?? "");
+          setPerDayMap({});
+        }
+        return;
+      }
+
       setNombreCurso("");
       setCodigoCurso("");
       setProfesor("");
@@ -157,7 +219,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
       setSameEnd("");
       setPerDayMap({});
     });
-  }, [open]);
+  }, [open, isEdit, initialCourse]);
 
   useEffect(() => {
     if (!open || scheduleMode !== "perDay") return;
@@ -324,7 +386,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
       scheduleEnd = sameEnd.trim();
     }
 
-    const course = buildStudentCourseFromInput({
+    const input = {
       name: nombreCurso.trim(),
       code: codigoCurso.trim(),
       professor: profesor.trim(),
@@ -335,8 +397,15 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
       scheduleStart,
       scheduleEnd,
       scheduleSlots,
-    });
-    appendPersistedStudentCourse(course);
+    };
+
+    if (isEdit && initialCourse) {
+      const updated = buildStudentCourseUpdateFromInput(initialCourse, input);
+      updatePersistedStudentCourse(initialCourse.id, updated);
+    } else {
+      const course = buildStudentCourseFromInput(input);
+      appendPersistedStudentCourse(course);
+    }
     onSuccess?.();
     onClose();
   }
@@ -391,9 +460,11 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
               <header className="flex items-start justify-between gap-3">
                 <div>
                   <h2 id="add-course-title" className="text-lg font-semibold text-[var(--app-fg)]">
-                    {t("newCourseTitle")}
+                    {isEdit ? t("editCourseTitle") : t("newCourseTitle")}
                   </h2>
-                  <p className="mt-1 text-xs text-[var(--app-fg-muted)]">{t("modalSubtitle")}</p>
+                  <p className="mt-1 text-xs text-[var(--app-fg-muted)]">
+                    {isEdit ? t("editCourseSubtitle") : t("modalSubtitle")}
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -871,7 +942,7 @@ export function AddCourseModal({ open, onClose, onSuccess }: AddCourseModalProps
                     style={{ backgroundColor: colorSeleccionado }}
                   >
                     <Check className="size-4 shrink-0" strokeWidth={2.5} />
-                    {t("saveCourse")}
+                    {isEdit ? t("saveChanges") : t("saveCourse")}
                   </button>
                 </div>
               </form>

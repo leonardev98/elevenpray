@@ -121,6 +121,29 @@ export function appendPersistedStudentCourse(course: StudentCourseStored): void 
   savePersistedStudentCourses(next);
 }
 
+/** Actualiza un curso por id conservando los campos no incluidos en `patch`. */
+export function updatePersistedStudentCourse(
+  id: string,
+  patch: Partial<Omit<StudentCourseStored, "id">>,
+): StudentCourseStored | null {
+  const all = loadPersistedStudentCourses();
+  const idx = all.findIndex((c) => c.id === id);
+  if (idx === -1) return null;
+  const next = [...all];
+  next[idx] = { ...next[idx], ...patch, id };
+  savePersistedStudentCourses(next);
+  return next[idx];
+}
+
+/** Elimina un curso por id. Devuelve `true` si efectivamente se eliminó. */
+export function removePersistedStudentCourse(id: string): boolean {
+  const all = loadPersistedStudentCourses();
+  const next = all.filter((c) => c.id !== id);
+  if (next.length === all.length) return false;
+  savePersistedStudentCourses(next);
+  return true;
+}
+
 export type CourseModality = "Presencial" | "Remoto" | "Semipresencial";
 
 export type NewStudentCourseInput = {
@@ -136,6 +159,34 @@ export type NewStudentCourseInput = {
   /** Si hay slots, tiene prioridad sobre `scheduleStart`/`scheduleEnd` (horario distinto por día). */
   scheduleSlots?: CourseScheduleSlot[];
 };
+
+/** Patch de edición a partir del mismo input del formulario; preserva id, progreso, racha y tareas pendientes. */
+export function buildStudentCourseUpdateFromInput(
+  existing: StudentCourseStored,
+  input: NewStudentCourseInput,
+): StudentCourseStored {
+  const accent = hexToStudentAccent(input.colorHex);
+  const weeksTotal = Math.min(20, Math.max(8, Math.round(Number(input.weeksTotal) || 16)));
+  const start = input.scheduleStart?.trim();
+  const end = input.scheduleEnd?.trim();
+  const slots = (input.scheduleSlots ?? []).filter((s) => s.start?.trim() && s.end?.trim());
+  const hasSlots = slots.length > 0;
+  return {
+    ...existing,
+    name: input.name.trim() || existing.name,
+    code: input.code.trim().toUpperCase() || "—",
+    color: ACCENT_TO_COLOR[accent],
+    professor: input.professor.trim() || "—",
+    accent,
+    classDays: input.classDays.length > 0 ? input.classDays : ["—"],
+    weeksTotal,
+    colorHex: input.colorHex,
+    modality: input.modality,
+    scheduleStart: hasSlots ? null : start && start.length > 0 ? start : null,
+    scheduleEnd: hasSlots ? null : end && end.length > 0 ? end : null,
+    scheduleSlots: hasSlots ? slots : null,
+  };
+}
 
 export function buildStudentCourseFromInput(input: NewStudentCourseInput): StudentCourseStored {
   const id =

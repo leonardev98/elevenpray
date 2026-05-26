@@ -1,6 +1,10 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7 // 7 días
+const useSecureCookies = process.env.NODE_ENV === "production"
+const cookiePrefix = useSecureCookies ? "__Secure-" : ""
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google({
@@ -15,9 +19,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
     })
   ],
+  session: {
+    strategy: "jwt",
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    updateAge: 60 * 60 * 24, // se renueva como máximo una vez al día
+  },
+  jwt: {
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  },
+  useSecureCookies,
+  cookies: {
+    sessionToken: {
+      name: `${cookiePrefix}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: useSecureCookies,
+        maxAge: SESSION_MAX_AGE_SECONDS,
+      },
+    },
+  },
   callbacks: {
     async jwt({ token, account, user }) {
-      // Initial sign in
       if (account && user) {
         token.id = user.id
         token.accessToken = account.access_token
@@ -35,9 +59,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   pages: {
     signIn: "/login"
-  },
-  session: {
-    strategy: "jwt"
   },
   secret: process.env.NEXTAUTH_SECRET
 })

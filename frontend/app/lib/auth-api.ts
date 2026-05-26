@@ -50,11 +50,39 @@ export async function register(
   return res.json();
 }
 
+export class AuthError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "AuthError";
+    this.status = status;
+  }
+}
+
+/**
+ * Solo lanza AuthError(401|403) cuando el backend confirma que la sesión es
+ * inválida. Para cualquier otro caso (5xx, network, CORS, abort, cold start)
+ * relanza un Error genérico para que el caller pueda decidir mantener la sesión
+ * y reintentar luego, sin echar al usuario por un bache transitorio.
+ */
 export async function me(token: string): Promise<PublicUser> {
-  const res = await fetch(`${getBaseUrl()}/auth/me`, {
-    headers: getAuthHeaders(token),
-  });
-  if (!res.ok) throw new Error("Sesión inválida");
+  let res: Response;
+  try {
+    res = await fetch(`${getBaseUrl()}/auth/me`, {
+      headers: getAuthHeaders(token),
+      cache: "no-store",
+    });
+  } catch (err) {
+    throw new Error(
+      err instanceof Error ? `Network error: ${err.message}` : "Network error",
+    );
+  }
+  if (res.status === 401 || res.status === 403) {
+    throw new AuthError("Sesión inválida", res.status);
+  }
+  if (!res.ok) {
+    throw new Error(`Backend error ${res.status}`);
+  }
   return res.json();
 }
 

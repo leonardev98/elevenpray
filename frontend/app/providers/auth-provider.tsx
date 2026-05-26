@@ -3,10 +3,75 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
 import type { PublicUser } from "../lib/auth-api";
-import { login as apiLogin, register as apiRegister, me } from "../lib/auth-api";
+import {
+  login as apiLogin,
+  register as apiRegister,
+  me,
+  AuthError,
+} from "../lib/auth-api";
 
 const TOKEN_KEY = "elevenpray_token";
 const USER_KEY = "elevenpray_user";
+
+// 7 días. Debe estar alineado con backend JWT_EXPIRES_IN.
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+
+type CookieOptions = Parameters<typeof setCookie>[2];
+
+/**
+ * Opciones consistentes para la cookie de sesión.
+ *
+ * Notas:
+ * - `httpOnly` NO se setea aquí: el navegador rechaza/ignora cookies
+ *   `HttpOnly` asignadas vía document.cookie, lo que rompía la persistencia.
+ *   Si en el futuro queremos HttpOnly real, hay que setearla desde una Route
+ *   Handler del servidor (Set-Cookie response header), no desde el cliente.
+ * - `sameSite: "lax"` es el estándar para auth en navegación normal y soporta
+ *   correctamente redirecciones OAuth de top-level GET.
+ * - `secure` solo en producción (HTTPS). En dev local sobre http:// debe
+ *   estar en false o el navegador rechaza la cookie.
+ */
+function getCookieOptions(): CookieOptions {
+  return {
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    path: "/",
+  };
+}
+
+function readStoredUser(): PublicUser | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as PublicUser;
+  } catch {
+    return null;
+  }
+}
+
+function readStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  const fromCookie = getCookie(TOKEN_KEY) as string | undefined | null;
+  if (fromCookie) return fromCookie;
+  // Fallback / migración desde versiones anteriores que solo usaban localStorage.
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+function persistSession(token: string, user: PublicUser) {
+  setCookie(TOKEN_KEY, token, getCookieOptions());
+  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+function clearSession() {
+  deleteCookie(TOKEN_KEY, { path: "/" });
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+  }
+}
 
 interface AuthContextValue {
   user: PublicUser | null;
@@ -26,68 +91,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadStored = useCallback(async () => {
-    if (typeof window === "undefined") return;
-    
-    // Try to get token from cookie first (more secure)
-    const t = getCookie(TOKEN_KEY) as string | null;
-    
-    // Fallback to localStorage for migration purposes
-    const localStorageToken = localStorage.getItem(TOKEN_KEY);
-    const finalToken = t || localStorageToken;
-    
-    const u = localStorage.getItem(USER_KEY);
-    if (finalToken && u) {
-      try {
-        const valid = await me(finalToken);
-        const userWithRole: PublicUser = { ...valid, role: valid.role ?? "user" };
-        setUser(userWithRole);
-        setToken(finalToken);
-        
-        // Migrate to cookie if token was in localStorage
-        if (localStorageToken && !t) {
-          setCookie(TOKEN_KEY, finalToken, { 
-            httpOnly: true, 
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: "/"
-          });
-          localStorage.removeItem(TOKEN_KEY);
-        }
-        
-        localStorage.setItem(USER_KEY, JSON.stringify(userWithRole));
-      } catch {
-        deleteCookie(TOKEN_KEY);
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
+  /**
+   * Estrategia de carga:
+   * 1. Hidratar el estado inmediatamente desde cookie + localStorage para
+   *    evitar el flash de "no autenticado" al volver a la página.
+   * 2. Validar contra el backend en segundo plano. Solo si el backend
+   *    confirma 401/403 limpiamos la sesión; ante errores de red, 5xx o cold
+   *    starts mantenemos al usuario logueado y reintentamos en la próxima carga.
+   */
+  const hydrateAndValidate = useCallback(async () => {
+    if (typeof window === "undefined") {
+      setIsLoading(false);
+      return;
+    }
+
+    const storedToken = readStoredToken();
+    const storedUser = readStoredUser();
+
+    if (!storedToken || !storedUser) {
+      setIsLoading(false);
+      return;
+    }
+
+    setToken(storedToken);
+    setUser(storedUser);
+    setIsLoading(false);
+
+    // Renueva la cookie en cada visita para extender la ventana (rolling session).
+    setCookie(TOKEN_KEY, storedToken, getCookieOptions());
+
+    try {
+      const fresh = await me(storedToken);
+      const withRole: PublicUser = { ...fresh, role: fresh.role ?? "user" };
+      setUser(withRole);
+      localStorage.setItem(USER_KEY, JSON.stringify(withRole));
+    } catch (err) {
+      if (err instanceof AuthError) {
+        clearSession();
         setToken(null);
         setUser(null);
       }
+      // Cualquier otro error (red, 5xx, cold start) se ignora; el usuario
+      // sigue logueado con los datos cacheados.
     }
-    setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    loadStored();
-    const safety = setTimeout(() => setIsLoading(false), 5000);
-    return () => clearTimeout(safety);
-  }, [loadStored]);
+    hydrateAndValidate();
+  }, [hydrateAndValidate]);
 
   const login = useCallback(async (email: string, password: string) => {
     const { accessToken, user: u } = await apiLogin(email, password);
-    
-    // Store in HttpOnly cookie (more secure)
-    setCookie(TOKEN_KEY, accessToken, { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/"
-    });
-    
-    // Keep user data in localStorage (non-sensitive)
-    localStorage.setItem(USER_KEY, JSON.stringify(u));
+    persistSession(accessToken, u);
     setToken(accessToken);
     setUser(u);
   }, []);
@@ -95,17 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = useCallback(
     async (email: string, password: string, name: string) => {
       const { accessToken, user: u } = await apiRegister(email, password, name);
-      
-      // Store in HttpOnly cookie
-      setCookie(TOKEN_KEY, accessToken, { 
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 7,
-        path: "/"
-      });
-      
-      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      persistSession(accessToken, u);
       setToken(accessToken);
       setUser(u);
     },
@@ -113,9 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(() => {
-    deleteCookie(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    clearSession();
     setToken(null);
     setUser(null);
   }, []);
@@ -128,33 +171,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refreshUser = useCallback(async () => {
-    const t = getCookie(TOKEN_KEY) as string | null;
-    // Fallback to localStorage for migration
-    const localStorageToken = localStorage.getItem(TOKEN_KEY);
-    const finalToken = t || localStorageToken;
-    
-    if (!finalToken) return;
+    const t = readStoredToken();
+    if (!t) return;
     try {
-      const valid = await me(finalToken);
-      const userWithRole: PublicUser = { ...valid, role: valid.role ?? "user" };
-      setUser(userWithRole);
+      const fresh = await me(t);
+      const withRole: PublicUser = { ...fresh, role: fresh.role ?? "user" };
+      setUser(withRole);
       if (typeof window !== "undefined") {
-        localStorage.setItem(USER_KEY, JSON.stringify(userWithRole));
+        localStorage.setItem(USER_KEY, JSON.stringify(withRole));
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      if (err instanceof AuthError) {
+        clearSession();
+        setToken(null);
+        setUser(null);
+      }
     }
   }, []);
 
-  const value = useMemo(() => ({
-    user, token, isLoading, login, register, logout, updateUser, refreshUser
-  }), [user, token, isLoading, login, register, logout, updateUser, refreshUser]);
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({ user, token, isLoading, login, register, logout, updateUser, refreshUser }),
+    [user, token, isLoading, login, register, logout, updateUser, refreshUser],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextValue {

@@ -23,6 +23,8 @@
     "searchPlaceholder": "Search…",
     "saving": "Saving…",
     "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
     "viewAll": "View all",
     "viewAllNotes": "View all notes"
   },
@@ -425,7 +427,13 @@
     "dayJ": "J",
     "dayV": "V",
     "dayS": "S",
-    "dayD": "D"
+    "dayD": "D",
+    "courseMenuLabel": "Course options",
+    "editCourseTitle": "Edit course",
+    "editCourseSubtitle": "Update the course information",
+    "saveChanges": "Save changes",
+    "deleteCourseTitle": "Delete course",
+    "confirmDeleteCourseMessage": "You're about to delete the course \"{name}\". Its notes, tasks, files and flashcards will be lost. This action cannot be undone."
   },
   "studentTasks": {
     "title": "Tasks",

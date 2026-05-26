@@ -1,0 +1,313 @@
+/* Paper-system styling for the TipTap ProseMirror editor (Apuntes & Clases) */
+
+.tt-editor {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  line-height: 1.65;
+  font-size: 0.9375rem;
+}
+
+.tt-editor .ProseMirror {
+  outline: none;
+  min-height: 320px;
+  padding: 0;
+  caret-color: var(--accent);
+  font-feature-settings: "ss02" on, "cv01" on;
+}
+
+.tt-editor .ProseMirror:focus {
+  outline: none;
+}
+
+/* Placeholder */
+.tt-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Headings */
+.tt-editor .ProseMirror h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--text-primary);
+}
+.tt-editor .ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--text-primary);
+}
+.tt-editor .ProseMirror h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 1rem 0 0.5rem;
+  color: var(--text-primary);
+}
+
+.tt-editor .ProseMirror p {
+  margin: 0.4rem 0;
+  color: var(--text-body);
+}
+
+/* Lists */
+.tt-editor .ProseMirror ul,
+.tt-editor .ProseMirror ol {
+  margin: 0.4rem 0;
+  padding-left: 1.5rem;
+  color: var(--text-body);
+}
+.tt-editor .ProseMirror ul {
+  list-style: disc;
+}
+.tt-editor .ProseMirror ol {
+  list-style: decimal;
+}
+.tt-editor .ProseMirror li {
+  margin: 0.2rem 0;
+}
+.tt-editor .ProseMirror li > p {
+  margin: 0;
+}
+
+/* Task list */
+.tt-editor .ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+.tt-editor .ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+}
+.tt-editor .ProseMirror ul[data-type="taskList"] li > label {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.25rem;
+  user-select: none;
+}
+.tt-editor .ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-base);
+  cursor: pointer;
+  position: relative;
+  transition: border-color 120ms, background 120ms;
+}
+.tt-editor .ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.tt-editor .ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--accent-fg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.tt-editor .ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1;
+  min-width: 0;
+}
+.tt-editor .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* Blockquote */
+.tt-editor .ProseMirror blockquote {
+  margin: 0.75rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-body);
+  font-style: italic;
+}
+
+/* Code & inline code */
+.tt-editor .ProseMirror code {
+  font-family: var(--font-mono, ui-monospace, "JetBrains Mono", monospace);
+  font-size: 0.85em;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+.tt-editor .ProseMirror pre {
+  font-family: var(--font-mono, ui-monospace, "JetBrains Mono", monospace);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0.75rem 0;
+  overflow-x: auto;
+}
+.tt-editor .ProseMirror pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+}
+
+/* Horizontal rule */
+.tt-editor .ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.25rem 0;
+}
+
+/* Strong & em */
+.tt-editor .ProseMirror strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Images */
+.tt-editor .ProseMirror img {
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border);
+  max-width: 100%;
+  height: auto;
+  margin: 0.75rem 0;
+  display: block;
+}
+.tt-editor .ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Callout */
+.tt-editor .ProseMirror .tt-callout,
+.tt-editor .ProseMirror div[data-callout] {
+  position: relative;
+  margin: 0.75rem 0;
+  padding: 0.9rem 1rem 0.9rem 2.5rem;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border);
+  background: var(--bg-elevated);
+}
+.tt-editor .ProseMirror div[data-callout]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+  background: var(--callout-accent, var(--accent));
+}
+.tt-editor .ProseMirror div[data-callout]::after {
+  content: "";
+  position: absolute;
+  left: 0.85rem;
+  top: 1.05rem;
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--callout-accent, var(--accent));
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  opacity: 0.9;
+}
+.tt-editor .ProseMirror div[data-callout][data-variant="idea"] {
+  --callout-accent: var(--accent);
+  background: color-mix(in srgb, var(--accent-subtle) 80%, transparent);
+}
+.tt-editor .ProseMirror div[data-callout][data-variant="warning"] {
+  --callout-accent: var(--warning);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+.tt-editor .ProseMirror div[data-callout][data-variant="pin"] {
+  --callout-accent: var(--course-6-fg);
+  background: color-mix(in srgb, var(--course-6-fg) 10%, transparent);
+}
+.tt-editor .ProseMirror div[data-callout][data-variant="info"] {
+  --callout-accent: var(--info);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
+}
+/* Icon mask SVGs (Lucide-inspired single-color glyphs) */
+.tt-editor .ProseMirror div[data-callout][data-variant="idea"]::after {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5'/><path d='M9 18h6'/><path d='M10 22h4'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5'/><path d='M9 18h6'/><path d='M10 22h4'/></svg>");
+}
+.tt-editor .ProseMirror div[data-callout][data-variant="warning"]::after {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z'/><path d='M12 9v4'/><path d='M12 17h.01'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z'/><path d='M12 9v4'/><path d='M12 17h.01'/></svg>");
+}
+.tt-editor .ProseMirror div[data-callout][data-variant="pin"]::after {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 17v5'/><path d='M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 17v5'/><path d='M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z'/></svg>");
+}
+.tt-editor .ProseMirror div[data-callout][data-variant="info"]::after {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 16v-4'/><path d='M12 8h.01'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 16v-4'/><path d='M12 8h.01'/></svg>");
+}
+
+/* Block theme accent — borde izquierdo sutil sin romper el flujo */
+.tt-editor .ProseMirror [data-theme] {
+  position: relative;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--block-theme-color, transparent);
+  transition: opacity 150ms ease, filter 150ms ease;
+}
+.tt-editor .ProseMirror [data-theme="teoria"] { --block-theme-color: var(--course-4-fg); }
+.tt-editor .ProseMirror [data-theme="ejemplo"] { --block-theme-color: var(--course-2-fg); }
+.tt-editor .ProseMirror [data-theme="importante"] { --block-theme-color: var(--course-6-fg); }
+.tt-editor .ProseMirror [data-theme="examen"] { --block-theme-color: var(--accent); }
+
+/* Filter mode — fade blocks not matching active theme filter */
+.tt-editor[data-theme-filter] .ProseMirror > *:not([data-theme]),
+.tt-editor[data-theme-filter="teoria"] .ProseMirror [data-theme]:not([data-theme="teoria"]),
+.tt-editor[data-theme-filter="ejemplo"] .ProseMirror [data-theme]:not([data-theme="ejemplo"]),
+.tt-editor[data-theme-filter="importante"] .ProseMirror [data-theme]:not([data-theme="importante"]),
+.tt-editor[data-theme-filter="examen"] .ProseMirror [data-theme]:not([data-theme="examen"]) {
+  opacity: 0.28;
+  filter: saturate(0.6);
+}
+
+/* Focus mode container — wider line-height & centered */
+.tt-editor[data-focus-mode="true"] {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.tt-editor[data-focus-mode="true"] .ProseMirror {
+  min-height: 60vh;
+}
+
+/* Selection */
+.tt-editor .ProseMirror ::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* Scrollbar inside editor container */
+.tt-editor-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.tt-editor-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}

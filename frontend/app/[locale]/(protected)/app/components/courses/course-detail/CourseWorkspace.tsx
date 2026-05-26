@@ -4,16 +4,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
-  getCourseClasses,
   getCourseFiles,
   getCourseFlashcards,
-  getCourseNotes,
   getCourseQuizHistoryDetailed,
   getCourseTasks,
   type MockCourseExtended,
   type MockCourseTask,
   type MockFlashcard,
 } from "../../../lib/mock-course-data";
+import { useCourseNotes } from "../../../lib/course-notes-store";
 import { CourseAiDrawer } from "./CourseAiDrawer";
 import { CourseAiFab } from "./CourseAiFab";
 import { CourseDetailHeaderRedesign } from "./CourseDetailHeaderRedesign";
@@ -59,10 +58,9 @@ export function CourseWorkspace({ course }: CourseWorkspaceProps) {
     setFlashcards((prev) => prev.map((c) => (c.id === id ? { ...c, nueva: undefined } : c)));
   }, []);
 
-  const notes = useMemo(() => getCourseNotes(course.id), [course.id]);
+  const notes = useCourseNotes(course.id);
   const tasks = useMemo(() => getCourseTasks(course.id), [course.id]);
   const files = useMemo(() => getCourseFiles(course.id), [course.id]);
-  const classes = useMemo(() => getCourseClasses(course.id), [course.id]);
   const quizHistory = useMemo(() => getCourseQuizHistoryDetailed(course.id), [course.id]);
 
   const stats = useMemo(() => {
@@ -103,12 +101,11 @@ export function CourseWorkspace({ course }: CourseWorkspaceProps) {
                 {tabActivo === "apuntes" && (
                   <ApuntesTab
                     course={course}
-                    notes={notes}
                     selectedNoteId={selectedNoteId}
                     onSelectNote={setSelectedNoteId}
                   />
                 )}
-                {tabActivo === "clases" && <ClasesTab course={course} classes={classes} />}
+                {tabActivo === "clases" && <ClasesTab course={course} />}
                 {tabActivo === "tareas" && <TareasTab course={course} tasks={tasks} />}
                 {tabActivo === "archivos" && <ArchivosTab course={course} files={files} />}
                 {tabActivo === "flashcards" && (

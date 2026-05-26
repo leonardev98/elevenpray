@@ -23,6 +23,8 @@
     "searchPlaceholder": "Buscar…",
     "saving": "Guardando…",
     "save": "Guardar",
+    "edit": "Editar",
+    "delete": "Eliminar",
     "viewAll": "Ver todo",
     "viewAllNotes": "Ver todas las notas"
   },
@@ -425,7 +427,13 @@
     "dayJ": "J",
     "dayV": "V",
     "dayS": "S",
-    "dayD": "D"
+    "dayD": "D",
+    "courseMenuLabel": "Opciones del curso",
+    "editCourseTitle": "Editar curso",
+    "editCourseSubtitle": "Actualiza la información del curso",
+    "saveChanges": "Guardar cambios",
+    "deleteCourseTitle": "Eliminar curso",
+    "confirmDeleteCourseMessage": "Estás a punto de eliminar el curso \"{name}\". Se perderán sus apuntes, tareas, archivos y flashcards. Esta acción no se puede deshacer."
   },
   "studentTasks": {
     "title": "Tareas",
