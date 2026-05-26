@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { BookOpen, Sparkles, Users } from "lucide-react";
+import { signIn } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "../../../providers/auth-provider";
 import { ThemeToggle } from "../../../components/theme-toggle";
 import { toast } from "../../../lib/toast";
 import { LocaleSwitcher } from "../../../components/locale-switcher";
-import { signIn } from "@/auth";
 
 function getAllowedNext(next: string | null): string {
   if (!next || typeof next !== "string") return "/app";
@@ -62,10 +62,17 @@ export default function LoginPage() {
     setGoogleLoading(true);
     try {
       const bridgeUrl = `/auth/bridge?next=${encodeURIComponent(next)}`;
-      await signIn("google", { redirectTo: bridgeUrl });
-    } catch {
+      // `signIn` de `next-auth/react` (client) dispara el redirect completo a
+      // /api/auth/signin/google → Google → /api/auth/callback/google → bridgeUrl.
+      // No usamos el `signIn` server-side de `@/auth` porque desde un onClick
+      // en un client component no lanza la redirección OAuth en v5.
+      await signIn("google", { callbackUrl: bridgeUrl });
+    } catch (err) {
       setGoogleLoading(false);
-      toast.error(t("errorSignIn"), t("errorGoogleSignIn"));
+      const msg =
+        err instanceof Error ? err.message : t("errorGoogleSignIn");
+      setError(msg);
+      toast.error(t("errorSignIn"), msg);
     }
   }
 
