@@ -1,4 +1,11 @@
-import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateIf,
+} from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -11,7 +18,12 @@ export class UpdateProfileDto {
   @IsEmail({ require_tld: false }, { message: 'Email no válido' })
   email?: string;
 
+  /**
+   * `null` permitido explícitamente para que el usuario pueda eliminar su foto
+   * de perfil (vuelve a iniciales). Si el campo se omite, no se toca.
+   */
+  @ValidateIf((_, value) => value !== null)
   @IsOptional()
   @IsString()
-  avatarUrl?: string;
+  avatarUrl?: string | null;
 }

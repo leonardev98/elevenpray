@@ -14,7 +14,6 @@ import {
   Sparkles,
   Sun,
   Trophy,
-  User,
   Users,
   X,
 } from "lucide-react";
@@ -32,7 +31,6 @@ const NAV_ITEMS = [
   { href: "/app/study", key: "study", icon: Sparkles },
   { href: "/app/community", key: "community", icon: Users },
   { href: "/app/plan", key: "plan", icon: CreditCard },
-  { href: "/app/profile", key: "profile", icon: User },
 ] as const;
 
 interface StudentSidebarProps {
