@@ -193,7 +193,11 @@
     "bridgeErrorTitle": "No pudimos conectar tu cuenta",
     "bridgeNoSession": "No se pudo recuperar la sesión.",
     "bridgeNoBackendToken": "El servidor no devolvió una sesión válida.",
-    "bridgeUnknownError": "Ocurrió un error inesperado.",
+    "bridgeUnknownError": "Ocurrió un error inesperado al conectar tu cuenta.",
+    "bridgeConfigError": "El servicio no está configurado correctamente. Avísanos para revisarlo.",
+    "bridgeBackendUnreachable": "No pudimos contactar a nuestros servidores. Vuelve a intentarlo en un momento.",
+    "bridgeGoogleInvalid": "La cuenta de Google no es válida. Asegúrate de que tu correo de Google esté verificado e intenta de nuevo.",
+    "bridgeShowDetails": "Ver detalles técnicos",
     "bridgeBackToLogin": "Volver al inicio de sesión"
   },
   "onboarding": {

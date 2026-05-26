@@ -7,14 +7,23 @@ const useSecureCookies = process.env.NODE_ENV === "production"
 const cookiePrefix = useSecureCookies ? "__Secure-" : ""
 
 function getBackendBaseUrl(): string | null {
-  // Server-side: preferimos una URL interna explícita si existe, si no
-  // caemos en NEXT_PUBLIC_API_URL que también está disponible en el server.
-  return (
-    process.env.BACKEND_INTERNAL_URL ??
-    process.env.NEXT_PUBLIC_API_URL ??
-    process.env.NEXT_PUBLIC_BACKEND_URL ??
-    null
-  )
+  // Server-side: preferimos BACKEND_INTERNAL_URL (absoluta) y caemos a
+  // NEXT_PUBLIC_API_URL solo si es absoluta. En Vercel es común que
+  // NEXT_PUBLIC_API_URL sea una ruta relativa (rewrite tipo "/_/backend"),
+  // lo cual funciona para el navegador pero rompe fetch() en Node.
+  const candidates = [
+    process.env.BACKEND_INTERNAL_URL,
+    process.env.NEXT_PUBLIC_API_URL,
+    process.env.NEXT_PUBLIC_BACKEND_URL,
+  ]
+  for (const c of candidates) {
+    if (!c) continue
+    const trimmed = c.trim()
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      return trimmed.replace(/\/$/, "")
+    }
+  }
+  return null
 }
 
 /**
@@ -26,7 +35,14 @@ async function exchangeGoogleIdToken(
 ): Promise<{ accessToken: string; user: PublicUser } | { error: string }> {
   const baseUrl = getBackendBaseUrl()
   if (!baseUrl) {
-    return { error: "Backend URL no configurada" }
+    // Caso típico: en Vercel se configura NEXT_PUBLIC_API_URL como ruta
+    // relativa (rewrite "/_/backend"). El callback del JWT corre en el
+    // servidor de Vercel y necesita URL absoluta. Pide configurar
+    // BACKEND_INTERNAL_URL con la URL pública absoluta del backend.
+    return {
+      error:
+        "Configuración: falta BACKEND_INTERNAL_URL con la URL absoluta del backend (https://...).",
+    }
   }
   try {
     const res = await fetch(`${baseUrl}/auth/google`, {
@@ -54,7 +70,7 @@ async function exchangeGoogleIdToken(
     return {
       error:
         err instanceof Error
-          ? `No se pudo contactar al backend: ${err.message}`
+          ? `No se pudo contactar al backend (${baseUrl}): ${err.message}`
           : "No se pudo contactar al backend",
     }
   }

@@ -193,7 +193,11 @@
     "bridgeErrorTitle": "We could not connect your account",
     "bridgeNoSession": "Could not retrieve the session.",
     "bridgeNoBackendToken": "The server did not return a valid session.",
-    "bridgeUnknownError": "An unexpected error occurred.",
+    "bridgeUnknownError": "An unexpected error occurred while connecting your account.",
+    "bridgeConfigError": "The service is not configured correctly. Please let us know so we can look into it.",
+    "bridgeBackendUnreachable": "We could not reach our servers. Please try again in a moment.",
+    "bridgeGoogleInvalid": "The Google account is not valid. Make sure your Google email is verified and try again.",
+    "bridgeShowDetails": "Show technical details",
     "bridgeBackToLogin": "Back to sign in"
   },
   "onboarding": {

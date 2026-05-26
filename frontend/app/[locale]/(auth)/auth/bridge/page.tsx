@@ -33,7 +33,37 @@ export default function AuthBridgePage() {
   const { setSession } = useAuth();
   const t = useTranslations("auth");
   const [error, setError] = useState<string | null>(null);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const handled = useRef(false);
+
+  function humanizeBackendError(raw: string): string {
+    const lower = raw.toLowerCase();
+    if (
+      lower.includes("backend_internal_url") ||
+      lower.includes("configuración") ||
+      lower.includes("not configured")
+    ) {
+      return t("bridgeConfigError");
+    }
+    if (
+      lower.includes("failed to parse url") ||
+      lower.includes("invalid url") ||
+      lower.includes("enotfound") ||
+      lower.includes("econnrefused") ||
+      lower.includes("fetch failed") ||
+      lower.includes("network error") ||
+      lower.includes("no se pudo contactar")
+    ) {
+      return t("bridgeBackendUnreachable");
+    }
+    if (
+      lower.includes("invalid google") ||
+      lower.includes("google email is not verified")
+    ) {
+      return t("bridgeGoogleInvalid");
+    }
+    return t("bridgeUnknownError");
+  }
 
   const next = getAllowedNext(params.get("next"));
 
@@ -48,12 +78,15 @@ export default function AuthBridgePage() {
       const session = (await sessionRes.json()) as NextAuthSession | null;
 
       if (!session) {
+        setErrorDetail(null);
         throw new Error(t("bridgeNoSession"));
       }
       if (session.backendError) {
-        throw new Error(session.backendError);
+        setErrorDetail(session.backendError);
+        throw new Error(humanizeBackendError(session.backendError));
       }
       if (!session.backendAccessToken || !session.backendUser) {
+        setErrorDetail(null);
         throw new Error(t("bridgeNoBackendToken"));
       }
 
@@ -125,7 +158,17 @@ export default function AuthBridgePage() {
             <h1 className="mt-4 text-lg font-semibold text-[var(--app-fg)]">
               {t("bridgeErrorTitle")}
             </h1>
-            <p className="mt-2 text-sm text-[var(--app-fg)]/60">{error}</p>
+            <p className="mt-2 text-sm text-[var(--app-fg)]/70">{error}</p>
+            {errorDetail && errorDetail !== error && (
+              <details className="mt-3 text-left">
+                <summary className="cursor-pointer text-xs font-medium text-[var(--app-fg)]/55 hover:text-[var(--app-fg)]/80">
+                  {t("bridgeShowDetails")}
+                </summary>
+                <pre className="mt-2 overflow-auto rounded-lg bg-[var(--app-bg)] p-3 text-left text-[11px] leading-snug text-[var(--app-fg)]/70 ring-1 ring-[var(--app-border)]">
+                  {errorDetail}
+                </pre>
+              </details>
+            )}
             <Link
               href="/login"
               className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[var(--app-navy)] px-4 py-2.5 text-sm font-medium text-[var(--app-white)] transition hover:opacity-90"
