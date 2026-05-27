@@ -1,16 +1,19 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { enUS, es } from "date-fns/locale";
-import { Play } from "lucide-react";
+import { BookOpen, CalendarDays, CheckSquare, Clock, Play } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { MOCK_CLASSES_TODAY, MOCK_COURSES, MOCK_TASKS } from "./lib/mock-student-data";
+import { cn } from "@/lib/utils";
 import { useCheckIn } from "./components/check-in-context";
 import { StudentPageShell } from "./components/StudentPageShell";
 import { DailyXpCard } from "./gamification/components/DailyXpCard";
 import { StreakCard } from "./gamification/components/StreakCard";
+import { useGamification } from "./gamification/gamification-context";
+import { useHomeDashboard } from "./lib/use-home-dashboard";
+import { useScheduleStore } from "./lib/use-schedule-store";
 
 export default function StudentHomePage() {
   const t = useTranslations("studentHome");
@@ -18,11 +21,17 @@ export default function StudentHomePage() {
   const dateFnsLocale = locale === "en" ? enUS : es;
   const router = useRouter();
   const { checkedInToday, openGate } = useCheckIn();
-  const upcomingTasks = MOCK_TASKS.filter((t) => t.status !== "done").slice(0, 3);
+  const { recordActivity } = useGamification();
+  const { classesToday, upcomingTasks, courseById } = useHomeDashboard();
+  const { hydrated } = useScheduleStore();
 
   function handleStartStudy() {
-    if (!checkedInToday) openGate();
-    else router.push("/app/study");
+    if (!checkedInToday) {
+      openGate();
+      return;
+    }
+    void recordActivity("study");
+    router.push("/app/study");
   }
 
   return (
@@ -59,61 +68,131 @@ export default function StudentHomePage() {
 
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-[var(--app-fg)]">{t("classesToday")}</h2>
+            <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--app-fg)]">
+              <CalendarDays className="h-4 w-4 text-[var(--app-primary)]" />
+              {t("classesToday")}
+            </h2>
             <Link href="/app/calendar" className="text-sm text-[var(--app-primary)] hover:underline">
               {t("viewCalendar")}
             </Link>
           </div>
           <div className="space-y-2">
-            {MOCK_CLASSES_TODAY.map((session) => {
-              const course = MOCK_COURSES.find((c) => c.id === session.courseId);
-              return (
-                <div key={session.id} className="student-card flex items-center gap-4 p-4">
-                  <div className="text-center">
-                    <p className="text-xs text-[var(--app-fg-muted)]">{session.startTime}</p>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-[var(--app-fg)]">{session.title}</p>
-                    <p className="text-sm text-[var(--app-fg-secondary)]">{session.room}</p>
-                  </div>
-                  {course && (
-                    <span className={`rounded-lg border px-2 py-1 text-xs ${course.color}`}>
-                      {course.code}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+            {!hydrated ? (
+              <div className="student-card p-4 text-sm text-[var(--app-fg-muted)]">{t("loading")}</div>
+            ) : classesToday.length === 0 ? (
+              <div className="student-card flex flex-col items-center gap-2 p-8 text-center">
+                <BookOpen className="h-8 w-8 text-[var(--app-fg-muted)]" />
+                <p className="text-sm font-medium text-[var(--app-fg)]">{t("noClassesToday")}</p>
+                <p className="text-xs text-[var(--app-fg-secondary)]">{t("noClassesTodayDesc")}</p>
+                <Link
+                  href="/app/calendar"
+                  className="mt-2 text-sm font-medium text-[var(--app-primary)] hover:underline"
+                >
+                  {t("addInCalendar")}
+                </Link>
+              </div>
+            ) : (
+              classesToday.map((session) => {
+                const course = courseById(session.courseId);
+                return (
+                  <Link
+                    key={session.id}
+                    href="/app/calendar"
+                    className="student-card flex items-center gap-4 p-4 transition hover:border-[var(--app-primary)]/30"
+                  >
+                    <div className="min-w-[3.5rem] text-center">
+                      <p className="text-sm font-semibold text-[var(--app-fg)]">{session.startTime}</p>
+                      <p className="text-[10px] text-[var(--app-fg-muted)]">{session.endTime}</p>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-[var(--app-fg)]">{session.title}</p>
+                      {session.subtitle && (
+                        <p className="text-sm text-[var(--app-fg-secondary)]">{session.subtitle}</p>
+                      )}
+                    </div>
+                    {course && (
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-lg border px-2 py-1 text-xs",
+                          course.color,
+                        )}
+                      >
+                        {course.code}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })
+            )}
           </div>
         </section>
 
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-[var(--app-fg)]">{t("upcomingTasks")}</h2>
+            <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--app-fg)]">
+              <CheckSquare className="h-4 w-4 text-[var(--app-primary)]" />
+              {t("upcomingTasks")}
+            </h2>
             <Link href="/app/tasks" className="text-sm text-[var(--app-primary)] hover:underline">
               {t("viewAll")}
             </Link>
           </div>
           <div className="space-y-2">
-            {upcomingTasks.map((task) => {
-              const course = MOCK_COURSES.find((c) => c.id === task.courseId);
-              return (
-                <div key={task.id} className="student-card flex items-center justify-between p-4">
-                  <div>
-                    <p className="font-medium text-[var(--app-fg)]">{task.title}</p>
-                    <p className="text-sm text-[var(--app-fg-secondary)]">
-                      {course?.name} ·{" "}
-                      {format(new Date(task.dueDate), "d MMM", { locale: dateFnsLocale })}
-                    </p>
-                  </div>
-                  <span className="rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] px-2.5 py-1 text-xs text-[var(--warning)]">
-                    {t("pending")}
-                  </span>
-                </div>
-              );
-            })}
+            {!hydrated ? (
+              <div className="student-card p-4 text-sm text-[var(--app-fg-muted)]">{t("loading")}</div>
+            ) : upcomingTasks.length === 0 ? (
+              <div className="student-card flex flex-col items-center gap-2 p-8 text-center">
+                <CheckSquare className="h-8 w-8 text-[var(--app-fg-muted)]" />
+                <p className="text-sm font-medium text-[var(--app-fg)]">{t("noTasks")}</p>
+                <p className="text-xs text-[var(--app-fg-secondary)]">{t("noTasksDesc")}</p>
+                <Link
+                  href="/app/calendar"
+                  className="mt-2 text-sm font-medium text-[var(--app-primary)] hover:underline"
+                >
+                  {t("addInCalendar")}
+                </Link>
+              </div>
+            ) : (
+              upcomingTasks.map((task) => {
+                const course = courseById(task.courseId);
+                const isToday = task.date === format(new Date(), "yyyy-MM-dd");
+                return (
+                  <Link
+                    key={task.id}
+                    href="/app/tasks"
+                    className="student-card flex items-center justify-between gap-3 p-4 transition hover:border-[var(--app-primary)]/30"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium text-[var(--app-fg)]">{task.title}</p>
+                      <p className="text-sm text-[var(--app-fg-secondary)]">
+                        {course?.name ?? task.subtitle ?? "—"} ·{" "}
+                        {format(parseISO(task.date), "d MMM", { locale: dateFnsLocale })}
+                        {task.startTime ? ` · ${task.startTime}` : ""}
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-[var(--radius-sm)] px-2.5 py-1 text-xs",
+                        isToday
+                          ? "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]"
+                          : "bg-[var(--app-surface-soft)] text-[var(--app-fg-secondary)]",
+                      )}
+                    >
+                      {isToday ? t("dueToday") : t("pending")}
+                    </span>
+                  </Link>
+                );
+              })
+            )}
           </div>
         </section>
+
+        {classesToday.length > 0 && upcomingTasks.length > 0 && (
+          <p className="flex items-center gap-1.5 text-xs text-[var(--app-fg-muted)]">
+            <Clock className="h-3.5 w-3.5" />
+            {t("scheduleSynced")}
+          </p>
+        )}
       </div>
     </StudentPageShell>
   );

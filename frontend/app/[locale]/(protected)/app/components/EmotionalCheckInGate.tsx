@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { saveCheckIn } from "../lib/student-storage";
+import { useGamification } from "../gamification/gamification-context";
 import { useCheckIn } from "./check-in-context";
 
 const MOODS = [
@@ -17,9 +18,11 @@ const MOODS = [
 export function EmotionalCheckInGate() {
   const t = useTranslations("checkin");
   const { gateOpen, closeGate, refreshCheckIn } = useCheckIn();
+  const { recordActivity } = useGamification();
 
   function handleSelect(moodId: string) {
     saveCheckIn(moodId);
+    void recordActivity("checkin");
     refreshCheckIn();
     closeGate();
   }

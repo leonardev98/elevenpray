@@ -12,6 +12,7 @@ const MEDAL_COLORS: Record<number, string> = {
 
 export function RankingList() {
   const { data } = useGamification();
+  const liga = data.extras.liga;
 
   return (
     <div className="student-card divide-y divide-[var(--app-border)] overflow-hidden">
@@ -50,7 +51,9 @@ export function RankingList() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-[var(--text-muted)]">{entry.universidad}</p>
+            <p className="text-xs text-[var(--text-muted)]">
+              {entry.carrera ?? liga.carrera} · {entry.universidad}
+            </p>
           </div>
           <span className="shrink-0 text-sm font-semibold text-[var(--xp)]">
             {entry.xp.toLocaleString("es-PE")} XP

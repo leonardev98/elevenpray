@@ -206,6 +206,159 @@
   --chart-5: var(--course-5-fg);
 }
 
+/* Malla curricular — tokens de contraste (modo oscuro) */
+:root,
+.dark,
+[data-theme="dark"] {
+  --malla-status-pending-bg: #3A3835;
+  --malla-status-pending-fg: #D4CFC2;
+  --malla-status-pending-ring: #5C574E;
+  --malla-status-progress-bg: #3D3520;
+  --malla-status-progress-fg: #E8C97A;
+  --malla-status-progress-ring: #8A7340;
+  --malla-status-approved-bg: #243328;
+  --malla-status-approved-fg: #A8D4A0;
+  --malla-status-approved-ring: #4A6B3A;
+  --malla-status-failed-bg: #3A2828;
+  --malla-status-failed-fg: #E8A8A8;
+  --malla-status-failed-ring: #8A4A4A;
+  --malla-alert-bg: #3D3520;
+  --malla-alert-fg: #F0D9A0;
+  --malla-alert-border: #6B5A30;
+  --malla-progress-bg: #2E3A23;
+  --malla-progress-fg: #A8C087;
+  --malla-locked-icon: #8A8478;
+  --malla-card-blue-bg: #1F2833;
+  --malla-card-blue-border: #4A6B8A;
+  --malla-card-blue-meta: #8FA5BC;
+  --malla-card-violet-bg: #2A2433;
+  --malla-card-violet-border: #6B5A8A;
+  --malla-card-violet-meta: #B5A8C8;
+  --malla-card-emerald-bg: #1F2E28;
+  --malla-card-emerald-border: #4A7A5A;
+  --malla-card-emerald-meta: #8FB5A0;
+  --malla-card-amber-bg: #332A1F;
+  --malla-card-amber-border: #8A7340;
+  --malla-card-amber-meta: #D4B580;
+  --malla-card-rose-bg: #332428;
+  --malla-card-rose-border: #8A5A6B;
+  --malla-card-rose-meta: #D4A8B5;
+  --malla-card-cyan-bg: #1F2E33;
+  --malla-card-cyan-border: #4A7A8A;
+  --malla-card-cyan-meta: #8FB5C8;
+  --malla-card-indigo-bg: #242833;
+  --malla-card-indigo-border: #5A6B8A;
+  --malla-card-indigo-meta: #A8B5D4;
+  --malla-card-teal-bg: #1F2E2E;
+  --malla-card-teal-border: #4A7A7A;
+  --malla-card-teal-meta: #8FB5B5;
+}
+
+/* Malla curricular — tokens de contraste (modo claro) */
+.light,
+[data-theme="light"] {
+  --malla-status-pending-bg: #EDE9E0;
+  --malla-status-pending-fg: #4A453C;
+  --malla-status-pending-ring: #C8C0B4;
+  --malla-status-progress-bg: #FDF3DC;
+  --malla-status-progress-fg: #7A5A14;
+  --malla-status-progress-ring: #E8D4A8;
+  --malla-status-approved-bg: #E8EFD9;
+  --malla-status-approved-fg: #2D4A22;
+  --malla-status-approved-ring: #A8C087;
+  --malla-status-failed-bg: #F8E8E8;
+  --malla-status-failed-fg: #8A3D3D;
+  --malla-status-failed-ring: #E8B0B0;
+  --malla-alert-bg: #FDF6E8;
+  --malla-alert-fg: #7A5A14;
+  --malla-alert-border: #E8D4A8;
+  --malla-progress-bg: #E8EFD9;
+  --malla-progress-fg: #2D4A22;
+  --malla-locked-icon: #6B6560;
+  --malla-card-blue-bg: #EEF4FA;
+  --malla-card-blue-border: #A8C4DC;
+  --malla-card-blue-meta: #3D5A6B;
+  --malla-card-violet-bg: #F3EFF8;
+  --malla-card-violet-border: #C4B5D8;
+  --malla-card-violet-meta: #5B4A7A;
+  --malla-card-emerald-bg: #ECF5EE;
+  --malla-card-emerald-border: #A8D4B0;
+  --malla-card-emerald-meta: #2D5A3A;
+  --malla-card-amber-bg: #FDF6E8;
+  --malla-card-amber-border: #E8D4A8;
+  --malla-card-amber-meta: #7A5A14;
+  --malla-card-rose-bg: #FAF0F2;
+  --malla-card-rose-border: #E8B8C4;
+  --malla-card-rose-meta: #7A3D4A;
+  --malla-card-cyan-bg: #ECF5F8;
+  --malla-card-cyan-border: #A8D4E8;
+  --malla-card-cyan-meta: #2D5A6B;
+  --malla-card-indigo-bg: #EEF0F8;
+  --malla-card-indigo-border: #B5B8D8;
+  --malla-card-indigo-meta: #3D4A7A;
+  --malla-card-teal-bg: #ECF5F5;
+  --malla-card-teal-border: #A8D4D4;
+  --malla-card-teal-meta: #2D5A5A;
+}
+
+/* Modales — cursor de texto solo dentro de inputs (evita caret en huecos del grid) */
+.student-modal-form,
+.student-modal-panel {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.student-modal-form input:not([type="checkbox"]):not([type="radio"]),
+.student-modal-form textarea,
+.student-modal-form select,
+.student-modal-panel input:not([type="checkbox"]):not([type="radio"]),
+.student-modal-panel textarea,
+.student-modal-panel select {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+.student-modal-label {
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.student-modal-input {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.student-modal-input::placeholder {
+  color: var(--text-muted);
+}
+
+.student-modal-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.student-modal-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.student-modal-input[type="number"]::-webkit-outer-spin-button,
+.student-modal-input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* Scrollbar Paper (mismo look en light y dark) */
 :root,
 .dark,

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Check } from "lucide-react";
-import { DAY_LABELS, MOCK_TODAY_INDEX } from "@/data/gamification";
+import { DAY_LABELS, getTodayWeekIndex } from "@/data/gamification";
 import { cn } from "@/lib/utils";
 import { useGamification } from "../gamification-context";
 
@@ -29,7 +29,7 @@ interface StreakWeekCirclesProps {
 export function StreakWeekCircles({
   semana,
   variant,
-  todayIndex = MOCK_TODAY_INDEX,
+  todayIndex = getTodayWeekIndex(),
   size = "md",
   staggerOnMount = false,
 }: StreakWeekCirclesProps) {

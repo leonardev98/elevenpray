@@ -28,6 +28,8 @@ import { StudyUniversityModule } from './study-university/study-university.modul
 import { S3Module } from './s3/s3.module';
 import { CommunityModule } from './community/community.module';
 import { StudyAiModule } from './study-ai/study-ai.module';
+import { CurriculumModule } from './curriculum/curriculum.module';
+import { StudentActivityModule } from './student-activity/student-activity.module';
 
 @Module({
   imports: [
@@ -66,6 +68,8 @@ import { StudyAiModule } from './study-ai/study-ai.module';
     DashboardModule,
     CommunityModule,
     StudyAiModule,
+    CurriculumModule,
+    StudentActivityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

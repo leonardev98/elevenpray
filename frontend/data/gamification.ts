@@ -3,14 +3,25 @@ import {
   BookOpen,
   Check,
   CheckCircle2,
+  Crown,
   Flame,
+  Gift,
   Heart,
+  Medal,
+  Shield,
+  Sparkles,
   Star,
   Sun,
+  Target,
   Trophy,
   Users,
   Zap,
 } from "lucide-react";
+import {
+  CYCLE_SHIELDS_PER_CYCLE,
+  REFERRAL_MILESTONES,
+  referralCodeFromUserId,
+} from "./gamification-config";
 
 export const LUCIDE_ICON_MAP: Record<string, LucideIcon> = {
   Flame,
@@ -23,6 +34,12 @@ export const LUCIDE_ICON_MAP: Record<string, LucideIcon> = {
   Star,
   Heart,
   Check,
+  Crown,
+  Gift,
+  Shield,
+  Medal,
+  Target,
+  Sparkles,
 };
 
 export function getLucideIcon(name: string): LucideIcon {
@@ -49,6 +66,86 @@ export type InsigniaBloqueada = {
 };
 
 export type Insignia = InsigniaDesbloqueada | InsigniaBloqueada;
+
+export type InsigniaRareza = "comun" | "raro" | "epico" | "legendario";
+
+export type ReferralTierProgress = {
+  activados: number;
+  label: string;
+  rewards: string[];
+  completado: boolean;
+};
+
+export type ReferralState = {
+  codigo: string;
+  activados: number;
+  usosEstaSemana: number;
+  tiers: ReferralTierProgress[];
+};
+
+export type CycleShieldState = {
+  disponibles: number;
+  maxPorCiclo: number;
+  usadosEsteCiclo: number;
+  cicloLabel: string;
+};
+
+export type LeagueTier = "bronce" | "plata" | "oro" | "diamante";
+
+export type LeagueState = {
+  tier: LeagueTier;
+  posicion: number;
+  totalParticipantes: number;
+  xpSemana: number;
+  carrera: string;
+  universidad: string;
+  diasRestantes: number;
+  enZonaAscenso: boolean;
+  enZonaDescenso: boolean;
+};
+
+export type Mission = {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  xp: number;
+  progreso: number;
+  total: number;
+  tipo: "diaria" | "semanal";
+  completada: boolean;
+  reclamada: boolean;
+};
+
+export type SharedStreakPartner = {
+  id: string;
+  nombre: string;
+  inicial: string;
+  racha: number;
+  estudioHoy: boolean;
+  color: string;
+};
+
+export type TreasureReward = {
+  id: string;
+  tipo: "xp" | "escudo" | "multiplicador";
+  label: string;
+  valor: number;
+};
+
+export type GamificationExtras = {
+  referidos: ReferralState;
+  escudos: CycleShieldState;
+  liga: LeagueState;
+  misiones: Mission[];
+  rachaCompartida: SharedStreakPartner[];
+  multiplicadorActivo: {
+    activo: boolean;
+    factor: number;
+    hasta: string | null;
+  };
+  rachaSemanalActiva: boolean;
+  ultimoCofre: TreasureReward | null;
+};
 
 export type ActividadHoy = {
   id: string;
@@ -97,11 +194,98 @@ export type GamificationData = {
     posicion: number;
     nombre: string;
     universidad: string;
+    carrera?: string;
     xp: number;
     avatarColor: string;
     esUsuario?: boolean;
   }[];
+  extras: GamificationExtras;
 };
+
+export function createDefaultExtras(opts?: {
+  userId?: string;
+  career?: string;
+  university?: string;
+  cycle?: string;
+  referralActivados?: number;
+}): GamificationExtras {
+  const activados = opts?.referralActivados ?? 2;
+  const codigo = opts?.userId ? referralCodeFromUserId(opts.userId) : "MITSYY-DEMO1";
+
+  return {
+    referidos: {
+      codigo,
+      activados,
+      usosEstaSemana: 2,
+      tiers: REFERRAL_MILESTONES.map((t) => ({
+        activados: t.activados,
+        label: t.label,
+        rewards: [...t.rewards],
+        completado: activados >= t.activados,
+      })),
+    },
+    escudos: {
+      disponibles: 2,
+      maxPorCiclo: CYCLE_SHIELDS_PER_CYCLE,
+      usadosEsteCiclo: 1,
+      cicloLabel: opts?.cycle ? `Ciclo ${opts.cycle}` : "Ciclo 2026-1",
+    },
+    liga: {
+      tier: "plata",
+      posicion: 4,
+      totalParticipantes: 28,
+      xpSemana: 890,
+      carrera: opts?.career ?? "Ingeniería de Software",
+      universidad: opts?.university ?? "UPC",
+      diasRestantes: 3,
+      enZonaAscenso: true,
+      enZonaDescenso: false,
+    },
+    misiones: [
+      {
+        id: "flashcards-calc",
+        titulo: "3 flashcards de Cálculo",
+        descripcion: "Repasa derivadas en menos de 5 min",
+        xp: 30,
+        progreso: 2,
+        total: 3,
+        tipo: "diaria",
+        completada: false,
+        reclamada: false,
+      },
+      {
+        id: "quiz-jueves",
+        titulo: "Quiz antes del jueves",
+        descripcion: "Completa un quiz de cualquier curso",
+        xp: 50,
+        progreso: 1,
+        total: 1,
+        tipo: "semanal",
+        completada: true,
+        reclamada: false,
+      },
+      {
+        id: "ayuda-comunidad",
+        titulo: "Ayuda a un compañero",
+        descripcion: "Responde en comunidad y que marquen útil",
+        xp: 100,
+        progreso: 0,
+        total: 1,
+        tipo: "semanal",
+        completada: false,
+        reclamada: false,
+      },
+    ],
+    rachaCompartida: [
+      { id: "1", nombre: "Sofía M.", inicial: "S", racha: 18, estudioHoy: true, color: "#7C3AED" },
+      { id: "2", nombre: "Luis P.", inicial: "L", racha: 9, estudioHoy: false, color: "#059669" },
+      { id: "3", nombre: "Ana R.", inicial: "A", racha: 14, estudioHoy: true, color: "#D97706" },
+    ],
+    multiplicadorActivo: { activo: false, factor: 1.5, hasta: null },
+    rachaSemanalActiva: true,
+    ultimoCofre: null,
+  };
+}
 
 export const gamificationData: GamificationData = {
   user: {
@@ -139,80 +323,81 @@ export const gamificationData: GamificationData = {
   insignias: [
     {
       id: 1,
-      nombre: "Primera semana",
-      descripcion: "7 días seguidos de estudio",
-      icono: "Flame",
-      desbloqueada: true,
-      fecha: "12 mayo 2026",
-    },
-    {
-      id: 2,
       nombre: "Madrugador",
-      descripcion: "Estudia antes de las 8am por 3 días",
+      descripcion: "3 días seguidos estudiando antes de las 8am",
       icono: "Sun",
       desbloqueada: true,
       fecha: "15 mayo 2026",
     },
     {
-      id: 3,
-      nombre: "Racha de oro",
-      descripcion: "21 días seguidos de estudio",
-      icono: "Trophy",
-      desbloqueada: true,
-      fecha: "18 mayo 2026",
-    },
-    {
-      id: 4,
-      nombre: "Tarea killer",
-      descripcion: "Completa 10 tareas en una semana",
-      icono: "CheckCircle2",
-      desbloqueada: true,
-      fecha: "10 mayo 2026",
-    },
-    {
-      id: 5,
-      nombre: "Lector voraz",
-      descripcion: "Sube 5 PDFs y chatea con todos",
-      icono: "BookOpen",
-      desbloqueada: false,
-      progreso: 3,
-      total: 5,
-    },
-    {
-      id: 6,
-      nombre: "Quiz master",
-      descripcion: "Completa 20 quizzes",
-      icono: "Zap",
-      desbloqueada: false,
-      progreso: 12,
-      total: 20,
-    },
-    {
-      id: 7,
-      nombre: "Comunidad activa",
-      descripcion: "Publica 5 apuntes en la comunidad",
-      icono: "Users",
-      desbloqueada: false,
-      progreso: 1,
-      total: 5,
-    },
-    {
-      id: 8,
-      nombre: "Mes perfecto",
-      descripcion: "30 días seguidos sin romper racha",
-      icono: "Star",
+      id: 2,
+      nombre: "El que no falla",
+      descripcion: "Racha de 30 días sin romper",
+      icono: "Flame",
       desbloqueada: false,
       progreso: 12,
       total: 30,
     },
     {
-      id: 9,
-      nombre: "Bienestar primero",
-      descripcion: "Completa 7 check-ins emocionales seguidos",
-      icono: "Heart",
+      id: 3,
+      nombre: "Sube sílabos",
+      descripcion: "Contribuiste con 5 cursos a la comunidad",
+      icono: "BookOpen",
       desbloqueada: false,
-      progreso: 4,
-      total: 7,
+      progreso: 2,
+      total: 5,
+    },
+    {
+      id: 4,
+      nombre: "Parcialero",
+      descripcion: "Completaste 10 quizzes pre-examen",
+      icono: "Zap",
+      desbloqueada: false,
+      progreso: 6,
+      total: 10,
+    },
+    {
+      id: 5,
+      nombre: "Embajador",
+      descripcion: "1 referido activado con tu código",
+      icono: "Users",
+      desbloqueada: true,
+      fecha: "1 mayo 2026",
+    },
+    {
+      id: 6,
+      nombre: "Mentor del campus",
+      descripcion: "3 referidos activados",
+      icono: "Medal",
+      desbloqueada: false,
+      progreso: 2,
+      total: 3,
+    },
+    {
+      id: 7,
+      nombre: "Fundador Mitsyy",
+      descripcion: "5 referidos activados — badge dorado",
+      icono: "Crown",
+      desbloqueada: false,
+      progreso: 2,
+      total: 5,
+    },
+    {
+      id: 8,
+      nombre: "Leyenda del campus",
+      descripcion: "10+ referidos — acceso Premium vitalicio",
+      icono: "Sparkles",
+      desbloqueada: false,
+      progreso: 2,
+      total: 10,
+    },
+    {
+      id: 9,
+      nombre: "Fundador",
+      descripcion: "Usuario de la primera cohorte — permanente",
+      icono: "Star",
+      desbloqueada: true,
+      fecha: "Enero 2026",
     },
   ],
   historialXP: [
@@ -241,19 +426,49 @@ export const gamificationData: GamificationData = {
   xpTareasSemana: 340,
   comparacionSemana: { porcentaje: 12 },
   ranking: [
-    { posicion: 1, nombre: "María C.", universidad: "PUCP", xp: 4200, avatarColor: "#7C3AED" },
-    { posicion: 2, nombre: "Carlos R.", universidad: "UNI", xp: 3800, avatarColor: "#059669" },
+    {
+      posicion: 1,
+      nombre: "María C.",
+      universidad: "UPC",
+      carrera: "Ing. Software",
+      xp: 1240,
+      avatarColor: "#7C3AED",
+    },
+    {
+      posicion: 2,
+      nombre: "Carlos R.",
+      universidad: "UPC",
+      carrera: "Ing. Software",
+      xp: 1180,
+      avatarColor: "#059669",
+    },
     {
       posicion: 3,
+      nombre: "Valeria T.",
+      universidad: "UPC",
+      carrera: "Ing. Software",
+      xp: 1020,
+      avatarColor: "#D97706",
+    },
+    {
+      posicion: 4,
       nombre: "Tú",
       universidad: "UPC",
-      xp: 2340,
+      carrera: "Ing. Software",
+      xp: 890,
       avatarColor: "#2563EB",
       esUsuario: true,
     },
-    { posicion: 4, nombre: "Valeria T.", universidad: "UPC", xp: 2100, avatarColor: "#D97706" },
-    { posicion: 5, nombre: "Diego F.", universidad: "UNMSM", xp: 1950, avatarColor: "#DC2626" },
+    {
+      posicion: 5,
+      nombre: "Diego F.",
+      universidad: "UPC",
+      carrera: "Ing. Software",
+      xp: 720,
+      avatarColor: "#DC2626",
+    },
   ],
+  extras: createDefaultExtras(),
 };
 
 /** L=0 … D=6. Mock alineado con martes (índice 1). */

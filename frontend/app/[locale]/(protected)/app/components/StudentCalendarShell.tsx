@@ -6,10 +6,7 @@ import { enUS, es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Menu, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import {
-  ScheduleStoreProvider,
-  useScheduleStore,
-} from "../lib/use-schedule-store";
+import { useScheduleStore } from "../lib/use-schedule-store";
 import { EventEditorModal, type EditorState } from "./EventEditorModal";
 import { StudentScheduleCalendar } from "./StudentScheduleCalendar";
 import { WeeklyScheduleGrid } from "./WeeklyScheduleGrid";
@@ -212,9 +209,5 @@ function StudentCalendarShellInner() {
 }
 
 export function StudentCalendarShell() {
-  return (
-    <ScheduleStoreProvider>
-      <StudentCalendarShellInner />
-    </ScheduleStoreProvider>
-  );
+  return <StudentCalendarShellInner />;
 }

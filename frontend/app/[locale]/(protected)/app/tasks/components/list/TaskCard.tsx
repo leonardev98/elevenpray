@@ -12,6 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useGamification } from "../../../gamification/gamification-context";
 import type { MockStudentTask } from "../../lib/tasks-mock-data";
 import {
   COURSE_STYLES,
@@ -29,7 +30,8 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const [completed, setCompleted] = useState(false);
+  const { recordActivity } = useGamification();
+  const [completed, setCompleted] = useState(task.status === "done");
   const [expanded, setExpanded] = useState(false);
   const [progress, setProgress] = useState(task.progress ?? 0);
   const [checkAnimating, setCheckAnimating] = useState(false);
@@ -39,7 +41,11 @@ export function TaskCard({ task }: TaskCardProps) {
 
   function toggleComplete() {
     setCheckAnimating(true);
-    setCompleted((c) => !c);
+    setCompleted((c) => {
+      const next = !c;
+      if (next) void recordActivity("tasks");
+      return next;
+    });
     window.setTimeout(() => setCheckAnimating(false), 200);
   }
 

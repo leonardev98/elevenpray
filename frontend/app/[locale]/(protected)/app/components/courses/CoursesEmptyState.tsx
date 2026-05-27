@@ -5,9 +5,10 @@ import { useTranslations } from "next-intl";
 
 interface CoursesEmptyStateProps {
   onAddCourse: () => void;
+  subtitle?: string;
 }
 
-export function CoursesEmptyState({ onAddCourse }: CoursesEmptyStateProps) {
+export function CoursesEmptyState({ onAddCourse, subtitle }: CoursesEmptyStateProps) {
   const t = useTranslations("studentCourses");
 
   return (
@@ -17,7 +18,7 @@ export function CoursesEmptyState({ onAddCourse }: CoursesEmptyStateProps) {
       </div>
       <h2 className="text-xl font-semibold text-[var(--app-fg)]">{t("emptyTitle")}</h2>
       <p className="mt-2 max-w-sm text-sm text-[var(--app-fg-secondary)]">
-        {t("emptySubtitle")}
+        {subtitle ?? t("emptySubtitle")}
       </p>
       <button
         type="button"

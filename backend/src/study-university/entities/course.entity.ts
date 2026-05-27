@@ -56,6 +56,9 @@ export class Course {
   @Column({ type: 'boolean', default: false })
   archived: boolean;
 
+  @Column({ name: 'curriculum_course_id', type: 'uuid', nullable: true })
+  curriculumCourseId: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

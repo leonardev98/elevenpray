@@ -5,6 +5,10 @@ import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useCurriculum } from "@/app/lib/curriculum/hooks";
+import { findCurriculumCourseByListId } from "@/app/lib/curriculum/courses-list";
+import { curriculumCourseToMock } from "@/app/lib/curriculum/display";
 import { getCourseById } from "../../lib/mock-course-data";
 import type { MockCourseExtended } from "../../lib/mock-course-data";
 import { CourseWorkspace } from "../../components/courses/course-detail/CourseWorkspace";
@@ -15,13 +19,27 @@ export default function StudentCourseDetailPage() {
   const id = params?.id as string;
   const t = useTranslations("studentCourses");
   const tCommon = useTranslations("common");
+  const { token } = useAuth();
+  const { state: curriculumState, loading: curriculumLoading } = useCurriculum();
   const [course, setCourse] = useState<MockCourseExtended | null | undefined>(undefined);
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setCourse(getCourseById(id) ?? null);
-    });
-  }, [id]);
+    const local = getCourseById(id);
+    if (local) {
+      setCourse(local);
+      return;
+    }
+    if (token && curriculumState) {
+      const fromMalla = findCurriculumCourseByListId(curriculumState.courses, id);
+      if (fromMalla) {
+        setCourse(curriculumCourseToMock(fromMalla));
+        return;
+      }
+    }
+    if (!token || !curriculumLoading) {
+      setCourse(null);
+    }
+  }, [id, token, curriculumState, curriculumLoading]);
 
   if (course === undefined) {
     return (

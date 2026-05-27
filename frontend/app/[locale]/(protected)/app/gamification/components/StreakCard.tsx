@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, CheckCircle2, Flame } from "lucide-react";
-import { MOCK_TODAY_INDEX } from "@/data/gamification";
+import { getTodayWeekIndex } from "@/data/gamification";
 import { cn } from "@/lib/utils";
 import { useGamification } from "../gamification-context";
 import { StreakWeekCircles } from "./StreakWeekCircles";
@@ -101,7 +101,7 @@ export function StreakCard({
       <StreakWeekCircles
         semana={racha.semana}
         variant={variant}
-        todayIndex={MOCK_TODAY_INDEX}
+        todayIndex={getTodayWeekIndex()}
         staggerOnMount={staggerOnMount}
       />
 

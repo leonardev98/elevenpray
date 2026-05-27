@@ -25,7 +25,13 @@ export function BadgeCard({ insignia }: BadgeCardProps) {
         <div
           className={cn(
             "flex h-14 w-14 items-center justify-center rounded-full",
-            unlocked ? "bg-[color-mix(in_srgb,var(--xp)_15%,transparent)]" : "bg-[var(--bg-input)]",
+            unlocked
+              ? insignia.icono === "Crown"
+                ? "bg-gradient-to-br from-amber-400/30 to-amber-600/20 ring-2 ring-amber-500/40"
+                : insignia.icono === "Sparkles"
+                  ? "bg-gradient-to-br from-violet-500/25 to-fuchsia-500/15 ring-2 ring-violet-400/40"
+                  : "bg-[color-mix(in_srgb,var(--xp)_15%,transparent)]"
+              : "bg-[var(--bg-input)]",
           )}
         >
           <GamificationIcon

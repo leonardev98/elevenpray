@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/app/providers/auth-provider";
 import { CheckInProvider } from "./components/check-in-context";
 import { GamificationProvider } from "./gamification/gamification-context";
+import { ScheduleStoreProvider } from "./lib/use-schedule-store";
 import { LevelUpOverlay } from "./gamification/components/LevelUpOverlay";
+import { TreasureChestModal } from "./gamification/components/TreasureChestModal";
 import { EmotionalCheckInGate } from "./components/EmotionalCheckInGate";
 import { StudentSidebar } from "./components/StudentSidebar";
 import { RedirectToStudentOnboarding } from "./components/redirect-to-student-onboarding";
@@ -11,11 +14,13 @@ import { StudentShellProvider } from "./components/student-shell-context";
 import { PomodoroProvider } from "./pomodoro/pomodoro-context";
 
 export default function StudentAppLayout({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <RedirectToStudentOnboarding>
+      <ScheduleStoreProvider userId={user?.id ?? null}>
       <CheckInProvider>
         <GamificationProvider>
           <PomodoroProvider>
@@ -41,10 +46,12 @@ export default function StudentAppLayout({ children }: { children: React.ReactNo
               </StudentShellProvider>
             </div>
             <LevelUpOverlay />
+            <TreasureChestModal />
             <EmotionalCheckInGate />
           </PomodoroProvider>
         </GamificationProvider>
       </CheckInProvider>
+      </ScheduleStoreProvider>
     </RedirectToStudentOnboarding>
   );
 }
