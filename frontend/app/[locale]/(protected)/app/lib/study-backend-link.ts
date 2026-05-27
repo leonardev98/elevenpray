@@ -350,10 +350,15 @@ export function useStudyBackendLink(token: string | null) {
       const serverSessionId = classMap[cls.id];
       if (!ws || !serverSessionId) return;
       try {
+        const sessionDate = cls.dateIso ?? todayIso();
+        const { startTime, endTime } = parseTimeRange(cls.timeRange);
         await updateUniversityClassSessionMetadata(token, ws, serverSessionId, {
           title: cls.title,
           classNumber: cls.number,
           unitLabel: cls.unitLabel,
+          sessionDate,
+          startTime,
+          endTime,
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : "Error al sincronizar metadata";

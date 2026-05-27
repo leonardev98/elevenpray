@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "next-intl";
 import { AnimatePresence } from "framer-motion";
 import {
   CalendarDays,
@@ -19,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { courseHex } from "../course-detail-utils";
 import type { MockCourseExtended } from "../../../../lib/mock-course-data";
+import { buildNewClassDateFields } from "../../../../lib/course-class-datetime";
 import {
   useCourseClasses,
   useCourseClassesStore,
@@ -32,6 +34,7 @@ interface ClasesTabProps {
 
 export function ClasesTab({ course }: ClasesTabProps) {
   const hex = courseHex(course);
+  const appLocale = useLocale();
   const classes = useCourseClasses(course.id);
   const createClass = useCourseClassesStore((s) => s.createClass);
   const [openClassId, setOpenClassId] = useState<string | null>(null);
@@ -43,10 +46,10 @@ export function ClasesTab({ course }: ClasesTabProps) {
   const openClass = classes.find((c) => c.id === openClassId) ?? null;
 
   function handleCreate() {
+    const dateFields = buildNewClassDateFields(course, appLocale);
     const cls = createClass(course.id, {
       title: "Nueva sesión",
-      dateLine: "Hoy",
-      timeRange: "Por definir",
+      ...dateFields,
       status: "draft",
     });
     setOpenClassId(cls.id);

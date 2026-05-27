@@ -34,6 +34,7 @@ export type MockCourseExtended = MockCourse & {
   scheduleStart?: string | null;
   scheduleEnd?: string | null;
   scheduleSlots?: CourseScheduleSlot[] | null;
+  credits?: number | null;
 };
 
 export type MockCourseNote = {

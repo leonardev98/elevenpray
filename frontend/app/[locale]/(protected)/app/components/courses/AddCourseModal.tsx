@@ -3,25 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import {
-  ArrowRight,
-  BookOpen,
-  Check,
-  Clock,
-  GraduationCap,
-  Hash,
-  MapPin,
-  Minus,
-  Monitor,
-  Plus,
-  Shuffle,
-  X,
-} from "lucide-react";
+import { ArrowRight, BookOpen, Check, Clock, Coins, Minus, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   appendPersistedStudentCourse,
   buildStudentCourseFromInput,
   buildStudentCourseUpdateFromInput,
+  clampCourseCredits,
   updatePersistedStudentCourse,
   type CourseModality,
   type CourseScheduleSlot,
@@ -139,11 +127,9 @@ export function AddCourseModal({
   const isEdit = mode === "edit" && initialCourse != null;
 
   const [nombreCurso, setNombreCurso] = useState("");
-  const [codigoCurso, setCodigoCurso] = useState("");
-  const [profesor, setProfesor] = useState("");
+  const [creditos, setCreditos] = useState("3");
   const [colorSeleccionado, setColorSeleccionado] = useState<string>(COLOR_OPTIONS[0]);
   const [diasSeleccionados, setDiasSeleccionados] = useState<string[]>([]);
-  const [modalidad, setModalidad] = useState<CourseModality>("Presencial");
   const [semanas, setSemanas] = useState(16);
   const [scheduleMode, setScheduleMode] = useState<"same" | "perDay">("same");
   const [sameStart, setSameStart] = useState("");
@@ -165,15 +151,10 @@ export function AddCourseModal({
     if (!open) return;
     queueMicrotask(() => {
       if (isEdit && initialCourse) {
-        const initialCode = (initialCourse.code ?? "").trim();
-        const initialProfessor = (initialCourse.professor ?? "").trim();
         const initialClassDays = (initialCourse.classDays ?? []).filter((d) => d && d !== "—");
         const initialSlots = (initialCourse.scheduleSlots ?? []).filter(
           (s) => s.start?.trim() && s.end?.trim(),
         );
-        const initialModality: CourseModality = isValidModality(initialCourse.modality)
-          ? initialCourse.modality
-          : "Presencial";
         const initialWeeks = Math.min(
           20,
           Math.max(8, Math.round(Number(initialCourse.weeksTotal) || 16)),
@@ -184,11 +165,13 @@ export function AddCourseModal({
             : COLOR_OPTIONS[0];
 
         setNombreCurso(initialCourse.name ?? "");
-        setCodigoCurso(initialCode === "—" ? "" : initialCode);
-        setProfesor(initialProfessor === "—" ? "" : initialProfessor);
+        setCreditos(
+          initialCourse.credits != null && Number.isFinite(initialCourse.credits) && initialCourse.credits > 0
+            ? String(initialCourse.credits)
+            : "3",
+        );
         setColorSeleccionado(initialColor);
         setDiasSeleccionados(initialClassDays);
-        setModalidad(initialModality);
         setSemanas(initialWeeks);
 
         if (initialSlots.length > 0) {
@@ -208,11 +191,9 @@ export function AddCourseModal({
       }
 
       setNombreCurso("");
-      setCodigoCurso("");
-      setProfesor("");
+      setCreditos("3");
       setColorSeleccionado(COLOR_OPTIONS[0]);
       setDiasSeleccionados([]);
-      setModalidad("Presencial");
       setSemanas(16);
       setScheduleMode("same");
       setSameStart("");
@@ -365,6 +346,7 @@ export function AddCourseModal({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!nombreCurso.trim()) return;
+    if (creditosParsed <= 0) return;
     if (scheduleErrorMsg) return;
 
     let scheduleSlots: CourseScheduleSlot[] | undefined;
@@ -386,14 +368,28 @@ export function AddCourseModal({
       scheduleEnd = sameEnd.trim();
     }
 
+    const preservedCode =
+      isEdit && initialCourse
+        ? ((initialCourse.code ?? "").trim() === "—" ? "" : (initialCourse.code ?? "").trim())
+        : "";
+    const preservedProfessor =
+      isEdit && initialCourse
+        ? ((initialCourse.professor ?? "").trim() === "—" ? "" : (initialCourse.professor ?? "").trim())
+        : "";
+    const preservedModality: CourseModality =
+      isEdit && initialCourse && isValidModality(initialCourse.modality)
+        ? initialCourse.modality
+        : "Presencial";
+
     const input = {
       name: nombreCurso.trim(),
-      code: codigoCurso.trim(),
-      professor: profesor.trim(),
+      code: preservedCode,
+      professor: preservedProfessor,
       colorHex: colorSeleccionado,
       classDays: diasSeleccionados.length > 0 ? [...diasSeleccionados].sort() : [],
-      modality: modalidad,
+      modality: preservedModality,
       weeksTotal: semanas,
+      credits: creditosParsed,
       scheduleStart,
       scheduleEnd,
       scheduleSlots,
@@ -410,19 +406,10 @@ export function AddCourseModal({
     onClose();
   }
 
-  const canSave = nombreCurso.trim().length > 0;
+  const creditosParsed = clampCourseCredits(Number.parseFloat(creditos.replace(",", ".")));
+  const canSave = nombreCurso.trim().length > 0 && creditosParsed > 0;
   const previewEmpty =
-    !nombreCurso.trim() &&
-    !codigoCurso.trim() &&
-    !profesor.trim() &&
-    diasSeleccionados.length === 0 &&
-    !previewScheduleLine;
-
-  const modalityOptions: { value: CourseModality; icon: typeof MapPin; labelKey: "modalityInPerson" | "modalityRemote" | "modalityBlended" }[] = [
-    { value: "Presencial", icon: MapPin, labelKey: "modalityInPerson" },
-    { value: "Remoto", icon: Monitor, labelKey: "modalityRemote" },
-    { value: "Semipresencial", icon: Shuffle, labelKey: "modalityBlended" },
-  ];
+    !nombreCurso.trim() && creditosParsed <= 0 && diasSeleccionados.length === 0 && !previewScheduleLine;
 
   const inputIconClass =
     "pointer-events-none absolute left-3 top-1/2 size-[18px] -translate-y-1/2 text-[var(--app-primary)] opacity-90";
@@ -499,75 +486,27 @@ export function AddCourseModal({
                 </div>
 
                 <div>
-                  <label htmlFor="course-code" className="text-xs font-medium text-[var(--app-fg)]">
-                    {t("formCourseCodeLabel")}
+                  <label htmlFor="course-credits" className="text-xs font-medium text-[var(--app-fg)]">
+                    {t("formCourseCredits")}
                   </label>
+                  <p className="mt-0.5 text-[11px] leading-snug text-[var(--app-fg-muted)]">
+                    {t("formCourseCreditsHint")}
+                  </p>
                   <div className="relative mt-1.5">
-                    <Hash className={inputIconClass} aria-hidden />
+                    <Coins className={inputIconClass} aria-hidden />
                     <input
-                      id="course-code"
-                      type="text"
-                      value={codigoCurso}
-                      onChange={(e) => setCodigoCurso(e.target.value.toUpperCase())}
+                      id="course-credits"
+                      type="number"
+                      inputMode="decimal"
+                      min={0.5}
+                      max={99}
+                      step={0.5}
+                      value={creditos}
+                      onChange={(e) => setCreditos(e.target.value)}
                       className={inputBase}
-                      placeholder={t("formCourseCodePlaceholder")}
-                      maxLength={32}
-                      autoComplete="off"
+                      placeholder={t("formCourseCreditsPlaceholder")}
+                      required
                     />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="course-professor" className="text-xs font-medium text-[var(--app-fg)]">
-                    {t("formProfessor")}
-                  </label>
-                  <div className="relative mt-1.5">
-                    <GraduationCap className={inputIconClass} aria-hidden />
-                    <input
-                      id="course-professor"
-                      type="text"
-                      value={profesor}
-                      onChange={(e) => setProfesor(e.target.value)}
-                      className={inputBase}
-                      placeholder={t("professorPlaceholderModal")}
-                      maxLength={120}
-                      autoComplete="off"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs font-medium text-[var(--app-fg)]">{t("modalityLabel")}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {modalityOptions.map(({ value, icon: Icon, labelKey }) => {
-                      const active = modalidad === value;
-                      return (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => setModalidad(value)}
-                          className={cn(
-                            "inline-flex items-center gap-2 rounded-full border-[0.5px] px-3.5 py-2 text-sm font-medium transition-colors duration-150",
-                            active
-                              ? "border-[var(--accent-hex)] bg-[color-mix(in_srgb,var(--accent-hex)_15%,transparent)] text-[var(--text-primary)]"
-                              : "border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
-                          )}
-                        >
-                          <Icon className={cn("size-4 shrink-0", active ? "text-[var(--accent-hex)]" : "opacity-80")} />
-                          {t(labelKey)}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div
-                    className={cn(
-                      "grid transition-[grid-template-rows,opacity] duration-150 ease-out",
-                      modalidad === "Semipresencial" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
-                    )}
-                  >
-                    <div className="min-h-0 overflow-hidden">
-                      <p className="pt-2 text-xs text-[var(--app-fg-muted)]">{t("modalityBlendedHint")}</p>
-                    </div>
                   </div>
                 </div>
 
@@ -871,33 +810,13 @@ export function AddCourseModal({
                       borderLeftColor: colorSeleccionado,
                     }}
                   >
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <span
-                        className="inline-block rounded-[var(--radius-sm)] border px-2 py-0.5 text-xs font-semibold"
-                        style={{
-                          backgroundColor: `${colorSeleccionado}26`,
-                          borderColor: colorSeleccionado,
-                          color: "var(--text-primary)",
-                        }}
-                      >
-                        {codigoCurso.trim() ? codigoCurso.trim().toUpperCase() : t("previewCodePh")}
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--app-fg-secondary)]">
-                        {modalidad === "Presencial" ? <MapPin className="size-3" /> : null}
-                        {modalidad === "Remoto" ? <Monitor className="size-3" /> : null}
-                        {modalidad === "Semipresencial" ? <Shuffle className="size-3" /> : null}
-                        {modalidad === "Presencial"
-                          ? t("modalityInPerson")
-                          : modalidad === "Remoto"
-                            ? t("modalityRemote")
-                            : t("modalityBlended")}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm font-semibold text-[var(--app-fg)]">
+                    <p className="text-sm font-semibold text-[var(--app-fg)]">
                       {nombreCurso.trim() ? nombreCurso.trim() : t("previewNamePh")}
                     </p>
-                    {profesor.trim() ? (
-                      <p className="mt-1 text-xs text-[var(--app-fg-muted)]">{profesor.trim()}</p>
+                    {creditosParsed > 0 ? (
+                      <p className="mt-1 text-xs text-[var(--app-fg-muted)]">
+                        {t("previewCredits", { count: creditosParsed })}
+                      </p>
                     ) : null}
                     {diasSeleccionados.length > 0 ? (
                       <div className="mt-2 flex flex-wrap gap-1.5">

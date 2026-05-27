@@ -165,10 +165,4 @@ export const RESOURCES: ResourceItem[] = [
   },
 ];
 
-export const POMODORO_PRESETS = [
-  { id: "study", label: "25 min", seconds: 25 * 60 },
-  { id: "short", label: "15 min", seconds: 15 * 60 },
-  { id: "break", label: "5 min", seconds: 5 * 60 },
-] as const;
-
-export const TOTAL_POMODORO_ROUNDS = 4;
+export { POMODORO_PRESETS, TOTAL_POMODORO_ROUNDS } from "../pomodoro/pomodoro-data";

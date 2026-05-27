@@ -8,6 +8,7 @@ import { EmotionalCheckInGate } from "./components/EmotionalCheckInGate";
 import { StudentSidebar } from "./components/StudentSidebar";
 import { RedirectToStudentOnboarding } from "./components/redirect-to-student-onboarding";
 import { StudentShellProvider } from "./components/student-shell-context";
+import { PomodoroProvider } from "./pomodoro/pomodoro-context";
 
 export default function StudentAppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -17,7 +18,8 @@ export default function StudentAppLayout({ children }: { children: React.ReactNo
     <RedirectToStudentOnboarding>
       <CheckInProvider>
         <GamificationProvider>
-          <div className="flex h-full min-h-0 flex-1 bg-[var(--app-bg)]">
+          <PomodoroProvider>
+            <div className="flex h-full min-h-0 flex-1 bg-[var(--app-bg)]">
             {mobileNavOpen && (
               <button
                 type="button"
@@ -34,12 +36,13 @@ export default function StudentAppLayout({ children }: { children: React.ReactNo
                 onCloseMobile={() => setMobileNavOpen(false)}
               />
             </div>
-            <StudentShellProvider openMobileMenu={() => setMobileNavOpen(true)}>
-              <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">{children}</div>
-            </StudentShellProvider>
-          </div>
-          <LevelUpOverlay />
-          <EmotionalCheckInGate />
+              <StudentShellProvider openMobileMenu={() => setMobileNavOpen(true)}>
+                <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">{children}</div>
+              </StudentShellProvider>
+            </div>
+            <LevelUpOverlay />
+            <EmotionalCheckInGate />
+          </PomodoroProvider>
         </GamificationProvider>
       </CheckInProvider>
     </RedirectToStudentOnboarding>

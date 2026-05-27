@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { useLocale } from "next-intl";
 import {
   ArrowLeft,
   Calendar,
@@ -14,18 +15,29 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
+import { useAuth } from "@/app/providers/auth-provider";
 import { courseHex } from "../course-detail-utils";
 import type { MockCourseExtended } from "../../../../lib/mock-course-data";
+import {
+  addOneHour,
+  formatClassDateLine,
+  formatTimeRangeDisplay,
+  isValidTimeOrder,
+  parseTimeRangeParts,
+} from "../../../../lib/course-class-datetime";
 import {
   useCourseClassesStore,
   type CourseClass,
 } from "../../../../lib/course-classes-store";
+import { useStudyBackendLink } from "../../../../lib/study-backend-link";
 import { ClassContentSection } from "./ClassContentSection";
 import { ClassFilesSection } from "./ClassFilesSection";
 import { ClassTaskSection } from "./ClassTaskSection";
 import { ClassAiSection } from "./ClassAiSection";
 import { ClassFlashcardsSection } from "./ClassFlashcardsSection";
 import { ClassQuizzesSection } from "./ClassQuizzesSection";
+import { PomodoroNavControl } from "../../../../pomodoro/components/PomodoroNavControl";
 
 interface ClassDetailProps {
   course: MockCourseExtended;
@@ -46,28 +58,25 @@ const SUGGESTED_UNITS = [
 
 export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
   const hex = courseHex(course);
+  const appLocale = useLocale();
+  const { token } = useAuth();
+  const { syncClassMetadata } = useStudyBackendLink(token);
   const updateClass = useCourseClassesStore((s) => s.updateClass);
   const deleteClass = useCourseClassesStore((s) => s.deleteClass);
 
+  const initialTimes = useMemo(() => parseTimeRangeParts(cls.timeRange), [cls.timeRange]);
+
   const [titleDraft, setTitleDraft] = useState(cls.title);
-  const [dateText, setDateText] = useState(cls.dateLine);
-  const [timeRange, setTimeRange] = useState(cls.timeRange);
+  const [dateIso, setDateIso] = useState(cls.dateIso ?? "");
+  const [startTime, setStartTime] = useState(initialTimes.start);
+  const [endTime, setEndTime] = useState(initialTimes.end);
   const [unitLabel, setUnitLabel] = useState(cls.unitLabel ?? "");
   const [unitPickerOpen, setUnitPickerOpen] = useState(false);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza drafts con la clase actual
-    setTitleDraft(cls.title);
-    setDateText(cls.dateLine);
-    setTimeRange(cls.timeRange);
-    setUnitLabel(cls.unitLabel ?? "");
-  }, [cls.id, cls.title, cls.dateLine, cls.timeRange, cls.unitLabel]);
-
-  const isComplete = cls.status === "completed" || cls.completed;
-
-  function flashSaved() {
+  const flashSaved = useCallback(() => {
     setSaveStatus("saving");
     if (savedTimer.current) clearTimeout(savedTimer.current);
     savedTimer.current = setTimeout(() => {
@@ -75,40 +84,84 @@ export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
       if (savedTimer.current) clearTimeout(savedTimer.current);
       savedTimer.current = setTimeout(() => setSaveStatus("idle"), 1500);
     }, 350);
-  }
+  }, []);
+
+  const persistAndSync = useCallback(
+    (patch: Partial<Omit<CourseClass, "id" | "courseId" | "createdAt">>) => {
+      updateClass(cls.id, patch);
+      const next: CourseClass = { ...cls, ...patch, updatedAt: Date.now() };
+      void syncClassMetadata(next);
+      flashSaved();
+    },
+    [cls, updateClass, syncClassMetadata, flashSaved],
+  );
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza drafts con la clase actual
+    setTitleDraft(cls.title);
+    setDateIso(cls.dateIso ?? "");
+    const times = parseTimeRangeParts(cls.timeRange);
+    setStartTime(times.start);
+    setEndTime(times.end);
+    setUnitLabel(cls.unitLabel ?? "");
+    setScheduleError(null);
+  }, [cls.id, cls.title, cls.dateIso, cls.timeRange, cls.unitLabel]);
+
+  const isComplete = cls.status === "completed" || cls.completed;
 
   function commitTitle() {
     const next = titleDraft.trim() || `Clase ${cls.number}`;
     setTitleDraft(next);
     if (next !== cls.title) {
-      updateClass(cls.id, { title: next });
-      flashSaved();
+      persistAndSync({ title: next });
     }
   }
 
-  function commitDate() {
-    const next = dateText.trim() || "Sin fecha";
-    setDateText(next);
-    if (next !== cls.dateLine) {
-      updateClass(cls.id, { dateLine: next });
-      flashSaved();
+  function handleDateChange(iso: string) {
+    setDateIso(iso);
+    if (!iso) {
+      if (cls.dateIso || cls.dateLine !== "Sin fecha") {
+        persistAndSync({ dateIso: null, dateLine: "Sin fecha" });
+      }
+      return;
+    }
+    const dateLine = formatClassDateLine(iso, appLocale);
+    if (iso !== cls.dateIso || dateLine !== cls.dateLine) {
+      persistAndSync({ dateIso: iso, dateLine });
     }
   }
 
-  function commitTime() {
-    const next = timeRange.trim() || "—";
-    setTimeRange(next);
+  function commitSchedule() {
+    if (!startTime || !endTime) {
+      setScheduleError("Indica hora de inicio y fin");
+      return;
+    }
+    if (!isValidTimeOrder(startTime, endTime)) {
+      setScheduleError("La hora de fin debe ser posterior a la de inicio");
+      return;
+    }
+    setScheduleError(null);
+    const next = formatTimeRangeDisplay(startTime, endTime);
     if (next !== cls.timeRange) {
-      updateClass(cls.id, { timeRange: next });
-      flashSaved();
+      persistAndSync({ timeRange: next });
+    }
+  }
+
+  function handleStartTimeChange(value: string) {
+    setStartTime(value);
+    setScheduleError(null);
+    if (value && endTime && value >= endTime) {
+      setEndTime(addOneHour(value));
     }
   }
 
   function commitUnit(value: string | null) {
     setUnitLabel(value ?? "");
-    updateClass(cls.id, { unitLabel: value && value.trim() ? value.trim() : null });
+    const nextUnit = value && value.trim() ? value.trim() : null;
+    if (nextUnit !== cls.unitLabel) {
+      persistAndSync({ unitLabel: nextUnit });
+    }
     setUnitPickerOpen(false);
-    flashSaved();
   }
 
   function toggleComplete() {
@@ -136,10 +189,18 @@ export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
 
   const headerSubtitle = useMemo(() => {
     const parts: string[] = [];
-    if (cls.dateLine) parts.push(cls.dateLine);
-    if (cls.timeRange && cls.timeRange !== "—") parts.push(cls.timeRange);
+    if (dateIso) {
+      parts.push(formatClassDateLine(dateIso, appLocale));
+    } else if (cls.dateLine && cls.dateLine !== "Sin fecha") {
+      parts.push(cls.dateLine);
+    }
+    if (startTime && endTime && isValidTimeOrder(startTime, endTime)) {
+      parts.push(formatTimeRangeDisplay(startTime, endTime));
+    } else if (cls.timeRange && cls.timeRange !== "—") {
+      parts.push(cls.timeRange);
+    }
     return parts.join(" · ");
-  }, [cls.dateLine, cls.timeRange]);
+  }, [dateIso, appLocale, cls.dateLine, cls.timeRange, startTime, endTime]);
 
   return (
     <motion.div
@@ -171,6 +232,8 @@ export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
             <span className="hidden sm:inline">·</span>
             <span className="hidden truncate sm:inline">{course.name}</span>
           </div>
+
+          <PomodoroNavControl />
 
           <button
             type="button"
@@ -233,35 +296,52 @@ export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
 
           <div className="mt-5 grid gap-3 rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-4 sm:grid-cols-3">
             <Field icon={Calendar} label="Fecha">
-              <input
-                value={dateText}
-                onChange={(e) => setDateText(e.target.value)}
-                onBlur={commitDate}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    commitDate();
-                  }
-                }}
-                placeholder="Ej. Lunes 5 mayo"
-                className="w-full border-0 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
+              <DatePicker
+                value={dateIso}
+                onChange={handleDateChange}
+                placeholder="Seleccionar fecha"
+                className="[&_button]:border-0 [&_button]:bg-transparent [&_button]:px-0 [&_button]:py-0 [&_button]:text-sm [&_button]:shadow-none"
               />
+              {!dateIso && cls.dateLine && cls.dateLine !== "Sin fecha" ? (
+                <p className="mt-1 text-[10px] text-[var(--text-muted)]">
+                  Texto anterior: {cls.dateLine}. Elige una fecha en el calendario para fijarla.
+                </p>
+              ) : null}
             </Field>
 
             <Field icon={Clock} label="Horario">
-              <input
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value)}
-                onBlur={commitTime}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    commitTime();
-                  }
-                }}
-                placeholder="Ej. 8:00 - 10:00"
-                className="w-full border-0 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
-              />
+              <div className="grid grid-cols-2 gap-2">
+                <label className="sr-only" htmlFor={`class-${cls.id}-start`}>
+                  Hora de inicio
+                </label>
+                <input
+                  id={`class-${cls.id}-start`}
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => handleStartTimeChange(e.target.value)}
+                  onBlur={commitSchedule}
+                  className={timeInputClass}
+                />
+                <label className="sr-only" htmlFor={`class-${cls.id}-end`}>
+                  Hora de fin
+                </label>
+                <input
+                  id={`class-${cls.id}-end`}
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => {
+                    setEndTime(e.target.value);
+                    setScheduleError(null);
+                  }}
+                  onBlur={commitSchedule}
+                  className={timeInputClass}
+                />
+              </div>
+              {scheduleError ? (
+                <p className="mt-1 text-[10px] text-[var(--error)]">{scheduleError}</p>
+              ) : (
+                <p className="mt-1 text-[10px] text-[var(--text-muted)]">Inicio y fin de la sesión</p>
+              )}
             </Field>
 
             <Field icon={GraduationCap} label="Unidad / Tema">
@@ -336,6 +416,9 @@ export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
     </motion.div>
   );
 }
+
+const timeInputClass =
+  "w-full min-w-0 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border)] bg-[var(--bg-input)] px-2 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent)]/50 focus:ring-1 focus:ring-[var(--accent)]/20";
 
 function Field({
   icon: Icon,

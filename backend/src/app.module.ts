@@ -27,6 +27,7 @@ import { LearningModule } from './learning/learning.module';
 import { StudyUniversityModule } from './study-university/study-university.module';
 import { S3Module } from './s3/s3.module';
 import { CommunityModule } from './community/community.module';
+import { StudyAiModule } from './study-ai/study-ai.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { CommunityModule } from './community/community.module';
     BlocksModule,
     DashboardModule,
     CommunityModule,
+    StudyAiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

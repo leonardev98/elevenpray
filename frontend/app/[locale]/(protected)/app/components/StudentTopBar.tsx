@@ -9,6 +9,7 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { cn } from "@/lib/utils";
 import { useStudentShell } from "./student-shell-context";
 import { UserMenuButton } from "./UserMenuButton";
+import { PomodoroNavControl } from "../pomodoro/components/PomodoroNavControl";
 
 interface StudentTopBarProps {
   onOpenMenu?: () => void;
@@ -141,6 +142,7 @@ export function StudentTopBar({ onOpenMenu, title }: StudentTopBarProps) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        <PomodoroNavControl compact />
         <UserMenuButton />
       </div>
     </header>

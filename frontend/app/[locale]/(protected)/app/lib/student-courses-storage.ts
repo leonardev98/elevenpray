@@ -27,6 +27,8 @@ export type StudentCourseStored = {
   scheduleStart?: string | null;
   scheduleEnd?: string | null;
   scheduleSlots?: CourseScheduleSlot[] | null;
+  /** Créditos académicos del curso (para promedio ponderado del ciclo). */
+  credits?: number | null;
 };
 
 const STORAGE_KEY = "mitsyy_student_courses_v1";
@@ -93,7 +95,38 @@ function normalizeStoredCourse(raw: Record<string, unknown>): StudentCourseStore
     scheduleStart: (raw.scheduleStart ?? null) as string | null,
     scheduleEnd: (raw.scheduleEnd ?? null) as string | null,
     scheduleSlots: scheduleSlotsRaw.length > 0 ? scheduleSlotsRaw : null,
+    credits:
+      typeof raw.credits === "number" && Number.isFinite(raw.credits)
+        ? clampCourseCredits(raw.credits)
+        : null,
   };
+}
+
+/** Normaliza créditos a [0, 99] con hasta 2 decimales. */
+export function clampCourseCredits(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  const rounded = Math.round(value * 100) / 100;
+  return Math.min(99, Math.max(0, rounded));
+}
+
+/**
+ * Promedio ponderado por créditos (porcentaje 0–100).
+ * Omite cursos sin créditos o sin nota registrada.
+ */
+export function computeCreditWeightedGradeAverage(
+  entries: ReadonlyArray<{ credits: number | null | undefined; gradePercent: number | null | undefined }>,
+): number | null {
+  let weighted = 0;
+  let totalCredits = 0;
+  for (const entry of entries) {
+    const credits = entry.credits ?? 0;
+    const grade = entry.gradePercent;
+    if (credits <= 0 || grade == null || !Number.isFinite(grade)) continue;
+    weighted += grade * credits;
+    totalCredits += credits;
+  }
+  if (totalCredits <= 0) return null;
+  return Number((weighted / totalCredits).toFixed(2));
 }
 
 export function loadPersistedStudentCourses(): StudentCourseStored[] {
@@ -158,6 +191,7 @@ export type NewStudentCourseInput = {
   scheduleEnd?: string;
   /** Si hay slots, tiene prioridad sobre `scheduleStart`/`scheduleEnd` (horario distinto por día). */
   scheduleSlots?: CourseScheduleSlot[];
+  credits: number;
 };
 
 /** Patch de edición a partir del mismo input del formulario; preserva id, progreso, racha y tareas pendientes. */
@@ -185,6 +219,7 @@ export function buildStudentCourseUpdateFromInput(
     scheduleStart: hasSlots ? null : start && start.length > 0 ? start : null,
     scheduleEnd: hasSlots ? null : end && end.length > 0 ? end : null,
     scheduleSlots: hasSlots ? slots : null,
+    credits: clampCourseCredits(input.credits),
   };
 }
 
@@ -217,5 +252,6 @@ export function buildStudentCourseFromInput(input: NewStudentCourseInput): Stude
     scheduleStart: hasSlots ? null : start && start.length > 0 ? start : null,
     scheduleEnd: hasSlots ? null : end && end.length > 0 ? end : null,
     scheduleSlots: hasSlots ? slots : null,
+    credits: clampCourseCredits(input.credits),
   };
 }
