@@ -24,6 +24,7 @@ import { FloatingNav } from "@/components/ui/floating-navbar";
 import { LandingPricingSection } from "./landing-pricing-section";
 import { LandingMobileNavLink } from "./landing-mobile-nav-link";
 import { LandingHero } from "./landing-hero";
+import { MitsyyLogo } from "./mitsyy-logo";
 
 const LANDING_IMAGES = {
   flashcards: "/landing/feature-flashcards.svg",
@@ -101,8 +102,8 @@ export function Landing() {
         mobileMenuOpenLabel={tCommon("openMenu")}
         mobileMenuCloseLabel={tCommon("closeMenu")}
         logo={
-          <Link href="/" className="text-lg font-semibold text-[var(--text-primary)]">
-            {t("title")}
+          <Link href="/" className="inline-flex items-center" aria-label={t("title")}>
+            <MitsyyLogo size="xl" priority />
           </Link>
         }
         navItems={[
@@ -331,8 +332,8 @@ export function Landing() {
         <footer className="bg-[var(--accent)] py-16 text-[var(--accent-fg)] dark:bg-[var(--bg-elevated)] dark:text-[var(--text-primary)]">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mb-10">
-              <Link href="/" className="text-xl font-bold">
-                {t("title")}
+              <Link href="/" className="inline-flex" aria-label={t("title")}>
+                <MitsyyLogo size="lg" />
               </Link>
               <p className="mt-2 max-w-md text-sm opacity-90 dark:text-[var(--text-body)]">
                 {t("footerDescription")}

@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { SidebarStreakCompact } from "../gamification/components/SidebarStreakCompact";
 import { useTheme } from "@/app/providers/theme-provider";
+import { MitsyyLogo } from "@/app/components/mitsyy-logo";
 
 const NAV_ITEMS = [
   { href: "/app", key: "home", icon: Home, exact: true },
@@ -64,16 +65,14 @@ export function StudentSidebar({
         mobileOpen ? "flex" : "hidden lg:flex",
       )}
     >
-      <div className="flex items-center justify-between gap-2 px-3 py-5">
-        <Link href="/app" onClick={onCloseMobile} className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--accent-subtle)] text-lg font-semibold text-[var(--accent)]">
-            M
-          </div>
-          {!collapsed && (
-            <span className="text-[1.35rem] font-semibold text-[var(--text-primary)]">
-              Mitsyy
-            </span>
-          )}
+      <div className="flex min-h-[4.5rem] items-center justify-between gap-2 px-3 py-4">
+        <Link
+          href="/app"
+          onClick={onCloseMobile}
+          className={cn("flex min-w-0 flex-1 items-center", collapsed && "justify-center")}
+          aria-label="Mitsyy"
+        >
+          <MitsyyLogo size={collapsed ? "md" : "lg"} compact={collapsed} />
         </Link>
         {onToggleCollapse && (
           <button
@@ -158,18 +157,10 @@ export function StudentSidebar({
         <Link
           href="/app"
           onClick={onCloseMobile}
-          className={cn(
-            "flex items-center gap-2.5",
-            collapsed && "justify-center",
-          )}
+          className={cn("flex items-center", collapsed && "justify-center")}
           aria-label="Mitsyy"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--accent-subtle)] text-sm font-semibold text-[var(--accent)]">
-            M
-          </div>
-          {!collapsed && (
-            <span className="text-xs text-[var(--text-muted)]">Mitsyy</span>
-          )}
+          <MitsyyLogo size="sm" compact={collapsed} />
         </Link>
       </div>
     </aside>

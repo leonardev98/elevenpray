@@ -10,6 +10,7 @@ import { PlansGrid } from "./plans-grid";
 import { getEffectiveUserPlan } from "../lib/user-plan";
 import type { PlanId } from "../lib/plans";
 import { useAuth } from "../providers/auth-provider";
+import { MitsyyLogo } from "./mitsyy-logo";
 
 export function PricingPage() {
   const t = useTranslations("pricing");
@@ -41,8 +42,8 @@ export function PricingPage() {
         alwaysVisible
         linkComponent={Link}
         logo={
-          <Link href="/" className="text-lg font-semibold text-white">
-            {tLanding("title")}
+          <Link href="/" className="inline-flex items-center" aria-label={tLanding("title")}>
+            <MitsyyLogo size="xl" priority />
           </Link>
         }
         navItems={[

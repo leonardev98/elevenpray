@@ -160,12 +160,12 @@ export const FloatingNav = ({
   const desktopBar = (
     <div
       className={cn(
-        "hidden items-center gap-2 rounded-full border px-2 py-1.5 shadow-lg backdrop-blur-md md:flex",
+        "hidden items-center gap-2 rounded-full border px-3 py-2 shadow-lg backdrop-blur-md md:flex",
         "border-[var(--border)] bg-[var(--bg-surface)]/95 shadow-[var(--shadow-md)]"
       )}
       style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
     >
-      {logo ? <div className="flex items-center pr-2">{logo}</div> : null}
+      {logo ? <div className="flex items-center py-0.5 pr-2">{logo}</div> : null}
       {logo && navItems.length > 0 ? (
         <div className="h-5 w-px bg-[var(--border)]" aria-hidden />
       ) : null}

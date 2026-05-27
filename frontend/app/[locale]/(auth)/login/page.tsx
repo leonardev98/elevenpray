@@ -10,6 +10,7 @@ import { useAuth } from "../../../providers/auth-provider";
 import { ThemeToggle } from "../../../components/theme-toggle";
 import { toast } from "../../../lib/toast";
 import { LocaleSwitcher } from "../../../components/locale-switcher";
+import { MitsyyLogo } from "../../../components/mitsyy-logo";
 
 function getAllowedNext(next: string | null): string {
   if (!next || typeof next !== "string") return "/app";
@@ -135,15 +136,10 @@ export default function LoginPage() {
           <div className="relative">
             <Link
               href="/"
-              className="inline-flex items-center gap-3"
+              className="inline-flex items-center"
               aria-label={tCommon("backToHome")}
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-white)] shadow-sm">
-                <span className="text-lg font-bold tracking-normal">E</span>
-              </span>
-              <span className="text-base font-semibold tracking-tight">
-                {tLanding("title")}
-              </span>
+              <MitsyyLogo size="lg" priority />
             </Link>
           </div>
 
@@ -207,13 +203,8 @@ export default function LoginPage() {
           <div className="flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-12 lg:px-10">
             <div className="w-full max-w-[420px]">
               {/* Marca móvil */}
-              <div className="flex items-center gap-3 lg:hidden">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--app-navy)] text-[var(--app-white)] shadow-sm">
-                  <span className="text-lg font-bold">E</span>
-                </span>
-                <span className="text-base font-semibold tracking-tight">
-                  {tLanding("title")}
-                </span>
+              <div className="lg:hidden">
+                <MitsyyLogo size="lg" />
               </div>
 
               <header className="mt-6 lg:mt-0">
