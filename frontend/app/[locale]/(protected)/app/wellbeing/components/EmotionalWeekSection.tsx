@@ -31,32 +31,47 @@ export function EmotionalWeekSection() {
 
   return (
     <section>
-      <SectionLabel>TU SEMANA EMOCIONAL</SectionLabel>
-      <div className="grid grid-cols-7 gap-2 overflow-x-auto">
-        {WEEK_MOODS.map(({ day, mood }, index) => {
-          const isToday = index === todayIndex;
-          const Icon = mood ? MOOD_ICONS[mood] : null;
-
-          return (
-            <div
-              key={day}
-              className={`flex min-w-[2.5rem] flex-col items-center gap-2 rounded-[var(--radius-md)] border-[0.5px] px-2 py-3 transition-all duration-150 ${
-                isToday
-                  ? "border-[var(--accent)]/60 bg-[var(--bg-elevated)]"
-                  : "border-[var(--border)] bg-[var(--bg-input)]"
-              }`}
-            >
-              <span className="text-[10px] text-[var(--text-muted)]">{day}</span>
-              {Icon && mood ? (
-                <Icon className={`h-5 w-5 ${MOOD_COLORS[mood]}`} aria-hidden />
-              ) : (
-                <span className="text-sm text-[var(--text-muted)]">—</span>
-              )}
-            </div>
-          );
-        })}
+      <div className="mb-4 flex items-center gap-2">
+        <Smile className="h-5 w-5 text-[var(--app-primary)]" />
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg-muted)]">
+          Tu Semana Emocional
+        </h2>
       </div>
-      <p className="mt-4 text-center text-sm text-[var(--app-fg-muted)]">{WEEK_INSIGHT}</p>
+      <div className="rounded-2xl border border-[var(--app-border)] bg-gradient-to-br from-[var(--app-surface-elevated)] to-[var(--app-surface)] p-5 shadow-[var(--app-shadow-card)] transition-all duration-300 hover:shadow-lg">
+        <div className="grid grid-cols-7 gap-2 overflow-x-auto">
+          {WEEK_MOODS.map(({ day, mood }, index) => {
+            const isToday = index === todayIndex;
+            const Icon = mood ? MOOD_ICONS[mood] : null;
+
+            return (
+              <div
+                key={day}
+                className={`flex min-w-[3rem] flex-col items-center gap-2 rounded-xl border px-2 py-3 transition-all duration-300 ${
+                  isToday
+                    ? "border-[var(--app-primary)] bg-[var(--app-primary)]/10 shadow-md scale-105"
+                    : "border-[var(--app-border)] bg-[var(--app-surface)] hover:border-[var(--app-primary)]/40 hover:shadow-sm"
+                }`}
+              >
+                <span className={`text-[10px] font-medium ${isToday ? "text-[var(--app-primary)]" : "text-[var(--app-fg-muted)]"}`}>{day}</span>
+                {Icon && mood ? (
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 ${
+                    isToday ? "bg-[var(--app-primary)]" : "bg-[var(--app-surface-soft)]"
+                  }`}>
+                    <Icon className={`h-5 w-5 transition-colors duration-300 ${
+                      isToday ? "text-[var(--app-bg)]" : MOOD_COLORS[mood]
+                    }`} aria-hidden />
+                  </div>
+                ) : (
+                  <span className="text-sm text-[var(--app-fg-muted)]">—</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-4 rounded-xl bg-[var(--app-surface)] p-3 text-center shadow-sm">
+          <p className="text-sm text-[var(--app-fg-secondary)]">{WEEK_INSIGHT}</p>
+        </div>
+      </div>
     </section>
   );
 }

@@ -30,8 +30,13 @@ export function MoodCheckInSection() {
 
   return (
     <section>
-      <SectionLabel>¿CÓMO ESTÁS HOY?</SectionLabel>
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+      <div className="mb-4 flex items-center gap-2">
+        <Smile className="h-5 w-5 text-[var(--app-primary)]" />
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg-muted)]">
+          ¿Cómo te sientes hoy?
+        </h2>
+      </div>
+      <div className="grid grid-cols-5 gap-3">
         {MOOD_OPTIONS.map(({ id, label }) => {
           const Icon = MOOD_ICONS[id];
           const isActive = selected === id;
@@ -41,18 +46,28 @@ export function MoodCheckInSection() {
               type="button"
               aria-pressed={isActive}
               onClick={() => handleSelect(id)}
-              className={`flex min-w-[4.5rem] flex-1 flex-col items-center gap-2 rounded-xl border px-3 py-3 transition-all duration-150 sm:max-w-[5.5rem] ${
+              className={`group relative flex flex-col items-center gap-3 rounded-2xl border p-4 transition-all duration-300 ${
                 isActive
-                  ? "border-[var(--app-primary)] bg-[var(--app-primary-soft)]"
-                  : "border-transparent bg-[var(--app-surface-soft)] hover:border-[var(--app-border)]"
+                  ? "border-[var(--app-primary)] bg-gradient-to-br from-[var(--app-primary)]/20 to-[var(--app-primary)]/5 shadow-lg scale-105"
+                  : "border-[var(--app-border)] bg-[var(--app-surface)] hover:border-[var(--app-primary)]/40 hover:shadow-md hover:-translate-y-1"
               }`}
             >
-              <Icon
-                className={`h-5 w-5 ${isActive ? "text-[var(--app-primary)]" : "text-[var(--app-fg-secondary)]"}`}
-                aria-hidden
-              />
+              <div className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 ${
+                isActive
+                  ? "bg-[var(--app-primary)] shadow-lg"
+                  : "bg-[var(--app-surface-soft)] group-hover:bg-[var(--app-primary)]/10"
+              }`}>
+                <Icon
+                  className={`h-6 w-6 transition-colors duration-300 ${
+                    isActive ? "text-[var(--app-bg)]" : "text-[var(--app-fg-secondary)] group-hover:text-[var(--app-primary)]"
+                  }`}
+                  aria-hidden
+                />
+              </div>
               <span
-                className={`text-xs ${isActive ? "text-[var(--app-primary)]" : "text-[var(--app-fg-muted)]"}`}
+                className={`text-xs font-medium transition-colors duration-300 ${
+                  isActive ? "text-[var(--app-primary)]" : "text-[var(--app-fg-muted)] group-hover:text-[var(--app-fg-secondary)]"
+                }`}
               >
                 {label}
               </span>
@@ -60,13 +75,15 @@ export function MoodCheckInSection() {
           );
         })}
       </div>
-      <p
-        className={`mt-4 text-center text-sm text-[var(--app-fg-secondary)] transition-opacity duration-200 ${
-          messageVisible ? "opacity-100" : "opacity-0"
+      <div
+        className={`mt-6 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-elevated)] p-4 text-center shadow-sm transition-all duration-300 ${
+          messageVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
       >
-        {MOOD_MESSAGES[selected]}
-      </p>
+        <p className="text-sm text-[var(--app-fg-secondary)] leading-relaxed">
+          {MOOD_MESSAGES[selected]}
+        </p>
+      </div>
     </section>
   );
 }
