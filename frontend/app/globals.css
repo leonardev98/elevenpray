@@ -3,7 +3,6 @@
 @import "shadcn/tailwind.css";
 
 /* Dark mode por clase (toggle), no por preferencia del sistema */
-@custom-variant dark (&:where(.dark, .dark *));
 
 /* Paper Design System — Mitsyy
  * Cuaderno premium digital. Fondos cálidos (sepia/beige en light, marrón muy oscuro en dark).

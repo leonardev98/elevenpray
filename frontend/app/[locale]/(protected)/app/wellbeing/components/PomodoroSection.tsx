@@ -9,7 +9,12 @@ const STROKE = 6;
 const RADIUS = (RING_SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-export function PomodoroSection() {
+interface PomodoroSectionProps {
+  defaultMinutes?: number;
+  gentleMode?: boolean;
+}
+
+export function PomodoroSection({ defaultMinutes, gentleMode = false }: PomodoroSectionProps) {
   const {
     presetIndex,
     presets,
@@ -34,8 +39,13 @@ export function PomodoroSection() {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg-muted)]">
           Temporizador de Estudio
         </h2>
+        {gentleMode && (
+          <span className="ml-2 rounded-full bg-green-500 px-2 py-0.5 text-[10px] font-bold text-white">
+            Modo suave
+          </span>
+        )}
       </div>
-      <div className="student-card relative overflow-hidden rounded-2xl border border-[var(--app-border)] bg-gradient-to-br from-[var(--app-surface-elevated)] to-[var(--app-surface)] p-6 shadow-[var(--app-shadow-card)] transition-all duration-300 hover:shadow-lg lg:flex-row lg:items-center">
+      <div className={`student-card relative overflow-hidden rounded-2xl border border-[var(--app-border)] bg-gradient-to-br from-[var(--app-surface-elevated)] to-[var(--app-surface)] p-6 shadow-[var(--app-shadow-card)] transition-all duration-300 hover:shadow-lg lg:flex-row lg:items-center ${gentleMode ? "opacity-90" : ""}`}>
         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[var(--app-primary)]/10" />
         {/* Left — timer ring */}
         <div className="relative flex flex-col items-center lg:flex-1">

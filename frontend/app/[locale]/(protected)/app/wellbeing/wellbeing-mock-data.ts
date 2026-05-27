@@ -46,6 +46,7 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
       { label: "Exhala", type: "exhale", seconds: 8 },
       { label: "Sostén", type: "hold", seconds: 4 },
     ],
+    category: "standard",
   },
   {
     id: "box",
@@ -58,6 +59,7 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
       { label: "Exhala", type: "exhale", seconds: 4 },
       { label: "Sostén", type: "hold", seconds: 4 },
     ],
+    category: "standard",
   },
   {
     id: "calm",
@@ -68,6 +70,36 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
       { label: "Inhala", type: "inhale", seconds: 4 },
       { label: "Exhala", type: "exhale", seconds: 6 },
     ],
+    category: "standard",
+  },
+  {
+    id: "quick-anxiety",
+    title: "Respiración anti-ansiedad",
+    durationLabel: "1 min",
+    totalMinutes: 1,
+    phases: [
+      { label: "Inhala", type: "inhale", seconds: 4 },
+      { label: "Exhala", type: "exhale", seconds: 4 },
+      { label: "Inhala", type: "inhale", seconds: 4 },
+      { label: "Exhala", type: "exhale", seconds: 4 },
+      { label: "Inhala", type: "inhale", seconds: 4 },
+      { label: "Exhala", type: "exhale", seconds: 6 },
+    ],
+    category: "anxiety",
+  },
+  {
+    id: "five-four-three-two-one",
+    title: "Técnica 5-4-3-2-1",
+    durationLabel: "2 min",
+    totalMinutes: 2,
+    phases: [
+      { label: "Inhala profundo", type: "inhale", seconds: 5 },
+      { label: "Sostén", type: "hold", seconds: 4 },
+      { label: "Exhala suave", type: "exhale", seconds: 3 },
+      { label: "Sostén", type: "hold", seconds: 2 },
+      { label: "Exhala completo", type: "exhale", seconds: 1 },
+    ],
+    category: "anxiety",
   },
 ];
 
@@ -168,7 +200,36 @@ export const RESOURCES: ResourceItem[] = [
 export const POMODORO_PRESETS = [
   { id: "study", label: "25 min", seconds: 25 * 60 },
   { id: "short", label: "15 min", seconds: 15 * 60 },
+  { id: "mini", label: "5 min", seconds: 5 * 60 },
   { id: "break", label: "5 min", seconds: 5 * 60 },
 ] as const;
+
+export const SOUND_ENVIRONMENTS = [
+  { id: "rain", name: "Lluvia", icon: "🌧️", category: "nature" as const },
+  { id: "library", name: "Biblioteca", icon: "📚", category: "ambient" as const },
+  { id: "cafe", name: "Café", icon: "☕", category: "ambient" as const },
+  { id: "white-noise", name: "Ruido blanco", icon: "🔊", category: "ambient" as const },
+  { id: "lofi", name: "Lo-fi", icon: "🎵", category: "music" as const },
+  { id: "forest", name: "Bosque", icon: "🌲", category: "nature" as const },
+  { id: "piano", name: "Piano suave", icon: "🎹", category: "music" as const },
+];
+
+export const EXAM_PREP_CHECKLIST = [
+  { id: "1", text: "Respiración anti-ansiedad", completed: false },
+  { id: "2", text: "Revisar puntos clave", completed: false },
+  { id: "3", text: "Visualizar éxito", completed: false },
+  { id: "4", text: "Beber agua", completed: false },
+  { id: "5", text: "Estiramientos rápidos", completed: false },
+];
+
+export const FOCUS_TROUBLE_ACTIONS = [
+  { id: "1", title: "Respiración 2 min", icon: "🌬️", duration: "2 min" },
+  { id: "2", title: "Técnica 5-4-3-2-1", icon: "✋", duration: "2 min" },
+  { id: "3", title: "Bloquear distracciones", icon: "🔒", duration: "1 min" },
+  { id: "4", title: "Mini Pomodoro 5 min", icon: "⏱️", duration: "5 min" },
+  { id: "5", title: "Sonido ambiente", icon: "🎧", duration: "Continuo" },
+  { id: "6", title: "Reset mental", icon: "🔄", duration: "3 min" },
+  { id: "7", title: "Empezar solo 5 min", icon: "▶️", duration: "5 min" },
+];
 
 export const TOTAL_POMODORO_ROUNDS = 4;

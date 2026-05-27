@@ -2,27 +2,39 @@
 
 import { useState } from "react";
 import { Wind, RotateCcw, Heart } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { BreathingExercise } from "../wellbeing-types";
 import { BREATHING_EXERCISES } from "../wellbeing-mock-data";
 import { SectionLabel } from "./SectionLabel";
 import { BreathingModal } from "./BreathingModal";
 
-const EXERCISE_ICONS = {
+const EXERCISE_ICONS: Record<string, LucideIcon> = {
   "four-seven-eight": Wind,
   box: RotateCcw,
   calm: Heart,
-} as const;
+  "quick-anxiety": Wind,
+  "five-four-three-two-one": Wind,
+};
 
-export function BreathingSection() {
+interface BreathingSectionProps {
+  priority?: boolean;
+}
+
+export function BreathingSection({ priority = false }: BreathingSectionProps) {
   const [activeExercise, setActiveExercise] = useState<BreathingExercise | null>(null);
 
   return (
-    <section>
+    <section className={priority ? "ring-2 ring-[var(--app-primary)] rounded-2xl p-4 -m-4" : ""}>
       <div className="mb-4 flex items-center gap-2">
         <Wind className="h-5 w-5 text-[var(--app-primary)]" />
         <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--app-fg-muted)]">
           Respiración Guiada
         </h2>
+        {priority && (
+          <span className="ml-2 rounded-full bg-[var(--app-primary)] px-2 py-0.5 text-[10px] font-bold text-white">
+            Prioridad
+          </span>
+        )}
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {BREATHING_EXERCISES.map((exercise) => {

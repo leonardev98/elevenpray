@@ -15,7 +15,11 @@ const MOOD_ICONS: Record<MoodId, LucideIcon> = {
   bad: Moon,
 };
 
-export function MoodCheckInSection() {
+interface MoodCheckInSectionProps {
+  onMoodChange?: (mood: MoodId) => void;
+}
+
+export function MoodCheckInSection({ onMoodChange }: MoodCheckInSectionProps) {
   const [selected, setSelected] = useState<MoodId>("good");
   const [messageVisible, setMessageVisible] = useState(true);
 
@@ -25,6 +29,7 @@ export function MoodCheckInSection() {
     setTimeout(() => {
       setSelected(id);
       setMessageVisible(true);
+      onMoodChange?.(id);
     }, 100);
   }
 

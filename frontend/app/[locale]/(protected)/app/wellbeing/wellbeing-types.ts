@@ -2,7 +2,7 @@ export type MoodId = "excellent" | "good" | "normal" | "low" | "bad";
 
 export type BreathingPhaseType = "inhale" | "hold" | "exhale";
 
-export type BreathingExerciseId = "four-seven-eight" | "box" | "calm";
+export type BreathingExerciseId = "four-seven-eight" | "box" | "calm" | "quick-anxiety" | "five-four-three-two-one";
 
 export interface BreathingPhase {
   label: string;
@@ -16,6 +16,7 @@ export interface BreathingExercise {
   durationLabel: string;
   totalMinutes: number;
   phases: BreathingPhase[];
+  category?: "standard" | "anxiety" | "focus";
 }
 
 export interface ResourceItem {
@@ -30,3 +31,20 @@ export interface ResourceItem {
 export type HeatmapLevel = 0 | 1 | 2 | 3;
 
 export type WeekMoodId = MoodId | null;
+
+export type WellbeingMode = "normal" | "exam-prep" | "focus-trouble";
+
+export interface SoundEnvironment {
+  id: string;
+  name: string;
+  icon: string;
+  category: "nature" | "ambient" | "music";
+}
+
+export interface QuickAction {
+  id: string;
+  title: string;
+  icon: string;
+  duration?: string;
+  action: () => void;
+}

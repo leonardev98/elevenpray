@@ -9,81 +9,101 @@ import { PomodoroSection } from "./components/PomodoroSection";
 import { ConsistencyHeatmap } from "./components/ConsistencyHeatmap";
 import { EmotionalWeekSection } from "./components/EmotionalWeekSection";
 import { ResourcesSection } from "./components/ResourcesSection";
+import { ExamPrepSection } from "./components/ExamPrepSection";
+import { FocusTroubleSection } from "./components/FocusTroubleSection";
+import { SoundEnvironmentSection } from "./components/SoundEnvironmentSection";
 import { Sparkles, Heart, Target } from "lucide-react";
+import { useAdaptiveMood } from "./hooks/useAdaptiveMood";
 
 export default function StudentWellbeingPage() {
   const t = useTranslations("studentWellbeing");
+  const { currentMood, config, updateMood, isGentleMode } = useAdaptiveMood();
 
   return (
     <StudentPageShell title={t("title")}>
       {/* Hero Section - Welcome & Quick Actions */}
-      <section className="mb-8 rounded-2xl bg-gradient-to-br from-[var(--app-primary)]/10 via-[var(--app-surface-elevated)] to-[var(--app-surface-soft)] p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <section className={`mb-6 rounded-2xl bg-gradient-to-br from-[var(--app-primary)]/10 via-[var(--app-surface-elevated)] to-[var(--app-surface-soft)] p-5 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl ${isGentleMode ? "opacity-90" : ""}`}>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex-1">
-            <div className="mb-3 flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-[var(--app-primary)]" />
-              <h1 className="text-2xl font-bold text-[var(--app-fg)]">
+            <div className="mb-2 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[var(--app-primary)]" />
+              <h1 className="text-xl font-bold text-[var(--app-fg)]">
                 Bienvenido a tu espacio de calma
               </h1>
             </div>
-            <p className="text-sm text-[var(--app-fg-secondary)] leading-relaxed">
+            <p className="text-xs text-[var(--app-fg-secondary)] leading-relaxed">
               Tómate un momento para conectar contigo mismo. Aquí encontrarás herramientas para manejar el estrés, mejorar tu concentración y cuidar tu bienestar mental mientras estudias.
             </p>
+            {config.customMessage && (
+              <p className="mt-2 text-xs font-medium text-[var(--app-primary)] italic">
+                {config.customMessage}
+              </p>
+            )}
           </div>
-          <div className="flex gap-3 md:shrink-0">
-            <div className="flex items-center gap-2 rounded-xl bg-[var(--app-surface)] px-4 py-3 shadow-sm transition-all duration-200 hover:shadow-md">
-              <Heart className="h-5 w-5 text-[var(--app-primary)]" />
+          <div className="flex gap-2 md:shrink-0">
+            <div className="flex items-center gap-2 rounded-xl bg-[var(--app-surface)] px-3 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+              <Heart className="h-4 w-4 text-[var(--app-primary)]" />
               <div>
-                <p className="text-xs text-[var(--app-fg-muted)]">Hoy</p>
-                <p className="text-sm font-semibold text-[var(--app-fg)]">Check-in</p>
+                <p className="text-[10px] text-[var(--app-fg-muted)]">Hoy</p>
+                <p className="text-xs font-semibold text-[var(--app-fg)]">Check-in</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-xl bg-[var(--app-surface)] px-4 py-3 shadow-sm transition-all duration-200 hover:shadow-md">
-              <Target className="h-5 w-5 text-[var(--app-primary)]" />
+            <div className="flex items-center gap-2 rounded-xl bg-[var(--app-surface)] px-3 py-2 shadow-sm transition-all duration-200 hover:shadow-md">
+              <Target className="h-4 w-4 text-[var(--app-primary)]" />
               <div>
-                <p className="text-xs text-[var(--app-fg-muted)]">Meta</p>
-                <p className="text-sm font-semibold text-[var(--app-fg)]">5 min</p>
+                <p className="text-[10px] text-[var(--app-fg-muted)]">Meta</p>
+                <p className="text-xs font-semibold text-[var(--app-fg)]">{config.pomodoroDefaultMinutes} min</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Special Mode Buttons */}
+      <div className="mb-6 grid gap-3 md:grid-cols-2">
+        <ExamPrepSection />
+        <FocusTroubleSection />
+      </div>
+
       {/* Main Content Grid */}
-      <div className="grid gap-8 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Primary Tools */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
+          {config.showBreathingFirst && (
+            <BreathingSection priority />
+          )}
           <DailyQuoteSection />
-          <MoodCheckInSection />
+          <MoodCheckInSection onMoodChange={updateMood} />
           
           {/* Interactive Tools Section */}
           <section>
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--app-fg-muted)]">
-              <span className="h-1 w-8 rounded-full bg-[var(--app-primary)]" />
+            <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--app-fg-muted)]">
+              <span className="h-1 w-6 rounded-full bg-[var(--app-primary)]" />
               Herramientas Interactivas
             </h2>
-            <div className="grid gap-6 md:grid-cols-2">
-              <BreathingSection />
-              <PomodoroSection />
+            <div className={`grid gap-4 ${config.reduceVisualStimuli ? "md:grid-cols-1" : "md:grid-cols-2"}`}>
+              {!config.showBreathingFirst && <BreathingSection />}
+              <PomodoroSection defaultMinutes={config.pomodoroDefaultMinutes} gentleMode={config.gentleFocusMode} />
             </div>
           </section>
 
           <ResourcesSection />
+          <SoundEnvironmentSection />
         </div>
 
         {/* Right Column - Progress & Stats */}
-        <div className="space-y-6">
-          <div className="sticky top-4 space-y-6">
+        <div className="space-y-4">
+          <div className="sticky top-4 space-y-4">
             <ConsistencyHeatmap />
             <EmotionalWeekSection />
             
             {/* Quick Tips Card */}
-            <section className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-elevated)] p-5 shadow-[var(--app-shadow-card)] transition-all duration-300 hover:shadow-lg">
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--app-fg)]">
-                <Sparkles className="h-4 w-4 text-[var(--app-primary)]" />
+            <section className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-elevated)] p-4 shadow-[var(--app-shadow-card)] transition-all duration-300 hover:shadow-lg">
+              <h3 className="mb-2 flex items-center gap-2 text-xs font-semibold text-[var(--app-fg)]">
+                <Sparkles className="h-3 w-3 text-[var(--app-primary)]" />
                 Tip del día
               </h3>
-              <p className="text-sm text-[var(--app-fg-secondary)] leading-relaxed">
+              <p className="text-xs text-[var(--app-fg-secondary)] leading-relaxed">
                 Pequeñas pausas de 5 minutos cada hora pueden mejorar tu concentración hasta en un 40%.
               </p>
             </section>
@@ -91,7 +111,7 @@ export default function StudentWellbeingPage() {
         </div>
       </div>
 
-      <p className="mt-12 text-center text-xs text-[var(--app-fg-muted)]/70">
+      <p className="mt-8 text-center text-[10px] text-[var(--app-fg-muted)]/70">
         {t("disclaimer")}
       </p>
     </StudentPageShell>
