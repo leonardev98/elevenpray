@@ -1071,3 +1071,51 @@ body {
 .ucal-event-conflict {
   box-shadow: 0 0 0 2px var(--destructive), 0 4px 12px rgba(239, 68, 68, 0.15) !important;
 }
+
+/* Landing hero — badge shimmer (una vez al cargar) */
+@keyframes hero-badge-shimmer {
+  from {
+    left: -100%;
+  }
+  to {
+    left: 150%;
+  }
+}
+
+.hero-badge-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-badge-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  left: -100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 252, 245, 0.55),
+    transparent
+  );
+  animation: hero-badge-shimmer 1.2s ease 0.3s forwards;
+  pointer-events: none;
+}
+
+.dark .hero-badge-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-badge-shimmer::after {
+    animation: none;
+    content: none;
+  }
+}

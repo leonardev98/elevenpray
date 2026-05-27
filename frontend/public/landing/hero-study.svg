@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Mitsyy study interface</title>
+  <desc id="desc">Mockup of PDF upload, chat, and study tabs</desc>
+  <rect width="960" height="600" rx="24" fill="#FFFCF5"/>
+  <rect x="24" y="24" width="912" height="552" rx="16" fill="#F8F4EC" stroke="#E8E2D5" stroke-width="2"/>
+  <rect x="48" y="48" width="200" height="504" rx="12" fill="#FFFFFF" stroke="#E8E2D5"/>
+  <rect x="68" y="72" width="160" height="12" rx="6" fill="#E8EFD9"/>
+  <rect x="68" y="100" width="140" height="8" rx="4" fill="#E8E2D5"/>
+  <rect x="68" y="130" width="160" height="48" rx="8" fill="#3D5A2F" opacity="0.15"/>
+  <rect x="76" y="142" width="80" height="8" rx="4" fill="#3D5A2F"/>
+  <rect x="68" y="190" width="160" height="8" rx="4" fill="#E8E2D5"/>
+  <rect x="68" y="210" width="120" height="8" rx="4" fill="#E8E2D5"/>
+  <rect x="272" y="48" width="640" height="504" rx="12" fill="#FFFFFF" stroke="#E8E2D5"/>
+  <rect x="296" y="72" width="72" height="28" rx="14" fill="#3D5A2F"/>
+  <rect x="296" y="72" width="72" height="28" rx="14" fill="#3D5A2F"/>
+  <text x="332" y="91" text-anchor="middle" fill="#FFFCF5" font-family="system-ui,sans-serif" font-size="12" font-weight="600">Chat</text>
+  <rect x="380" y="72" width="88" height="28" rx="14" fill="#F0EBE0"/>
+  <rect x="480" y="72" width="100" height="28" rx="14" fill="#F0EBE0"/>
+  <rect x="592" y="72" width="80" height="28" rx="14" fill="#F0EBE0"/>
+  <rect x="296" y="120" width="592" height="56" rx="12" fill="#E8EFD9"/>
+  <circle cx="324" cy="148" r="16" fill="#3D5A2F" opacity="0.3"/>
+  <rect x="352" y="136" width="420" height="10" rx="5" fill="#3D5A2F" opacity="0.4"/>
+  <rect x="352" y="154" width="320" height="8" rx="4" fill="#3D5A2F" opacity="0.25"/>
+  <rect x="296" y="196" width="420" height="48" rx="12" fill="#F8F4EC"/>
+  <rect x="312" y="212" width="360" height="8" rx="4" fill="#7A7368" opacity="0.5"/>
+  <rect x="312" y="228" width="280" height="8" rx="4" fill="#7A7368" opacity="0.35"/>
+  <rect x="760" y="196" width="128" height="48" rx="12" fill="#3D5A2F"/>
+  <rect x="296" y="268" width="592" height="48" rx="24" fill="#F0EBE0" stroke="#E8E2D5"/>
+  <rect x="312" y="284" width="200" height="16" rx="8" fill="#B8AF9F" opacity="0.6"/>
+</svg>

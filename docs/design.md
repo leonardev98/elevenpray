@@ -1,22 +1,57 @@
-# Diseño y paleta
+# Diseño — Paper Design System (Mitsyy)
 
-## Paleta de colores
+La fuente de verdad de colores, tipografía y tokens es [`frontend/app/globals.css`](../frontend/app/globals.css). Este documento resume el sistema para producto y landing.
 
-| Nombre  | Hex       | Uso principal        |
-|---------|-----------|----------------------|
-| Black   | `#0A0A0A` | Fondo oscuro, texto claro |
-| White   | `#F9F9F9` | Fondo claro, texto oscuro |
-| Navy    | `#0F1E33` | Botones primarios, acentos |
-| Gold    | `#C8A96A` | Destacados, enlaces, bordes secundarios |
+## Paleta Paper
+
+### Modo claro
+
+| Token | Hex | Uso |
+|-------|-----|-----|
+| `--bg-base` | `#F8F4EC` | Fondo principal (sepia) |
+| `--bg-surface` | `#FFFCF5` | Tarjetas, paneles |
+| `--bg-elevated` | `#FFFFFF` | Elementos elevados |
+| `--text-primary` | `#1F1B14` | Títulos |
+| `--text-body` | `#3D3833` | Cuerpo |
+| `--text-muted` | `#7A7368` | Secundario |
+| `--accent` | `#3D5A2F` | Botones primarios, enlaces (verde bosque) |
+| `--accent-fg` | `#FFFCF5` | Texto sobre acento |
+| `--accent-subtle` | `#E8EFD9` | Fondos suaves de acento |
+| `--xp` | `#8A6E3D` | Gamificación, destacados dorados |
+
+### Modo oscuro
+
+| Token | Hex | Uso |
+|-------|-----|-----|
+| `--bg-base` | `#1A1815` | Fondo principal |
+| `--accent` | `#A8C087` | Acento (verde salvia) |
+| `--text-primary` | `#F5F1E8` | Texto principal |
+
+## Principios visuales
+
+- **Sin violeta, neón ni gradientes “tech”** en producto y landing.
+- Bordes y sombras suaves: `--border`, `--shadow-sm`, `--shadow-md`.
+- Alias legacy `--app-*` mapean a tokens Paper para compatibilidad.
+
+## Tipografía
+
+- **Sans:** Inter (`--font-inter`) — UI, landing, app estudiante.
+- **Mono:** Geist Mono, JetBrains Mono — código y snippets.
+
+Escala definida en `globals.css` (`--font-size-*`, pesos, letter-spacing).
 
 ## Tema claro / oscuro
 
-- **Claro:** fondo `#F9F9F9`, superficie blanca, texto `#0A0A0A`. Navy y gold para acciones.
-- **Oscuro:** fondo `#0A0A0A`, superficie `#141414`, texto `#F9F9F9`. Gold se mantiene como acento.
+- Preferencia en `localStorage` (`elevenpray_theme`).
+- Clase `.dark` / `[data-theme="dark"]` en `<html>`.
+- Toggle en landing, auth y shell de la app.
 
-La preferencia se guarda en `localStorage` (`elevenpray_theme`) y se aplica con la clase `.dark` en `<html>`. El botón de tema está en la esquina superior derecha (landing, login, register y header del dashboard).
+## Landing
 
-## UI
+- Componente principal: [`frontend/app/components/landing.tsx`](../frontend/app/components/landing.tsx).
+- Copy: `frontend/messages/es.json` y `en.json` → claves `landing`, `landingPricing`.
+- Assets: `frontend/public/landing/` (mockups SVG alineados a Paper).
 
-- **Aside:** panel lateral con lista de tópicos y formulario "Nuevo tópico" (nombre + tipo: Rutina, Notas, Lista, Meta, Otro). Los tópicos se guardan en `localStorage` por ahora.
-- **Tipografía:** variables CSS `--app-fg`, `--app-bg`, `--app-surface`, `--app-border`, `--app-accent`, `--app-highlight` (gold) para mantener consistencia entre temas.
+## Referencia histórica
+
+La paleta anterior (Black `#0A0A0A`, Navy `#0F1E33`, Gold `#C8A96A`) quedó reemplazada por Paper. No usarla en componentes nuevos.

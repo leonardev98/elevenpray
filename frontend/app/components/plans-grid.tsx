@@ -18,22 +18,25 @@ import { toast } from "../lib/toast";
 
 const PLAN_META: Record<
   PlanId,
-  { icon: typeof Sparkles; accent: string; glow: string }
+  { icon: typeof Sparkles; accent: string; glow: string; checkClass: string }
 > = {
   free: {
     icon: GraduationCap,
-    accent: "from-zinc-500/20 to-zinc-600/5",
+    accent: "from-[var(--accent-subtle)] to-transparent",
     glow: "",
+    checkClass: "text-[var(--accent)]",
   },
   plus: {
     icon: Zap,
-    accent: "from-violet-500/25 via-fuchsia-500/10 to-transparent",
-    glow: "shadow-[0_0_40px_-8px_rgba(139,92,246,0.45)]",
+    accent: "from-[var(--accent-subtle)] via-[var(--bg-surface)] to-transparent",
+    glow: "shadow-[var(--shadow-md)]",
+    checkClass: "text-[var(--accent)]",
   },
   pro: {
     icon: Brain,
-    accent: "from-amber-500/20 via-orange-500/10 to-transparent",
-    glow: "shadow-[0_0_40px_-8px_rgba(245,158,11,0.35)]",
+    accent: "from-[var(--course-2-bg)]/80 via-transparent to-transparent",
+    glow: "shadow-[var(--shadow-md)]",
+    checkClass: "text-[var(--xp)]",
   },
 };
 
@@ -86,11 +89,8 @@ export function PlansGrid({
     <div className={cn(isLanding && "w-full")}>
       <div
         className={cn(
-          "inline-flex rounded-full border p-1 backdrop-blur-md",
-          isLanding
-            ? "border-white/15 bg-white/5"
-            : "border-[var(--app-border)] bg-[var(--app-surface)]",
-          !isLanding && variant === "page" && "mx-auto"
+          "inline-flex rounded-full border border-[var(--border)] bg-[var(--bg-surface)] p-1 backdrop-blur-md",
+          (variant === "page" || isLanding) && "mx-auto"
         )}
         role="group"
         aria-label={t("billingToggle")}
@@ -103,22 +103,13 @@ export function PlansGrid({
             className={cn(
               "rounded-full px-5 py-2.5 text-sm font-medium transition-all",
               interval === key
-                ? isLanding
-                  ? "bg-white text-zinc-900 shadow-lg"
-                  : "bg-[var(--app-primary)] text-[var(--app-bg)]"
-                : isLanding
-                  ? "text-white/70 hover:text-white"
-                  : "text-[var(--app-fg-secondary)] hover:text-[var(--app-fg)]"
+                ? "bg-[var(--accent)] text-[var(--accent-fg)] shadow-[var(--shadow-sm)]"
+                : "text-[var(--text-body)] hover:text-[var(--text-primary)]"
             )}
           >
             {t(key)}
             {key === "yearly" && (
-              <span
-                className={cn(
-                  "ml-1.5 text-xs font-semibold",
-                  isLanding ? "text-emerald-300" : "text-emerald-500"
-                )}
-              >
+              <span className="ml-1.5 text-xs font-semibold text-[var(--accent)]">
                 {t("yearlySave")}
               </span>
             )}
@@ -162,12 +153,9 @@ export function PlansGrid({
             <article
               key={plan.id}
               className={cn(
-                "relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300",
-                isLanding
-                  ? "border-white/10 bg-white/[0.04] backdrop-blur-xl hover:border-white/20 hover:bg-white/[0.07]"
-                  : "border-[var(--app-border)] bg-[var(--app-surface)]",
-                plan.highlighted && !isCurrent && (isLanding ? meta.glow : "ring-2 ring-[var(--app-primary)]/50"),
-                isCurrent && "ring-2 ring-[var(--app-primary)]",
+                "relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] transition-all duration-300",
+                plan.highlighted && !isCurrent && (meta.glow || "ring-2 ring-[var(--accent)]/40"),
+                isCurrent && "ring-2 ring-[var(--accent)]",
                 plan.highlighted && isLanding && "lg:-translate-y-1"
               )}
             >
@@ -181,12 +169,7 @@ export function PlansGrid({
 
               {plan.highlighted && !isCurrent && (
                 <span
-                  className={cn(
-                    "absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full px-3 py-1 text-xs font-semibold",
-                    isLanding
-                      ? "bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white"
-                      : "bg-[var(--app-primary)] text-[var(--app-bg)]"
-                  )}
+                  className="absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-semibold text-[var(--accent-fg)]"
                 >
                   {t("popular")}
                 </span>
@@ -199,52 +182,25 @@ export function PlansGrid({
 
               <div className="relative flex flex-1 flex-col p-6">
                 <div className="flex items-center gap-3">
-                  <span
-                    className={cn(
-                      "flex size-11 items-center justify-center rounded-xl",
-                      isLanding
-                        ? "bg-white/10 text-white"
-                        : "bg-[var(--app-primary-soft)] text-[var(--app-primary)]"
-                    )}
-                  >
+                  <span className="flex size-11 items-center justify-center rounded-xl bg-[var(--accent-subtle)] text-[var(--accent)]">
                     <Icon className="size-5" aria-hidden />
                   </span>
                   <div>
-                    <h3
-                      className={cn(
-                        "text-lg font-bold tracking-tight",
-                        isLanding ? "text-white" : "text-[var(--app-fg)]"
-                      )}
-                    >
+                    <h3 className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
                       {t(`plans.${plan.id}.name`)}
                     </h3>
-                    <p
-                      className={cn(
-                        "text-sm",
-                        isLanding ? "text-white/60" : "text-[var(--app-fg-secondary)]"
-                      )}
-                    >
+                    <p className="text-sm text-[var(--text-body)]">
                       {t(`plans.${plan.id}.tagline`)}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <p
-                    className={cn(
-                      "text-4xl font-bold tracking-tight",
-                      isLanding ? "text-white" : "text-[var(--app-fg)]"
-                    )}
-                  >
+                  <p className="text-4xl font-bold tracking-tight text-[var(--text-primary)]">
                     {priceLabel}
                   </p>
                   {billedNote && (
-                    <p
-                      className={cn(
-                        "mt-1 text-xs",
-                        isLanding ? "text-white/50" : "text-[var(--app-fg-muted)]"
-                      )}
-                    >
+                    <p className="mt-1 text-xs text-[var(--text-muted)]">
                       {billedNote}
                     </p>
                   )}
@@ -254,20 +210,10 @@ export function PlansGrid({
                   {plan.featureKeys.map((key) => (
                     <li
                       key={key}
-                      className={cn(
-                        "flex gap-2.5 text-sm",
-                        isLanding ? "text-white/85" : "text-[var(--app-fg-secondary)]"
-                      )}
+                      className="flex gap-2.5 text-sm text-[var(--text-body)]"
                     >
                       <Check
-                        className={cn(
-                          "mt-0.5 size-4 shrink-0",
-                          plan.id === "pro"
-                            ? "text-amber-400"
-                            : plan.id === "plus"
-                              ? "text-violet-400"
-                              : "text-emerald-500"
-                        )}
+                        className={cn("mt-0.5 size-4 shrink-0", meta.checkClass)}
                         aria-hidden
                       />
                       <span>{t(`features.${key}`)}</span>
@@ -279,11 +225,7 @@ export function PlansGrid({
                   {plan.id === "free" && !authenticated ? (
                     <Button
                       asChild
-                      className={cn(
-                        "h-11 w-full rounded-xl font-medium",
-                        isLanding &&
-                          "border-white/20 bg-white text-zinc-900 hover:bg-white/90"
-                      )}
+                      className="h-11 w-full rounded-xl font-medium"
                       variant={isLanding ? "default" : "outline"}
                       size="lg"
                     >
@@ -295,16 +237,18 @@ export function PlansGrid({
                         "h-11 w-full rounded-xl font-medium",
                         isLanding &&
                           plan.highlighted &&
-                          "border-0 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white hover:opacity-90",
+                          "border-0 bg-[var(--accent)] text-[var(--accent-fg)] hover:opacity-90",
                         isLanding &&
                           !plan.highlighted &&
                           plan.id === "pro" &&
-                          "border border-amber-500/40 bg-amber-500/15 text-amber-100 hover:bg-amber-500/25"
+                          "border-[var(--border)] bg-[var(--bg-elevated)] hover:bg-[var(--accent-subtle)]"
                       )}
                       variant={
-                        !isLanding && plan.highlighted && !isCurrent
+                        plan.highlighted && !isCurrent && !isLanding
                           ? "default"
-                          : "outline"
+                          : isLanding && plan.highlighted
+                            ? "default"
+                            : "outline"
                       }
                       size="lg"
                       disabled={

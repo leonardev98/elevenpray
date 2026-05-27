@@ -73,9 +73,9 @@ export const PLANS: readonly PlanDefinition[] = [
     limits: PLAN_LIMITS.pro,
     featureKeys: [
       "everythingPlus",
-      "aiTutor",
+      "pdfChatUnlimited",
       "aiQuizGen",
-      "aiExamMode",
+      "aiCreditsUnlimited",
       "prioritySupport",
       "earlyAccess",
     ],

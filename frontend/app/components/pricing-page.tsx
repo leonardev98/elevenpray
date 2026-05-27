@@ -46,9 +46,9 @@ export function PricingPage() {
           </Link>
         }
         navItems={[
-          { name: tLanding("navProduct"), link: "/#domains" },
+          { name: tLanding("navProduct"), link: "/#producto" },
+          { name: tLanding("navHowItWorks"), link: "/#como-funciona" },
           { name: tLanding("navPricing"), link: "/#pricing" },
-          { name: tLanding("navTemplates"), link: "/#plantillas" },
         ]}
         rightContent={
           <>
