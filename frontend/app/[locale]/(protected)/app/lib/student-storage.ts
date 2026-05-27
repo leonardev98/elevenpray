@@ -1,4 +1,6 @@
-export const STUDENT_PROFILE_KEY = "mitsyy_student_profile";
+export const STUDENT_PROFILE_KEY_PREFIX = "mitsyy_student_profile_";
+/** @deprecated Usar clave por usuario; se mantiene solo para migración. */
+export const STUDENT_PROFILE_KEY_LEGACY = "mitsyy_student_profile";
 export const CHECKIN_PREFIX = "mitsyy_checkin_";
 
 export type StudentProfile = {
@@ -7,6 +9,10 @@ export type StudentProfile = {
   career: string;
   cycle: string;
 };
+
+function profileKey(userId: string): string {
+  return `${STUDENT_PROFILE_KEY_PREFIX}${userId}`;
+}
 
 export function getTodayKey(): string {
   return `${CHECKIN_PREFIX}${new Date().toISOString().slice(0, 10)}`;
@@ -22,22 +28,43 @@ export function saveCheckIn(mood: string): void {
   localStorage.setItem(getTodayKey(), mood);
 }
 
-export function getStudentProfile(): StudentProfile | null {
+export function getStudentProfile(userId?: string | null): StudentProfile | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(STUDENT_PROFILE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as StudentProfile;
+    if (userId) {
+      const raw = localStorage.getItem(profileKey(userId));
+      if (raw) return JSON.parse(raw) as StudentProfile;
+    }
+    const legacy = localStorage.getItem(STUDENT_PROFILE_KEY_LEGACY);
+    if (legacy) return JSON.parse(legacy) as StudentProfile;
+    return null;
   } catch {
     return null;
   }
 }
 
-export function saveStudentProfile(profile: StudentProfile): void {
+export function saveStudentProfile(profile: StudentProfile, userId: string): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STUDENT_PROFILE_KEY, JSON.stringify(profile));
+  localStorage.setItem(profileKey(userId), JSON.stringify(profile));
+  localStorage.removeItem(STUDENT_PROFILE_KEY_LEGACY);
 }
 
-export function hasStudentProfile(): boolean {
-  return getStudentProfile() !== null;
+export function hasStudentProfile(userId?: string | null): boolean {
+  return getStudentProfile(userId) !== null;
+}
+
+export function clearStudentProfileForUser(userId: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(profileKey(userId));
+}
+
+export function clearAllStudentProfiles(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(STUDENT_PROFILE_KEY_LEGACY);
+  const toRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k?.startsWith(STUDENT_PROFILE_KEY_PREFIX)) toRemove.push(k);
+  }
+  toRemove.forEach((k) => localStorage.removeItem(k));
 }

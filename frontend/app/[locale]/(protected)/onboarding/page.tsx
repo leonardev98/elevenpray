@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowRight, BookOpen, Building2, CalendarDays, GraduationCap, Sparkles, User } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "../../../providers/auth-provider";
-import { saveStudentProfile } from "../app/lib/student-storage";
+import { upsertStudentProfile } from "@/app/lib/auth-api";
+import { getStudentProfile, saveStudentProfile } from "../app/lib/student-storage";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,17 +23,48 @@ const CYCLE_YEARS = [2024, 2025, 2026, 2027, 2028] as const;
 const CYCLE_PERIOD_VALUES = ["I", "II", "Verano"] as const;
 type CyclePeriod = (typeof CYCLE_PERIOD_VALUES)[number];
 
+function parseCycle(cycle: string): { year: string; period: CyclePeriod } | null {
+  const match = /^(\d{4})-(I|II|Verano)$/.exec(cycle.trim());
+  if (!match) return null;
+  return { year: match[1], period: match[2] as CyclePeriod };
+}
+
 export default function OnboardingPage() {
-  const { user } = useAuth();
+  const { user, token, refreshUser } = useAuth();
   const router = useRouter();
   const t = useTranslations("onboardingStudent");
+  const defaultYear = useMemo(() => String(new Date().getFullYear()), []);
   const [name, setName] = useState(user?.name ?? "");
   const [university, setUniversity] = useState("");
   const [career, setCareer] = useState("");
-  const defaultYear = useMemo(() => String(new Date().getFullYear()), []);
   const [cycleYear, setCycleYear] = useState(defaultYear);
   const [cyclePeriod, setCyclePeriod] = useState<CyclePeriod>("I");
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fromLocal = user?.id ? getStudentProfile(user.id) : null;
+    const fromServer = user?.studentProfile;
+
+    if (fromLocal?.name) setName(fromLocal.name);
+    else if (user?.name) setName(user.name);
+
+    const universityVal = fromServer?.university ?? fromLocal?.university;
+    const careerVal = fromServer?.career ?? fromLocal?.career;
+    const cycleVal = fromServer?.cycle ?? fromLocal?.cycle;
+
+    if (universityVal) setUniversity(universityVal);
+    if (careerVal) setCareer(careerVal);
+
+    if (cycleVal) {
+      const parsed = parseCycle(cycleVal);
+      if (parsed) {
+        setCycleYear(parsed.year);
+        setCyclePeriod(parsed.period);
+      }
+    }
+  }, [user?.id, user?.name, user?.studentProfile]);
 
   const cycle = `${cycleYear}-${cyclePeriod}`;
 
@@ -42,18 +74,40 @@ export default function OnboardingPage() {
     return t("periodSummer");
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitAttempted(true);
+    setSubmitError(null);
     if (!name.trim() || !university.trim() || !career.trim() || !cycleYear || !cyclePeriod) return;
-    saveStudentProfile({
+    if (!token || !user?.id) {
+      setSubmitError(t("submitError"));
+      return;
+    }
+
+    const profile = {
       name: name.trim(),
       university: university.trim(),
       career: career.trim(),
       cycle: cycle.trim(),
-    });
-    router.push("/app");
-    router.refresh();
+    };
+
+    setSubmitting(true);
+    try {
+      await upsertStudentProfile(token, {
+        university: profile.university,
+        career: profile.career,
+        cycle: profile.cycle,
+        name: profile.name,
+      });
+      saveStudentProfile(profile, user.id);
+      await refreshUser();
+      router.push("/app");
+      router.refresh();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : t("submitError"));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const invalidName = submitAttempted && !name.trim();
@@ -224,9 +278,15 @@ export default function OnboardingPage() {
           </section>
 
           <div className="space-y-3 pt-2">
+            {submitError && (
+              <p className="text-center text-xs font-medium text-red-500" role="alert">
+                {submitError}
+              </p>
+            )}
             <Button
               type="submit"
-              className="group h-12 w-full rounded-xl bg-[var(--app-primary)] text-base font-semibold text-[var(--app-white)] shadow-lg shadow-[var(--app-primary)]/25 transition-all hover:bg-[var(--app-primary-hover)] hover:shadow-xl hover:shadow-[var(--app-primary)]/30 active:translate-y-px"
+              disabled={submitting}
+              className="group h-12 w-full rounded-xl bg-[var(--app-primary)] text-base font-semibold text-[var(--app-white)] shadow-lg shadow-[var(--app-primary)]/25 transition-all hover:bg-[var(--app-primary-hover)] hover:shadow-xl hover:shadow-[var(--app-primary)]/30 active:translate-y-px disabled:opacity-60"
             >
               <span className="flex items-center justify-center gap-2">
                 {t("submit")}

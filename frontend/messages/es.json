@@ -255,6 +255,7 @@
     "cyclePlaceholder": "Ej. 2025-I",
     "cycleCurrent": "Ciclo seleccionado:",
     "submit": "Entrar a Mitsyy",
+    "submitError": "No pudimos guardar tu perfil. Intenta de nuevo.",
     "editLater": "Podrás actualizar esta información en cualquier momento desde tu perfil."
   },
   "studentNav": {

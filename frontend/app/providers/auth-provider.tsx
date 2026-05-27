@@ -8,7 +8,13 @@ import {
   register as apiRegister,
   me,
   AuthError,
+  normalizePublicUser,
 } from "../lib/auth-api";
+import {
+  saveStudentProfile,
+  clearAllStudentProfiles,
+  clearStudentProfileForUser,
+} from "../[locale]/(protected)/app/lib/student-storage";
 
 const TOKEN_KEY = "elevenpray_token";
 const USER_KEY = "elevenpray_user";
@@ -18,19 +24,6 @@ const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 type CookieOptions = Parameters<typeof setCookie>[2];
 
-/**
- * Opciones consistentes para la cookie de sesión.
- *
- * Notas:
- * - `httpOnly` NO se setea aquí: el navegador rechaza/ignora cookies
- *   `HttpOnly` asignadas vía document.cookie, lo que rompía la persistencia.
- *   Si en el futuro queremos HttpOnly real, hay que setearla desde una Route
- *   Handler del servidor (Set-Cookie response header), no desde el cliente.
- * - `sameSite: "lax"` es el estándar para auth en navegación normal y soporta
- *   correctamente redirecciones OAuth de top-level GET.
- * - `secure` solo en producción (HTTPS). En dev local sobre http:// debe
- *   estar en false o el navegador rechaza la cookie.
- */
 function getCookieOptions(): CookieOptions {
   return {
     secure: process.env.NODE_ENV === "production",
@@ -45,7 +38,7 @@ function readStoredUser(): PublicUser | null {
   const raw = localStorage.getItem(USER_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as PublicUser;
+    return normalizePublicUser(JSON.parse(raw) as Record<string, unknown>);
   } catch {
     return null;
   }
@@ -55,29 +48,33 @@ function readStoredToken(): string | null {
   if (typeof window === "undefined") return null;
   const fromCookie = getCookie(TOKEN_KEY) as string | undefined | null;
   if (fromCookie) return fromCookie;
-  // Fallback / migración desde versiones anteriores que solo usaban localStorage.
   return localStorage.getItem(TOKEN_KEY);
 }
 
+function syncStudentProfileCache(u: PublicUser): void {
+  if (!u.studentProfile) return;
+  saveStudentProfile(
+    {
+      name: u.name,
+      university: u.studentProfile.university,
+      career: u.studentProfile.career,
+      cycle: u.studentProfile.cycle,
+    },
+    u.id,
+  );
+}
+
 function persistSession(token: string, user: PublicUser) {
+  syncStudentProfileCache(user);
   setCookie(TOKEN_KEY, token, getCookieOptions());
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-/**
- * Borra datos locales (onboarding, check-ins emocionales) que están scopeados
- * al usuario. Se invoca en `logout()` y cuando `setSession`/`login`/`register`
- * detectan que el usuario entrante es distinto del que estaba persistido.
- * Las claves espejan las definidas en
- * `app/[locale]/(protected)/app/lib/student-storage.ts`.
- */
-const STUDENT_PROFILE_KEY = "mitsyy_student_profile";
 const CHECKIN_PREFIX = "mitsyy_checkin_";
 
-function clearUserScopedLocalData() {
+function clearCheckins() {
   if (typeof window === "undefined") return;
-  localStorage.removeItem(STUDENT_PROFILE_KEY);
   const toRemove: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
@@ -86,13 +83,23 @@ function clearUserScopedLocalData() {
   toRemove.forEach((k) => localStorage.removeItem(k));
 }
 
-function clearSession() {
+/** Solo token y usuario en storage; no borra perfil estudiantil (vive en servidor). */
+function clearAuthCredentials() {
   deleteCookie(TOKEN_KEY, { path: "/" });
   if (typeof window !== "undefined") {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
-    clearUserScopedLocalData();
   }
+}
+
+function clearUserScopedLocalData(previousUserId?: string) {
+  if (typeof window === "undefined") return;
+  if (previousUserId) {
+    clearStudentProfileForUser(previousUserId);
+  } else {
+    clearAllStudentProfiles();
+  }
+  clearCheckins();
 }
 
 interface AuthContextValue {
@@ -101,10 +108,6 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
-  /**
-   * Persiste una sesión ya obtenida (por ejemplo tras intercambiar un
-   * id_token de Google contra el backend) sin volver a llamar al API.
-   */
   setSession: (token: string, user: PublicUser) => void;
   logout: () => void;
   updateUser: (user: PublicUser) => void;
@@ -118,14 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  /**
-   * Estrategia de carga:
-   * 1. Hidratar el estado inmediatamente desde cookie + localStorage para
-   *    evitar el flash de "no autenticado" al volver a la página.
-   * 2. Validar contra el backend en segundo plano. Solo si el backend
-   *    confirma 401/403 limpiamos la sesión; ante errores de red, 5xx o cold
-   *    starts mantenemos al usuario logueado y reintentamos en la próxima carga.
-   */
   const hydrateAndValidate = useCallback(async () => {
     if (typeof window === "undefined") {
       setIsLoading(false);
@@ -144,22 +139,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(storedUser);
     setIsLoading(false);
 
-    // Renueva la cookie en cada visita para extender la ventana (rolling session).
     setCookie(TOKEN_KEY, storedToken, getCookieOptions());
 
     try {
       const fresh = await me(storedToken);
       const withRole: PublicUser = { ...fresh, role: fresh.role ?? "user" };
       setUser(withRole);
+      syncStudentProfileCache(withRole);
       localStorage.setItem(USER_KEY, JSON.stringify(withRole));
     } catch (err) {
       if (err instanceof AuthError) {
-        clearSession();
+        clearAuthCredentials();
         setToken(null);
         setUser(null);
       }
-      // Cualquier otro error (red, 5xx, cold start) se ignora; el usuario
-      // sigue logueado con los datos cacheados.
     }
   }, []);
 
@@ -167,15 +160,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     hydrateAndValidate();
   }, [hydrateAndValidate]);
 
-  /**
-   * Si el usuario que llega es distinto del cacheado, limpiamos datos
-   * scopeados al usuario anterior (perfil onboarding, check-ins) para evitar
-   * que se mezclen entre cuentas en el mismo navegador.
-   */
-  function applySessionAndCleanup(accessToken: string, u: PublicUser) {
+  function applySessionAndCleanup(accessToken: string, rawUser: PublicUser) {
+    const u = normalizePublicUser(rawUser as unknown as Record<string, unknown>);
     const previous = readStoredUser();
     if (previous && previous.id !== u.id) {
-      clearUserScopedLocalData();
+      clearUserScopedLocalData(previous.id);
     }
     persistSession(accessToken, u);
     setToken(accessToken);
@@ -200,15 +189,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    clearSession();
+    const previousId = readStoredUser()?.id;
+    clearAuthCredentials();
+    clearUserScopedLocalData(previousId);
     setToken(null);
     setUser(null);
   }, []);
 
   const updateUser = useCallback((u: PublicUser) => {
-    setUser(u);
+    const normalized = normalizePublicUser(u as unknown as Record<string, unknown>);
+    syncStudentProfileCache(normalized);
+    setUser(normalized);
     if (typeof window !== "undefined") {
-      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      localStorage.setItem(USER_KEY, JSON.stringify(normalized));
     }
   }, []);
 
@@ -219,12 +212,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const fresh = await me(t);
       const withRole: PublicUser = { ...fresh, role: fresh.role ?? "user" };
       setUser(withRole);
+      syncStudentProfileCache(withRole);
       if (typeof window !== "undefined") {
         localStorage.setItem(USER_KEY, JSON.stringify(withRole));
       }
     } catch (err) {
       if (err instanceof AuthError) {
-        clearSession();
+        clearAuthCredentials();
         setToken(null);
         setUser(null);
       }

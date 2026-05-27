@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { useAuth } from "../../../../providers/auth-provider";
+import { normalizePublicUser } from "@/app/lib/auth-api";
 
 function getAllowedNext(next: string | null): string {
   if (!next || typeof next !== "string") return "/app";
@@ -90,14 +91,12 @@ export default function AuthBridgePage() {
         throw new Error(t("bridgeNoBackendToken"));
       }
 
-      const u = session.backendUser;
-      setSession(session.backendAccessToken, {
-        id: u.id,
-        email: u.email,
-        name: u.name,
-        role: u.role ?? "user",
-        avatarUrl: u.avatarUrl ?? null,
-      });
+      setSession(
+        session.backendAccessToken,
+        normalizePublicUser(
+          session.backendUser as unknown as Record<string, unknown>,
+        ),
+      );
 
       // Best-effort: limpia la cookie de NextAuth ya que toda la app usa
       // nuestro propio JWT desde aquí en adelante.

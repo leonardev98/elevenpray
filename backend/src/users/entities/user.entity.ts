@@ -28,6 +28,22 @@ export class User {
   @Column({ name: 'google_sub', type: 'text', nullable: true })
   googleSub: string | null;
 
+  @Column({ name: 'student_university', type: 'text', nullable: true })
+  studentUniversity: string | null;
+
+  @Column({ name: 'student_career', type: 'text', nullable: true })
+  studentCareer: string | null;
+
+  @Column({ name: 'student_academic_cycle', type: 'text', nullable: true })
+  studentAcademicCycle: string | null;
+
+  @Column({
+    name: 'student_onboarding_completed_at',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  studentOnboardingCompletedAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 }

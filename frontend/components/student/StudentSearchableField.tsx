@@ -50,10 +50,15 @@ export function StudentSearchableField({
   const [inputValue, setInputValue] = useState("");
   const [selectedKey, setSelectedKey] = useState<Key | null>(null);
   const [otherDetail, setOtherDetail] = useState("");
+  const otherInputRef = useRef<HTMLInputElement>(null);
+  const isOtherModeRef = useRef(false);
   const onValueChangeRef = useRef(onValueChange);
   useEffect(() => {
     onValueChangeRef.current = onValueChange;
   }, [onValueChange]);
+  useEffect(() => {
+    isOtherModeRef.current = selectedKey === STUDENT_ONBOARDING_OTHER_ID;
+  }, [selectedKey]);
 
   const items: ComboOption[] = useMemo(
     () => [
@@ -105,15 +110,26 @@ export function StudentSearchableField({
           return contains(textValue, iv);
         }}
         onSelectionChange={(key) => {
+          // Al enfocar el input "otra universidad/carrera", el ComboBox hace blur y
+          // emite key=null; no debemos salir del modo "otra" en ese caso.
+          if (key == null) {
+            if (isOtherModeRef.current) return;
+            setSelectedKey(null);
+            setOtherDetail("");
+            return;
+          }
+
           setSelectedKey(key);
           if (key !== STUDENT_ONBOARDING_OTHER_ID) {
             setOtherDetail("");
           }
-          if (key != null && key !== STUDENT_ONBOARDING_OTHER_ID) {
+          if (key !== STUDENT_ONBOARDING_OTHER_ID) {
             const o = options.find((x) => x.id === key);
             if (o) setInputValue(o.label);
-          } else if (key === STUDENT_ONBOARDING_OTHER_ID) {
+          } else {
+            isOtherModeRef.current = true;
             setInputValue(otherItemLabel);
+            requestAnimationFrame(() => otherInputRef.current?.focus());
           }
         }}
         className="flex flex-col gap-1.5"
@@ -137,6 +153,7 @@ export function StudentSearchableField({
           <Input
             id={id}
             placeholder={inputPlaceholder}
+            readOnly={showOtherField}
             className={cn(
               "w-full min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none ring-0 focus:ring-0",
               icon && "pl-2",
@@ -192,10 +209,15 @@ export function StudentSearchableField({
             {otherInputPlaceholder}
           </label>
           <input
+            ref={otherInputRef}
             id={`${id}-other`}
             type="text"
             value={otherDetail}
             onChange={(e) => setOtherDetail(e.target.value)}
+            onMouseDown={(e) => {
+              // Evita que el blur del ComboBox dispare selectionChange(null) antes del focus.
+              e.preventDefault();
+            }}
             maxLength={120}
             placeholder={otherInputPlaceholder}
             className={cn(

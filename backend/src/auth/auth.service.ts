@@ -13,6 +13,7 @@ import { User } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpsertStudentProfileDto } from './dto/upsert-student-profile.dto';
 import type { JwtPayload } from '../common/decorators/current-user.decorator';
 import type { PublicUser } from './public-user.interface';
 
@@ -178,6 +179,36 @@ export class AuthService implements OnModuleInit {
     return this.toPublic(user);
   }
 
+  async upsertStudentProfile(
+    userId: string,
+    dto: UpsertStudentProfileDto,
+  ): Promise<PublicUser> {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+
+    const updates: {
+      name?: string;
+      studentUniversity: string;
+      studentCareer: string;
+      studentAcademicCycle: string;
+      studentOnboardingCompletedAt?: Date;
+    } = {
+      studentUniversity: dto.university.trim(),
+      studentCareer: dto.career.trim(),
+      studentAcademicCycle: dto.cycle.trim(),
+    };
+
+    if (dto.name !== undefined) updates.name = dto.name.trim();
+    if (!user.studentOnboardingCompletedAt) {
+      updates.studentOnboardingCompletedAt = new Date();
+    }
+
+    await this.usersService.update(userId, updates);
+    const updated = await this.usersService.findById(userId);
+    if (!updated) throw new UnauthorizedException('User not found');
+    return this.toPublic(updated);
+  }
+
   async changePassword(
     userId: string,
     currentPassword: string,
@@ -198,12 +229,25 @@ export class AuthService implements OnModuleInit {
   }
 
   private toPublic(user: User): PublicUser {
+    const hasStudentData =
+      !!user.studentUniversity &&
+      !!user.studentCareer &&
+      !!user.studentAcademicCycle;
+
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role ?? 'user',
       avatarUrl: user.avatarUrl ?? null,
+      studentProfile: hasStudentData
+        ? {
+            university: user.studentUniversity!,
+            career: user.studentCareer!,
+            cycle: user.studentAcademicCycle!,
+          }
+        : null,
+      studentOnboardingCompleted: !!user.studentOnboardingCompletedAt,
     };
   }
 

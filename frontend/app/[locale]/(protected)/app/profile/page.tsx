@@ -41,8 +41,17 @@ export default function StudentProfilePage() {
   const [savingName, setSavingName] = useState(false);
 
   useEffect(() => {
-    setStudentProfile(getStudentProfile());
-  }, []);
+    if (user?.studentProfile) {
+      setStudentProfile({
+        name: user.name,
+        university: user.studentProfile.university,
+        career: user.studentProfile.career,
+        cycle: user.studentProfile.cycle,
+      });
+      return;
+    }
+    setStudentProfile(getStudentProfile(user?.id));
+  }, [user?.id, user?.name, user?.studentProfile]);
 
   useEffect(() => {
     if (user?.name && !savingName) setName(user.name);

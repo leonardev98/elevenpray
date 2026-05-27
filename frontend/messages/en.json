@@ -255,6 +255,7 @@
     "cyclePlaceholder": "e.g. 2025-I",
     "cycleCurrent": "Selected term:",
     "submit": "Enter Mitsyy",
+    "submitError": "We couldn't save your profile. Please try again.",
     "editLater": "You can update this information anytime from your profile."
   },
   "studentNav": {

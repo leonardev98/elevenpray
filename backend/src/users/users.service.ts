@@ -49,6 +49,10 @@ export class UsersService {
       passwordHash?: string | null;
       avatarUrl?: string | null;
       googleSub?: string | null;
+      studentUniversity?: string | null;
+      studentCareer?: string | null;
+      studentAcademicCycle?: string | null;
+      studentOnboardingCompletedAt?: Date | null;
     },
   ): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
@@ -67,6 +71,13 @@ export class UsersService {
     if (data.passwordHash !== undefined) user.passwordHash = data.passwordHash;
     if (data.avatarUrl !== undefined) user.avatarUrl = data.avatarUrl;
     if (data.googleSub !== undefined) user.googleSub = data.googleSub;
+    if (data.studentUniversity !== undefined)
+      user.studentUniversity = data.studentUniversity;
+    if (data.studentCareer !== undefined) user.studentCareer = data.studentCareer;
+    if (data.studentAcademicCycle !== undefined)
+      user.studentAcademicCycle = data.studentAcademicCycle;
+    if (data.studentOnboardingCompletedAt !== undefined)
+      user.studentOnboardingCompletedAt = data.studentOnboardingCompletedAt;
 
     return this.userRepository.save(user);
   }

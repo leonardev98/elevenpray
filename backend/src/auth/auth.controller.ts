@@ -7,6 +7,7 @@ import { GoogleLoginDto } from './dto/google-login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ProfilePhotoUploadUrlDto } from './dto/profile-photo-upload-url.dto';
+import { UpsertStudentProfileDto } from './dto/upsert-student-profile.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { S3Service } from '../s3/s3.service';
@@ -61,6 +62,16 @@ export class AuthController {
     @Body() dto: UpdateProfileDto,
   ): Promise<{ user: PublicUser }> {
     const updated = await this.authService.updateProfile(user.id, dto);
+    return { user: updated };
+  }
+
+  @Patch('student-profile')
+  @UseGuards(JwtAuthGuard)
+  async upsertStudentProfile(
+    @CurrentUser() user: PublicUser,
+    @Body() dto: UpsertStudentProfileDto,
+  ): Promise<{ user: PublicUser }> {
+    const updated = await this.authService.upsertStudentProfile(user.id, dto);
     return { user: updated };
   }
 

@@ -3,22 +3,39 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { hasStudentProfile } from "../lib/student-storage";
+import { useAuth } from "@/app/providers/auth-provider";
+import { saveStudentProfile } from "../lib/student-storage";
 
 export function RedirectToStudentOnboarding({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const tCommon = useTranslations("common");
+  const { user, isLoading } = useAuth();
   const [ready, setReady] = useState(false);
 
+  const needsOnboarding =
+    !!user && !user.studentOnboardingCompleted;
+
   useEffect(() => {
+    if (isLoading) return;
     setReady(true);
-    if (!hasStudentProfile()) {
+    if (user?.studentProfile) {
+      saveStudentProfile(
+        {
+          name: user.name,
+          university: user.studentProfile.university,
+          career: user.studentProfile.career,
+          cycle: user.studentProfile.cycle,
+        },
+        user.id,
+      );
+    }
+    if (needsOnboarding) {
       router.replace("/onboarding");
     }
-  }, [router]);
+  }, [isLoading, user, needsOnboarding, router]);
 
-  if (!ready) {
+  if (isLoading || !ready) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <p className="text-[var(--app-fg)]/60">{tCommon("loading")}</p>
@@ -26,7 +43,7 @@ export function RedirectToStudentOnboarding({ children }: { children: React.Reac
     );
   }
 
-  if (!hasStudentProfile() && !pathname?.startsWith("/onboarding")) {
+  if (needsOnboarding && !pathname?.startsWith("/onboarding")) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <p className="text-[var(--app-fg)]/60">{tCommon("loading")}</p>
