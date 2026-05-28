@@ -252,6 +252,22 @@ function HeroNavbar() {
               </a>
             ))}
           </nav>
+          <div className={styles.navMobileActions}>
+            <Link
+              href="/login"
+              className={`${styles.navMobileGhost} ${sora.className}`}
+              onClick={closeMenu}
+            >
+              {t("signIn")}
+            </Link>
+            <Link
+              href="/register"
+              className={`${styles.navMobileSolid} ${sora.className}`}
+              onClick={closeMenu}
+            >
+              {t("createAccount")}
+            </Link>
+          </div>
         </div>
       </div>
     </header>
