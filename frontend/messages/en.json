@@ -28,6 +28,11 @@
     "viewAll": "View all",
     "viewAllNotes": "View all notes"
   },
+  "metadata": {
+    "title": "Mitsyy — AI-powered university study platform",
+    "titleTemplate": "%s | Mitsyy",
+    "description": "Organize your curriculum, notes, and exams with AI that understands your classes. The university student's copilot for Peru and LATAM."
+  },
   "landing": {
     "title": "Mitsyy",
     "tagline": "The university student's copilot.",
@@ -185,6 +190,15 @@
     "orContinueWith": "or continue with",
     "emailPlaceholder": "you@email.com",
     "createAccount": "Create account",
+    "createAccountSubtitle": "Start free in under a minute. No credit card.",
+    "namePlaceholder": "Your name",
+    "confirmPassword": "Confirm password",
+    "passwordHint": "At least 4 characters. Mix letters and numbers for stronger security.",
+    "passwordTooShort": "Password must be at least 4 characters.",
+    "passwordsDoNotMatch": "Passwords do not match.",
+    "nameRequired": "Enter your name to continue.",
+    "accountCreatedTitle": "Account created",
+    "accountCreatedSubtitle": "Let's set up your workspaces",
     "enter": "Sign in",
     "entering": "Signing in…",
     "creating": "Creating account…",
@@ -397,6 +411,8 @@
     "noEvents": "No events this day",
     "newEvent": "New event",
     "editEvent": "Edit event",
+    "viewEvent": "Event details",
+    "loading": "Loading calendar…",
     "deleteEvent": "Delete",
     "emptyHint": "Tap any time slot to create your first event.",
     "eventKind": {
@@ -422,7 +438,14 @@
       "subtitlePlaceholder": "e.g. A-204 · break · chapter 4",
       "save": "Save",
       "cancel": "Cancel",
+      "close": "Close",
       "delete": "Delete",
+      "openTask": "Open in tasks",
+      "openExam": "Open in exams",
+      "openCourse": "Open course",
+      "readOnlyTaskHint": "This task is managed in the Tasks view.",
+      "readOnlyExamHint": "This exam is managed in the course Exams tab.",
+      "readOnlyClassHint": "This class comes from your course schedule.",
       "timeError": "End time must be after start time.",
       "titleError": "Please add a title."
     }
@@ -1338,10 +1361,6 @@
     "updateRoutine": "Error updating routine",
     "deleteRoutine": "Error deleting routine",
     "loadDashboard": "Error loading dashboard"
-  },
-  "metadata": {
-    "title": "Mitsyy",
-    "description": "Weekly routines"
   },
   "developerWorkspace": {
     "header": {

@@ -172,7 +172,7 @@ export function StudentTasksProvider({ children }: { children: ReactNode }) {
     async (input: CreateTaskInput) => {
       if (!token || !workspaceId) return;
       const serverCourseId = resolveServerCourseId(input.courseId) ?? input.courseId;
-      await createUniversityAssignment(token, workspaceId, {
+      const assignment = await createUniversityAssignment(token, workspaceId, {
         courseId: serverCourseId,
         title: input.title,
         description: input.description,
@@ -182,7 +182,7 @@ export function StudentTasksProvider({ children }: { children: ReactNode }) {
         progressPercent: input.progressPercent ?? 0,
         classSessionId: input.classSessionId ?? undefined,
       });
-      await study.load();
+      study.upsertAssignmentInState(assignment);
     },
     [token, workspaceId, resolveServerCourseId, study],
   );
@@ -198,8 +198,8 @@ export function StudentTasksProvider({ children }: { children: ReactNode }) {
       if (input.status !== undefined) body.status = statusToBackend(input.status);
       if (input.progressPercent !== undefined) body.progressPercent = input.progressPercent;
       if (input.classSessionId !== undefined) body.classSessionId = input.classSessionId;
-      await updateUniversityAssignment(token, workspaceId, assignmentId, body);
-      await study.load();
+      const assignment = await updateUniversityAssignment(token, workspaceId, assignmentId, body);
+      study.upsertAssignmentInState(assignment);
     },
     [token, workspaceId, study],
   );
@@ -208,7 +208,7 @@ export function StudentTasksProvider({ children }: { children: ReactNode }) {
     async (assignmentId: string) => {
       if (!token || !workspaceId) return;
       await deleteUniversityAssignment(token, workspaceId, assignmentId);
-      await study.load();
+      study.removeAssignmentFromState(assignmentId);
     },
     [token, workspaceId, study],
   );

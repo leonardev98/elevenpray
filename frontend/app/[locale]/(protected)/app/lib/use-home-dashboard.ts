@@ -1,43 +1,51 @@
 "use client";
 
-import { useMemo } from "react";
-import { parseISO } from "date-fns";
-import { useScheduleStore } from "./use-schedule-store";
+import { useEffect, useMemo, useRef } from "react";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useStudyUniversity } from "@/app/lib/study-university/hooks";
+import { courseCodeFromCourse } from "../tasks/lib/map-assignment";
+import type { Course } from "@/app/lib/study-university/types";
+import { buildTodayDashboardEvents } from "./build-calendar-events";
+import type { CalendarEvent } from "./calendar-event-types";
+import { useStudyBackendLink } from "./study-backend-link";
 import { todayYmd } from "./schedule-storage";
-import type { MockScheduleEvent } from "./mock-student-data";
-
-function timeToMinutes(t: string): number {
-  const [h, m] = t.split(":").map(Number);
-  return (h ?? 0) * 60 + (m ?? 0);
-}
 
 export function useHomeDashboard() {
-  const { events, courses } = useScheduleStore();
+  const { token } = useAuth();
+  const { workspaceId, ensureWorkspace } = useStudyBackendLink(token);
+  const study = useStudyUniversity(workspaceId ?? "", token);
   const today = todayYmd();
 
-  const classesToday = useMemo(() => {
-    return events
-      .filter((e) => e.date === today && e.kind === "class")
-      .sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
-  }, [events, today]);
+  const loadRef = useRef(study.load);
+  loadRef.current = study.load;
 
-  const upcomingTasks = useMemo(() => {
-    const taskEvents = events.filter((e) => e.kind === "task" && e.date >= today);
-    const sorted = [...taskEvents].sort((a, b) => {
-      const dateCmp = a.date.localeCompare(b.date);
-      if (dateCmp !== 0) return dateCmp;
-      return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
-    });
-    return sorted.slice(0, 5);
-  }, [events, today]);
+  useEffect(() => {
+    void ensureWorkspace().then(() => loadRef.current());
+  }, [ensureWorkspace, workspaceId]);
+
+  const { classesToday, upcomingTasks } = useMemo(
+    () => buildTodayDashboardEvents(study.state, today),
+    [study.state, today],
+  );
 
   const courseById = useMemo(() => {
-    const map = new Map(courses.map((c) => [c.id, c]));
+    const map = new Map(study.state.courses.map((c) => [c.id, c]));
     return (courseId?: string) => (courseId ? map.get(courseId) : undefined);
-  }, [courses]);
+  }, [study.state.courses]);
 
-  return { classesToday, upcomingTasks, courseById, today };
+  return {
+    classesToday,
+    upcomingTasks,
+    courseById,
+    today,
+    loading: study.loading,
+  };
 }
 
-export type HomeClassItem = MockScheduleEvent;
-export type HomeTaskItem = MockScheduleEvent;
+export type HomeClassItem = CalendarEvent;
+export type HomeTaskItem = CalendarEvent;
+
+export function homeCourseLabel(course: Course | undefined): string {
+  if (!course) return "";
+  return courseCodeFromCourse(course);
+}

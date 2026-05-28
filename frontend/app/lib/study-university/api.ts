@@ -48,6 +48,24 @@ function normalizeSession(raw: Record<string, unknown>): ClassSession {
     notesJson: (raw.notesJson ?? raw.notes_json ?? null) as Record<string, unknown> | null,
     aiSummaryMock: (raw.aiSummaryMock ?? raw.ai_summary_mock ?? null) as string | null,
     generatedFromSchedule: Boolean(raw.generatedFromSchedule ?? raw.generated_from_schedule ?? false),
+    hasNotes: Boolean(raw.hasNotes ?? raw.has_notes ?? false),
+  };
+}
+
+export function normalizeAssignment(raw: Record<string, unknown>): Assignment {
+  return {
+    id: String(raw.id),
+    workspaceId: String(raw.workspaceId ?? raw.workspace_id),
+    semesterId: (raw.semesterId ?? raw.semester_id ?? null) as string | null,
+    courseId: String(raw.courseId ?? raw.course_id),
+    classSessionId: (raw.classSessionId ?? raw.class_session_id ?? null) as string | null,
+    title: String(raw.title ?? ""),
+    description: (raw.description ?? null) as string | null,
+    deadline: String(raw.deadline),
+    priority: (raw.priority ?? "medium") as Assignment["priority"],
+    status: (raw.status ?? "pending") as Assignment["status"],
+    progressPercent: Number(raw.progressPercent ?? raw.progress_percent ?? 0),
+    attachments: (raw.attachments ?? null) as unknown[] | null,
   };
 }
 
@@ -113,38 +131,22 @@ function normalizeState(data: Record<string, unknown>): UniversityWorkspaceState
         classroom: (raw.classroom ?? null) as string | null,
       }),
     ),
-    sessions: ((data.sessions ?? []) as Record<string, unknown>[]).map(
-      (raw): ClassSession => ({
+    sessions: ((data.sessions ?? []) as Record<string, unknown>[]).map(normalizeSession),
+    assignments: ((data.assignments ?? []) as Record<string, unknown>[]).map(normalizeAssignment),
+    gradeItems: ((data.gradeItems ?? data.grade_items ?? []) as Record<string, unknown>[]).map(
+      (raw): GradeItem => ({
         id: String(raw.id),
         workspaceId: String(raw.workspaceId ?? raw.workspace_id),
-        semesterId: (raw.semesterId ?? raw.semester_id ?? null) as string | null,
-        courseId: String(raw.courseId ?? raw.course_id),
-        scheduleId: (raw.scheduleId ?? raw.schedule_id ?? null) as string | null,
-        sessionDate: String(raw.sessionDate ?? raw.session_date),
-        startTime: String(raw.startTime ?? raw.start_time),
-        endTime: String(raw.endTime ?? raw.end_time),
-        classroom: (raw.classroom ?? null) as string | null,
-        title: (raw.title ?? null) as string | null,
-        notesHtml: (raw.notesHtml ?? raw.notes_html ?? null) as string | null,
-        notesJson: (raw.notesJson ?? raw.notes_json ?? null) as Record<string, unknown> | null,
-        aiSummaryMock: (raw.aiSummaryMock ?? raw.ai_summary_mock ?? null) as string | null,
-        generatedFromSchedule: Boolean(raw.generatedFromSchedule ?? raw.generated_from_schedule ?? false),
-      }),
-    ),
-    assignments: ((data.assignments ?? []) as Record<string, unknown>[]).map(
-      (raw): Assignment => ({
-        id: String(raw.id),
-        workspaceId: String(raw.workspaceId ?? raw.workspace_id),
-        semesterId: (raw.semesterId ?? raw.semester_id ?? null) as string | null,
         courseId: String(raw.courseId ?? raw.course_id),
         classSessionId: (raw.classSessionId ?? raw.class_session_id ?? null) as string | null,
-        title: String(raw.title ?? ""),
-        description: (raw.description ?? null) as string | null,
-        deadline: String(raw.deadline),
-        priority: (raw.priority ?? "medium") as Assignment["priority"],
-        status: (raw.status ?? "pending") as Assignment["status"],
-        progressPercent: Number(raw.progressPercent ?? raw.progress_percent ?? 0),
-        attachments: (raw.attachments ?? null) as unknown[] | null,
+        name: String(raw.name ?? ""),
+        type: (raw.type ?? "other") as GradeItem["type"],
+        weight: Number(raw.weight ?? 0),
+        score: raw.score != null ? Number(raw.score) : null,
+        maxScore: raw.maxScore != null || raw.max_score != null
+          ? Number(raw.maxScore ?? raw.max_score)
+          : null,
+        gradeDate: (raw.gradeDate ?? raw.grade_date ?? null) as string | null,
       }),
     ),
     focusSessions: ((data.focusSessions ?? data.focus_sessions ?? []) as Record<string, unknown>[]).map(
@@ -307,7 +309,13 @@ export async function createUniversityAssignment(
   workspaceId: string,
   body: Record<string, unknown>,
 ): Promise<Assignment> {
-  return fetchJson<Assignment>(`${baseStudyUrl(workspaceId)}/assignments`, token, "POST", body);
+  const raw = await fetchJson<Record<string, unknown>>(
+    `${baseStudyUrl(workspaceId)}/assignments`,
+    token,
+    "POST",
+    body,
+  );
+  return normalizeAssignment(raw);
 }
 
 export async function updateUniversityAssignmentStatus(
@@ -316,12 +324,13 @@ export async function updateUniversityAssignmentStatus(
   assignmentId: string,
   status: Assignment["status"],
 ): Promise<Assignment> {
-  return fetchJson<Assignment>(
+  const raw = await fetchJson<Record<string, unknown>>(
     `${baseStudyUrl(workspaceId)}/assignments/${assignmentId}/status`,
     token,
     "PATCH",
     { status },
   );
+  return normalizeAssignment(raw);
 }
 
 export async function updateUniversityAssignment(
@@ -330,12 +339,13 @@ export async function updateUniversityAssignment(
   assignmentId: string,
   body: Record<string, unknown>,
 ): Promise<Assignment> {
-  return fetchJson<Assignment>(
+  const raw = await fetchJson<Record<string, unknown>>(
     `${baseStudyUrl(workspaceId)}/assignments/${assignmentId}`,
     token,
     "PATCH",
     body,
   );
+  return normalizeAssignment(raw);
 }
 
 export async function deleteUniversityAssignment(
@@ -372,6 +382,52 @@ export async function createUniversityGradeItem(
   payload: Record<string, unknown>,
 ): Promise<{ gradeItem: GradeItem; gradeAveragesByCourse: Record<string, number | null> }> {
   return fetchJson(`${baseStudyUrl(workspaceId)}/grades`, token, "POST", payload);
+}
+
+function normalizeGradeItem(raw: Record<string, unknown>): GradeItem {
+  return {
+    id: String(raw.id),
+    workspaceId: String(raw.workspaceId ?? raw.workspace_id),
+    courseId: String(raw.courseId ?? raw.course_id),
+    classSessionId: (raw.classSessionId ?? raw.class_session_id ?? null) as string | null,
+    name: String(raw.name ?? ""),
+    type: (raw.type ?? "other") as GradeItem["type"],
+    weight: Number(raw.weight ?? 0),
+    score: raw.score != null ? Number(raw.score) : null,
+    maxScore: raw.maxScore != null || raw.max_score != null
+      ? Number(raw.maxScore ?? raw.max_score)
+      : null,
+    gradeDate: (raw.gradeDate ?? raw.grade_date ?? null) as string | null,
+  };
+}
+
+export async function updateUniversityGradeItem(
+  token: string,
+  workspaceId: string,
+  gradeItemId: string,
+  payload: Record<string, unknown>,
+): Promise<{ gradeItem: GradeItem; gradeAveragesByCourse: Record<string, number | null> }> {
+  const data = await fetchJson<Record<string, unknown>>(
+    `${baseStudyUrl(workspaceId)}/grades/${gradeItemId}`,
+    token,
+    "PATCH",
+    payload,
+  );
+  return {
+    gradeItem: normalizeGradeItem((data.gradeItem ?? data.grade_item ?? data) as Record<string, unknown>),
+    gradeAveragesByCourse: (data.gradeAveragesByCourse ?? data.grade_averages_by_course ?? {}) as Record<
+      string,
+      number | null
+    >,
+  };
+}
+
+export async function deleteUniversityGradeItem(
+  token: string,
+  workspaceId: string,
+  gradeItemId: string,
+): Promise<{ gradeAveragesByCourse: Record<string, number | null> }> {
+  return fetchJson(`${baseStudyUrl(workspaceId)}/grades/${gradeItemId}`, token, "DELETE");
 }
 
 export async function getUniversityClassSessionDetail(

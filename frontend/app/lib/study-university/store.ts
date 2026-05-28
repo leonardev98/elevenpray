@@ -8,6 +8,7 @@ interface UniversityWorkspaceStore {
   onboardingOpen: boolean;
   createCourseOpen: boolean;
   setState: (next: UniversityWorkspaceState) => void;
+  patchState: (recipe: (prev: UniversityWorkspaceState) => UniversityWorkspaceState) => void;
   setSelectedSessionId: (sessionId: string | null) => void;
   setOnboardingOpen: (open: boolean) => void;
   setCreateCourseOpen: (open: boolean) => void;
@@ -19,6 +20,7 @@ export const useUniversityWorkspaceStore = create<UniversityWorkspaceStore>((set
   onboardingOpen: false,
   createCourseOpen: false,
   setState: (next) => set({ state: next }),
+  patchState: (recipe) => set((store) => ({ state: recipe(store.state) })),
   setSelectedSessionId: (selectedSessionId) => set({ selectedSessionId }),
   setOnboardingOpen: (onboardingOpen) => set({ onboardingOpen }),
   setCreateCourseOpen: (createCourseOpen) => set({ createCourseOpen }),

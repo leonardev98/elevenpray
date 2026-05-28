@@ -8,6 +8,7 @@ export type CourseTabId =
   | "apuntes"
   | "clases"
   | "tareas"
+  | "examenes"
   | "archivos"
   | "flashcards"
   | "quizzes";
@@ -16,6 +17,7 @@ const TABS: { id: CourseTabId; label: string }[] = [
   { id: "apuntes", label: "Apuntes" },
   { id: "clases", label: "Clases" },
   { id: "tareas", label: "Tareas" },
+  { id: "examenes", label: "Exámenes" },
   { id: "archivos", label: "Archivos" },
   { id: "flashcards", label: "Flashcards" },
   { id: "quizzes", label: "Quizzes" },

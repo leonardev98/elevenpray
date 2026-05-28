@@ -23,10 +23,17 @@ const SEED_EMAIL = 'admin@localhost';
 const SEED_PASSWORD = 'admin';
 const SEED_NAME = 'Admin';
 
+interface CachedPublicUser {
+  user: PublicUser;
+  expiresAt: number;
+}
+
 @Injectable()
 export class AuthService implements OnModuleInit {
   private readonly googleClient: OAuth2Client | null;
   private readonly googleClientId: string | undefined;
+  private readonly userCache = new Map<string, CachedPublicUser>();
+  private readonly userCacheTtlMs: number;
 
   constructor(
     private readonly usersService: UsersService,
@@ -37,6 +44,20 @@ export class AuthService implements OnModuleInit {
     this.googleClient = this.googleClientId
       ? new OAuth2Client(this.googleClientId)
       : null;
+    const ttl = Number(this.configService.get<string>('AUTH_USER_CACHE_TTL_MS'));
+    this.userCacheTtlMs = Number.isFinite(ttl) && ttl > 0 ? ttl : 120_000;
+  }
+
+  invalidateUserCache(userId: string): void {
+    this.userCache.delete(userId);
+  }
+
+  private cachePublicUser(user: PublicUser): PublicUser {
+    this.userCache.set(user.id, {
+      user,
+      expiresAt: Date.now() + this.userCacheTtlMs,
+    });
+    return user;
   }
 
   async onModuleInit(): Promise<void> {
@@ -124,6 +145,7 @@ export class AuthService implements OnModuleInit {
         updates.avatarUrl = picture;
       }
       if (Object.keys(updates).length > 0) {
+        this.invalidateUserCache(user.id);
         user = await this.usersService.update(user.id, updates);
       }
     } else {
@@ -135,6 +157,7 @@ export class AuthService implements OnModuleInit {
           existingByEmail.avatarUrl &&
           !existingByEmail.avatarUrl.includes('googleusercontent.com')
         );
+        this.invalidateUserCache(existingByEmail.id);
         user = await this.usersService.update(existingByEmail.id, {
           googleSub: sub,
           name,
@@ -155,9 +178,28 @@ export class AuthService implements OnModuleInit {
     return { accessToken, user: this.toPublic(user) };
   }
 
-  async validatePayload(payload: JwtPayload): Promise<PublicUser | null> {
+  async validatePayload(
+    payload: JwtPayload,
+    options?: { bypassCache?: boolean },
+  ): Promise<PublicUser | null> {
+    if (!options?.bypassCache) {
+      const cached = this.userCache.get(payload.sub);
+      if (cached && cached.expiresAt > Date.now()) {
+        return cached.user;
+      }
+    }
+
     const user = await this.usersService.findById(payload.sub);
-    return user ? this.toPublic(user) : null;
+    if (!user) {
+      this.userCache.delete(payload.sub);
+      return null;
+    }
+    return this.cachePublicUser(this.toPublic(user));
+  }
+
+  async getPublicUserById(userId: string): Promise<PublicUser | null> {
+    const user = await this.usersService.findById(userId);
+    return user ? this.cachePublicUser(this.toPublic(user)) : null;
   }
 
   async updateProfile(
@@ -171,12 +213,13 @@ export class AuthService implements OnModuleInit {
     if (Object.keys(updates).length === 0) {
       const user = await this.usersService.findById(userId);
       if (!user) throw new UnauthorizedException('User not found');
-      return this.toPublic(user);
+      return this.cachePublicUser(this.toPublic(user));
     }
+    this.invalidateUserCache(userId);
     await this.usersService.update(userId, updates);
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException('User not found');
-    return this.toPublic(user);
+    return this.cachePublicUser(this.toPublic(user));
   }
 
   async upsertStudentProfile(
@@ -203,10 +246,11 @@ export class AuthService implements OnModuleInit {
       updates.studentOnboardingCompletedAt = new Date();
     }
 
+    this.invalidateUserCache(userId);
     await this.usersService.update(userId, updates);
     const updated = await this.usersService.findById(userId);
     if (!updated) throw new UnauthorizedException('User not found');
-    return this.toPublic(updated);
+    return this.cachePublicUser(this.toPublic(updated));
   }
 
   async changePassword(
@@ -221,6 +265,7 @@ export class AuthService implements OnModuleInit {
     if (!valid)
       throw new UnauthorizedException('Invalid current password');
     const passwordHash = await this.hashPassword(newPassword);
+    this.invalidateUserCache(userId);
     await this.usersService.update(userId, { passwordHash });
   }
 

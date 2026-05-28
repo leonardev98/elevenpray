@@ -91,6 +91,8 @@ export interface ClassSession {
   notesJson: Record<string, unknown> | null;
   aiSummaryMock: string | null;
   generatedFromSchedule: boolean;
+  /** Presente en /state: indica si hay notas sin transferir el contenido. */
+  hasNotes?: boolean;
 }
 
 export interface Assignment {
@@ -310,6 +312,7 @@ export interface UniversityWorkspaceState {
   schedules: CourseSchedule[];
   sessions: ClassSession[];
   assignments: Assignment[];
+  gradeItems: GradeItem[];
   focusSessions: StudyFocusSession[];
   conflicts: ScheduleConflict[];
   stats: {

@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Patch, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Body,
+  UseGuards,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { PublicUser } from './public-user.interface';
 import { RegisterDto } from './dto/register.dto';
@@ -51,7 +59,9 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async me(@CurrentUser() user: PublicUser): Promise<PublicUser> {
+  async me(@CurrentUser('id') userId: string): Promise<PublicUser> {
+    const user = await this.authService.getPublicUserById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
     return user;
   }
 

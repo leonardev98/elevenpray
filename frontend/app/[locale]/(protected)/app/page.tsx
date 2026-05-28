@@ -12,8 +12,8 @@ import { StudentPageShell } from "./components/StudentPageShell";
 import { DailyXpCard } from "./gamification/components/DailyXpCard";
 import { StreakCard } from "./gamification/components/StreakCard";
 import { useGamification } from "./gamification/gamification-context";
+import { courseCodeFromCourse } from "./tasks/lib/map-assignment";
 import { useHomeDashboard } from "./lib/use-home-dashboard";
-import { useScheduleStore } from "./lib/use-schedule-store";
 
 export default function StudentHomePage() {
   const t = useTranslations("studentHome");
@@ -22,8 +22,7 @@ export default function StudentHomePage() {
   const router = useRouter();
   const { checkedInToday, openGate } = useCheckIn();
   const { recordActivity } = useGamification();
-  const { classesToday, upcomingTasks, courseById } = useHomeDashboard();
-  const { hydrated } = useScheduleStore();
+  const { classesToday, upcomingTasks, courseById, loading } = useHomeDashboard();
 
   function handleStartStudy() {
     if (!checkedInToday) {
@@ -77,7 +76,7 @@ export default function StudentHomePage() {
             </Link>
           </div>
           <div className="space-y-2">
-            {!hydrated ? (
+            {loading && classesToday.length === 0 ? (
               <div className="student-card p-4 text-sm text-[var(--app-fg-muted)]">{t("loading")}</div>
             ) : classesToday.length === 0 ? (
               <div className="student-card flex flex-col items-center gap-2 p-8 text-center">
@@ -111,13 +110,8 @@ export default function StudentHomePage() {
                       )}
                     </div>
                     {course && (
-                      <span
-                        className={cn(
-                          "shrink-0 rounded-lg border px-2 py-1 text-xs",
-                          course.color,
-                        )}
-                      >
-                        {course.code}
+                      <span className="shrink-0 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-2 py-1 text-xs font-medium text-[var(--app-fg-secondary)]">
+                        {courseCodeFromCourse(course)}
                       </span>
                     )}
                   </Link>
@@ -138,7 +132,7 @@ export default function StudentHomePage() {
             </Link>
           </div>
           <div className="space-y-2">
-            {!hydrated ? (
+            {loading && upcomingTasks.length === 0 ? (
               <div className="student-card p-4 text-sm text-[var(--app-fg-muted)]">{t("loading")}</div>
             ) : upcomingTasks.length === 0 ? (
               <div className="student-card flex flex-col items-center gap-2 p-8 text-center">

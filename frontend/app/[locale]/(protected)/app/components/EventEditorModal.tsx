@@ -3,8 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { Trash2, X } from "lucide-react";
+import { ExternalLink, Trash2, X } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import type { Course } from "@/app/lib/study-university/types";
+import { courseCodeFromCourse } from "../tasks/lib/map-assignment";
 import { cn } from "@/lib/utils";
+import type { CalendarEvent } from "../lib/calendar-event-types";
+import { isLocalCalendarEventId } from "../lib/calendar-event-types";
 import {
   type MockScheduleEvent,
   type ScheduleEventKind,
@@ -17,6 +22,7 @@ export type EditorState = {
   open: boolean;
   defaults?: EditorDefaults;
   editingId?: string;
+  readOnlyEvent?: CalendarEvent;
 };
 
 const KIND_ORDER: ScheduleEventKind[] = ["class", "task", "exam", "extra"];
@@ -48,24 +54,26 @@ function addOneHour(time: string): string {
 interface EventEditorModalProps {
   state: EditorState;
   onClose: () => void;
+  courses: Course[];
 }
 
-export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
+export function EventEditorModal({ state, onClose, courses }: EventEditorModalProps) {
   const t = useTranslations("studentCalendar");
-  const { events, courses, addEvent, updateEvent, removeEvent, addCourse } =
-    useScheduleStore();
+  const { events: localEvents, addEvent, updateEvent, removeEvent } = useScheduleStore();
 
-  const editingEvent = useMemo(
-    () => (state.editingId ? events.find((e) => e.id === state.editingId) : undefined),
-    [state.editingId, events],
-  );
+  const readOnlyEvent = state.readOnlyEvent;
+  const editingLocal = useMemo(() => {
+    if (!state.editingId || !isLocalCalendarEventId(state.editingId)) return undefined;
+    return localEvents.find((e) => e.id === state.editingId);
+  }, [state.editingId, localEvents]);
 
   const initialValues = useMemo(() => {
-    if (editingEvent) return editingEvent;
+    if (readOnlyEvent) return readOnlyEvent;
+    if (editingLocal) return editingLocal;
     const d = state.defaults ?? {};
     return {
       id: "",
-      kind: (d.kind ?? "class") as ScheduleEventKind,
+      kind: (d.kind ?? "extra") as ScheduleEventKind,
       title: d.title ?? "",
       subtitle: d.subtitle ?? "",
       date: d.date ?? todayKey(),
@@ -73,7 +81,7 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
       endTime: d.endTime ?? addOneHour(d.startTime ?? "09:00"),
       courseId: d.courseId,
     } satisfies MockScheduleEvent;
-  }, [editingEvent, state.defaults]);
+  }, [readOnlyEvent, editingLocal, state.defaults]);
 
   const [kind, setKind] = useState<ScheduleEventKind>(initialValues.kind);
   const [title, setTitle] = useState(initialValues.title);
@@ -83,9 +91,8 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
   const [endTime, setEndTime] = useState(initialValues.endTime.slice(0, 5));
   const [courseId, setCourseId] = useState<string | undefined>(initialValues.courseId);
   const [error, setError] = useState<string | null>(null);
-  const [showNewCourse, setShowNewCourse] = useState(false);
-  const [newCourseName, setNewCourseName] = useState("");
-  const [newCourseCode, setNewCourseCode] = useState("");
+
+  const isReadOnly = Boolean(readOnlyEvent);
 
   useEffect(() => {
     if (!state.open) return;
@@ -97,9 +104,6 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
     setEndTime(initialValues.endTime.slice(0, 5));
     setCourseId(initialValues.courseId);
     setError(null);
-    setShowNewCourse(false);
-    setNewCourseName("");
-    setNewCourseCode("");
   }, [state.open, initialValues]);
 
   useEffect(() => {
@@ -112,6 +116,7 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
   }, [state.open, onClose]);
 
   function handleSave() {
+    if (isReadOnly) return;
     if (!title.trim()) {
       setError(t("editor.titleError"));
       return;
@@ -129,8 +134,8 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
       endTime,
       courseId,
     };
-    if (editingEvent) {
-      updateEvent(editingEvent.id, payload);
+    if (editingLocal) {
+      updateEvent(editingLocal.id, payload);
     } else {
       addEvent(payload);
     }
@@ -138,25 +143,20 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
   }
 
   function handleDelete() {
-    if (!editingEvent) return;
-    removeEvent(editingEvent.id);
+    if (!editingLocal || isReadOnly) return;
+    removeEvent(editingLocal.id);
     onClose();
-  }
-
-  function handleCreateCourse() {
-    if (!newCourseName.trim() || !newCourseCode.trim()) return;
-    const course = addCourse({
-      name: newCourseName.trim(),
-      code: newCourseCode.trim().toUpperCase(),
-    });
-    setCourseId(course.id);
-    setShowNewCourse(false);
-    setNewCourseName("");
-    setNewCourseCode("");
   }
 
   const inputClass =
     "w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-3 py-2 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] focus:border-[var(--app-primary)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20";
+
+  const readOnlyHint =
+    readOnlyEvent?.source === "assignment"
+      ? t("editor.readOnlyTaskHint")
+      : readOnlyEvent?.source === "exam"
+        ? t("editor.readOnlyExamHint")
+        : t("editor.readOnlyClassHint");
 
   return (
     <AnimatePresence>
@@ -185,7 +185,7 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
           >
             <div className="flex items-center justify-between border-b border-[var(--app-border)] px-5 py-4">
               <h2 id="event-editor-title" className="text-base font-semibold text-[var(--app-fg)]">
-                {editingEvent ? t("editEvent") : t("newEvent")}
+                {isReadOnly ? t("viewEvent") : editingLocal ? t("editEvent") : t("newEvent")}
               </h2>
               <button
                 type="button"
@@ -198,166 +198,162 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
             </div>
 
             <div className="max-h-[75vh] space-y-4 overflow-y-auto px-5 py-5">
-              <div>
-                <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
-                  {t("editor.kindField")}
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {KIND_ORDER.map((k) => (
-                    <button
-                      key={k}
-                      type="button"
-                      data-active={kind === k}
-                      onClick={() => setKind(k)}
-                      className={cn(
-                        "rounded-full border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--app-fg-secondary)] transition hover:border-[var(--app-fg-secondary)]/50 data-[active=true]:font-semibold",
-                        KIND_CHIP_STYLES[k],
-                      )}
+              {isReadOnly && readOnlyEvent ? (
+                <>
+                  <p className="text-sm text-[var(--app-fg-secondary)]">{readOnlyHint}</p>
+                  <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-4 space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
+                      {t(`eventKind.${readOnlyEvent.kind}`)}
+                    </p>
+                    <p className="text-base font-semibold text-[var(--app-fg)]">{readOnlyEvent.title}</p>
+                    {readOnlyEvent.subtitle && (
+                      <p className="text-sm text-[var(--app-fg-secondary)]">{readOnlyEvent.subtitle}</p>
+                    )}
+                    <p className="text-sm text-[var(--app-fg-muted)]">
+                      {readOnlyEvent.date} · {readOnlyEvent.startTime} – {readOnlyEvent.endTime}
+                    </p>
+                  </div>
+                  {readOnlyEvent.href && (
+                    <Link
+                      href={readOnlyEvent.href}
+                      onClick={onClose}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--app-primary)] py-2.5 text-sm font-semibold text-[var(--app-bg)] hover:bg-[var(--app-primary-hover)]"
                     >
-                      {t(`eventKind.${k}`)}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                      <ExternalLink className="h-4 w-4" />
+                      {readOnlyEvent.source === "assignment"
+                        ? t("editor.openTask")
+                        : readOnlyEvent.source === "exam"
+                          ? t("editor.openExam")
+                          : t("editor.openCourse")}
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
+                      {t("editor.kindField")}
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {KIND_ORDER.map((k) => (
+                        <button
+                          key={k}
+                          type="button"
+                          data-active={kind === k}
+                          onClick={() => setKind(k)}
+                          className={cn(
+                            "rounded-full border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--app-fg-secondary)] transition hover:border-[var(--app-fg-secondary)]/50 data-[active=true]:font-semibold",
+                            KIND_CHIP_STYLES[k],
+                          )}
+                        >
+                          {t(`eventKind.${k}`)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              <div>
-                <label htmlFor="event-title" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
-                  {t("editor.titleField")}
-                </label>
-                <input
-                  id="event-title"
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder={t("editor.titlePlaceholder")}
-                  className={inputClass}
-                  autoFocus
-                />
-              </div>
-
-              <div>
-                <label htmlFor="event-course" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
-                  {t("editor.courseField")}
-                </label>
-                <div className="flex gap-2">
-                  <select
-                    id="event-course"
-                    value={courseId ?? ""}
-                    onChange={(e) => setCourseId(e.target.value || undefined)}
-                    className={cn(inputClass, "flex-1")}
-                  >
-                    <option value="">{t("editor.courseNone")}</option>
-                    {courses.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.code} — {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => setShowNewCourse((v) => !v)}
-                    className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-3 py-2 text-xs font-medium text-[var(--app-fg-secondary)] hover:border-[var(--app-primary)]/40 hover:text-[var(--app-primary)]"
-                  >
-                    {t("editor.newCourse")}
-                  </button>
-                </div>
-                {showNewCourse && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-3 space-y-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3"
-                  >
+                  <div>
+                    <label htmlFor="event-title" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
+                      {t("editor.titleField")}
+                    </label>
                     <input
+                      id="event-title"
                       type="text"
-                      value={newCourseName}
-                      onChange={(e) => setNewCourseName(e.target.value)}
-                      placeholder={t("editor.courseName")}
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder={t("editor.titlePlaceholder")}
+                      className={inputClass}
+                      autoFocus
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="event-course" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
+                      {t("editor.courseField")}
+                    </label>
+                    <select
+                      id="event-course"
+                      value={courseId ?? ""}
+                      onChange={(e) => setCourseId(e.target.value || undefined)}
+                      className={inputClass}
+                    >
+                      <option value="">{t("editor.courseNone")}</option>
+                      {courses.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {courseCodeFromCourse(c)} — {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label htmlFor="event-date" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
+                        {t("editor.dateField")}
+                      </label>
+                      <input
+                        id="event-date"
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="event-start" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
+                        {t("editor.startField")}
+                      </label>
+                      <input
+                        id="event-start"
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setStartTime(v);
+                          if (v >= endTime) setEndTime(addOneHour(v));
+                        }}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="event-end" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
+                        {t("editor.endField")}
+                      </label>
+                      <input
+                        id="event-end"
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="event-subtitle" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
+                      {t("editor.subtitleField")}
+                    </label>
+                    <input
+                      id="event-subtitle"
+                      type="text"
+                      value={subtitle}
+                      onChange={(e) => setSubtitle(e.target.value)}
+                      placeholder={t("editor.subtitlePlaceholder")}
                       className={inputClass}
                     />
-                    <input
-                      type="text"
-                      value={newCourseCode}
-                      onChange={(e) => setNewCourseCode(e.target.value)}
-                      placeholder={t("editor.courseCode")}
-                      className={inputClass}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleCreateCourse}
-                      disabled={!newCourseName.trim() || !newCourseCode.trim()}
-                      className="w-full rounded-xl bg-[var(--app-primary)] py-2 text-xs font-semibold text-[var(--app-bg)] transition hover:bg-[var(--app-primary-hover)] disabled:opacity-50"
-                    >
-                      {t("editor.createCourse")}
-                    </button>
-                  </motion.div>
-                )}
-              </div>
+                  </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label htmlFor="event-date" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
-                    {t("editor.dateField")}
-                  </label>
-                  <input
-                    id="event-date"
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="event-start" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
-                    {t("editor.startField")}
-                  </label>
-                  <input
-                    id="event-start"
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      setStartTime(v);
-                      if (v >= endTime) setEndTime(addOneHour(v));
-                    }}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="event-end" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
-                    {t("editor.endField")}
-                  </label>
-                  <input
-                    id="event-end"
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="event-subtitle" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--app-fg-muted)]">
-                  {t("editor.subtitleField")}
-                </label>
-                <input
-                  id="event-subtitle"
-                  type="text"
-                  value={subtitle}
-                  onChange={(e) => setSubtitle(e.target.value)}
-                  placeholder={t("editor.subtitlePlaceholder")}
-                  className={inputClass}
-                />
-              </div>
-
-              {error && (
-                <p className="rounded-[var(--radius-md)] bg-[color-mix(in_srgb,var(--error)_12%,transparent)] px-3 py-2 text-xs text-[var(--error)]">{error}</p>
+                  {error && (
+                    <p className="rounded-[var(--radius-md)] bg-[color-mix(in_srgb,var(--error)_12%,transparent)] px-3 py-2 text-xs text-[var(--error)]">
+                      {error}
+                    </p>
+                  )}
+                </>
               )}
             </div>
 
             <div className="flex items-center justify-between gap-2 border-t border-[var(--app-border)] px-5 py-4">
-              {editingEvent ? (
+              {!isReadOnly && editingLocal ? (
                 <button
                   type="button"
                   onClick={handleDelete}
@@ -375,15 +371,17 @@ export function EventEditorModal({ state, onClose }: EventEditorModalProps) {
                   onClick={onClose}
                   className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-2 text-sm font-medium text-[var(--app-fg-secondary)] hover:text-[var(--app-fg)]"
                 >
-                  {t("editor.cancel")}
+                  {isReadOnly ? t("editor.close") : t("editor.cancel")}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  className="rounded-xl bg-[var(--app-primary)] px-4 py-2 text-sm font-semibold text-[var(--app-bg)] hover:bg-[var(--app-primary-hover)]"
-                >
-                  {t("editor.save")}
-                </button>
+                {!isReadOnly && (
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    className="rounded-xl bg-[var(--app-primary)] px-4 py-2 text-sm font-semibold text-[var(--app-bg)] hover:bg-[var(--app-primary-hover)]"
+                  >
+                    {t("editor.save")}
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

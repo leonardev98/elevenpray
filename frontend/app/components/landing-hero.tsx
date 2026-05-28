@@ -2,178 +2,352 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { Sora } from "next/font/google";
 import { Link } from "@/i18n/navigation";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
+import { MitsyyLogo } from "./mitsyy-logo";
+import styles from "./landing-hero.module.css";
 
-const HERO_IMAGE = "/landing/hero-study.svg";
+const LISYY_IMAGE_URL =
+  "https://mitsyy-bucket.s3.us-east-2.amazonaws.com/lizyy+sin+fonod.png";
+const DASHBOARD_IMAGE_URL =
+  "https://mitsyy-bucket.s3.us-east-2.amazonaws.com/dasborad.png";
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
-  },
-};
+const sora = Sora({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+});
 
-const staggerItem = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: "easeOut" as const },
-  },
-};
+const easeOutCubicBezier = [0.16, 1, 0.3, 1] as const;
 
-function HeroTitleWords({ text }: { text: string }) {
-  const reduceMotion = useReducedMotion();
-  const words = text.split(/\s+/).filter(Boolean);
-
+function useFadeUp(delay: number, reduceMotion: boolean) {
   if (reduceMotion) {
-    return <>{text}</>;
+    return {
+      initial: false as const,
+      animate: undefined,
+      transition: undefined,
+    };
   }
+  return {
+    initial: { opacity: 0, y: 18 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.7, delay, ease: easeOutCubicBezier },
+  };
+}
 
+function easeOutCubic(t: number) {
+  return 1 - (1 - t) ** 3;
+}
+
+function AnimatedStudentCount({ reduceMotion }: { reduceMotion: boolean }) {
+  const [count, setCount] = useState(780);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setCount(1240);
+      return;
+    }
+
+    setCount(780);
+    const from = 780;
+    const to = 1240;
+    const duration = 1700;
+    let start: number | null = null;
+    let frame: number;
+
+    const tick = (timestamp: number) => {
+      if (start === null) start = timestamp;
+      const elapsed = timestamp - start;
+      const progress = Math.min(elapsed / duration, 1);
+      setCount(Math.round(from + (to - from) * easeOutCubic(progress)));
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [reduceMotion]);
+
+  return <strong>{count.toLocaleString("es-PE")}</strong>;
+}
+
+function ArrowRightIcon() {
   return (
-    <span className="inline">
-      {words.map((word, index) => (
-        <span key={`${word}-${index}`} className="mr-[0.28em] inline-block last:mr-0">
-          <motion.span
-            className="inline-block"
-            initial={{ opacity: 0, filter: "blur(4px)" }}
-            animate={{ opacity: 1, filter: "blur(0px)" }}
-            transition={{
-              duration: 0.4,
-              delay: index * 0.06,
-              ease: "easeOut",
-            }}
-          >
-            {word}
-          </motion.span>
-        </span>
-      ))}
-    </span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M5 12h14M13 6l6 6-6 6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function BoltIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function FlameIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 2c2 4-3 5-3 9 0 2 1.5 3.5 3 3.5s3-1.5 3-3.5c0-1.2-.5-2-1-2.5 1.5.5 3 2 3 5C17 17.5 14.5 21 12 21S7 17.5 7 13.5C7 9 11 7 12 2z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+const TRUST_AVATARS = [
+  { letter: "D", gradient: "linear-gradient(135deg, #5C8C5C, #2D5A2D)" },
+  { letter: "A", gradient: "linear-gradient(135deg, #A88B4A, #6B5A2D)" },
+  { letter: "L", gradient: "linear-gradient(135deg, #5C7A8C, #2D4A5A)" },
+  { letter: "M", gradient: "linear-gradient(135deg, #8C5C6B, #5A2D3A)" },
+] as const;
+
+function HeroNavbar() {
+  return (
+    <nav className={styles.navbar} aria-label="Navegación principal">
+      <Link href="/" className={styles.navLogo} aria-label="Mitsyy">
+        <MitsyyLogo priority navbar />
+      </Link>
+
+      <div className={styles.navLinks}>
+        <a href="#producto" className={styles.navLink}>
+          Producto
+        </a>
+        <a href="#como-funciona" className={styles.navLink}>
+          Cómo funciona
+        </a>
+        <a href="#testimonios" className={styles.navLink}>
+          Opiniones
+        </a>
+        <a href="#pricing" className={styles.navLink}>
+          Precios
+        </a>
+      </div>
+
+      <div className={styles.navActions}>
+        <Link
+          href="/login"
+          className={`${styles.navGhost} ${sora.className}`}
+        >
+          Iniciar sesión
+        </Link>
+        <Link
+          href="/register"
+          className={`${styles.navSolid} ${sora.className}`}
+        >
+          Empezar gratis
+        </Link>
+      </div>
+    </nav>
   );
 }
 
 export function LandingHero() {
-  const t = useTranslations("landing");
-  const reduceMotion = useReducedMotion();
-  const { scrollY } = useScroll();
-  const parallaxY = useTransform(scrollY, (value) => (reduceMotion ? 0 : value * 0.12));
-  const [showPulse, setShowPulse] = useState(!reduceMotion);
+  const reduceMotion = useReducedMotion() ?? false;
+  const [lisyyClicked, setLisyyClicked] = useState(false);
+  const [scrollHidden, setScrollHidden] = useState(false);
 
   useEffect(() => {
-    setShowPulse(!reduceMotion);
-  }, [reduceMotion]);
+    const onScroll = () => {
+      if (window.scrollY > 8) {
+        setScrollHidden(true);
+        window.removeEventListener("scroll", onScroll);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleLisyyClick = () => {
+    setLisyyClicked(true);
+    window.setTimeout(() => setLisyyClicked(false), 350);
+  };
 
   return (
-    <section className="relative overflow-hidden border-b border-[var(--border)]">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.12]"
-        style={{
-          backgroundImage: "url(/pattern.svg)",
-          backgroundSize: "320px 320px",
-        }}
-        aria-hidden
-      />
+    <section className={styles.hero} aria-label="Presentación de Mitsyy">
+      <div className={styles.bgLayer} aria-hidden>
+        <div className={styles.gridBg} />
+        <div className={`${styles.glow} ${styles.glow1}`} />
+        <div className={`${styles.glow} ${styles.glow2}`} />
+      </div>
 
-      <div className="relative mx-auto flex min-h-[min(85vh,900px)] w-full max-w-6xl flex-col items-center justify-center px-4 pb-16 pt-[max(5.5rem,calc(3.75rem+env(safe-area-inset-top)))] sm:px-6 sm:pb-20 md:pt-[max(7rem,calc(5rem+env(safe-area-inset-top)))]">
-        <motion.div
-          className="flex w-full flex-col items-center text-center"
-          style={reduceMotion ? undefined : { y: parallaxY }}
-        >
-          <motion.div
-            className="flex w-full max-w-3xl flex-col items-center"
-            variants={reduceMotion ? undefined : staggerContainer}
-            initial={reduceMotion ? false : "hidden"}
-            animate={reduceMotion ? undefined : "show"}
+      <HeroNavbar />
+
+      <div className={styles.inner}>
+        <div className={styles.leftCol}>
+          <motion.span
+            className={styles.eyebrow}
+            {...useFadeUp(0, reduceMotion)}
           >
+            <span className={styles.eyebrowDot} aria-hidden />
+            Perú y LATAM · Gratis para empezar
+          </motion.span>
+
+          <h1 className={`${styles.title} ${sora.className}`}>
             <motion.span
-              variants={reduceMotion ? undefined : staggerItem}
-              className="hero-badge-shimmer inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1 text-xs font-medium text-[var(--text-body)]"
+              className={styles.titleLine}
+              {...useFadeUp(0.08, reduceMotion)}
             >
-              {t("heroBadge")}
+              Organiza.
             </motion.span>
-
-            <motion.h1
-              variants={reduceMotion ? undefined : staggerItem}
-              className="mt-5 max-w-3xl font-extrabold leading-tight tracking-tight text-[var(--text-primary)]"
-              style={{
-                fontSize: "clamp(2rem, 5vw, 3.25rem)",
-                letterSpacing: "-0.03em",
-              }}
+            <motion.span
+              className={styles.titleLine}
+              {...useFadeUp(0.12, reduceMotion)}
             >
-              <HeroTitleWords text={t("heroTitle")} />
-            </motion.h1>
-
-            <motion.p
-              variants={reduceMotion ? undefined : staggerItem}
-              className="mt-4 max-w-2xl text-base text-[var(--text-body)] sm:text-lg"
-              style={{ lineHeight: 1.6, letterSpacing: "-0.01em" }}
+              Estudia.
+            </motion.span>
+            <motion.span
+              className={styles.titleLine}
+              {...useFadeUp(0.16, reduceMotion)}
             >
-              {t("heroSubtitle")}
-            </motion.p>
+              <span className={styles.titleHighlight}>Aprueba.</span>
+            </motion.span>
+          </h1>
 
-            <motion.div
-              variants={reduceMotion ? undefined : staggerItem}
-              className="mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center"
+          <motion.p
+            className={styles.subtitle}
+            {...useFadeUp(0.24, reduceMotion)}
+          >
+            Mitsyy es el asistente universitario que arma tu malla, entiende tus
+            apuntes y te prepara para el parcial — con IA de verdad.
+          </motion.p>
+
+          <motion.div
+            className={styles.ctaRow}
+            {...useFadeUp(0.32, reduceMotion)}
+          >
+            <Link
+              href="/register"
+              className={`${styles.ctaPrimary} ${sora.className}`}
             >
-              <div className="relative w-full sm:w-auto">
-                {showPulse ? (
-                  <motion.span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 rounded-xl bg-[var(--accent)]"
-                    animate={{ scale: [1, 1.12], opacity: [0.5, 0] }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      repeatDelay: 2,
-                      ease: "easeOut",
-                    }}
-                  />
-                ) : null}
-                <Link
-                  href="/register"
-                  className="relative inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[var(--accent)] px-6 py-3 font-medium text-[var(--accent-fg)] transition hover:opacity-90 sm:w-auto"
-                >
-                  {t("ctaPrimary")}
-                </Link>
-              </div>
-              <a
-                href="#como-funciona"
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] px-6 py-3 font-medium text-[var(--text-primary)] transition hover:border-[var(--border-strong)] hover:bg-[var(--bg-elevated)] sm:w-auto"
-              >
-                {t("ctaSecondary")}
-              </a>
-            </motion.div>
+              Crear cuenta gratis
+            </Link>
+            <a
+              href="#como-funciona"
+              className={`${styles.ctaGhost} ${sora.className}`}
+            >
+              Ver cómo funciona
+              <ArrowRightIcon />
+            </a>
           </motion.div>
-        </motion.div>
+
+          <motion.div
+            className={styles.trust}
+            {...useFadeUp(0.4, reduceMotion)}
+          >
+            <div className={styles.trustAvatars} aria-hidden>
+              {TRUST_AVATARS.map(({ letter, gradient }) => (
+                <span
+                  key={letter}
+                  className={`${styles.trustAvatar} ${sora.className}`}
+                  style={{ background: gradient }}
+                >
+                  {letter}
+                </span>
+              ))}
+            </div>
+            <div className={styles.trustText}>
+              <p className={styles.trustLine1}>
+                <span className={sora.className}>
+                  <AnimatedStudentCount reduceMotion={reduceMotion} />
+                </span>{" "}
+                estudiantes ya estudian con Lisyy
+              </p>
+              <p className={styles.trustLine2}>
+                UPC · UNMSM · PUCP · UNI · UNSA
+              </p>
+            </div>
+          </motion.div>
+        </div>
 
         <motion.div
-          className="relative mt-12 w-full max-w-4xl"
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.55, ease: "easeOut" }}
+          className={styles.rightCol}
+          initial={
+            reduceMotion ? false : { opacity: 0, x: 24, scale: 0.97 }
+          }
+          animate={
+            reduceMotion ? undefined : { opacity: 1, x: 0, scale: 1 }
+          }
+          transition={
+            reduceMotion
+              ? undefined
+              : { duration: 0.9, delay: 0.2, ease: easeOutCubicBezier }
+          }
         >
-          <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-[var(--shadow-md)]">
-            <div className="relative aspect-[16/10] w-full">
-              <Image
-                src={HERO_IMAGE}
-                alt={t("heroImageAlt")}
-                fill
-                className="object-cover object-top"
-                sizes="(max-width:896px) 100vw, 896px"
-                priority
-              />
-            </div>
+          <div className={styles.dashboardWrap}>
+            <Image
+              src={DASHBOARD_IMAGE_URL}
+              alt="Vista del dashboard de Mitsyy"
+              width={1280}
+              height={800}
+              className={styles.dashboardImg}
+              unoptimized
+              priority
+            />
+          </div>
+
+          <div className={`${styles.speech} ${sora.className}`}>
+            Tu <strong>compañera de carrera</strong>
+          </div>
+
+          <button
+            type="button"
+            className={`${styles.lisyy} ${lisyyClicked ? styles.lisyyClicked : ""}`}
+            onClick={handleLisyyClick}
+            aria-label="Lisyy, tu compañera de carrera"
+          >
+            <Image
+              src={LISYY_IMAGE_URL}
+              alt=""
+              width={230}
+              height={230}
+              unoptimized
+              priority
+              className={styles.lisyyImg}
+            />
+          </button>
+
+          <div className={`${styles.chip} ${styles.chipXp}`}>
+            <span className={`${styles.chipIcon} ${styles.chipIconXp}`}>
+              <BoltIcon />
+            </span>
+            <span>
+              +<strong className={sora.className}>500</strong> XP esta semana
+            </span>
+          </div>
+
+          <div className={`${styles.chip} ${styles.chipStreak}`}>
+            <span className={`${styles.chipIcon} ${styles.chipIconStreak}`}>
+              <FlameIcon />
+            </span>
+            <span>
+              Racha de <strong className={sora.className}>7 días</strong>
+            </span>
           </div>
         </motion.div>
       </div>
+
+      {!scrollHidden ? (
+        <div className={styles.scrollCue} aria-hidden>
+          <span className={styles.scrollLine} />
+          <span className={`${styles.scrollLabel} ${sora.className}`}>
+            scroll
+          </span>
+        </div>
+      ) : null}
     </section>
   );
 }

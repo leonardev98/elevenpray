@@ -5,10 +5,8 @@ import { addDays, format, isSameDay } from "date-fns";
 import { enUS, es } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import {
-  type MockScheduleEvent,
-  type ScheduleEventKind,
-} from "../lib/mock-student-data";
+import type { CalendarEvent } from "../lib/calendar-event-types";
+import { type ScheduleEventKind } from "../lib/mock-student-data";
 
 const DAY_START_MINUTES = 7 * 60;
 const DAY_END_MINUTES = 22 * 60;
@@ -65,10 +63,10 @@ function eventsOverlap(
   return a.startMin < b.endMin && b.startMin < a.endMin;
 }
 
-type TimedEvent = MockScheduleEvent & { startMin: number; endMin: number };
+type TimedEvent = CalendarEvent & { startMin: number; endMin: number };
 type LaidOutEvent = TimedEvent & { column: number; totalColumns: number };
 
-function layoutDayEvents(events: MockScheduleEvent[]): LaidOutEvent[] {
+function layoutDayEvents(events: CalendarEvent[]): LaidOutEvent[] {
   const items: TimedEvent[] = events
     .map((e) => ({
       ...e,
@@ -150,7 +148,7 @@ function ymd(d: Date): string {
 
 interface WeeklyScheduleGridProps {
   weekStart: Date;
-  events: MockScheduleEvent[];
+  events: CalendarEvent[];
   onSlotClick: (dateKey: string, startTime: string) => void;
   onEventClick: (eventId: string) => void;
 }
@@ -190,7 +188,7 @@ export function WeeklyScheduleGrid({
   }, []);
 
   const eventsByDay = useMemo(() => {
-    const map = new Map<string, MockScheduleEvent[]>();
+    const map = new Map<string, CalendarEvent[]>();
     for (const e of events) {
       if (!map.has(e.date)) map.set(e.date, []);
       map.get(e.date)!.push(e);

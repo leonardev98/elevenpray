@@ -17,22 +17,14 @@ import {
   Zap,
 } from "lucide-react";
 import { useAuth } from "../providers/auth-provider";
-import { ThemeToggle } from "./theme-toggle";
-import { LocaleSwitcher } from "./locale-switcher";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
-import { FloatingNav } from "@/components/ui/floating-navbar";
 import { LandingPricingSection } from "./landing-pricing-section";
-import { LandingMobileNavLink } from "./landing-mobile-nav-link";
 import { LandingHero } from "./landing-hero";
 import { MitsyyLogo } from "./mitsyy-logo";
 
 const LANDING_IMAGES = {
   flashcards: "/landing/feature-flashcards.svg",
 } as const;
-
-function NavIcon({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
-}
 
 export function Landing() {
   const { user, token, isLoading } = useAuth();
@@ -96,92 +88,6 @@ export function Landing() {
 
   return (
     <div className="relative min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)]">
-      <FloatingNav
-        alwaysVisible
-        linkComponent={Link}
-        mobileMenuOpenLabel={tCommon("openMenu")}
-        mobileMenuCloseLabel={tCommon("closeMenu")}
-        logo={
-          <Link href="/" className="inline-flex items-center" aria-label={t("title")}>
-            <MitsyyLogo size="xl" priority />
-          </Link>
-        }
-        navItems={[
-          {
-            name: t("navProduct"),
-            link: "#producto",
-            ariaLabel: t("navProduct"),
-            icon: (
-              <NavIcon>
-                <Layers className="h-5 w-5" aria-hidden />
-              </NavIcon>
-            ),
-          },
-          {
-            name: t("navHowItWorks"),
-            link: "#como-funciona",
-            ariaLabel: t("navHowItWorks"),
-            icon: (
-              <NavIcon>
-                <Sparkles className="h-5 w-5" aria-hidden />
-              </NavIcon>
-            ),
-          },
-          {
-            name: t("navTestimonials"),
-            link: "#testimonios",
-            ariaLabel: t("navTestimonials"),
-            icon: (
-              <NavIcon>
-                <MessageSquare className="h-5 w-5" aria-hidden />
-              </NavIcon>
-            ),
-          },
-          {
-            name: t("navPricing"),
-            link: "#pricing",
-            ariaLabel: t("navPricing"),
-            icon: (
-              <NavIcon>
-                <Zap className="h-5 w-5" aria-hidden />
-              </NavIcon>
-            ),
-          },
-        ]}
-        rightContent={
-          <>
-            <LocaleSwitcher />
-            <ThemeToggle />
-            <Link
-              href="/login"
-              className="inline-flex min-h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium text-[var(--text-body)] transition-colors hover:bg-[var(--accent-subtle)] hover:text-[var(--text-primary)]"
-            >
-              {t("signIn")}
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex min-h-10 items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-fg)] transition hover:opacity-90"
-            >
-              {t("startFree")}
-            </Link>
-          </>
-        }
-        mobileMenuFooter={
-          <>
-            <div className="flex items-center gap-3">
-              <div className="min-w-0 flex-1">
-                <LocaleSwitcher variant="segmented" />
-              </div>
-              <ThemeToggle />
-            </div>
-            <LandingMobileNavLink href="/login">{t("signIn")}</LandingMobileNavLink>
-            <LandingMobileNavLink href="/register" variant="primary">
-              {t("startFree")}
-            </LandingMobileNavLink>
-          </>
-        }
-      />
-
       <main>
         <LandingHero />
 

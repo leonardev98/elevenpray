@@ -23,6 +23,7 @@ import {
   CreateFlashcardDto,
   CreateFocusSessionDto,
   CreateGradeItemDto,
+  UpdateGradeItemDto,
   CreateQuizAttemptDto,
   CreateQuizDto,
   CreateSemesterDto,
@@ -214,6 +215,25 @@ export class StudyUniversityController {
     @Body() dto: CreateGradeItemDto,
   ) {
     return this.studyUniversityService.createGradeItem(workspaceId, userId, dto);
+  }
+
+  @Patch('grades/:gradeItemId')
+  updateGradeItem(
+    @Param('workspaceId') workspaceId: string,
+    @Param('gradeItemId') gradeItemId: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateGradeItemDto,
+  ) {
+    return this.studyUniversityService.updateGradeItem(workspaceId, userId, gradeItemId, dto);
+  }
+
+  @Delete('grades/:gradeItemId')
+  deleteGradeItem(
+    @Param('workspaceId') workspaceId: string,
+    @Param('gradeItemId') gradeItemId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.studyUniversityService.deleteGradeItem(workspaceId, userId, gradeItemId);
   }
 
   @Post('focus-sessions')

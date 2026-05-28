@@ -10,6 +10,7 @@ export const UNIVERSITY_WORKSPACE_EMPTY_STATE: UniversityWorkspaceState = {
   schedules: [],
   sessions: [],
   assignments: [],
+  gradeItems: [],
   focusSessions: [],
   conflicts: [],
   stats: {
@@ -136,6 +137,7 @@ export const UNIVERSITY_WORKSPACE_MOCK_STATE: UniversityWorkspaceState = {
       attachments: [],
     },
   ],
+  gradeItems: [],
   focusSessions: [],
   conflicts: [
     {

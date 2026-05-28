@@ -5,8 +5,11 @@ import { addDays, addWeeks, format, startOfWeek } from "date-fns";
 import { enUS, es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Menu, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useStudyBackendLinkStore } from "../lib/study-backend-link";
 import { cn } from "@/lib/utils";
-import { useScheduleStore } from "../lib/use-schedule-store";
+import { isLocalCalendarEventId } from "../lib/calendar-event-types";
+import type { CalendarEvent } from "../lib/calendar-event-types";
+import { useStudentCalendarEvents } from "../lib/use-student-calendar-events";
 import { EventEditorModal, type EditorState } from "./EventEditorModal";
 import { StudentScheduleCalendar } from "./StudentScheduleCalendar";
 import { WeeklyScheduleGrid } from "./WeeklyScheduleGrid";
@@ -14,12 +17,28 @@ import { useStudentShell } from "./student-shell-context";
 
 type ViewMode = "week" | "day";
 
+function resolveCourseHref(serverCourseId: string, path: string, courseMap: Record<string, string>): string {
+  const localId =
+    Object.entries(courseMap).find(([, sid]) => sid === serverCourseId)?.[0] ?? serverCourseId;
+  return path.replace(serverCourseId, localId);
+}
+
+function withLocalCourseHrefs(events: CalendarEvent[], courseMap: Record<string, string>): CalendarEvent[] {
+  return events.map((e) => {
+    if (!e.href || !e.courseId) return e;
+    if (e.href.includes("/app/courses/")) {
+      return { ...e, href: resolveCourseHref(e.courseId, e.href, courseMap) };
+    }
+    return e;
+  });
+}
+
 function StudentCalendarShellInner() {
   const t = useTranslations("studentCalendar");
   const locale = useLocale() as "es" | "en";
   const dateFnsLocale = locale === "en" ? enUS : es;
-  const { events } = useScheduleStore();
   const { openMobileMenu } = useStudentShell();
+  const courseMap = useStudyBackendLinkStore((s) => s.courseMap);
 
   const today = useMemo(() => new Date(), []);
   const [weekStart, setWeekStart] = useState(() =>
@@ -27,6 +46,12 @@ function StudentCalendarShellInner() {
   );
   const [view, setView] = useState<ViewMode>("week");
   const [editorState, setEditorState] = useState<EditorState>({ open: false });
+
+  const { events: rawEvents, courses, loading } = useStudentCalendarEvents(weekStart);
+  const events = useMemo(
+    () => withLocalCourseHrefs(rawEvents, courseMap),
+    [rawEvents, courseMap],
+  );
 
   const weekEnd = addDays(weekStart, 6);
 
@@ -50,7 +75,7 @@ function StudentCalendarShellInner() {
         date: dateKey,
         startTime,
         endTime,
-        kind: "class",
+        kind: "extra",
       },
     });
   }
@@ -62,13 +87,21 @@ function StudentCalendarShellInner() {
         date: format(today, "yyyy-MM-dd"),
         startTime: "09:00",
         endTime: "10:00",
-        kind: "class",
+        kind: "extra",
       },
     });
   }
 
   function openEditEditor(eventId: string) {
-    setEditorState({ open: true, editingId: eventId });
+    const event = events.find((e) => e.id === eventId);
+    if (!event) return;
+    if (event.readOnly) {
+      setEditorState({ open: true, readOnlyEvent: event });
+      return;
+    }
+    if (isLocalCalendarEventId(eventId)) {
+      setEditorState({ open: true, editingId: eventId });
+    }
   }
 
   function closeEditor() {
@@ -82,7 +115,6 @@ function StudentCalendarShellInner() {
 
   return (
     <div className="flex w-full flex-col gap-5">
-      {/* Cabecera grande */}
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex min-w-0 items-start gap-3">
           {openMobileMenu && (
@@ -135,7 +167,6 @@ function StudentCalendarShellInner() {
             </button>
           </div>
 
-          {/* Selector vista (solo desktop) */}
           <div className="hidden items-center gap-1 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] p-1 lg:flex">
             <button
               type="button"
@@ -174,7 +205,10 @@ function StudentCalendarShellInner() {
         </div>
       </header>
 
-      {/* Vistas */}
+      {loading && events.length === 0 && (
+        <p className="text-sm text-[var(--app-fg-muted)]">{t("loading")}</p>
+      )}
+
       <div className="hidden w-full lg:block">
         {view === "week" ? (
           <WeeklyScheduleGrid
@@ -193,7 +227,6 @@ function StudentCalendarShellInner() {
         )}
       </div>
 
-      {/* Mobile: siempre vista diaria */}
       <div className="block w-full lg:hidden">
         <StudentScheduleCalendar
           weekStart={weekStart}
@@ -203,7 +236,7 @@ function StudentCalendarShellInner() {
         />
       </div>
 
-      <EventEditorModal state={editorState} onClose={closeEditor} />
+      <EventEditorModal state={editorState} onClose={closeEditor} courses={courses} />
     </div>
   );
 }

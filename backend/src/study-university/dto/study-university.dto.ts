@@ -417,6 +417,44 @@ export class CreateGradeItemDto {
   gradeDate?: string;
 }
 
+export class UpdateGradeItemDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  name?: string;
+
+  @IsOptional()
+  @IsIn(['exam', 'quiz', 'project', 'assignment', 'participation', 'other'])
+  type?: 'exam' | 'quiz' | 'project' | 'assignment' | 'participation' | 'other';
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  weight?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  score?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0.0001)
+  maxScore?: number;
+
+  @IsOptional()
+  @IsDateString()
+  gradeDate?: string;
+
+  @IsOptional()
+  @IsUUID()
+  classSessionId?: string;
+}
+
 export class CreateFocusSessionDto {
   @Type(() => Number)
   @IsInt()

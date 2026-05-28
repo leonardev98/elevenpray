@@ -12,6 +12,7 @@ function getAllowedNext(next: string | null): string {
   const path = next.startsWith("/") ? next : `/${next}`;
   if (path === "/app" || path.startsWith("/app/")) return path;
   if (path === "/admin" || path.startsWith("/admin/")) return path;
+  if (path === "/onboarding") return path;
   return "/app";
 }
 

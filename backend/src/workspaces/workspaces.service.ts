@@ -38,6 +38,17 @@ export class WorkspacesService {
     return workspace;
   }
 
+  /** Acceso rápido sin joins (p. ej. carga inicial de estado study). */
+  async findOneForAccess(id: string, userId: string): Promise<Workspace> {
+    const workspace = await this.workspaceRepository.findOne({
+      where: { id },
+      select: ['id', 'userId', 'workspaceType', 'name'],
+    });
+    if (!workspace) throw new NotFoundException('Workspace not found');
+    if (workspace.userId !== userId) throw new ForbiddenException();
+    return workspace;
+  }
+
   private async deriveWorkspaceName(dto: CreateWorkspaceDto): Promise<string> {
     const trimmed = dto.name?.trim();
     if (trimmed) return trimmed;

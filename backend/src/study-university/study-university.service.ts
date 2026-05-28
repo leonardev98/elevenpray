@@ -38,6 +38,7 @@ import {
   CreateFlashcardDto,
   CreateFocusSessionDto,
   CreateGradeItemDto,
+  UpdateGradeItemDto,
   CreateQuizAttemptDto,
   CreateQuizDto,
   CreateSemesterDto,
@@ -133,10 +134,20 @@ export class StudyUniversityService {
 
   private async ensureStudyWorkspace(workspaceId: string, userId: string): Promise<Workspace> {
     const workspace = await this.workspacesService.findOne(workspaceId, userId);
+    this.assertStudyWorkspaceType(workspace);
+    return workspace;
+  }
+
+  private assertStudyWorkspaceType(workspace: Pick<Workspace, 'workspaceType'>): void {
     if (workspace.workspaceType !== 'study' && workspace.workspaceType !== 'university') {
       throw new ForbiddenException('This workspace is not a study workspace');
     }
-    return workspace;
+  }
+
+  /** Validación barata (1 query) sin cargar el estado del workspace. */
+  async assertStudyWorkspaceAccess(workspaceId: string, userId: string): Promise<void> {
+    const workspace = await this.workspacesService.findOneForAccess(workspaceId, userId);
+    this.assertStudyWorkspaceType(workspace);
   }
 
   private assertValidTimeRange(startTime: string, endTime: string): void {
@@ -146,27 +157,44 @@ export class StudyUniversityService {
   }
 
   async getWorkspaceState(workspaceId: string, userId: string) {
-    await this.ensureStudyWorkspace(workspaceId, userId);
-    const [config, semesters, courses, schedules, sessions, assignments, focusSessions] =
-      await Promise.all([
-        this.configRepo.findOne({ where: { workspaceId, userId } }),
-        this.semesterRepo.find({ where: { workspaceId, userId }, order: { createdAt: 'DESC' } }),
-        this.courseRepo.find({ where: { workspaceId, userId }, order: { sortOrder: 'ASC', createdAt: 'ASC' } }),
-        this.scheduleRepo.find({ where: { workspaceId } }),
-        this.sessionRepo.find({
-          where: { workspaceId },
-          order: { sessionDate: 'ASC', startTime: 'ASC' },
-        }),
-        this.assignmentRepo.find({
-          where: { workspaceId },
-          order: { deadline: 'ASC', createdAt: 'ASC' },
-        }),
-        this.focusRepo.find({ where: { workspaceId }, order: { startedAt: 'DESC' }, take: 10 }),
-      ]);
+    const today = toDateYmd(new Date());
+    const [
+      workspace,
+      config,
+      semesters,
+      courses,
+      schedules,
+      sessions,
+      assignments,
+      gradeItems,
+      focusSessions,
+      attendanceRecords,
+    ] = await Promise.all([
+      this.workspacesService.findOneForAccess(workspaceId, userId),
+      this.configRepo.findOne({ where: { workspaceId, userId } }),
+      this.semesterRepo.find({ where: { workspaceId, userId }, order: { createdAt: 'DESC' } }),
+      this.courseRepo.find({ where: { workspaceId, userId }, order: { sortOrder: 'ASC', createdAt: 'ASC' } }),
+      this.scheduleRepo.find({ where: { workspaceId } }),
+      this.findSessionsForState(workspaceId),
+      this.assignmentRepo.find({
+        where: { workspaceId },
+        order: { deadline: 'ASC', createdAt: 'ASC' },
+      }),
+      this.gradeRepo.find({
+        where: { workspaceId },
+        order: { gradeDate: 'ASC', createdAt: 'ASC' },
+      }),
+      this.focusRepo.find({ where: { workspaceId }, order: { startedAt: 'DESC' }, take: 10 }),
+      this.attendanceRepo.find({
+        where: { workspaceId },
+        select: ['courseId', 'status'],
+      }),
+    ]);
+    this.assertStudyWorkspaceType(workspace);
 
     const conflicts = this.detectScheduleConflicts(courses, schedules);
-    const attendanceByCourse = await this.computeAttendanceByCourse(workspaceId);
-    const gradeAveragesByCourse = await this.computeGradeAveragesByCourse(workspaceId);
+    const attendanceByCourse = this.buildAttendanceByCourse(attendanceRecords);
+    const gradeAveragesByCourse = this.buildGradeAveragesByCourse(gradeItems);
     const pendingAssignments = assignments.filter((a) => a.status !== 'done' && a.status !== 'submitted');
 
     return {
@@ -176,17 +204,92 @@ export class StudyUniversityService {
       schedules,
       sessions,
       assignments,
+      gradeItems,
       focusSessions,
       conflicts,
       stats: {
         activeCourses: courses.filter((c) => !c.archived).length,
         pendingAssignments: pendingAssignments.length,
-        classesToday: sessions.filter((s) => s.sessionDate === toDateYmd(new Date())).length,
+        classesToday: sessions.filter((s) => s.sessionDate === today).length,
         credits: courses.reduce((sum, c) => sum + Number(c.credits ?? 0), 0),
       },
       attendanceByCourse,
       gradeAveragesByCourse,
     };
+  }
+
+  /** Sesiones para /state: metadata + hasNotes, sin cargar el cuerpo de las notas. */
+  private async findSessionsForState(
+    workspaceId: string,
+  ): Promise<Array<ClassSession & { hasNotes: boolean }>> {
+    type SessionStateRow = {
+      id: string;
+      workspaceId: string;
+      semesterId: string | null;
+      courseId: string;
+      scheduleId: string | null;
+      sessionDate: string;
+      startTime: string;
+      endTime: string;
+      classroom: string | null;
+      title: string | null;
+      classNumber: number | null;
+      unitLabel: string | null;
+      generatedFromSchedule: boolean;
+      hasNotes: boolean;
+    };
+
+    const rows = await this.sessionRepo.query<SessionStateRow[]>(
+      `
+      SELECT
+        s.id AS "id",
+        s.workspace_id AS "workspaceId",
+        s.semester_id AS "semesterId",
+        s.course_id AS "courseId",
+        s.schedule_id AS "scheduleId",
+        s.session_date AS "sessionDate",
+        s.start_time AS "startTime",
+        s.end_time AS "endTime",
+        s.classroom AS "classroom",
+        s.title AS "title",
+        s.class_number AS "classNumber",
+        s.unit_label AS "unitLabel",
+        s.generated_from_schedule AS "generatedFromSchedule",
+        (
+          (s.notes_html IS NOT NULL AND LENGTH(TRIM(s.notes_html)) > 0)
+          OR s.notes_json IS NOT NULL
+          OR (s.ai_summary_mock IS NOT NULL AND LENGTH(TRIM(s.ai_summary_mock)) > 0)
+        ) AS "hasNotes"
+      FROM class_sessions s
+      WHERE s.workspace_id = $1
+      ORDER BY s.session_date ASC, s.start_time ASC
+      `,
+      [workspaceId],
+    );
+
+    return rows.map((row) => ({
+      id: row.id,
+      workspaceId: row.workspaceId,
+      semesterId: row.semesterId,
+      courseId: row.courseId,
+      scheduleId: row.scheduleId,
+      sessionDate: row.sessionDate,
+      startTime: row.startTime,
+      endTime: row.endTime,
+      classroom: row.classroom,
+      title: row.title,
+      classNumber: row.classNumber,
+      unitLabel: row.unitLabel,
+      generatedFromSchedule: Boolean(row.generatedFromSchedule),
+      notesHtml: null,
+      notesJson: null,
+      aiSummaryMock: null,
+      hasNotes: Boolean(row.hasNotes),
+      openedAt: null,
+      completedAt: null,
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+    }));
   }
 
   async upsertConfig(workspaceId: string, userId: string, dto: UpsertStudyWorkspaceConfigDto) {
@@ -607,6 +710,44 @@ export class StudyUniversityService {
     return { gradeItem: saved, gradeAveragesByCourse };
   }
 
+  async updateGradeItem(
+    workspaceId: string,
+    userId: string,
+    gradeItemId: string,
+    dto: UpdateGradeItemDto,
+  ) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const gradeItem = await this.gradeRepo.findOne({ where: { id: gradeItemId, workspaceId } });
+    if (!gradeItem) throw new NotFoundException('Grade item not found');
+
+    if (dto.name !== undefined) gradeItem.name = dto.name;
+    if (dto.type !== undefined) gradeItem.type = dto.type;
+    if (dto.weight !== undefined) gradeItem.weight = dto.weight.toFixed(2);
+    if (dto.gradeDate !== undefined) gradeItem.gradeDate = dto.gradeDate;
+    if (dto.classSessionId !== undefined) gradeItem.classSessionId = dto.classSessionId;
+    if (dto.score !== undefined) gradeItem.score = dto.score.toFixed(4);
+    if (dto.maxScore !== undefined) gradeItem.maxScore = dto.maxScore.toFixed(4);
+
+    const score = gradeItem.score !== null ? Number(gradeItem.score) : undefined;
+    const maxScore = gradeItem.maxScore !== null ? Number(gradeItem.maxScore) : undefined;
+    if (score !== undefined && maxScore !== undefined && score > maxScore) {
+      throw new BadRequestException('score cannot be greater than maxScore');
+    }
+
+    const saved = await this.gradeRepo.save(gradeItem);
+    const gradeAveragesByCourse = await this.computeGradeAveragesByCourse(workspaceId);
+    return { gradeItem: saved, gradeAveragesByCourse };
+  }
+
+  async deleteGradeItem(workspaceId: string, userId: string, gradeItemId: string) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const gradeItem = await this.gradeRepo.findOne({ where: { id: gradeItemId, workspaceId } });
+    if (!gradeItem) throw new NotFoundException('Grade item not found');
+    await this.gradeRepo.remove(gradeItem);
+    const gradeAveragesByCourse = await this.computeGradeAveragesByCourse(workspaceId);
+    return { gradeAveragesByCourse };
+  }
+
   async startFocusSession(workspaceId: string, userId: string, dto: CreateFocusSessionDto) {
     await this.ensureStudyWorkspace(workspaceId, userId);
     const session = this.focusRepo.create({
@@ -648,8 +789,9 @@ export class StudyUniversityService {
     return { session, course, attendance, assignments, decks };
   }
 
-  private async computeAttendanceByCourse(workspaceId: string): Promise<Record<string, number>> {
-    const attendance = await this.attendanceRepo.find({ where: { workspaceId } });
+  private buildAttendanceByCourse(
+    attendance: Array<Pick<AttendanceRecord, 'courseId' | 'status'>>,
+  ): Record<string, number> {
     const grouped = new Map<string, Array<{ status: 'present' | 'late' | 'absent' | 'justified' }>>();
     for (const record of attendance) {
       const list = grouped.get(record.courseId) ?? [];
@@ -661,8 +803,7 @@ export class StudyUniversityService {
     );
   }
 
-  private async computeGradeAveragesByCourse(workspaceId: string): Promise<Record<string, number | null>> {
-    const items = await this.gradeRepo.find({ where: { workspaceId } });
+  private buildGradeAveragesByCourse(items: GradeItem[]): Record<string, number | null> {
     const grouped = new Map<string, GradeItem[]>();
     for (const item of items) {
       const list = grouped.get(item.courseId) ?? [];
@@ -688,6 +829,19 @@ export class StudyUniversityService {
         ) ?? null;
     }
     return result;
+  }
+
+  private async computeAttendanceByCourse(workspaceId: string): Promise<Record<string, number>> {
+    const attendance = await this.attendanceRepo.find({
+      where: { workspaceId },
+      select: ['courseId', 'status'],
+    });
+    return this.buildAttendanceByCourse(attendance);
+  }
+
+  private async computeGradeAveragesByCourse(workspaceId: string): Promise<Record<string, number | null>> {
+    const items = await this.gradeRepo.find({ where: { workspaceId } });
+    return this.buildGradeAveragesByCourse(items);
   }
 
   async getGlobalDashboardEntries(

@@ -54,7 +54,7 @@ export class StudyAiService {
     userId: string,
     contentType: string,
   ): Promise<{ uploadUrl: string; publicUrl: string; key: string }> {
-    await this.studyUniversity.getWorkspaceState(workspaceId, userId);
+    await this.studyUniversity.assertStudyWorkspaceAccess(workspaceId, userId);
     if (contentType !== 'application/pdf') {
       throw new BadRequestException('Only application/pdf is supported');
     }
@@ -101,7 +101,7 @@ export class StudyAiService {
     userId: string,
     dto: IngestStudyPdfDto,
   ) {
-    await this.studyUniversity.getWorkspaceState(workspaceId, userId);
+    await this.studyUniversity.assertStudyWorkspaceAccess(workspaceId, userId);
     const courseId = await this.ensurePdfContainerCourse(workspaceId, userId);
     const fileingestDocumentId = randomUUID();
 
@@ -143,7 +143,7 @@ export class StudyAiService {
   }
 
   async listDocuments(workspaceId: string, userId: string) {
-    await this.studyUniversity.getWorkspaceState(workspaceId, userId);
+    await this.studyUniversity.assertStudyWorkspaceAccess(workspaceId, userId);
     const docs = await this.pdfDocRepo.find({
       where: { workspaceId, userId },
       order: { createdAt: 'DESC' },

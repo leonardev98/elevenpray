@@ -28,6 +28,11 @@
     "viewAll": "Ver todo",
     "viewAllNotes": "Ver todas las notas"
   },
+  "metadata": {
+    "title": "Mitsyy — Plataforma de estudio universitario con IA",
+    "titleTemplate": "%s | Mitsyy",
+    "description": "Organiza tu malla, apuntes y parciales con IA que entiende tus clases. El copiloto del estudiante universitario en Perú y LATAM."
+  },
   "landing": {
     "title": "Mitsyy",
     "tagline": "El copiloto del estudiante universitario.",
@@ -185,6 +190,15 @@
     "orContinueWith": "o continúa con",
     "emailPlaceholder": "tu@email.com",
     "createAccount": "Crear cuenta",
+    "createAccountSubtitle": "Empieza gratis en menos de un minuto. Sin tarjeta.",
+    "namePlaceholder": "Tu nombre",
+    "confirmPassword": "Confirmar contraseña",
+    "passwordHint": "Mínimo 4 caracteres. Mezcla letras y números para más seguridad.",
+    "passwordTooShort": "La contraseña debe tener al menos 4 caracteres.",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+    "nameRequired": "Escribe tu nombre para continuar.",
+    "accountCreatedTitle": "Cuenta creada",
+    "accountCreatedSubtitle": "Te llevamos a configurar tus espacios",
     "enter": "Entrar",
     "entering": "Entrando…",
     "creating": "Creando cuenta…",
@@ -397,6 +411,8 @@
     "noEvents": "No hay eventos este día",
     "newEvent": "Nuevo evento",
     "editEvent": "Editar evento",
+    "viewEvent": "Detalle del evento",
+    "loading": "Cargando calendario…",
     "deleteEvent": "Eliminar",
     "emptyHint": "Toca cualquier horario para crear tu primer evento.",
     "eventKind": {
@@ -422,7 +438,14 @@
       "subtitlePlaceholder": "Ej. A-204 · pausa · capítulo 4",
       "save": "Guardar",
       "cancel": "Cancelar",
+      "close": "Cerrar",
       "delete": "Eliminar",
+      "openTask": "Ver en tareas",
+      "openExam": "Ver en exámenes",
+      "openCourse": "Ver curso",
+      "readOnlyTaskHint": "Esta tarea se gestiona en la vista de Tareas.",
+      "readOnlyExamHint": "Este examen se gestiona en la pestaña Exámenes del curso.",
+      "readOnlyClassHint": "Esta clase viene de tu horario de curso.",
       "timeError": "La hora de fin debe ser posterior a la de inicio.",
       "titleError": "Pon un título."
     }
@@ -1338,10 +1361,6 @@
     "updateRoutine": "Error al actualizar rutina",
     "deleteRoutine": "Error al eliminar rutina",
     "loadDashboard": "Error al cargar el dashboard"
-  },
-  "metadata": {
-    "title": "Mitsyy",
-    "description": "Rutinas semanales"
   },
   "developerWorkspace": {
     "header": {

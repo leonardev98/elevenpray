@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/app/providers/auth-provider";
@@ -18,6 +19,7 @@ import { ClasesTab } from "./tabs/ClasesTab";
 import { FlashcardsTab } from "./tabs/FlashcardsTab";
 import { QuizzesTab } from "./tabs/QuizzesTab";
 import { TareasTab } from "./tabs/TareasTab";
+import { ExamenesTab } from "./tabs/ExamenesTab";
 
 const TAB_MOTION = {
   initial: { opacity: 0 },
@@ -32,10 +34,21 @@ interface CourseWorkspaceProps {
   course: MockCourseExtended;
 }
 
+const VALID_TABS: CourseTabId[] = [
+  "apuntes",
+  "clases",
+  "tareas",
+  "examenes",
+  "archivos",
+  "flashcards",
+  "quizzes",
+];
+
 function CourseWorkspaceInner({ course }: CourseWorkspaceProps) {
   const { token } = useAuth();
   const { ensureCourse } = useStudyBackendLink(token);
   const { getTasksForCourse } = useStudentTasks();
+  const searchParams = useSearchParams();
   const [tabActivo, setTabActivo] = useState<CourseTabId>("apuntes");
   const [panelIA, setPanelIA] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
@@ -43,6 +56,13 @@ function CourseWorkspaceInner({ course }: CourseWorkspaceProps) {
   useEffect(() => {
     void ensureCourse(course);
   }, [course, ensureCourse]);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && VALID_TABS.includes(tab as CourseTabId)) {
+      setTabActivo(tab as CourseTabId);
+    }
+  }, [searchParams]);
 
   const notes = useCourseNotes(course.id);
   const courseTasks = getTasksForCourse(course.id);
@@ -89,6 +109,7 @@ function CourseWorkspaceInner({ course }: CourseWorkspaceProps) {
                 )}
                 {tabActivo === "clases" && <ClasesTab course={course} />}
                 {tabActivo === "tareas" && <TareasTab course={course} />}
+                {tabActivo === "examenes" && <ExamenesTab course={course} />}
                 {tabActivo === "archivos" && <ArchivosTab course={course} files={files} />}
                 {tabActivo === "flashcards" && <FlashcardsTab course={course} />}
                 {tabActivo === "quizzes" && <QuizzesTab course={course} />}

@@ -6,9 +6,9 @@ import { enUS, es } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
-  type MockScheduleEvent,
   type ScheduleEventKind,
 } from "../lib/mock-student-data";
+import type { CalendarEvent } from "../lib/calendar-event-types";
 
 const DAY_START_MINUTES = 8 * 60;
 const DAY_END_MINUTES = 21 * 60;
@@ -65,7 +65,7 @@ function eventsOverlap(
   return a.startMin < b.endMin && b.startMin < a.endMin;
 }
 
-type TimedEvent = MockScheduleEvent & {
+type TimedEvent = CalendarEvent & {
   startMin: number;
   endMin: number;
 };
@@ -75,7 +75,7 @@ type LaidOutEvent = TimedEvent & {
   totalColumns: number;
 };
 
-function layoutDayEvents(events: MockScheduleEvent[]): LaidOutEvent[] {
+function layoutDayEvents(events: CalendarEvent[]): LaidOutEvent[] {
   const items: TimedEvent[] = events
     .map((e) => ({
       ...e,
@@ -154,7 +154,7 @@ function ymd(d: Date): string {
 
 interface StudentScheduleCalendarProps {
   weekStart: Date;
-  events: MockScheduleEvent[];
+  events: CalendarEvent[];
   onSlotClick: (dateKey: string, startTime: string) => void;
   onEventClick: (eventId: string) => void;
 }

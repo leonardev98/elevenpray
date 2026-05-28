@@ -21,10 +21,8 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  title: "Mitsyy",
-  description: "Organiza tu vida y rutinas en un solo lugar",
-};
+/** Título y descripción por locale en `app/[locale]/layout.tsx`. Favicon: `app/icon.png` + `app/favicon.ico`. */
+export const metadata: Metadata = {};
 
 export const viewport = {
   width: "device-width",
