@@ -1,14 +1,16 @@
 "use client";
 
-import { HelpCircle, LayoutTemplate, Newspaper } from "lucide-react";
+import { Bookmark, LayoutTemplate, Upload } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { CommunityTab } from "../community-types";
 import { cn } from "@/lib/utils";
 
-const TABS: { id: CommunityTab; label: string; icon: typeof Newspaper }[] = [
-  { id: "feed", label: "Feed", icon: Newspaper },
-  { id: "questions", label: "Preguntas", icon: HelpCircle },
-  { id: "templates", label: "Plantillas", icon: LayoutTemplate },
-];
+const TABS: { id: CommunityTab; icon: typeof LayoutTemplate; labelKey: string }[] =
+  [
+    { id: "templates", labelKey: "tabs.templates", icon: LayoutTemplate },
+    { id: "my-contributions", labelKey: "tabs.myContributions", icon: Upload },
+    { id: "saved", labelKey: "tabs.saved", icon: Bookmark },
+  ];
 
 export function CommunityTabs({
   activeTab,
@@ -17,9 +19,14 @@ export function CommunityTabs({
   activeTab: CommunityTab;
   onTabChange: (tab: CommunityTab) => void;
 }) {
+  const t = useTranslations("studentCommunity");
+
   return (
-    <nav className="mb-6 flex gap-1 border-b-[0.5px] border-[var(--border)]" aria-label="Secciones de comunidad">
-      {TABS.map(({ id, label, icon: Icon }) => {
+    <nav
+      className="mb-6 flex gap-1 border-b-[0.5px] border-[var(--border)]"
+      aria-label="Secciones de comunidad"
+    >
+      {TABS.map(({ id, labelKey, icon: Icon }) => {
         const isActive = activeTab === id;
         return (
           <button
@@ -35,7 +42,7 @@ export function CommunityTabs({
             aria-current={isActive ? "page" : undefined}
           >
             <Icon className="h-4 w-4" aria-hidden />
-            {label}
+            {t(labelKey)}
           </button>
         );
       })}

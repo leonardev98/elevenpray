@@ -1141,6 +1141,29 @@ body {
   letter-spacing: var(--letter-spacing-normal);
 }
 
+/* Skeleton loaders */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-shine {
+  background-image: linear-gradient(
+    105deg,
+    var(--app-surface-soft) 0%,
+    var(--app-surface-soft) 38%,
+    color-mix(in srgb, var(--app-fg) 6%, var(--app-surface-soft)) 50%,
+    var(--app-surface-soft) 62%,
+    var(--app-surface-soft) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
 /* Loading spinner (Mitsyy) */
 @keyframes app-spin {
   to { transform: rotate(360deg); }
@@ -1270,5 +1293,12 @@ body {
   .hero-badge-shimmer::after {
     animation: none;
     content: none;
+  }
+
+  .tasks-view-fade,
+  .animate-task-alert,
+  .animate-task-check,
+  .skeleton-shine {
+    animation: none !important;
   }
 }

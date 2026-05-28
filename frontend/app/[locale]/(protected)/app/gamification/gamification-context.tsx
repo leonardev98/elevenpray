@@ -111,7 +111,7 @@ function persistExtras(userId: string, extras: GamificationExtras) {
 function mergeSummary(prev: GamificationData, summary: ActivitySummaryDto): GamificationData {
   const todayIdx = getTodayWeekIndex();
   const actividades = prev.actividadesHoy.map((a) => {
-    if (a.id === "checkin") return { ...a, completado: summary.rachas.estudio.hoy };
+    if (a.id === "checkin") return { ...a, completado: summary.checkinHoy };
     if (a.id === "tarea") return { ...a, completado: summary.rachas.tareas.hoy };
     return a;
   });
@@ -328,13 +328,13 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     if (!token || visitRecordedRef.current) return;
     visitRecordedRef.current = true;
     void (async () => {
-      if (hasCheckInToday()) {
+      if (hasCheckInToday(user?.id)) {
         await recordActivityFn("checkin");
       } else {
         await recordActivityFn("study");
       }
     })();
-  }, [token, recordActivityFn]);
+  }, [token, user?.id, recordActivityFn]);
 
   const simulateStudyStreakToday = useCallback(() => {
     void recordActivityFn("study");

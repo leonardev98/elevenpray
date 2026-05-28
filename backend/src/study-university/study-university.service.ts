@@ -31,6 +31,7 @@ import {
   CombinedQuizPreviewDto,
   CompleteFocusSessionDto,
   CreateAssignmentDto,
+  UpdateAssignmentDto,
   CreateClassSessionDto,
   CreateCourseDto,
   CreateCourseNoteDto,
@@ -507,9 +508,49 @@ export class StudyUniversityService {
       deadline: new Date(dto.deadline),
       priority: dto.priority ?? 'medium',
       status: dto.status ?? 'pending',
+      progressPercent: dto.progressPercent ?? 0,
       attachments: dto.attachments ?? [],
     });
     return this.assignmentRepo.save(assignment);
+  }
+
+  async updateAssignment(
+    workspaceId: string,
+    userId: string,
+    assignmentId: string,
+    dto: UpdateAssignmentDto,
+  ) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const assignment = await this.assignmentRepo.findOne({ where: { id: assignmentId, workspaceId } });
+    if (!assignment) throw new NotFoundException('Assignment not found');
+
+    if (dto.title !== undefined) assignment.title = dto.title;
+    if (dto.description !== undefined) assignment.description = dto.description ?? null;
+    if (dto.deadline !== undefined) assignment.deadline = new Date(dto.deadline);
+    if (dto.priority !== undefined) assignment.priority = dto.priority;
+    if (dto.status !== undefined) assignment.status = dto.status;
+    if (dto.progressPercent !== undefined) {
+      assignment.progressPercent = Math.min(100, Math.max(0, dto.progressPercent));
+    }
+    if (dto.classSessionId !== undefined) {
+      if (dto.classSessionId) {
+        const session = await this.sessionRepo.findOne({
+          where: { id: dto.classSessionId, workspaceId, courseId: assignment.courseId },
+        });
+        if (!session) throw new NotFoundException('Class session not found');
+      }
+      assignment.classSessionId = dto.classSessionId;
+    }
+
+    return this.assignmentRepo.save(assignment);
+  }
+
+  async deleteAssignment(workspaceId: string, userId: string, assignmentId: string) {
+    await this.ensureStudyWorkspace(workspaceId, userId);
+    const assignment = await this.assignmentRepo.findOne({ where: { id: assignmentId, workspaceId } });
+    if (!assignment) throw new NotFoundException('Assignment not found');
+    await this.assignmentRepo.remove(assignment);
+    return { deleted: true };
   }
 
   async updateAssignmentStatus(
@@ -518,11 +559,7 @@ export class StudyUniversityService {
     assignmentId: string,
     dto: UpdateAssignmentStatusDto,
   ) {
-    await this.ensureStudyWorkspace(workspaceId, userId);
-    const assignment = await this.assignmentRepo.findOne({ where: { id: assignmentId, workspaceId } });
-    if (!assignment) throw new NotFoundException('Assignment not found');
-    assignment.status = dto.status;
-    return this.assignmentRepo.save(assignment);
+    return this.updateAssignment(workspaceId, userId, assignmentId, { status: dto.status });
   }
 
   async upsertAttendance(workspaceId: string, userId: string, dto: UpsertAttendanceDto) {

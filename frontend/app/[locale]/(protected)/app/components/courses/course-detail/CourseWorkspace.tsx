@@ -1,15 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import {
-  getCourseFiles,
-  getCourseTasks,
-  type MockCourseExtended,
-  type MockCourseTask,
-} from "../../../lib/mock-course-data";
+import { useAuth } from "@/app/providers/auth-provider";
+import { getCourseFiles, type MockCourseExtended } from "../../../lib/mock-course-data";
 import { useCourseNotes } from "../../../lib/course-notes-store";
+import { useStudyBackendLink } from "../../../lib/study-backend-link";
+import { StudentTasksProvider, useStudentTasks } from "../../../tasks/context/student-tasks-context";
 import { CourseAiDrawer } from "./CourseAiDrawer";
 import { CourseAiFab } from "./CourseAiFab";
 import { CourseDetailHeaderRedesign } from "./CourseDetailHeaderRedesign";
@@ -34,27 +32,31 @@ interface CourseWorkspaceProps {
   course: MockCourseExtended;
 }
 
-export function CourseWorkspace({ course }: CourseWorkspaceProps) {
+function CourseWorkspaceInner({ course }: CourseWorkspaceProps) {
+  const { token } = useAuth();
+  const { ensureCourse } = useStudyBackendLink(token);
+  const { getTasksForCourse } = useStudentTasks();
   const [tabActivo, setTabActivo] = useState<CourseTabId>("apuntes");
   const [panelIA, setPanelIA] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
 
+  useEffect(() => {
+    void ensureCourse(course);
+  }, [course, ensureCourse]);
+
   const notes = useCourseNotes(course.id);
-  const tasks = useMemo(() => getCourseTasks(course.id), [course.id]);
+  const courseTasks = getTasksForCourse(course.id);
   const files = useMemo(() => getCourseFiles(course.id), [course.id]);
 
   const stats = useMemo(() => {
-    const tareasCompletadas = tasks.filter((t: MockCourseTask) => {
-      if (t.taskStatus === "completed") return true;
-      return t.done;
-    }).length;
+    const tareasCompletadas = courseTasks.filter((t) => t.status === "done").length;
     return {
       apuntes: notes.length,
       archivos: files.length,
       flashcards: 0,
       tareasCompletadas,
     };
-  }, [notes.length, files.length, tasks]);
+  }, [notes.length, files.length, courseTasks]);
 
   return (
     <>
@@ -86,7 +88,7 @@ export function CourseWorkspace({ course }: CourseWorkspaceProps) {
                   />
                 )}
                 {tabActivo === "clases" && <ClasesTab course={course} />}
-                {tabActivo === "tareas" && <TareasTab course={course} tasks={tasks} />}
+                {tabActivo === "tareas" && <TareasTab course={course} />}
                 {tabActivo === "archivos" && <ArchivosTab course={course} files={files} />}
                 {tabActivo === "flashcards" && <FlashcardsTab course={course} />}
                 {tabActivo === "quizzes" && <QuizzesTab course={course} />}
@@ -121,5 +123,13 @@ export function CourseWorkspace({ course }: CourseWorkspaceProps) {
 
       <CourseAiFab panelOpen={panelIA} onToggle={() => setPanelIA((p) => !p)} />
     </>
+  );
+}
+
+export function CourseWorkspace({ course }: CourseWorkspaceProps) {
+  return (
+    <StudentTasksProvider>
+      <CourseWorkspaceInner course={course} />
+    </StudentTasksProvider>
   );
 }

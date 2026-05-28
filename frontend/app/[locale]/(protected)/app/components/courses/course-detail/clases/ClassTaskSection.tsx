@@ -14,24 +14,64 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getCourseTasks, type MockCourseTask } from "../../../../lib/mock-course-data";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useStudyBackendLink } from "../../../../lib/study-backend-link";
+import type { CourseClass } from "../../../../lib/course-classes-store";
 import { useCourseClassesStore } from "../../../../lib/course-classes-store";
+import type { MockCourseExtended } from "../../../../lib/mock-course-data";
+import { NewTaskModal } from "../../../../tasks/components/NewTaskModal";
+import { useStudentTasks } from "../../../../tasks/context/student-tasks-context";
+import type { StudentTask } from "../../../../tasks/lib/task-types";
 
 interface ClassTaskSectionProps {
-  classId: string;
-  courseId: string;
-  linkedTaskId: string | null;
+  course: MockCourseExtended;
+  cls: CourseClass;
 }
 
-export function ClassTaskSection({ classId, courseId, linkedTaskId }: ClassTaskSectionProps) {
+export function ClassTaskSection({ course, cls }: ClassTaskSectionProps) {
+  const { token } = useAuth();
+  const { ensureClassSession } = useStudyBackendLink(token);
   const setLinkedTask = useCourseClassesStore((s) => s.setLinkedTask);
+  const { getTasksForCourse, updateTask, resolveServerCourseId } = useStudentTasks();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [defaultSessionId, setDefaultSessionId] = useState<string | null>(null);
+  const [linking, setLinking] = useState(false);
 
-  const tasks = useMemo(() => getCourseTasks(courseId), [courseId]);
-  const linkedTask: MockCourseTask | null = useMemo(() => {
+  const tasks = getTasksForCourse(course.id);
+  const linkedTaskId = cls.linkedTaskId;
+
+  const linkedTask: StudentTask | null = useMemo(() => {
     if (!linkedTaskId) return null;
     return tasks.find((t) => t.id === linkedTaskId) ?? null;
   }, [tasks, linkedTaskId]);
+
+  async function linkTask(assignmentId: string) {
+    setLinking(true);
+    try {
+      const sessionId = await ensureClassSession(course, cls);
+      await updateTask(assignmentId, { classSessionId: sessionId });
+      setLinkedTask(cls.id, assignmentId);
+    } finally {
+      setLinking(false);
+    }
+  }
+
+  async function unlinkTask() {
+    if (!linkedTask) {
+      setLinkedTask(cls.id, null);
+      return;
+    }
+    setLinking(true);
+    try {
+      await updateTask(linkedTask.assignmentId, { classSessionId: null });
+      setLinkedTask(cls.id, null);
+    } finally {
+      setLinking(false);
+    }
+  }
+
+  const serverCourseId = resolveServerCourseId(course.id) ?? course.id;
 
   return (
     <section className="space-y-3">
@@ -49,8 +89,9 @@ export function ClassTaskSection({ classId, courseId, linkedTaskId }: ClassTaskS
         </div>
         <button
           type="button"
+          disabled={linking}
           onClick={() => setPickerOpen(true)}
-          className="inline-flex items-center gap-1 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
+          className="inline-flex items-center gap-1 rounded-[var(--radius-md)] border-[0.5px] border-[var(--border-strong)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] disabled:opacity-50"
         >
           <Plus className="h-3.5 w-3.5" aria-hidden />
           {linkedTask ? "Cambiar tarea" : "Asignar tarea"}
@@ -58,7 +99,7 @@ export function ClassTaskSection({ classId, courseId, linkedTaskId }: ClassTaskS
       </div>
 
       {linkedTask ? (
-        <LinkedTaskCard task={linkedTask} onUnlink={() => setLinkedTask(classId, null)} />
+        <LinkedTaskCard task={linkedTask} onUnlink={() => void unlinkTask()} />
       ) : (
         <div className="rounded-[var(--radius-lg)] border-[0.5px] border-dashed border-[var(--border)] bg-[var(--bg-surface)] p-4 text-center">
           <p className="text-xs text-[var(--text-muted)]">
@@ -72,20 +113,36 @@ export function ClassTaskSection({ classId, courseId, linkedTaskId }: ClassTaskS
           <TaskPicker
             tasks={tasks}
             currentTaskId={linkedTaskId}
+            linking={linking}
             onClose={() => setPickerOpen(false)}
-            onPick={(taskId) => {
-              setLinkedTask(classId, taskId);
-              setPickerOpen(false);
+            onPick={(taskId) => void linkTask(taskId).then(() => setPickerOpen(false))}
+            onCreateNew={() => {
+              void (async () => {
+                const sessionId = await ensureClassSession(course, cls);
+                setDefaultSessionId(sessionId);
+                setPickerOpen(false);
+                setCreateOpen(true);
+              })();
             }}
           />
         ) : null}
       </AnimatePresence>
+
+      <NewTaskModal
+        open={createOpen}
+        onClose={() => {
+          setCreateOpen(false);
+          setDefaultSessionId(null);
+        }}
+        defaultCourseId={serverCourseId}
+        defaultClassSessionId={defaultSessionId}
+      />
     </section>
   );
 }
 
-function LinkedTaskCard({ task, onUnlink }: { task: MockCourseTask; onUnlink: () => void }) {
-  const done = task.taskStatus === "completed" || task.done;
+function LinkedTaskCard({ task, onUnlink }: { task: StudentTask; onUnlink: () => void }) {
+  const done = task.status === "done";
   return (
     <div className="flex items-start gap-3 rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-4">
       <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center">
@@ -107,28 +164,22 @@ function LinkedTaskCard({ task, onUnlink }: { task: MockCourseTask; onUnlink: ()
         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-[var(--text-muted)]">
           <span className="inline-flex items-center gap-1">
             <Calendar className="h-3 w-3" aria-hidden />
-            {task.dueDate}
+            {task.dueDateLabel}
           </span>
-          {task.priority ? (
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px]",
-                task.priority === "alta"
-                  ? "bg-[color-mix(in_srgb,var(--error)_14%,transparent)] text-[var(--error)]"
-                  : task.priority === "media"
-                    ? "bg-[color-mix(in_srgb,var(--warning)_18%,transparent)] text-[var(--warning)]"
-                    : "bg-[var(--bg-input)] text-[var(--text-muted)]",
-              )}
-            >
-              <Flag className="h-2.5 w-2.5" aria-hidden />
-              {task.priority}
-            </span>
-          ) : null}
-          {task.progressPercent !== undefined ? (
-            <span className="inline-flex items-center gap-1">
-              {task.progressPercent}% completado
-            </span>
-          ) : null}
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px]",
+              task.priority === "alta"
+                ? "bg-[color-mix(in_srgb,var(--error)_14%,transparent)] text-[var(--error)]"
+                : task.priority === "media"
+                  ? "bg-[color-mix(in_srgb,var(--warning)_18%,transparent)] text-[var(--warning)]"
+                  : "bg-[var(--bg-input)] text-[var(--text-muted)]",
+            )}
+          >
+            <Flag className="h-2.5 w-2.5" aria-hidden />
+            {task.priority}
+          </span>
+          <span className="inline-flex items-center gap-1">{task.progress}% completado</span>
         </div>
         {task.description ? (
           <p className="mt-2 text-xs text-[var(--text-body)]">{task.description}</p>
@@ -150,17 +201,19 @@ function LinkedTaskCard({ task, onUnlink }: { task: MockCourseTask; onUnlink: ()
 function TaskPicker({
   tasks,
   currentTaskId,
+  linking,
   onPick,
   onClose,
+  onCreateNew,
 }: {
-  tasks: MockCourseTask[];
+  tasks: StudentTask[];
   currentTaskId: string | null;
+  linking: boolean;
   onPick: (taskId: string) => void;
   onClose: () => void;
+  onCreateNew: () => void;
 }) {
   const [query, setQuery] = useState("");
-  const [showCreate, setShowCreate] = useState(false);
-  const [draftTitle, setDraftTitle] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -168,7 +221,7 @@ function TaskPicker({
     return tasks.filter(
       (t) =>
         t.title.toLowerCase().includes(q) ||
-        (t.description ?? "").toLowerCase().includes(q),
+        t.description.toLowerCase().includes(q),
     );
   }, [tasks, query]);
 
@@ -231,6 +284,7 @@ function TaskPicker({
                 <li key={t.id}>
                   <button
                     type="button"
+                    disabled={linking}
                     onClick={() => onPick(t.id)}
                     className={cn(
                       "flex w-full items-start gap-2 rounded-md px-3 py-2 text-left",
@@ -238,14 +292,14 @@ function TaskPicker({
                       currentTaskId === t.id && "bg-[var(--accent-subtle)]",
                     )}
                   >
-                    {(t.taskStatus === "completed" || t.done) ? (
+                    {t.status === "done" ? (
                       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--success)]" aria-hidden />
                     ) : (
                       <Circle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-muted)]" aria-hidden />
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-medium text-[var(--text-primary)]">{t.title}</p>
-                      <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{t.dueDate}</p>
+                      <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{t.dueDateLabel}</p>
                     </div>
                   </button>
                 </li>
@@ -255,56 +309,14 @@ function TaskPicker({
         </div>
 
         <div className="border-t-[0.5px] border-[var(--border)] px-4 py-3">
-          {showCreate ? (
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
-                Nueva tarea (rápida)
-              </p>
-              <input
-                value={draftTitle}
-                onChange={(e) => setDraftTitle(e.target.value)}
-                placeholder="Título de la tarea"
-                autoFocus
-                className="w-full rounded-md border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-[var(--border-strong)]"
-              />
-              <p className="text-[10px] text-[var(--text-muted)]">
-                Nota: las tareas nuevas se vinculan a esta clase, pero la creación completa de
-                tareas vive en el tab “Tareas”.
-              </p>
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreate(false);
-                    setDraftTitle("");
-                  }}
-                  className="rounded-md px-3 py-1.5 text-xs text-[var(--text-muted)] hover:bg-[var(--bg-input)]"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  disabled={!draftTitle.trim()}
-                  onClick={() => {
-                    const fakeId = `new_${draftTitle.toLowerCase().replace(/\s+/g, "_").slice(0, 20)}`;
-                    onPick(fakeId);
-                  }}
-                  className="rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-[var(--accent-fg)] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--accent-hover)]"
-                >
-                  Vincular
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowCreate(true)}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-[var(--accent)] hover:bg-[var(--accent-subtle)]"
-            >
-              <Plus className="h-3.5 w-3.5" aria-hidden />
-              Crear una tarea rápida
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={onCreateNew}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-[var(--accent)] hover:bg-[var(--accent-subtle)]"
+          >
+            <Plus className="h-3.5 w-3.5" aria-hidden />
+            Crear nueva tarea
+          </button>
         </div>
       </motion.div>
     </>

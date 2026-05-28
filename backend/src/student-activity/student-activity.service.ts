@@ -18,6 +18,7 @@ export interface ActivitySummaryResponse {
     estudio: StreakSummary;
     tareas: StreakSummary;
   };
+  checkinHoy: boolean;
   xpHoy: number;
   xpMetaDiaria: number;
   xpTareasSemana: number;
@@ -157,6 +158,7 @@ export class StudentActivityService {
           semana: buildWeekArray(taskSet, todayYmd),
         },
       },
+      checkinHoy: todayRow?.checkin ?? false,
       xpHoy,
       xpMetaDiaria: 100,
       xpTareasSemana: tasksThisWeek * xpPerActivity,

@@ -104,6 +104,7 @@ export interface Assignment {
   deadline: string;
   priority: AssignmentPriority;
   status: AssignmentStatus;
+  progressPercent: number;
   attachments: unknown[] | null;
 }
 

@@ -143,6 +143,7 @@ function normalizeState(data: Record<string, unknown>): UniversityWorkspaceState
         deadline: String(raw.deadline),
         priority: (raw.priority ?? "medium") as Assignment["priority"],
         status: (raw.status ?? "pending") as Assignment["status"],
+        progressPercent: Number(raw.progressPercent ?? raw.progress_percent ?? 0),
         attachments: (raw.attachments ?? null) as unknown[] | null,
       }),
     ),
@@ -320,6 +321,32 @@ export async function updateUniversityAssignmentStatus(
     token,
     "PATCH",
     { status },
+  );
+}
+
+export async function updateUniversityAssignment(
+  token: string,
+  workspaceId: string,
+  assignmentId: string,
+  body: Record<string, unknown>,
+): Promise<Assignment> {
+  return fetchJson<Assignment>(
+    `${baseStudyUrl(workspaceId)}/assignments/${assignmentId}`,
+    token,
+    "PATCH",
+    body,
+  );
+}
+
+export async function deleteUniversityAssignment(
+  token: string,
+  workspaceId: string,
+  assignmentId: string,
+): Promise<void> {
+  await fetchJson<{ deleted: boolean }>(
+    `${baseStudyUrl(workspaceId)}/assignments/${assignmentId}`,
+    token,
+    "DELETE",
   );
 }
 

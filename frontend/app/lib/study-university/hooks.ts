@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   completeUniversityFocusSession,
   createUniversityAssignment,
+  deleteUniversityAssignment,
   createUniversityCourse,
   createUniversityGradeItem,
   createUniversitySemester,
@@ -11,6 +12,7 @@ import {
   getUniversityWorkspaceState,
   reorderUniversityCourses,
   startUniversityFocusSession,
+  updateUniversityAssignment,
   updateUniversityAssignmentStatus,
   updateUniversityClassSessionNotes,
   updateUniversitySession,
@@ -130,6 +132,24 @@ export function useStudyUniversity(workspaceId: string, token: string | null) {
     [token, workspaceId, load],
   );
 
+  const updateAssignment = useCallback(
+    async (assignmentId: string, payload: Record<string, unknown>) => {
+      if (!token) return;
+      await updateUniversityAssignment(token, workspaceId, assignmentId, payload);
+      await load();
+    },
+    [token, workspaceId, load],
+  );
+
+  const deleteAssignment = useCallback(
+    async (assignmentId: string) => {
+      if (!token) return;
+      await deleteUniversityAssignment(token, workspaceId, assignmentId);
+      await load();
+    },
+    [token, workspaceId, load],
+  );
+
   const updateAssignmentStatus = useCallback(
     async (assignmentId: string, status: AssignmentStatus) => {
       if (!token) return;
@@ -223,6 +243,8 @@ export function useStudyUniversity(workspaceId: string, token: string | null) {
     reorderCourses,
     generateSessions,
     createAssignment,
+    updateAssignment,
+    deleteAssignment,
     updateAssignmentStatus,
     updateSession,
     updateSessionNotes,

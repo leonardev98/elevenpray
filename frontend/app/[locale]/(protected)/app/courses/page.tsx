@@ -29,6 +29,7 @@ import { ConfirmDestructiveModal } from "../components/ConfirmDestructiveModal";
 import { StudentPageShell } from "../components/StudentPageShell";
 import { cycleToRoman } from "@/app/lib/curriculum/curriculum-utils";
 import { CycleSelector, type CycleFilter } from "./components/CycleSelector";
+import { CoursesSkeleton } from "../components/courses/CoursesSkeleton";
 
 function toStored(course: MockCourseExtended): StudentCourseStored {
   return course as unknown as StudentCourseStored;
@@ -171,7 +172,9 @@ export default function StudentCoursesPage() {
           </div>
         )}
 
-        {!curriculumLoading && courses.length === 0 ? (
+        {curriculumLoading && token ? (
+          <CoursesSkeleton showCycleFilter />
+        ) : !curriculumLoading && courses.length === 0 ? (
           <CoursesEmptyState
             onAddCourse={() => setModalOpen(true)}
             subtitle={
@@ -180,7 +183,7 @@ export default function StudentCoursesPage() {
                 : undefined
             }
           />
-        ) : curriculumLoading ? null : (
+        ) : (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {courses.map((course) => (
               <CourseCard

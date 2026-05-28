@@ -132,6 +132,7 @@ export const UNIVERSITY_WORKSPACE_MOCK_STATE: UniversityWorkspaceState = {
       deadline: new Date(today.getTime() + 48 * 60 * 60 * 1000).toISOString(),
       priority: "high",
       status: "in_progress",
+      progressPercent: 40,
       attachments: [],
     },
   ],

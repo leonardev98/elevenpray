@@ -1,36 +1,52 @@
 "use client";
 
-import { useState } from "react";
-import { CalendarDays, Clock, MoreHorizontal } from "lucide-react";
+import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import { motion } from "framer-motion";
+import { CalendarDays, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { MockStudentTask } from "../../lib/tasks-mock-data";
+import type { StudentTask } from "../../lib/task-types";
 import {
-  COURSE_STYLES,
   formatEstimatedTime,
+  getCourseStyle,
   PRIORITY_LABELS,
   PRIORITY_STYLES,
 } from "../../lib/task-styles";
 
 interface KanbanCardProps {
-  task: MockStudentTask;
+  task: StudentTask;
   barColor: string;
+  isOverlay?: boolean;
 }
 
-export function KanbanCard({ task, barColor }: KanbanCardProps) {
-  const [grabbing, setGrabbing] = useState(false);
-  const courseStyle = COURSE_STYLES[task.courseCode];
+export function KanbanCard({ task, barColor, isOverlay }: KanbanCardProps) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: task.id,
+    disabled: isOverlay,
+  });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+  };
+
+  const courseStyle = getCourseStyle(task.courseColorToken);
   const timeLabel = formatEstimatedTime(task.estimatedHours, task.estimatedMinutes);
   const progress = task.progress ?? (task.status === "done" ? 100 : 0);
 
   return (
-    <article
+    <motion.article
+      ref={isOverlay ? undefined : setNodeRef}
+      layout={!isOverlay}
+      style={style}
+      {...(isOverlay ? {} : { ...listeners, ...attributes })}
       className={cn(
-        "student-card cursor-grab space-y-3 p-3 transition-shadow duration-150",
-        grabbing && "cursor-grabbing shadow-lg",
+        "student-card space-y-3 p-3 touch-none",
+        !isOverlay && "cursor-grab active:cursor-grabbing",
+        (isDragging || isOverlay) && "shadow-lg ring-1 ring-[var(--app-primary)]/20 opacity-95",
+        isOverlay && "rotate-1",
       )}
-      onMouseDown={() => setGrabbing(true)}
-      onMouseUp={() => setGrabbing(false)}
-      onMouseLeave={() => setGrabbing(false)}
+      whileHover={isOverlay ? undefined : { scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 400, damping: 28 }}
     >
       <span
         className={cn(
@@ -67,8 +83,8 @@ export function KanbanCard({ task, barColor }: KanbanCardProps) {
           <Clock className="h-3 w-3" aria-hidden />
           {timeLabel}
         </span>
-        <MoreHorizontal className="h-4 w-4" aria-hidden />
+        <span>{progress}%</span>
       </div>
-    </article>
+    </motion.article>
   );
 }

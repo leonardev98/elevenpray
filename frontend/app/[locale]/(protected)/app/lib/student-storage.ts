@@ -14,18 +14,21 @@ function profileKey(userId: string): string {
   return `${STUDENT_PROFILE_KEY_PREFIX}${userId}`;
 }
 
-export function getTodayKey(): string {
-  return `${CHECKIN_PREFIX}${new Date().toISOString().slice(0, 10)}`;
+export function getTodayKey(userId?: string | null): string {
+  const date = new Date().toISOString().slice(0, 10);
+  if (userId) return `${CHECKIN_PREFIX}${userId}_${date}`;
+  return `${CHECKIN_PREFIX}${date}`;
 }
 
-export function hasCheckInToday(): boolean {
+export function hasCheckInToday(userId?: string | null): boolean {
   if (typeof window === "undefined") return true;
+  if (userId && localStorage.getItem(getTodayKey(userId)) !== null) return true;
   return localStorage.getItem(getTodayKey()) !== null;
 }
 
-export function saveCheckIn(mood: string): void {
+export function saveCheckIn(mood: string, userId?: string | null): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem(getTodayKey(), mood);
+  localStorage.setItem(getTodayKey(userId), mood);
 }
 
 export function getStudentProfile(userId?: string | null): StudentProfile | null {

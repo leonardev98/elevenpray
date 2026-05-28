@@ -26,8 +26,8 @@ import { MitsyyLogo } from "@/app/components/mitsyy-logo";
 const NAV_ITEMS = [
   { href: "/app", key: "home", icon: Home, exact: true },
   { href: "/app/calendar", key: "calendar", icon: Calendar },
-  { href: "/app/courses", key: "courses", icon: BookOpen },
   { href: "/app/malla", key: "malla", icon: GraduationCap },
+  { href: "/app/courses", key: "courses", icon: BookOpen },
   { href: "/app/tasks", key: "tasks", icon: ClipboardList },
   { href: "/app/wellbeing", key: "wellbeing", icon: Heart },
   { href: "/app/logros", key: "achievements", icon: Trophy },

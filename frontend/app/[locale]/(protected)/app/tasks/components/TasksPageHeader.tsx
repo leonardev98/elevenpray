@@ -4,16 +4,12 @@ import { CalendarDays, Columns, List, Menu, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useStudentShell } from "../../components/student-shell-context";
 import { cn } from "@/lib/utils";
-import type { TaskViewMode } from "../lib/tasks-mock-data";
+import type { TaskViewMode } from "../lib/task-types";
 
-const VIEW_OPTIONS: {
-  id: TaskViewMode;
-  icon: typeof List;
-  tooltip: string;
-}[] = [
-  { id: "list", icon: List, tooltip: "Vista lista" },
-  { id: "kanban", icon: Columns, tooltip: "Vista kanban" },
-  { id: "calendar", icon: CalendarDays, tooltip: "Vista calendario" },
+const VIEW_OPTION_IDS: { id: TaskViewMode; icon: typeof List; labelKey: "viewList" | "viewKanban" | "viewCalendar" }[] = [
+  { id: "list", icon: List, labelKey: "viewList" },
+  { id: "kanban", icon: Columns, labelKey: "viewKanban" },
+  { id: "calendar", icon: CalendarDays, labelKey: "viewCalendar" },
 ];
 
 interface TasksPageHeaderProps {
@@ -25,6 +21,7 @@ interface TasksPageHeaderProps {
 export function TasksPageHeader({ viewMode, onViewChange, onNewTask }: TasksPageHeaderProps) {
   const { openMobileMenu } = useStudentShell();
   const t = useTranslations("studentHome");
+  const tTasks = useTranslations("studentTasks");
 
   return (
     <header className="grid grid-cols-1 items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
@@ -39,12 +36,13 @@ export function TasksPageHeader({ viewMode, onViewChange, onNewTask }: TasksPage
             <Menu className="h-5 w-5" />
           </button>
         )}
-        <h1 className="text-2xl font-semibold text-[var(--app-fg)]">Tareas</h1>
+        <h1 className="text-2xl font-semibold text-[var(--app-fg)]">{tTasks("title")}</h1>
       </div>
 
       <div className="flex items-center justify-center gap-1 justify-self-center rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-1">
-        {VIEW_OPTIONS.map(({ id, icon: Icon, tooltip }) => {
+        {VIEW_OPTION_IDS.map(({ id, icon: Icon, labelKey }) => {
           const active = viewMode === id;
+          const tooltip = tTasks(labelKey);
           return (
             <button
               key={id}
@@ -72,7 +70,7 @@ export function TasksPageHeader({ viewMode, onViewChange, onNewTask }: TasksPage
         className="inline-flex items-center justify-center gap-2 justify-self-center rounded-[var(--radius-md)] bg-[var(--accent)] px-[18px] py-[10px] text-sm font-medium text-[var(--accent-fg)] transition-colors hover:bg-[var(--accent-hover)] md:justify-self-end"
       >
         <Plus className="h-4 w-4" aria-hidden />
-        Nueva tarea
+        {tTasks("newTask")}
       </button>
     </header>
   );

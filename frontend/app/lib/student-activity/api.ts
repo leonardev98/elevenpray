@@ -14,6 +14,7 @@ export interface ActivitySummaryDto {
     estudio: StreakSummaryDto;
     tareas: StreakSummaryDto;
   };
+  checkinHoy: boolean;
   xpHoy: number;
   xpMetaDiaria: number;
   xpTareasSemana: number;

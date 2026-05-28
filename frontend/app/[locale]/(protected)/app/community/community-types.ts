@@ -1,32 +1,57 @@
-export type PostType = "apunte" | "pregunta" | "plantilla" | "pdf";
+export type CommunityTab = "templates" | "my-contributions" | "saved";
 
-export type CommunityTab = "feed" | "questions" | "templates";
+export type TemplateType =
+  | "apunte"
+  | "mapa_mental"
+  | "esquema"
+  | "planificador"
+  | "tabla";
 
-export type UniversityId = "UNI" | "UPC" | "PUCP" | "UNMSM" | "General" | "Todas";
+export type TemplateCareer =
+  | "medicina"
+  | "ingenieria"
+  | "derecho"
+  | "administracion"
+  | "psicologia"
+  | "sistemas"
+  | "arquitectura"
+  | "otras";
 
-export type ReportTargetType = "post" | "question" | "answer" | "comment";
+export type TemplateStatus = "pending" | "approved" | "rejected";
 
-export interface CommunityTemplate {
-  id: string;
-  name: string;
-  author: string;
-  university: string;
-  downloads: number;
-  rating: number;
+export interface CommunityFilters {
+  career: TemplateCareer | "todas";
+  types: TemplateType[];
+  universityFirst: boolean;
 }
 
-export interface TrendItem {
+export interface AcademicTemplateDto {
   id: string;
-  rank: number;
-  topic: string;
-  postCount: number;
+  type: TemplateType;
+  title: string;
+  career: TemplateCareer;
+  subject: string;
+  subjectTags: string[];
+  description: string;
+  university: string | null;
+  status: TemplateStatus;
+  downloadCount: number;
+  saveCount: number;
+  isFeatured: boolean;
+  isNewThisWeek: boolean;
+  savedByMe: boolean;
+  authorName: string;
+  authorId: string;
+  attachmentUrl: string | null;
+  attachmentName: string | null;
+  createdAt: string;
+  approvedAt: string | null;
 }
 
-export interface TopContributor {
+export interface TopContributorDto {
   id: string;
   name: string;
-  university: string;
-  initial: string;
-  color: string;
+  university: string | null;
   contributions: number;
+  initial: string;
 }

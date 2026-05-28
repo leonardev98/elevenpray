@@ -28,6 +28,7 @@ import {
   CreateSemesterDto,
   GenerateSessionsDto,
   ReorderCoursesDto,
+  UpdateAssignmentDto,
   UpdateAssignmentStatusDto,
   UpdateClassSessionDto,
   UpdateClassSessionNotesDto,
@@ -166,6 +167,25 @@ export class StudyUniversityController {
     @Body() dto: CreateAssignmentDto,
   ) {
     return this.studyUniversityService.createAssignment(workspaceId, userId, dto);
+  }
+
+  @Patch('assignments/:assignmentId')
+  updateAssignment(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('assignmentId') assignmentId: string,
+    @Body() dto: UpdateAssignmentDto,
+  ) {
+    return this.studyUniversityService.updateAssignment(workspaceId, userId, assignmentId, dto);
+  }
+
+  @Delete('assignments/:assignmentId')
+  deleteAssignment(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser('id') userId: string,
+    @Param('assignmentId') assignmentId: string,
+  ) {
+    return this.studyUniversityService.deleteAssignment(workspaceId, userId, assignmentId);
   }
 
   @Patch('assignments/:assignmentId/status')

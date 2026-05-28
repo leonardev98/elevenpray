@@ -1,13 +1,23 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { useMemo, useState } from "react";
 import {
-  KANBAN_COLUMNS,
-  getKanbanTasks,
-  type KanbanColumnId,
-  type TaskStatus,
-} from "../../lib/tasks-mock-data";
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
+import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
+import { useStudentTasks } from "../../context/student-tasks-context";
+import { getKanbanTasks } from "../../lib/map-assignment";
+import { KANBAN_COLUMNS, type KanbanColumnId, type StudentTask, type TaskStatus } from "../../lib/task-types";
 import { KanbanCard } from "./KanbanCard";
+import { KanbanColumn } from "./KanbanColumn";
+import { TasksKanbanSkeleton } from "../TasksSkeleton";
 
 const COLUMN_STATUS: Record<KanbanColumnId, TaskStatus> = {
   pending: "pending",
@@ -20,37 +30,69 @@ interface TasksKanbanViewProps {
 }
 
 export function TasksKanbanView({ onAddTask }: TasksKanbanViewProps) {
+  const { filteredTasks, setStatus, loading } = useStudentTasks();
+  const [activeTask, setActiveTask] = useState<StudentTask | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+  );
+
+  const tasksByColumn = useMemo(() => {
+    const map: Record<KanbanColumnId, StudentTask[]> = {
+      pending: getKanbanTasks(filteredTasks, "pending"),
+      in_progress: getKanbanTasks(filteredTasks, "in_progress"),
+      done: getKanbanTasks(filteredTasks, "done"),
+    };
+    return map;
+  }, [filteredTasks]);
+
+  function handleDragStart(event: DragStartEvent) {
+    const task = filteredTasks.find((t) => t.id === event.active.id);
+    setActiveTask(task ?? null);
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    setActiveTask(null);
+    const { active, over } = event;
+    if (!over) return;
+    const taskId = String(active.id);
+    const newColumn = over.id as KanbanColumnId;
+    const task = filteredTasks.find((t) => t.id === taskId);
+    if (!task || task.status === COLUMN_STATUS[newColumn]) return;
+    await setStatus(taskId, COLUMN_STATUS[newColumn]);
+  }
+
+  if (loading) return <TasksKanbanSkeleton />;
+
   return (
-    <div className="overflow-x-auto pb-2">
-      <div className="grid min-w-[720px] grid-cols-3 gap-4">
-        {KANBAN_COLUMNS.map((column) => {
-          const tasks = getKanbanTasks(column.id);
-          return (
-            <div key={column.id} className="flex min-h-[320px] flex-col rounded-xl bg-[var(--app-surface-soft)]/50 p-3">
-              <header className="mb-3 flex items-center gap-2">
-                <span className={`h-2.5 w-2.5 rounded-full ${column.dotColor}`} aria-hidden />
-                <h3 className="text-sm font-medium text-[var(--app-fg)]">{column.label}</h3>
-                <span className="text-xs text-[var(--app-fg-muted)]">({tasks.length})</span>
-              </header>
-
-              <div className="flex flex-1 flex-col gap-2">
-                {tasks.map((task) => (
-                  <KanbanCard key={task.id} task={task} barColor={column.barColor} />
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => onAddTask(COLUMN_STATUS[column.id])}
-                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs text-[var(--app-fg-muted)] transition-colors hover:bg-[var(--app-surface-soft)] hover:text-[var(--app-fg)]"
-              >
-                <Plus className="h-3.5 w-3.5" aria-hidden />
-                Agregar tarea
-              </button>
-            </div>
-          );
-        })}
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={(e) => void handleDragEnd(e)}>
+      <div className="overflow-x-auto pb-2">
+        <motion.div
+          className="grid min-w-[720px] grid-cols-3 gap-4"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.04 } },
+          }}
+        >
+          {KANBAN_COLUMNS.map((column) => (
+            <motion.div
+              key={column.id}
+              variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
+            >
+              <KanbanColumn
+                column={column}
+                tasks={tasksByColumn[column.id]}
+                onAddTask={() => onAddTask(COLUMN_STATUS[column.id])}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
-    </div>
+      <DragOverlay>
+        {activeTask ? <KanbanCard task={activeTask} barColor="bg-[var(--app-primary)]" isOverlay /> : null}
+      </DragOverlay>
+    </DndContext>
   );
 }

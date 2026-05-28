@@ -44,6 +44,9 @@ export class Assignment {
   })
   status: UniversityAssignmentStatus;
 
+  @Column({ name: 'progress_percent', type: 'smallint', default: 0 })
+  progressPercent: number;
+
   @Column({ type: 'jsonb', nullable: true })
   attachments: unknown[] | null;
 

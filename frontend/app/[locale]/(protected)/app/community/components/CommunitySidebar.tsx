@@ -1,114 +1,174 @@
 "use client";
 
-import { useState } from "react";
-import { Award, GraduationCap, Search, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Award } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useAuth } from "@/app/providers/auth-provider";
+import { listTopContributors } from "@/app/lib/community-templates-api";
 import { SectionLabel } from "../../wellbeing/components/SectionLabel";
+import type {
+  CommunityFilters,
+  TemplateCareer,
+  TemplateType,
+  TopContributorDto,
+} from "../community-types";
 import {
-  FREQUENT_COURSES,
-  MOCK_TOP_CONTRIBUTORS,
-  MOCK_TRENDS,
-  UNIVERSITY_FILTERS,
-  USER_UNIVERSITY,
-} from "../community-mock-data";
+  TEMPLATE_CAREERS,
+  TEMPLATE_TYPE_FILTERS,
+  getAuthorColor,
+} from "../community-constants";
 import { UserAvatar } from "./UserAvatar";
 import { cn } from "@/lib/utils";
 
-export function CommunitySidebar() {
-  const [activeUniversity, setActiveUniversity] = useState<string>("Todas");
+interface CommunitySidebarProps {
+  filters: CommunityFilters;
+  onFiltersChange: (patch: Partial<CommunityFilters>) => void;
+}
+
+export function CommunitySidebar({
+  filters,
+  onFiltersChange,
+}: CommunitySidebarProps) {
+  const t = useTranslations("studentCommunity");
+  const { token } = useAuth();
+  const [contributors, setContributors] = useState<TopContributorDto[]>([]);
+
+  useEffect(() => {
+    if (!token) return;
+    listTopContributors(token)
+      .then(setContributors)
+      .catch(() => setContributors([]));
+  }, [token]);
+
+  function toggleType(type: TemplateType) {
+    const has = filters.types.includes(type);
+    onFiltersChange({
+      types: has
+        ? filters.types.filter((x) => x !== type)
+        : [...filters.types, type],
+    });
+  }
 
   return (
     <aside className="space-y-6">
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--app-fg-muted)]"
-          aria-hidden
-        />
-        <input
-          type="search"
-          placeholder="Buscar en la comunidad..."
-          className="w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] py-2.5 pl-10 pr-3 text-sm text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] focus:border-[var(--app-primary)] focus:outline-none"
-          readOnly
-        />
-      </div>
-
       <section>
-        <SectionLabel>TU UNIVERSIDAD</SectionLabel>
-        <div className="student-card flex flex-col items-center gap-2 p-5 text-center">
-          <div className="flex items-center gap-2 rounded-full bg-[var(--app-primary-soft)] px-4 py-2">
-            <GraduationCap className="h-5 w-5 text-[var(--app-primary)]" aria-hidden />
-            <span className="text-lg font-bold text-[var(--app-primary)]">{USER_UNIVERSITY.code}</span>
-          </div>
-          <p className="text-sm text-[var(--app-fg)]">{USER_UNIVERSITY.fullName}</p>
-          <p className="text-xs text-[var(--app-fg-muted)]">Ves contenido de tu universidad primero</p>
-        </div>
-      </section>
-
-      <section>
-        <SectionLabel>FILTRAR</SectionLabel>
-        <div className="mb-3 flex flex-wrap gap-2">
-          {UNIVERSITY_FILTERS.map((uni) => (
+        <SectionLabel>{t("filterCareer").toUpperCase()}</SectionLabel>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {TEMPLATE_CAREERS.map(({ id, labelKey }) => (
             <button
-              key={uni}
+              key={id}
               type="button"
-              onClick={() => setActiveUniversity(uni)}
+              onClick={() =>
+                onFiltersChange({ career: id as TemplateCareer | "todas" })
+              }
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                activeUniversity === uni
+                filters.career === id
                   ? "bg-[var(--accent)] text-[var(--accent-fg)]"
                   : "bg-[var(--bg-input)] text-[var(--text-muted)] hover:text-[var(--text-primary)]",
               )}
             >
-              {uni}
+              {t(labelKey)}
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap gap-2">
-          {FREQUENT_COURSES.map((course) => (
-            <span
-              key={course}
-              className="rounded-full border border-[var(--app-border)] px-3 py-1 text-xs text-[var(--app-fg-muted)]"
+      </section>
+
+      <section>
+        <SectionLabel>{t("filterType").toUpperCase()}</SectionLabel>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {TEMPLATE_TYPE_FILTERS.map(({ id, labelKey }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => toggleType(id)}
+              className={cn(
+                "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                filters.types.includes(id)
+                  ? "bg-[var(--app-primary-soft)] text-[var(--app-primary)]"
+                  : "border border-[var(--app-border)] text-[var(--app-fg-muted)] hover:border-[var(--app-primary)]",
+              )}
             >
-              {course}
-            </span>
+              {t(labelKey)}
+            </button>
           ))}
         </div>
       </section>
 
-      <section>
-        <SectionLabel>TENDENCIAS ESTA SEMANA</SectionLabel>
-        <ul className="student-card divide-y divide-[var(--app-border)]">
-          {MOCK_TRENDS.map((item) => (
-            <li key={item.id} className="flex items-start gap-3 px-4 py-3">
-              <span className="text-xs text-[var(--app-fg-muted)]">{item.rank}</span>
-              <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-[var(--app-primary)]" aria-hidden />
-              <span className="text-sm text-[var(--app-fg-secondary)]">
-                {item.topic} · {item.postCount} posts
-              </span>
-            </li>
-          ))}
-        </ul>
+      <section className="student-card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium text-[var(--app-fg)]">
+              {t("universityFirst")}
+            </p>
+            <p className="mt-0.5 text-xs text-[var(--app-fg-muted)]">
+              {t("universityFirstHint")}
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={filters.universityFirst}
+            onClick={() =>
+              onFiltersChange({ universityFirst: !filters.universityFirst })
+            }
+            className={cn(
+              "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+              filters.universityFirst
+                ? "bg-[var(--accent)]"
+                : "bg-[var(--bg-input)]",
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform",
+                filters.universityFirst ? "left-[22px]" : "left-0.5",
+              )}
+            />
+          </button>
+        </div>
       </section>
 
       <section>
-        <SectionLabel>TOP APORTES DEL MES</SectionLabel>
-        <ul className="space-y-2">
-          {MOCK_TOP_CONTRIBUTORS.map((user, index) => (
-            <li key={user.id} className="student-card flex items-center gap-3 p-3">
-              <UserAvatar initial={user.initial} colorClass={user.color} size="sm" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-[var(--app-fg)]">{user.name}</p>
-                <p className="text-xs text-[var(--app-fg-muted)]">{user.university}</p>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {index === 0 && (
-                  <Award className="h-4 w-4 text-[var(--xp)]" aria-label="Primer lugar" />
-                )}
-                <span className="rounded-[var(--radius-sm)] bg-[var(--bg-input)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
-                  {user.contributions} aportes
-                </span>
-              </div>
+        <SectionLabel>{t("topContributors").toUpperCase()}</SectionLabel>
+        <ul className="mt-3 space-y-2">
+          {contributors.length === 0 ? (
+            <li className="student-card p-3 text-xs text-[var(--app-fg-muted)]">
+              —
             </li>
-          ))}
+          ) : (
+            contributors.map((user, index) => (
+              <li
+                key={user.id}
+                className="student-card flex items-center gap-3 p-3"
+              >
+                <UserAvatar
+                  initial={user.initial}
+                  colorClass={getAuthorColor(user.name)}
+                  size="sm"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-[var(--app-fg)]">
+                    {user.name}
+                  </p>
+                  <p className="text-xs text-[var(--app-fg-muted)]">
+                    {user.university ?? "—"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {index === 0 && (
+                    <Award
+                      className="h-4 w-4 text-[var(--xp)]"
+                      aria-label="Primer lugar"
+                    />
+                  )}
+                  <span className="rounded-[var(--radius-sm)] bg-[var(--bg-input)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
+                    {t("contributions", { count: user.contributions })}
+                  </span>
+                </div>
+              </li>
+            ))
+          )}
         </ul>
       </section>
     </aside>

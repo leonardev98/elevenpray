@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/app/lib/toast";
 import { useAuth } from "@/app/providers/auth-provider";
@@ -16,6 +16,7 @@ import { MallaGrid } from "./components/MallaGrid";
 import { MallaStatsPanel } from "./components/MallaStatsPanel";
 import { MallaCourseDetail } from "./components/MallaCourseDetail";
 import { MallaCourseForm, type MallaCourseFormValues } from "./components/MallaCourseForm";
+import { MallaSkeleton } from "./components/MallaSkeleton";
 
 function prereqIdsEqual(a: string[], b: string[]): boolean {
   if (a.length !== b.length) return false;
@@ -207,12 +208,7 @@ export default function MallaPage() {
         </div>
       )}
 
-      {loading && (
-        <div className="flex items-center justify-center py-24 text-[var(--text-muted)]">
-          <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-          {t("loading")}
-        </div>
-      )}
+      {loading && <MallaSkeleton />}
 
       {error && !loading && (
         <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm">

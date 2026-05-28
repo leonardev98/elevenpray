@@ -193,10 +193,18 @@ export function useStudyBackendLink(token: string | null) {
   const ensureWorkspace = useCallback(
     async (opts?: { force?: boolean }): Promise<string | null> => {
       if (!token) return null;
-      if (!opts?.force && workspaceId) return workspaceId;
       setEnsuringWorkspace(true);
+      setError(null);
       try {
         const all = await getWorkspaces(token);
+
+        if (!opts?.force && workspaceId) {
+          const cachedStillValid = all.some((w) => w.id === workspaceId);
+          if (cachedStillValid) return workspaceId;
+          // UUID en localStorage ya no existe (BD reseteada, otro entorno, etc.)
+          useStudyBackendLinkStore.getState().reset();
+        }
+
         const study = all.find(
           (w) => w.workspaceType === "study" || w.workspaceType === "university",
         );

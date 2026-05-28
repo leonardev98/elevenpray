@@ -403,11 +403,7 @@ export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
 
             <ClassQuizzesSection course={course} cls={cls} hex={hex} />
 
-            <ClassTaskSection
-              classId={cls.id}
-              courseId={course.id}
-              linkedTaskId={cls.linkedTaskId}
-            />
+            <ClassTaskSection course={course} cls={cls} />
 
             <ClassAiSection className={`Clase ${cls.number} — ${cls.title}`} />
           </div>

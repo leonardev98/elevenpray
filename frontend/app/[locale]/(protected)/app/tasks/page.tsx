@@ -1,19 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { StudentPageShell } from "../components/StudentPageShell";
+import { StudentTasksProvider } from "./context/student-tasks-context";
 import { NewTaskModal } from "./components/NewTaskModal";
 import { TasksCalendarView } from "./components/calendar/TasksCalendarView";
 import { TasksKanbanView } from "./components/kanban/TasksKanbanView";
 import { TasksListView } from "./components/list/TasksListView";
 import { TasksPageHeader } from "./components/TasksPageHeader";
 import { TasksSidebar } from "./components/TasksSidebar";
-import type { TaskStatus, TaskViewMode } from "./lib/tasks-mock-data";
+import { TasksEmptyState } from "./components/TasksEmptyState";
+import { TasksStateBanner } from "./components/TasksStateBanner";
+import { useStudentTasks } from "./context/student-tasks-context";
+import type { TaskStatus, TaskViewMode } from "./lib/task-types";
 
-export default function StudentTasksPage() {
+function TasksPageContent() {
+  const { tasks, loading, error, workspaceId } = useStudentTasks();
   const [viewMode, setViewMode] = useState<TaskViewMode>("list");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalDefaultStatus, setModalDefaultStatus] = useState<TaskStatus>("pending");
+
+  const showEmpty =
+    !loading && !error && Boolean(workspaceId) && tasks.length === 0;
 
   function openModal(status: TaskStatus = "pending") {
     setModalDefaultStatus(status);
@@ -30,14 +39,26 @@ export default function StudentTasksPage() {
             onNewTask={() => openModal("pending")}
           />
 
-          <div
-            key={viewMode}
-            className="tasks-view-fade"
-          >
-            {viewMode === "list" && <TasksListView />}
-            {viewMode === "kanban" && <TasksKanbanView onAddTask={openModal} />}
-            {viewMode === "calendar" && <TasksCalendarView />}
-          </div>
+          <TasksStateBanner />
+
+          {showEmpty ? (
+            <TasksEmptyState onNewTask={() => openModal("pending")} />
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={viewMode}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+                className="tasks-view-fade"
+              >
+                {viewMode === "list" && <TasksListView />}
+                {viewMode === "kanban" && <TasksKanbanView onAddTask={openModal} />}
+                {viewMode === "calendar" && <TasksCalendarView />}
+              </motion.div>
+            </AnimatePresence>
+          )}
         </div>
 
         <div className="min-w-0 flex-[3] shrink-0 lg:sticky lg:top-20">
@@ -51,5 +72,13 @@ export default function StudentTasksPage() {
         defaultStatus={modalDefaultStatus}
       />
     </StudentPageShell>
+  );
+}
+
+export default function StudentTasksPage() {
+  return (
+    <StudentTasksProvider>
+      <TasksPageContent />
+    </StudentTasksProvider>
   );
 }

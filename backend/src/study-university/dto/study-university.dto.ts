@@ -314,8 +314,49 @@ export class CreateAssignmentDto {
   status?: 'pending' | 'in_progress' | 'submitted' | 'done' | 'late';
 
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  progressPercent?: number;
+
+  @IsOptional()
   @IsArray()
   attachments?: unknown[];
+}
+
+export class UpdateAssignmentDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsDateString()
+  deadline?: string;
+
+  @IsOptional()
+  @IsIn(['low', 'medium', 'high', 'urgent'])
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+
+  @IsOptional()
+  @IsIn(['pending', 'in_progress', 'submitted', 'done', 'late'])
+  status?: 'pending' | 'in_progress' | 'submitted' | 'done' | 'late';
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  progressPercent?: number;
+
+  @IsOptional()
+  @IsUUID()
+  classSessionId?: string | null;
 }
 
 export class UpdateAssignmentStatusDto {

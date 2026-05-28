@@ -71,18 +71,6 @@ function persistSession(token: string, user: PublicUser) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-const CHECKIN_PREFIX = "mitsyy_checkin_";
-
-function clearCheckins() {
-  if (typeof window === "undefined") return;
-  const toRemove: string[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith(CHECKIN_PREFIX)) toRemove.push(k);
-  }
-  toRemove.forEach((k) => localStorage.removeItem(k));
-}
-
 /** Solo token y usuario en storage; no borra perfil estudiantil (vive en servidor). */
 function clearAuthCredentials() {
   deleteCookie(TOKEN_KEY, { path: "/" });
@@ -99,7 +87,6 @@ function clearUserScopedLocalData(previousUserId?: string) {
   } else {
     clearAllStudentProfiles();
   }
-  clearCheckins();
 }
 
 interface AuthContextValue {

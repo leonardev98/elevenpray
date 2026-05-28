@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { AlertCircle, Calendar, ChevronDown, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { MockStudentTask } from "../../lib/tasks-mock-data";
+import type { StudentTask } from "../../lib/task-types";
 import { TaskCard } from "./TaskCard";
 
 const SECTION_ICONS = {
@@ -15,7 +16,7 @@ const SECTION_ICONS = {
 interface TaskSectionProps {
   label: string;
   icon: keyof typeof SECTION_ICONS;
-  tasks: MockStudentTask[];
+  tasks: StudentTask[];
 }
 
 export function TaskSection({ label, icon, tasks }: TaskSectionProps) {
@@ -46,12 +47,14 @@ export function TaskSection({ label, icon, tasks }: TaskSectionProps) {
       <div
         className={cn(
           "space-y-2 overflow-hidden transition-[max-height] duration-200 ease-in-out",
-          collapsed ? "max-h-0" : "max-h-[2000px]",
+          collapsed ? "max-h-0" : "max-h-[4000px]",
         )}
       >
-        {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {tasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </AnimatePresence>
       </div>
     </section>
   );

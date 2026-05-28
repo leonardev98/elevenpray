@@ -1,46 +1,75 @@
-import type { PostType, UniversityId } from "./community-types";
+import type { TemplateCareer, TemplateType } from "./community-types";
 
-export const POST_TYPE_LABELS: Record<PostType, string> = {
-  apunte: "Apunte",
-  pregunta: "Pregunta",
-  plantilla: "Plantilla",
-  pdf: "PDF",
+export const TEMPLATE_CAREERS: {
+  id: TemplateCareer | "todas";
+  labelKey: string;
+}[] = [
+  { id: "todas", labelKey: "careerAll" },
+  { id: "medicina", labelKey: "careerMedicina" },
+  { id: "ingenieria", labelKey: "careerIngenieria" },
+  { id: "derecho", labelKey: "careerDerecho" },
+  { id: "administracion", labelKey: "careerAdministracion" },
+  { id: "psicologia", labelKey: "careerPsicologia" },
+  { id: "sistemas", labelKey: "careerSistemas" },
+  { id: "arquitectura", labelKey: "careerArquitectura" },
+  { id: "otras", labelKey: "careerOtras" },
+];
+
+export const TEMPLATE_TYPE_FILTERS: {
+  id: TemplateType;
+  labelKey: string;
+  icon: string;
+}[] = [
+  { id: "apunte", labelKey: "typeApunte", icon: "📄" },
+  { id: "mapa_mental", labelKey: "typeMapaMental", icon: "🗺️" },
+  { id: "esquema", labelKey: "typeEsquema", icon: "📋" },
+  { id: "planificador", labelKey: "typePlanificador", icon: "🗓️" },
+  { id: "tabla", labelKey: "typeTabla", icon: "📊" },
+];
+
+export const TEMPLATE_TYPE_META: Record<
+  TemplateType,
+  { icon: string; labelKey: string }
+> = {
+  apunte: { icon: "📄", labelKey: "typeApunte" },
+  mapa_mental: { icon: "🗺️", labelKey: "typeMapaMental" },
+  esquema: { icon: "📋", labelKey: "typeEsquema" },
+  planificador: { icon: "🗓️", labelKey: "typePlanificador" },
+  tabla: { icon: "📊", labelKey: "typeTabla" },
 };
 
-export const POST_TYPE_BADGE: Record<PostType, string> = {
-  apunte: "bg-[var(--course-3-bg)] text-[var(--course-3-fg)]",
-  pregunta: "bg-[var(--course-2-bg)] text-[var(--course-2-fg)]",
-  plantilla: "bg-[var(--course-4-bg)] text-[var(--course-4-fg)]",
-  pdf: "bg-[var(--course-6-bg)] text-[var(--course-6-fg)]",
+export const CAREER_LABEL_KEYS: Record<TemplateCareer, string> = {
+  medicina: "careerMedicina",
+  ingenieria: "careerIngenieria",
+  derecho: "careerDerecho",
+  administracion: "careerAdministracion",
+  psicologia: "careerPsicologia",
+  sistemas: "careerSistemas",
+  arquitectura: "careerArquitectura",
+  otras: "careerOtras",
 };
 
-export const MODAL_BORDER_BY_TYPE: Record<PostType, string> = {
-  apunte: "border-[var(--course-3-fg)]/50",
-  pregunta: "border-[var(--course-2-fg)]/50",
-  plantilla: "border-[var(--course-4-fg)]/50",
-  pdf: "border-[var(--course-6-fg)]/50",
-};
+export const MAX_TEMPLATE_DESCRIPTION = 200;
+export const MAX_TEMPLATE_FILE_BYTES = 10 * 1024 * 1024;
 
-export const UNIVERSITY_TAG: Record<UniversityId, string> = {
-  UNI: "bg-[var(--course-4-bg)] text-[var(--course-4-fg)]",
-  UPC: "bg-[var(--course-1-bg)] text-[var(--course-1-fg)]",
-  PUCP: "bg-[var(--course-6-bg)] text-[var(--course-6-fg)]",
-  UNMSM: "bg-[var(--course-5-bg)] text-[var(--course-5-fg)]",
-  General: "bg-[var(--bg-surface)] text-[var(--text-muted)]",
-  Todas: "bg-[var(--accent-subtle)] text-[var(--accent)]",
-};
+export const ALLOWED_TEMPLATE_MIMES = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+] as const;
 
 export const AUTHOR_COLORS: Record<string, string> = {
   "Ana R.": "bg-[var(--course-4-fg)] text-[var(--accent-fg)]",
   "Luis M.": "bg-[var(--course-1-fg)] text-[var(--accent-fg)]",
   "Carla S.": "bg-[var(--course-3-fg)] text-[var(--accent-fg)]",
   "Diego F.": "bg-[var(--course-5-fg)] text-[var(--accent-fg)]",
-  "Valeria T.": "bg-[var(--course-6-fg)] text-[var(--accent-fg)]",
-  "Marco P.": "bg-[var(--course-3-fg)] text-[var(--accent-fg)]",
-  "Sofía L.": "bg-[var(--course-2-fg)] text-[var(--accent-fg)]",
-  "Pedro G.": "bg-[var(--course-4-fg)] text-[var(--accent-fg)]",
 };
 
 export function getAuthorColor(author: string): string {
   return AUTHOR_COLORS[author] ?? "bg-[var(--accent)] text-[var(--accent-fg)]";
 }
+
+export const DEFAULT_FILTERS = {
+  career: "todas" as const,
+  types: [] as TemplateType[],
+  universityFirst: false,
+};

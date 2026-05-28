@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   CalendarDays,
   CheckCircle2,
@@ -13,10 +14,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGamification } from "../../../gamification/gamification-context";
-import type { MockStudentTask } from "../../lib/tasks-mock-data";
+import { useStudentTasks } from "../../context/student-tasks-context";
+import type { StudentTask } from "../../lib/task-types";
 import {
-  COURSE_STYLES,
   formatEstimatedTime,
+  getCourseStyle,
   PRIORITY_LABELS,
   PRIORITY_STYLES,
   STATUS_LABELS,
@@ -26,41 +28,66 @@ import {
 const PROGRESS_STEPS = [0, 25, 50, 75, 100];
 
 interface TaskCardProps {
-  task: MockStudentTask;
+  task: StudentTask;
 }
 
 export function TaskCard({ task }: TaskCardProps) {
   const { recordActivity } = useGamification();
-  const [completed, setCompleted] = useState(task.status === "done");
+  const { setStatus, setProgress, deleteTask } = useStudentTasks();
+  const completed = task.status === "done";
   const [expanded, setExpanded] = useState(false);
-  const [progress, setProgress] = useState(task.progress ?? 0);
   const [checkAnimating, setCheckAnimating] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const courseStyle = COURSE_STYLES[task.courseCode];
+  const courseStyle = getCourseStyle(task.courseColorToken);
   const timeLabel = formatEstimatedTime(task.estimatedHours, task.estimatedMinutes);
+  const progress = task.progress;
 
-  function toggleComplete() {
+  async function toggleComplete() {
     setCheckAnimating(true);
-    setCompleted((c) => {
-      const next = !c;
-      if (next) void recordActivity("tasks");
-      return next;
-    });
-    window.setTimeout(() => setCheckAnimating(false), 200);
+    const nextDone = !completed;
+    setSaving(true);
+    try {
+      await setStatus(task.assignmentId, nextDone ? "done" : "pending");
+      if (nextDone) void recordActivity("tasks");
+    } finally {
+      setSaving(false);
+      window.setTimeout(() => setCheckAnimating(false), 200);
+    }
+  }
+
+  async function onProgress(step: number) {
+    setSaving(true);
+    try {
+      await setProgress(task.assignmentId, step);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function onDelete() {
+    if (!window.confirm("¿Eliminar esta tarea?")) return;
+    await deleteTask(task.assignmentId);
   }
 
   return (
-    <article
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.98 }}
       className={cn(
         "student-card overflow-hidden border-l-[3px] border-l-transparent transition-all duration-150",
         courseStyle.hoverBorder,
         "hover:bg-[var(--app-surface-soft)]",
+        saving && "opacity-80",
       )}
     >
       <div className="flex gap-3 p-4">
         <button
           type="button"
-          onClick={toggleComplete}
+          onClick={() => void toggleComplete()}
+          disabled={saving}
           aria-label={completed ? "Marcar pendiente" : "Marcar completada"}
           className={cn(
             "mt-0.5 shrink-0 transition-transform duration-200",
@@ -141,13 +168,6 @@ export function TaskCard({ task }: TaskCardProps) {
               )}
             />
           </button>
-          <button
-            type="button"
-            aria-label="Más opciones"
-            className="rounded-lg p-1 text-[var(--app-fg-muted)]"
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </button>
         </div>
       </div>
 
@@ -166,9 +186,11 @@ export function TaskCard({ task }: TaskCardProps) {
               <span className="font-medium text-[var(--app-fg)]">{progress}%</span>
             </div>
             <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-[var(--app-surface-soft)]">
-              <div
-                className="h-full rounded-full bg-[var(--app-primary)] transition-all duration-300"
-                style={{ width: `${progress}%` }}
+              <motion.div
+                className="h-full rounded-full bg-[var(--app-primary)]"
+                initial={false}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.3 }}
               />
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -176,7 +198,8 @@ export function TaskCard({ task }: TaskCardProps) {
                 <button
                   key={step}
                   type="button"
-                  onClick={() => setProgress(step)}
+                  disabled={saving}
+                  onClick={() => void onProgress(step)}
                   className={cn(
                     "rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors",
                     progress === step
@@ -192,24 +215,20 @@ export function TaskCard({ task }: TaskCardProps) {
 
           <p className="mt-3 text-xs text-[var(--app-fg-muted)]">
             Tiempo estimado: {timeLabel}
-            {task.reminder && (
-              <>
-                {" · "}
-                Recordatorio: {task.reminder}
-              </>
-            )}
           </p>
 
           <div className="mt-3 flex gap-2">
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--app-surface-soft)] px-3 py-1.5 text-xs text-[var(--app-fg-secondary)]"
+              disabled
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--app-surface-soft)] px-3 py-1.5 text-xs text-[var(--app-fg-muted)] opacity-60"
             >
               <Pencil className="h-3.5 w-3.5" aria-hidden />
               Editar
             </button>
             <button
               type="button"
+              onClick={() => void onDelete()}
               className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border-[0.5px] border-[var(--error)]/30 px-3 py-1.5 text-xs text-[var(--error)] transition-colors hover:bg-[color-mix(in_srgb,var(--error)_8%,transparent)]"
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden />
@@ -218,6 +237,6 @@ export function TaskCard({ task }: TaskCardProps) {
           </div>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
