@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,8 +9,11 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { StudyUniversityService } from './study-university.service';
@@ -159,6 +163,28 @@ export class StudyUniversityController {
     @Body() dto: UpdateClassSessionNotesDto,
   ) {
     return this.studyUniversityService.updateClassSessionNotes(workspaceId, userId, sessionId, dto);
+  }
+
+  @Post('courses/:courseId/classes/:classSessionId/resources/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadClassResource(
+    @Param('workspaceId') workspaceId: string,
+    @Param('courseId') courseId: string,
+    @Param('classSessionId') classSessionId: string,
+    @CurrentUser('id') userId: string,
+    @UploadedFile()
+    file: { buffer: Buffer; originalname: string; mimetype: string; size: number } | undefined,
+  ) {
+    if (!file) {
+      throw new BadRequestException('file is required');
+    }
+    return this.studyUniversityService.uploadClassResource(
+      workspaceId,
+      userId,
+      courseId,
+      classSessionId,
+      file,
+    );
   }
 
   @Post('assignments')

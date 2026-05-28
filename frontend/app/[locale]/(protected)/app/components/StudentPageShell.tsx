@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { StudentMinimalBar } from "./StudentMinimalBar";
 import { StudentTopBar } from "./StudentTopBar";
 
 export function StudentPageShell({
@@ -19,7 +20,7 @@ export function StudentPageShell({
 }) {
   return (
     <>
-      {!hideTopBar && <StudentTopBar title={title} />}
+      {hideTopBar ? <StudentMinimalBar title={title} /> : <StudentTopBar title={title} />}
       <main
         className={`mx-auto w-full flex-1 px-4 lg:px-8 ${maxWidth} ${
           compact ? "py-3" : "py-6"

@@ -1,7 +1,7 @@
 "use client";
 
 import { StudentPageShell } from "../components/StudentPageShell";
-import { SectionLabel } from "../wellbeing/components/SectionLabel";
+import { SectionLabel } from "../components/SectionLabel";
 import { BadgeGrid } from "../gamification/components/BadgeGrid";
 import { CycleShieldCard } from "../gamification/components/CycleShieldCard";
 import { DemoControls } from "../gamification/components/DemoControls";

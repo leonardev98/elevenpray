@@ -23,6 +23,32 @@ import {
 
 type ComboOption = StudentOnboardingOption | { id: string; label: string; textValue: string; shortName?: string };
 
+function resolveValueToSelection(
+  value: string,
+  options: StudentOnboardingOption[],
+  otherItemLabel: string,
+): {
+  selectedKey: Key | null;
+  inputValue: string;
+  otherDetail: string;
+} {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return { selectedKey: null, inputValue: "", otherDetail: "" };
+  }
+
+  const match = options.find((o) => o.label.toLowerCase() === trimmed.toLowerCase());
+  if (match) {
+    return { selectedKey: match.id, inputValue: match.label, otherDetail: "" };
+  }
+
+  return {
+    selectedKey: STUDENT_ONBOARDING_OTHER_ID,
+    inputValue: otherItemLabel,
+    otherDetail: trimmed,
+  };
+}
+
 export function StudentSearchableField({
   id,
   label,
@@ -30,6 +56,7 @@ export function StudentSearchableField({
   otherItemLabel,
   otherInputPlaceholder,
   inputPlaceholder,
+  defaultValue = "",
   onValueChange,
   isInvalid,
   errorMessage,
@@ -41,24 +68,45 @@ export function StudentSearchableField({
   otherItemLabel: string;
   otherInputPlaceholder: string;
   inputPlaceholder: string;
+  /** Valor guardado en perfil (nombre de universidad/carrera). */
+  defaultValue?: string;
   onValueChange: (value: string) => void;
   isInvalid?: boolean;
   errorMessage?: string;
   icon?: ReactNode;
 }) {
   const { contains } = useFilter({ sensitivity: "base" });
-  const [inputValue, setInputValue] = useState("");
-  const [selectedKey, setSelectedKey] = useState<Key | null>(null);
-  const [otherDetail, setOtherDetail] = useState("");
+  const initial = useMemo(
+    () => resolveValueToSelection(defaultValue, options, otherItemLabel),
+    [],
+  );
+
+  const [inputValue, setInputValue] = useState(initial.inputValue);
+  const [selectedKey, setSelectedKey] = useState<Key | null>(initial.selectedKey);
+  const [otherDetail, setOtherDetail] = useState(initial.otherDetail);
   const otherInputRef = useRef<HTMLInputElement>(null);
   const isOtherModeRef = useRef(false);
   const onValueChangeRef = useRef(onValueChange);
+  const hydratedDefaultRef = useRef(defaultValue.trim());
+
   useEffect(() => {
     onValueChangeRef.current = onValueChange;
   }, [onValueChange]);
+
   useEffect(() => {
     isOtherModeRef.current = selectedKey === STUDENT_ONBOARDING_OTHER_ID;
   }, [selectedKey]);
+
+  // Sincroniza cuando el padre carga el perfil (p. ej. tras /auth/me).
+  useEffect(() => {
+    const trimmed = defaultValue.trim();
+    if (!trimmed || trimmed === hydratedDefaultRef.current) return;
+    hydratedDefaultRef.current = trimmed;
+    const next = resolveValueToSelection(trimmed, options, otherItemLabel);
+    setSelectedKey(next.selectedKey);
+    setInputValue(next.inputValue);
+    setOtherDetail(next.otherDetail);
+  }, [defaultValue, options, otherItemLabel]);
 
   const items: ComboOption[] = useMemo(
     () => [
@@ -98,7 +146,7 @@ export function StudentSearchableField({
     );
 
   return (
-    <div>
+    <div className="relative">
       <ComboBox
         allowsCustomValue
         menuTrigger="focus"
@@ -163,10 +211,15 @@ export function StudentSearchableField({
             <ChevronDown className="size-4" aria-hidden />
           </Button>
         </Group>
-        <Popover className="entering:animate-in entering:fade-in-0 entering:zoom-in-95 exiting:animate-out exiting:fade-out-0 exiting:zoom-out-95 min-w-[var(--trigger-width)] max-w-[var(--trigger-width)]">
+        <Popover
+          placement="bottom start"
+          offset={6}
+          shouldFlip={false}
+          className="entering:animate-in entering:fade-in-0 entering:zoom-in-95 exiting:animate-out exiting:fade-out-0 exiting:zoom-out-95 z-50 min-w-[var(--trigger-width)] max-w-[var(--trigger-width)]"
+        >
           <ListBox
             items={items}
-            className="max-h-72 overflow-y-auto rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] py-1 shadow-lg outline-none"
+            className="max-h-60 overflow-y-auto overscroll-contain rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] py-1 shadow-lg outline-none sm:max-h-72"
           >
             {(item) => {
               const isOther = item.id === STUDENT_ONBOARDING_OTHER_ID;

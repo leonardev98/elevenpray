@@ -60,6 +60,12 @@ import {
   hasTimeOverlap,
   weightedAverageInPercent,
 } from './study-university.calculations';
+import { FileingestClient } from '../study-ai/fileingest.client';
+
+const CLASS_RESOURCE_ALLOWED_MIME = new Set([
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]);
 
 const WEEKDAY_INDEX: Record<UniversityWeekday, number> = {
   monday: 1,
@@ -130,7 +136,34 @@ export class StudyUniversityService {
     private readonly focusRepo: Repository<StudyFocusSession>,
     @InjectRepository(Reminder)
     private readonly reminderRepo: Repository<Reminder>,
+    private readonly fileingest: FileingestClient,
   ) {}
+
+  async uploadClassResource(
+    workspaceId: string,
+    userId: string,
+    courseId: string,
+    classSessionId: string,
+    file: { buffer: Buffer; originalname: string; mimetype: string; size: number },
+  ) {
+    await this.ensureCourse(workspaceId, userId, courseId);
+    await this.ensureClassSessionInCourse(workspaceId, courseId, classSessionId);
+
+    const mime = file.mimetype?.toLowerCase() ?? '';
+    const name = file.originalname?.toLowerCase() ?? '';
+    const allowed =
+      CLASS_RESOURCE_ALLOWED_MIME.has(mime) ||
+      name.endsWith('.pdf') ||
+      name.endsWith('.docx');
+    if (!allowed) {
+      throw new BadRequestException('Only PDF and DOCX files are supported');
+    }
+    if (!file.buffer?.length) {
+      throw new BadRequestException('Empty file');
+    }
+
+    return this.fileingest.uploadCourseResource(courseId, classSessionId, file);
+  }
 
   private async ensureStudyWorkspace(workspaceId: string, userId: string): Promise<Workspace> {
     const workspace = await this.workspacesService.findOne(workspaceId, userId);

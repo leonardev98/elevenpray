@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { useAuth } from "../../../../providers/auth-provider";
-import { normalizePublicUser } from "@/app/lib/auth-api";
+import { isStudentOnboardingComplete, normalizePublicUser } from "@/app/lib/auth-api";
 
 function getAllowedNext(next: string | null): string {
   if (!next || typeof next !== "string") return "/app";
@@ -92,12 +92,10 @@ export default function AuthBridgePage() {
         throw new Error(t("bridgeNoBackendToken"));
       }
 
-      setSession(
-        session.backendAccessToken,
-        normalizePublicUser(
-          session.backendUser as unknown as Record<string, unknown>,
-        ),
+      const normalized = normalizePublicUser(
+        session.backendUser as unknown as Record<string, unknown>,
       );
+      setSession(session.backendAccessToken, normalized);
 
       // Best-effort: limpia la cookie de NextAuth ya que toda la app usa
       // nuestro propio JWT desde aquí en adelante.
@@ -121,7 +119,11 @@ export default function AuthBridgePage() {
         // Ignorar: no es crítico para el bridge
       }
 
-      router.replace(next);
+      const destination =
+        next === "/app" && !isStudentOnboardingComplete(normalized)
+          ? "/onboarding"
+          : next;
+      router.replace(destination);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("bridgeUnknownError"));

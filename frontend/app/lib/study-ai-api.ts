@@ -94,13 +94,15 @@ export async function uploadStudyPdf(
   token: string,
   workspaceId: string,
   file: File,
+  mimeType?: string,
 ): Promise<StudyPdfDocumentDto> {
-  const presign = await presignStudyPdf(token, workspaceId, file.type || "application/pdf");
+  const mime = mimeType || file.type || "application/pdf";
+  const presign = await presignStudyPdf(token, workspaceId, mime);
   await uploadToS3(presign.uploadUrl, file);
   return ingestStudyPdf(token, workspaceId, {
     s3Key: presign.key,
     filename: file.name,
-    mimeType: file.type || "application/pdf",
+    mimeType: mime,
   });
 }
 

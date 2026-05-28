@@ -52,6 +52,11 @@ export interface FileingestChatPayload {
   topK?: number;
 }
 
+export interface FileingestResourceUploadResult {
+  resource_id: string;
+  key_url: string;
+}
+
 @Injectable()
 export class FileingestClient {
   private readonly baseUrl: string;
@@ -76,6 +81,37 @@ export class FileingestClient {
         'Fileingest is not configured (FILEINGEST_BASE_URL / FILEINGEST_INTERNAL_TOKEN)',
       );
     }
+  }
+
+  async uploadCourseResource(
+    courseId: string,
+    classSessionId: string,
+    file: { buffer: Buffer; originalname: string; mimetype: string },
+  ): Promise<FileingestResourceUploadResult> {
+    this.ensureConfigured();
+    const form = new FormData();
+    form.append('course_id', courseId);
+    form.append('class_id', classSessionId);
+    const blob = new Blob([new Uint8Array(file.buffer)], { type: file.mimetype || 'application/octet-stream' });
+    form.append('file', blob, file.originalname);
+
+    const res = await fetch(`${this.baseUrl}/v1/resources/upload`, {
+      method: 'POST',
+      headers: {
+        'X-Internal-Token': this.token,
+      },
+      body: form,
+    });
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!res.ok) {
+      throw new InternalServerErrorException(
+        String(body.error ?? `Fileingest resource upload failed (${res.status})`),
+      );
+    }
+    return {
+      resource_id: String(body.resource_id),
+      key_url: String(body.key_url),
+    };
   }
 
   async ingest(payload: FileingestIngestPayload): Promise<FileingestIngestResult> {

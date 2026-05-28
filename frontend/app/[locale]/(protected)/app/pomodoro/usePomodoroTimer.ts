@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   POMODORO_BREAK_SECONDS,
-  POMODORO_FOCUS_SECONDS,
   POMODORO_PRESETS,
   TOTAL_POMODORO_ROUNDS,
 } from "./pomodoro-data";
@@ -18,19 +17,28 @@ export function formatPomodoroTime(seconds: number): string {
 
 export function usePomodoroTimer(onBreakStart?: () => void) {
   const [enabled, setEnabled] = useState(false);
+  const [presetIndex, setPresetIndex] = useState(0);
   const [phase, setPhase] = useState<PomodoroPhase>("focus");
-  const [secondsLeft, setSecondsLeft] = useState(POMODORO_FOCUS_SECONDS);
+  const [secondsLeft, setSecondsLeft] = useState(POMODORO_PRESETS[0].seconds);
   const [isRunning, setIsRunning] = useState(false);
   const [completedFocusSessions, setCompletedFocusSessions] = useState(0);
 
   const phaseRef = useRef(phase);
+  const presetIndexRef = useRef(presetIndex);
   const completedRef = useRef(completedFocusSessions);
   const onBreakStartRef = useRef(onBreakStart);
   phaseRef.current = phase;
+  presetIndexRef.current = presetIndex;
   completedRef.current = completedFocusSessions;
   onBreakStartRef.current = onBreakStart;
 
   const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const focusSeconds = POMODORO_PRESETS[presetIndex].seconds;
+  const totalSeconds = phase === "focus" ? focusSeconds : POMODORO_BREAK_SECONDS;
+  const progress = enabled ? 1 - secondsLeft / totalSeconds : 1 - secondsLeft / focusSeconds;
+  const currentRound = Math.min(completedFocusSessions + 1, TOTAL_POMODORO_ROUNDS);
+  const allRoundsDone = completedFocusSessions >= TOTAL_POMODORO_ROUNDS;
 
   const playBeep = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -49,16 +57,12 @@ export function usePomodoroTimer(onBreakStart?: () => void) {
     }
   }, []);
 
-  const totalSeconds = phase === "focus" ? POMODORO_FOCUS_SECONDS : POMODORO_BREAK_SECONDS;
-  const progress = enabled ? 1 - secondsLeft / totalSeconds : 0;
-  const currentRound = Math.min(completedFocusSessions + 1, TOTAL_POMODORO_ROUNDS);
-  const allRoundsDone = completedFocusSessions >= TOTAL_POMODORO_ROUNDS;
-
   const activate = useCallback(() => {
+    const seconds = POMODORO_PRESETS[presetIndexRef.current].seconds;
     setEnabled(true);
     setPhase("focus");
     phaseRef.current = "focus";
-    setSecondsLeft(POMODORO_FOCUS_SECONDS);
+    setSecondsLeft(seconds);
     setCompletedFocusSessions(0);
     completedRef.current = 0;
     setIsRunning(true);
@@ -69,7 +73,7 @@ export function usePomodoroTimer(onBreakStart?: () => void) {
     setIsRunning(false);
     setPhase("focus");
     phaseRef.current = "focus";
-    setSecondsLeft(POMODORO_FOCUS_SECONDS);
+    setSecondsLeft(POMODORO_PRESETS[presetIndexRef.current].seconds);
     setCompletedFocusSessions(0);
     completedRef.current = 0;
   }, []);
@@ -82,11 +86,23 @@ export function usePomodoroTimer(onBreakStart?: () => void) {
     setIsRunning((r) => !r);
   }, [enabled, activate]);
 
+  const selectPreset = useCallback(
+    (index: number) => {
+      setPresetIndex(index);
+      presetIndexRef.current = index;
+      setIsRunning(false);
+      if (phaseRef.current === "focus" || !enabled) {
+        setSecondsLeft(POMODORO_PRESETS[index].seconds);
+      }
+    },
+    [enabled],
+  );
+
   const reset = useCallback(() => {
     setIsRunning(false);
     setPhase("focus");
     phaseRef.current = "focus";
-    setSecondsLeft(POMODORO_FOCUS_SECONDS);
+    setSecondsLeft(POMODORO_PRESETS[presetIndexRef.current].seconds);
     setCompletedFocusSessions(0);
     completedRef.current = 0;
   }, []);
@@ -110,7 +126,7 @@ export function usePomodoroTimer(onBreakStart?: () => void) {
             setEnabled(false);
             setPhase("focus");
             phaseRef.current = "focus";
-            return POMODORO_FOCUS_SECONDS;
+            return POMODORO_PRESETS[presetIndexRef.current].seconds;
           }
 
           onBreakStartRef.current?.();
@@ -121,7 +137,7 @@ export function usePomodoroTimer(onBreakStart?: () => void) {
 
         setPhase("focus");
         phaseRef.current = "focus";
-        return POMODORO_FOCUS_SECONDS;
+        return POMODORO_PRESETS[presetIndexRef.current].seconds;
       });
     }, 1000);
 
@@ -130,8 +146,10 @@ export function usePomodoroTimer(onBreakStart?: () => void) {
 
   return {
     enabled,
+    presetIndex,
     phase,
     secondsLeft,
+    focusSeconds,
     totalSeconds,
     isRunning,
     completedFocusSessions,
@@ -142,6 +160,7 @@ export function usePomodoroTimer(onBreakStart?: () => void) {
     activate,
     deactivate,
     toggleRunning,
+    selectPreset,
     reset,
     presets: POMODORO_PRESETS,
   };

@@ -17,6 +17,21 @@ import { FileingestClient } from './fileingest.client';
 const PDF_CONTAINER_COURSE_CODE = 'STUDY_PDF_AI';
 const PDF_CONTAINER_COURSE_NAME = 'Material PDF';
 
+const STUDY_ALLOWED_CONTENT_TYPES: Record<string, string> = {
+  'application/pdf': 'pdf',
+  'text/plain': 'txt',
+  'text/markdown': 'md',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+};
+
+const STUDY_PROCESSING_STATUSES = new Set([
+  'pending',
+  'extracting',
+  'embedding',
+]);
+
 interface GeneratedFlashcards {
   flashcards: Array<{ question: string; answer: string; hint?: string }>;
 }
@@ -49,19 +64,28 @@ export class StudyAiService {
     private readonly studyUniversity: StudyUniversityService,
   ) {}
 
+  private resolveStudyContentType(contentType: string): { mime: string; ext: string } {
+    const normalized = contentType.trim().toLowerCase();
+    const ext = STUDY_ALLOWED_CONTENT_TYPES[normalized];
+    if (!ext) {
+      throw new BadRequestException(
+        'Supported types: PDF, TXT, Markdown, DOCX, PPTX, XLSX',
+      );
+    }
+    return { mime: normalized, ext };
+  }
+
   async presignPdf(
     workspaceId: string,
     userId: string,
     contentType: string,
   ): Promise<{ uploadUrl: string; publicUrl: string; key: string }> {
     await this.studyUniversity.assertStudyWorkspaceAccess(workspaceId, userId);
-    if (contentType !== 'application/pdf') {
-      throw new BadRequestException('Only application/pdf is supported');
-    }
-    const key = `study/${workspaceId}/${userId}/${randomUUID()}.pdf`;
+    const { mime, ext } = this.resolveStudyContentType(contentType);
+    const key = `study/${workspaceId}/${userId}/${randomUUID()}.${ext}`;
     const { uploadUrl, publicUrl } = await this.s3Service.getPresignedUploadUrl(
       key,
-      contentType,
+      mime,
     );
     return { uploadUrl, publicUrl, key };
   }
@@ -96,6 +120,47 @@ export class StudyAiService {
     return doc;
   }
 
+  private toDocumentDto(row: StudyPdfDocument) {
+    return {
+      id: row.id,
+      documentId: row.id,
+      fileingestDocumentId: row.fileingestDocumentId,
+      courseId: row.courseId,
+      filename: row.filename,
+      status: row.status,
+      summaryText: row.summaryText,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }
+
+  private async runFileingestInBackground(
+    rowId: string,
+    fileingestDocumentId: string,
+    workspaceId: string,
+    userId: string,
+    dto: IngestStudyPdfDto,
+  ): Promise<void> {
+    try {
+      const result = await this.fileingest.ingest({
+        documentId: fileingestDocumentId,
+        workspaceId,
+        userId,
+        s3Key: dto.s3Key,
+        filename: dto.filename,
+        mimeType: dto.mimeType ?? 'application/pdf',
+      });
+      await this.pdfDocRepo.update(rowId, { status: result.status });
+    } catch {
+      try {
+        const remote = await this.fileingest.getDocumentStatus(fileingestDocumentId);
+        await this.pdfDocRepo.update(rowId, { status: remote.status });
+      } catch {
+        await this.pdfDocRepo.update(rowId, { status: 'failed' });
+      }
+    }
+  }
+
   async ingestDocument(
     workspaceId: string,
     userId: string,
@@ -116,30 +181,15 @@ export class StudyAiService {
     });
     await this.pdfDocRepo.save(row);
 
-    try {
-      const result = await this.fileingest.ingest({
-        documentId: fileingestDocumentId,
-        workspaceId,
-        userId,
-        s3Key: dto.s3Key,
-        filename: dto.filename,
-        mimeType: dto.mimeType ?? 'application/pdf',
-      });
-      row.status = result.status;
-      await this.pdfDocRepo.save(row);
-      return {
-        id: row.id,
-        documentId: row.id,
-        fileingestDocumentId: row.fileingestDocumentId,
-        courseId: row.courseId,
-        filename: row.filename,
-        status: row.status,
-      };
-    } catch (err) {
-      row.status = 'failed';
-      await this.pdfDocRepo.save(row);
-      throw err;
-    }
+    void this.runFileingestInBackground(
+      row.id,
+      fileingestDocumentId,
+      workspaceId,
+      userId,
+      dto,
+    );
+
+    return this.toDocumentDto(row);
   }
 
   async listDocuments(workspaceId: string, userId: string) {
@@ -148,37 +198,28 @@ export class StudyAiService {
       where: { workspaceId, userId },
       order: { createdAt: 'DESC' },
     });
-    return docs.map((d) => ({
-      id: d.id,
-      documentId: d.id,
-      fileingestDocumentId: d.fileingestDocumentId,
-      courseId: d.courseId,
-      filename: d.filename,
-      status: d.status,
-      summaryText: d.summaryText,
-      createdAt: d.createdAt,
-      updatedAt: d.updatedAt,
-    }));
+    return docs.map((d) => this.toDocumentDto(d));
   }
 
   async getDocumentStatus(workspaceId: string, userId: string, documentId: string) {
     const doc = await this.getOwnedDocument(workspaceId, userId, documentId);
-    const remote = await this.fileingest.getDocumentStatus(doc.fileingestDocumentId);
-    if (remote.status !== doc.status) {
-      doc.status = remote.status;
-      await this.pdfDocRepo.save(doc);
+    if (doc.status === 'failed' || STUDY_PROCESSING_STATUSES.has(doc.status)) {
+      try {
+        const remote = await this.fileingest.getDocumentStatus(doc.fileingestDocumentId);
+        if (remote.status !== doc.status) {
+          doc.status = remote.status;
+          await this.pdfDocRepo.save(doc);
+        }
+        return {
+          ...this.toDocumentDto(doc),
+          totalChunks: remote.totalChunks,
+          error: remote.error,
+        };
+      } catch {
+        return this.toDocumentDto(doc);
+      }
     }
-    return {
-      id: doc.id,
-      documentId: doc.id,
-      fileingestDocumentId: doc.fileingestDocumentId,
-      courseId: doc.courseId,
-      filename: doc.filename,
-      status: doc.status,
-      totalChunks: remote.totalChunks,
-      error: remote.error,
-      summaryText: doc.summaryText,
-    };
+    return this.toDocumentDto(doc);
   }
 
   async streamChat(

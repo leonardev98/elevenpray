@@ -2,29 +2,37 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { Zap, Smile, Meh, Frown, Moon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/app/providers/auth-provider";
-import { saveCheckIn } from "../lib/student-storage";
-import { useGamification } from "../gamification/gamification-context";
+import { upsertTodayEmotionalCheckIn } from "@/app/lib/emotional-checkins-api";
+import { saveTodayCheckIn } from "../lib/student-storage";
+import type { MoodId } from "../wellbeing/wellbeing-types";
 import { useCheckIn } from "./check-in-context";
 
-const MOODS = [
-  { id: "excellent", emoji: "😄" },
-  { id: "good", emoji: "🙂" },
-  { id: "normal", emoji: "😐" },
-  { id: "low", emoji: "😟" },
-  { id: "bad", emoji: "😞" },
-  { id: "overwhelmed", emoji: "😣" },
-] as const;
+const MOODS: { id: MoodId; Icon: LucideIcon }[] = [
+  { id: "excellent", Icon: Zap },
+  { id: "good", Icon: Smile },
+  { id: "normal", Icon: Meh },
+  { id: "low", Icon: Frown },
+  { id: "bad", Icon: Moon },
+];
 
 export function EmotionalCheckInGate() {
   const t = useTranslations("checkin");
-  const { user } = useAuth();
+  const tMoods = useTranslations("checkin.moods");
+  const { user, token } = useAuth();
   const { gateOpen, closeGate, refreshCheckIn } = useCheckIn();
-  const { recordActivity } = useGamification();
 
-  function handleSelect(moodId: string) {
-    saveCheckIn(moodId, user?.id);
-    void recordActivity("checkin");
+  async function handleSelect(moodId: MoodId) {
+    saveTodayCheckIn(moodId, undefined, undefined, user?.id);
+    if (token) {
+      try {
+        await upsertTodayEmotionalCheckIn(token, { mood: moodId });
+      } catch {
+        /* local saved */
+      }
+    }
     refreshCheckIn();
     closeGate();
   }
@@ -58,14 +66,14 @@ export function EmotionalCheckInGate() {
             </p>
 
             <motion.div
-              className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-6"
+              className="mt-8 flex flex-wrap justify-center gap-3"
               initial="hidden"
               animate="visible"
               variants={{
                 visible: { transition: { staggerChildren: 0.05 } },
               }}
             >
-              {MOODS.map(({ id, emoji }) => (
+              {MOODS.map(({ id, Icon }) => (
                 <motion.button
                   key={id}
                   type="button"
@@ -73,14 +81,14 @@ export function EmotionalCheckInGate() {
                     hidden: { opacity: 0, y: 8 },
                     visible: { opacity: 1, y: 0 },
                   }}
-                  onClick={() => handleSelect(id)}
-                  className="flex flex-col items-center gap-2 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-2 py-4 transition hover:border-[var(--app-primary)]/50 hover:bg-[var(--app-primary-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/40"
+                  onClick={() => void handleSelect(id)}
+                  className="flex min-w-[4.5rem] flex-col items-center gap-2 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-3 py-4 transition hover:scale-105 hover:border-[var(--app-primary)]/50 hover:bg-[var(--app-primary-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/40 motion-reduce:hover:scale-100"
                 >
-                  <span className="text-3xl" aria-hidden>
-                    {emoji}
-                  </span>
-                  <span className="text-center text-[10px] font-medium leading-tight text-[var(--app-fg-secondary)] sm:text-xs">
-                    {t(`moods.${id}`)}
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-primary)]/10">
+                    <Icon className="h-5 w-5 text-[var(--app-primary)]" aria-hidden />
+                  </div>
+                  <span className="text-center text-xs font-medium text-[var(--app-fg-secondary)]">
+                    {tMoods(id)}
                   </span>
                 </motion.button>
               ))}

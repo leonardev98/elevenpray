@@ -17,6 +17,8 @@ type QueryHandler struct {
 type queryRequest struct {
 	WorkspaceID string   `json:"workspaceId"`
 	DocumentIDs []string `json:"documentIds,omitempty"`
+	CourseID    string   `json:"courseId,omitempty"`
+	ClassID     string   `json:"classId,omitempty"`
 	Question    string   `json:"question"`
 	TopK        int      `json:"topK,omitempty"`
 }
@@ -27,22 +29,40 @@ func (h *QueryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid json body")
 		return
 	}
-	if body.WorkspaceID == "" || body.Question == "" {
-		writeError(w, http.StatusBadRequest, "workspaceId and question are required")
-		return
-	}
-	workspaceID, err := uuid.Parse(body.WorkspaceID)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid workspaceId")
-		return
-	}
-	docIDs, err := parseUUIDs(body.DocumentIDs)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid documentIds")
+	if body.Question == "" {
+		writeError(w, http.StatusBadRequest, "question is required")
 		return
 	}
 
-	result, err := h.Orchestrator.Answer(r.Context(), workspaceID, docIDs, body.Question, body.TopK)
+	var result *rag.QueryResult
+	var err error
+	if body.CourseID != "" && body.ClassID != "" {
+		if _, err = uuid.Parse(body.CourseID); err != nil {
+			writeError(w, http.StatusBadRequest, "invalid courseId")
+			return
+		}
+		if _, err = uuid.Parse(body.ClassID); err != nil {
+			writeError(w, http.StatusBadRequest, "invalid classId")
+			return
+		}
+		result, err = h.Orchestrator.AnswerByCourseClass(r.Context(), body.CourseID, body.ClassID, body.Question, body.TopK)
+	} else {
+		if body.WorkspaceID == "" {
+			writeError(w, http.StatusBadRequest, "workspaceId is required (or courseId+classId)")
+			return
+		}
+		workspaceID, parseErr := uuid.Parse(body.WorkspaceID)
+		if parseErr != nil {
+			writeError(w, http.StatusBadRequest, "invalid workspaceId")
+			return
+		}
+		docIDs, parseErr := parseUUIDs(body.DocumentIDs)
+		if parseErr != nil {
+			writeError(w, http.StatusBadRequest, "invalid documentIds")
+			return
+		}
+		result, err = h.Orchestrator.Answer(r.Context(), workspaceID, docIDs, body.Question, body.TopK)
+	}
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return

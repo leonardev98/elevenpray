@@ -1,9 +1,11 @@
 package s3client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
+	"strings"
 
 	awsv2 "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -53,6 +55,28 @@ func (c *Client) GetObject(ctx context.Context, key string) ([]byte, string, err
 		ct = *out.ContentType
 	}
 	return data, ct, nil
+}
+
+// PutObject uploads bytes to key with the given content type.
+func (c *Client) PutObject(ctx context.Context, key, contentType string, data []byte) error {
+	_, err := c.api.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      awsv2.String(c.bucket),
+		Key:         awsv2.String(key),
+		Body:        bytes.NewReader(data),
+		ContentType: awsv2.String(contentType),
+	})
+	if err != nil {
+		return fmt.Errorf("s3 put %s: %w", key, err)
+	}
+	return nil
+}
+
+// PublicURL builds a browser-accessible URL for an object key.
+func (c *Client) PublicURL(region, publicBaseURL, key string) string {
+	if publicBaseURL != "" {
+		return strings.TrimRight(publicBaseURL, "/") + "/" + key
+	}
+	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", c.bucket, region, key)
 }
 
 // Bucket exposes the configured bucket name (used by logs / debug).

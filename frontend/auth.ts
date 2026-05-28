@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
-import type { PublicUser } from "@/app/lib/auth-api"
+import { normalizePublicUser, type PublicUser } from "@/app/lib/auth-api"
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7 // 7 días
 const useSecureCookies = process.env.NODE_ENV === "production"
@@ -63,9 +63,12 @@ async function exchangeGoogleIdToken(
     }
     const data = (await res.json()) as {
       accessToken: string
-      user: PublicUser
+      user: Record<string, unknown>
     }
-    return data
+    return {
+      accessToken: data.accessToken,
+      user: normalizePublicUser(data.user ?? {}),
+    }
   } catch (err) {
     return {
       error:

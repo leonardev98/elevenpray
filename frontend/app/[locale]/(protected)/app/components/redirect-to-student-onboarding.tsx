@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/providers/auth-provider";
+import { isStudentOnboardingComplete } from "@/app/lib/auth-api";
 import { saveStudentProfile } from "../lib/student-storage";
 
 export function RedirectToStudentOnboarding({ children }: { children: React.ReactNode }) {
@@ -13,8 +14,7 @@ export function RedirectToStudentOnboarding({ children }: { children: React.Reac
   const { user, isLoading } = useAuth();
   const [ready, setReady] = useState(false);
 
-  const needsOnboarding =
-    !!user && !user.studentOnboardingCompleted;
+  const needsOnboarding = !!user && !isStudentOnboardingComplete(user);
 
   useEffect(() => {
     if (isLoading) return;

@@ -15,8 +15,10 @@ import (
 	"github.com/elevenpray/fileingest/internal/ingest"
 	"github.com/elevenpray/fileingest/internal/ingest/chunker"
 	"github.com/elevenpray/fileingest/internal/llm"
+	"github.com/elevenpray/fileingest/internal/notify"
 	"github.com/elevenpray/fileingest/internal/observability"
 	"github.com/elevenpray/fileingest/internal/rag"
+	"github.com/elevenpray/fileingest/internal/storage/milvus"
 	"github.com/elevenpray/fileingest/internal/storage/postgres"
 	s3client "github.com/elevenpray/fileingest/internal/storage/s3"
 )
@@ -24,8 +26,6 @@ import (
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
-		// Logger isn't ready yet; standard log is acceptable here.
-		// Using slog with default handler keeps the format consistent.
 		observability.NewLogger("info").Error("config", "err", err)
 		os.Exit(1)
 	}
@@ -35,6 +35,7 @@ func main() {
 		"port", cfg.Port,
 		"chat_deployment", cfg.Azure.ChatDeployment,
 		"embed_deployment", cfg.Azure.EmbedDeployment,
+		"milvus_collection", cfg.Milvus.Collection,
 	)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -56,6 +57,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	milvusClient, err := milvus.New(ctx, milvus.Config{
+		Host:       cfg.Milvus.Host,
+		Port:       cfg.Milvus.Port,
+		Collection: cfg.Milvus.Collection,
+		Dim:        cfg.Milvus.EmbedDims,
+	})
+	if err != nil {
+		logger.Error("milvus", "err", err)
+		os.Exit(1)
+	}
+	defer milvusClient.Close()
+
 	llmClient := llm.NewClient(
 		cfg.Azure.Endpoint,
 		cfg.Azure.APIKey,
@@ -71,9 +84,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	backendNotify := notify.NewBackendClient(cfg.Backend.ResourceWebhookURL, cfg.Backend.ResourceWebhookToken)
+
 	pipeline := ingest.New(logger, s3c, chk, llmClient, docRepo, chunkRepo, cfg.Ingest.MaxFileMB)
-	retriever := rag.NewRetriever(llmClient, chunkRepo, cfg.RAG.TopKDefault)
-	orch := rag.NewOrchestrator(retriever, llmClient)
+	resourcePipeline := ingest.NewResourcePipeline(
+		logger, s3c, cfg.AWS.Region, cfg.AWS.PublicBaseURL,
+		chk, llmClient, milvusClient, backendNotify, cfg.Ingest.MaxFileMB,
+	)
+
+	pgRetriever := rag.NewRetriever(llmClient, chunkRepo, cfg.RAG.TopKDefault)
+	milvusRetriever := rag.NewMilvusRetriever(llmClient, milvusClient, cfg.RAG.TopKDefault)
+	orch := rag.NewOrchestrator(pgRetriever, milvusRetriever, llmClient)
 
 	srv := httpserver.New(":"+cfg.Port, httpserver.Deps{
 		Logger:           logger,
@@ -82,7 +103,11 @@ func main() {
 			ChatDeployment:  cfg.Azure.ChatDeployment,
 			EmbedDeployment: cfg.Azure.EmbedDeployment,
 		},
-		Ingest:    &handlers.IngestHandler{Pipeline: pipeline, Logger: logger},
+		Ingest: &handlers.IngestHandler{Pipeline: pipeline, Logger: logger},
+		ResourceUpload: &handlers.ResourceUploadHandler{
+			Pipeline: resourcePipeline,
+			Logger:   logger,
+		},
 		Documents: &handlers.DocumentsHandler{Repo: docRepo},
 		Query:     &handlers.QueryHandler{Orchestrator: orch},
 		Chat:      &handlers.ChatHandler{Orchestrator: orch, LLM: llmClient},

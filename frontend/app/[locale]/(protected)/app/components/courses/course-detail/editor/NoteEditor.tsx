@@ -27,8 +27,6 @@ import { DocOutline } from "./DocOutline";
 import { ThemeFilterBar } from "./ThemeFilterBar";
 import type { BlockTheme as BlockThemeId } from "./types";
 import "./editor-styles.css";
-import { PomodoroNavControl } from "../../../../pomodoro/components/PomodoroNavControl";
-
 export type SaveStatus = "idle" | "saving" | "saved";
 
 interface NoteEditorProps {
@@ -214,7 +212,6 @@ export function NoteEditor({
         </div>
 
         <div className="flex items-center gap-1">
-          <PomodoroNavControl compact />
           <button
             type="button"
             onClick={() => setFocusMode((v) => !v)}

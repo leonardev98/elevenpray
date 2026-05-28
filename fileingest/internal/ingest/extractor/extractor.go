@@ -17,6 +17,9 @@ type Extractor interface {
 // Registry dispatches to a concrete extractor based on the MIME type.
 type Registry struct {
 	pdf      Extractor
+	docx     Extractor
+	pptx     Extractor
+	xlsx     Extractor
 	text     Extractor
 	markdown Extractor
 }
@@ -25,18 +28,32 @@ type Registry struct {
 func NewRegistry() *Registry {
 	return &Registry{
 		pdf:      &PDFExtractor{},
+		docx:     &DOCXExtractor{},
+		pptx:     &PPTXExtractor{},
+		xlsx:     &XLSXExtractor{},
 		text:     &TextExtractor{},
 		markdown: &MarkdownExtractor{},
 	}
 }
 
-// Extract picks an extractor based on the mime type. Returns ErrUnsupportedMIME
-// if no extractor matches.
+// Extract picks an extractor based on the mime type and optional filename hint.
+// Returns ErrUnsupportedMIME if no extractor matches.
 func (r *Registry) Extract(ctx context.Context, mimeType string, data []byte) (string, error) {
-	mt := strings.ToLower(strings.TrimSpace(mimeType))
+	return r.ExtractWithFilename(ctx, mimeType, "", data)
+}
+
+// ExtractWithFilename resolves MIME from filename when the type is empty or generic.
+func (r *Registry) ExtractWithFilename(ctx context.Context, mimeType, filename string, data []byte) (string, error) {
+	mt := normalizeMIME(mimeType, filename)
 	switch {
 	case strings.Contains(mt, "pdf"):
 		return r.pdf.Extract(ctx, data)
+	case isDOCX(mt):
+		return r.docx.Extract(ctx, data)
+	case isPPTX(mt):
+		return r.pptx.Extract(ctx, data)
+	case isXLSX(mt):
+		return r.xlsx.Extract(ctx, data)
 	case mt == "text/markdown" || strings.HasSuffix(mt, "+markdown"):
 		return r.markdown.Extract(ctx, data)
 	case strings.HasPrefix(mt, "text/"):
@@ -44,4 +61,43 @@ func (r *Registry) Extract(ctx context.Context, mimeType string, data []byte) (s
 	default:
 		return "", fmt.Errorf("%w: %q", domain.ErrUnsupportedMIME, mimeType)
 	}
+}
+
+func normalizeMIME(mimeType, filename string) string {
+	mt := strings.ToLower(strings.TrimSpace(mimeType))
+	if mt != "" && mt != "application/octet-stream" {
+		return mt
+	}
+	ext := strings.ToLower(filename)
+	if i := strings.LastIndex(ext, "."); i >= 0 {
+		ext = ext[i:]
+	}
+	switch ext {
+	case ".pdf":
+		return "application/pdf"
+	case ".docx":
+		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+	case ".pptx":
+		return "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+	case ".xlsx":
+		return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	case ".md":
+		return "text/markdown"
+	case ".txt":
+		return "text/plain"
+	default:
+		return mt
+	}
+}
+
+func isDOCX(mt string) bool {
+	return strings.Contains(mt, "wordprocessingml")
+}
+
+func isPPTX(mt string) bool {
+	return strings.Contains(mt, "presentationml")
+}
+
+func isXLSX(mt string) bool {
+	return strings.Contains(mt, "spreadsheetml")
 }

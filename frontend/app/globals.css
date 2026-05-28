@@ -407,6 +407,115 @@
   background: var(--app-surface-soft);
 }
 
+@keyframes wellbeing-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-wellbeing-enter {
+  animation: wellbeing-enter 0.3s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-wellbeing-enter {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+.animate-wellbeing-enter-delay {
+  animation: wellbeing-enter 0.3s ease 0.1s forwards;
+  opacity: 0;
+}
+
+@keyframes bento-tile-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bento-tile-enter {
+  opacity: 0;
+  animation: bento-tile-enter 0.4s ease forwards;
+  animation-delay: var(--bento-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bento-tile-enter {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+.wellbeing-guided-breathe-circle {
+  transition-property: transform, border-color;
+  transition-timing-function: ease-in-out;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wellbeing-guided-breathe-circle {
+    transform: scale(0.9) !important;
+    transition: border-color 0.3s ease !important;
+  }
+}
+
+.wellbeing-calm-page {
+  min-height: 50vh;
+}
+
+.wellbeing-calm-block {
+  opacity: 0;
+  animation: wellbeing-enter 0.55s ease forwards;
+  animation-delay: var(--wellbeing-delay, 0ms);
+}
+
+.wellbeing-dashboard-tile {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.wellbeing-dashboard-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--app-shadow-card);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wellbeing-calm-block {
+    opacity: 1;
+    animation: none;
+  }
+
+  .wellbeing-dashboard-tile,
+  .wellbeing-dashboard-tile:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
+.day-timeline-item {
+  opacity: 0;
+  animation: wellbeing-enter 0.45s ease forwards;
+  animation-delay: var(--item-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-timeline-item {
+    opacity: 1;
+    animation: none;
+  }
+}
+
 @keyframes task-alert-pulse {
   0%,
   100% {
@@ -559,6 +668,26 @@
 
 .wellbeing-breathe-circle {
   animation: wellbeing-breathe var(--breathe-duration, 4s) ease-in-out infinite;
+}
+
+@keyframes wellbeing-pomodoro-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+.wellbeing-pomodoro-ring--active .wellbeing-pomodoro-ring-progress {
+  animation: wellbeing-pomodoro-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wellbeing-pomodoro-ring--active .wellbeing-pomodoro-ring-progress {
+    animation: none;
+  }
 }
 
 /* Calendario — colores Paper por tipo de evento (light/dark). */

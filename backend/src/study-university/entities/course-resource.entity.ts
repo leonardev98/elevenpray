@@ -11,6 +11,9 @@ export class CourseResource {
   @Column({ name: 'course_id', type: 'uuid' })
   courseId: string;
 
+  @Column({ name: 'class_session_id', type: 'uuid', nullable: true })
+  classSessionId: string | null;
+
   @Column({ type: 'text' })
   title: string;
 

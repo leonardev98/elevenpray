@@ -11,6 +11,7 @@ Se ejecuta detrás del backend NestJS de ElevenPray. El frontend nunca lo llama 
 - DB: PostgreSQL (Supabase) + extensión `pgvector` via `pgx/v5` + `pgvector-go`
 - LLM: Azure OpenAI v1 API (`/openai/v1`) — chat + embeddings con clave compartida
 - PDF: `ledongthuc/pdf` (puro Go, sin CGO)
+- Office Open XML: DOCX/PPTX (ZIP + XML, puro Go), XLSX (`excelize/v2`)
 - Tokens: `tiktoken-go` (cl100k_base)
 - S3: `aws-sdk-go-v2`
 
@@ -78,6 +79,8 @@ Procesa un archivo ya subido a S3 (extracción → chunking → embeddings → p
   "filename": "abc.pdf"
 }
 ```
+
+Formatos admitidos: `application/pdf`, `text/plain`, `text/markdown`, `.docx`, `.pptx`, `.xlsx` (Office Open XML). No se admiten `.doc`, `.ppt` ni `.xls` (formato binario antiguo de Microsoft).
 
 Respuesta `202 Accepted`:
 

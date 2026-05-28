@@ -20,6 +20,29 @@ export interface PublicUser {
   studentOnboardingCompleted?: boolean;
 }
 
+/** Perfil académico mínimo guardado en servidor. */
+export function hasCompleteStudentProfile(
+  profile: StudentProfilePublic | null | undefined,
+): boolean {
+  return Boolean(
+    profile?.university?.trim() &&
+      profile?.career?.trim() &&
+      profile?.cycle?.trim(),
+  );
+}
+
+/**
+ * Onboarding estudiantil completado si el backend lo marcó o ya hay perfil académico
+ * persistido (evita re-mostrar el formulario tras login con Google u otra sesión).
+ */
+export function isStudentOnboardingComplete(
+  user: Pick<PublicUser, "studentOnboardingCompleted" | "studentProfile"> | null | undefined,
+): boolean {
+  if (!user) return false;
+  if (user.studentOnboardingCompleted) return true;
+  return hasCompleteStudentProfile(user.studentProfile);
+}
+
 /** Normaliza respuestas del backend (camelCase o snake_case) y valores por defecto. */
 export function normalizePublicUser(raw: Record<string, unknown>): PublicUser {
   const studentUniversity =
@@ -46,12 +69,14 @@ export function normalizePublicUser(raw: Record<string, unknown>): PublicUser {
     typeof studentCycle === "string" &&
     studentCycle.length > 0;
 
-  const studentOnboardingCompleted = Boolean(
-    raw.studentOnboardingCompleted ??
-      raw.student_onboarding_completed ??
-      raw.studentOnboardingCompletedAt ??
-      raw.student_onboarding_completed_at,
-  );
+  const studentOnboardingCompleted =
+    raw.studentOnboardingCompleted === true ||
+    raw.student_onboarding_completed === true ||
+    hasStudentData ||
+    (raw.studentOnboardingCompletedAt != null &&
+      raw.studentOnboardingCompletedAt !== "") ||
+    (raw.student_onboarding_completed_at != null &&
+      raw.student_onboarding_completed_at !== "");
 
   return {
     id: String(raw.id),

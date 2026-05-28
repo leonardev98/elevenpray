@@ -124,8 +124,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setToken(storedToken);
     setUser(storedUser);
-    setIsLoading(false);
-
     setCookie(TOKEN_KEY, storedToken, getCookieOptions());
 
     try {
@@ -140,6 +138,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(null);
         setUser(null);
       }
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 

@@ -1,89 +1,58 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { POMODORO_PRESETS, TOTAL_POMODORO_ROUNDS } from "../wellbeing-mock-data";
+import { useCallback } from "react";
+import { usePomodoro as useGlobalPomodoro } from "../../pomodoro/pomodoro-context";
+import { POMODORO_PRESETS } from "../../pomodoro/pomodoro-data";
+import { formatPomodoroTime } from "../../pomodoro/usePomodoroTimer";
 
 export function usePomodoro() {
-  const [presetIndex, setPresetIndex] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(POMODORO_PRESETS[0].seconds);
-  const [isRunning, setIsRunning] = useState(false);
-  const [completedRounds, setCompletedRounds] = useState(0);
-  const [currentRound, setCurrentRound] = useState(1);
+  const global = useGlobalPomodoro();
 
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  const focusSeconds = POMODORO_PRESETS[global.presetIndex].seconds;
+  const displayTotalSeconds =
+    global.enabled && global.phase === "break" ? global.totalSeconds : focusSeconds;
+  const progress =
+    global.enabled && global.phase === "break"
+      ? 1 - global.secondsLeft / global.totalSeconds
+      : 1 - global.secondsLeft / focusSeconds;
 
-  const totalSeconds = POMODORO_PRESETS[presetIndex].seconds;
-
-  const playBeep = useCallback(() => {
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new AudioContext();
-    }
-    const ctx = audioCtxRef.current;
-    const osc = ctx.createOscillator();
-    osc.frequency.value = 440;
-    osc.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.3);
-  }, []);
-
-  const selectPreset = useCallback((index: number) => {
-    setPresetIndex(index);
-    setSecondsLeft(POMODORO_PRESETS[index].seconds);
-    setIsRunning(false);
-  }, []);
+  const sessionComplete =
+    global.enabled &&
+    global.phase === "break" &&
+    global.completedFocusSessions > 0 &&
+    !global.allRoundsDone;
 
   const toggleRunning = useCallback(() => {
-    setIsRunning((r) => !r);
-  }, []);
+    global.toggleRunning();
+  }, [global]);
 
-  const reset = useCallback(() => {
-    setIsRunning(false);
-    setSecondsLeft(POMODORO_PRESETS[presetIndex].seconds);
-    setCompletedRounds(0);
-    setCurrentRound(1);
-  }, [presetIndex]);
-
-  useEffect(() => {
-    if (!isRunning) return;
-
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev > 1) return prev - 1;
-
-        playBeep();
-        setCompletedRounds((cr) => {
-          const nextCompleted = cr + 1;
-          if (nextCompleted >= TOTAL_POMODORO_ROUNDS) {
-            setIsRunning(false);
-            setCurrentRound(TOTAL_POMODORO_ROUNDS);
-            return TOTAL_POMODORO_ROUNDS;
-          }
-          setCurrentRound((r) => r + 1);
-          return nextCompleted;
-        });
-        return POMODORO_PRESETS[presetIndex].seconds;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isRunning, presetIndex, playBeep]);
-
-  const progress = 1 - secondsLeft / totalSeconds;
+  const selectPreset = useCallback(
+    (index: number) => {
+      global.selectPreset(index);
+    },
+    [global],
+  );
 
   return {
-    presetIndex,
-    presets: POMODORO_PRESETS,
-    secondsLeft,
-    totalSeconds,
-    isRunning,
-    completedRounds,
-    currentRound,
-    totalRounds: TOTAL_POMODORO_ROUNDS,
+    presetIndex: global.presetIndex,
+    presets: global.presets,
+    secondsLeft: global.secondsLeft,
+    totalSeconds: displayTotalSeconds,
+    focusSeconds,
+    isRunning: global.enabled && global.isRunning,
+    enabled: global.enabled,
+    phase: global.phase,
+    completedRounds: global.completedFocusSessions,
+    currentRound: global.currentRound,
+    totalRounds: global.totalRounds,
     progress,
+    sessionComplete,
+    allRoundsDone: global.allRoundsDone,
     selectPreset,
     toggleRunning,
-    reset,
+    reset: global.reset,
+    activate: global.activate,
   };
 }
 
-export { formatPomodoroTime as formatTime } from "../../pomodoro/usePomodoroTimer";
+export { formatPomodoroTime as formatTime };

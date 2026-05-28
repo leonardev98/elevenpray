@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Image from "next/image";
 import { Sora } from "next/font/google";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { MitsyyLogo } from "./mitsyy-logo";
@@ -115,43 +116,145 @@ const TRUST_AVATARS = [
   { letter: "M", gradient: "linear-gradient(135deg, #8C5C6B, #5A2D3A)" },
 ] as const;
 
-function HeroNavbar() {
+const NAV_SECTIONS = [
+  { href: "#producto", key: "navProduct" as const },
+  { href: "#como-funciona", key: "navHowItWorks" as const },
+  { href: "#testimonios", key: "navTestimonials" as const },
+  { href: "#pricing", key: "navPricing" as const },
+] as const;
+
+function MenuIcon({ open }: { open: boolean }) {
   return (
-    <nav className={styles.navbar} aria-label="Navegación principal">
-      <Link href="/" className={styles.navLogo} aria-label="Mitsyy">
-        <MitsyyLogo priority navbar />
-      </Link>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      {open ? (
+        <path
+          d="M6 6l12 12M18 6 6 18"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      ) : (
+        <path
+          d="M4 7h16M4 12h16M4 17h16"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      )}
+    </svg>
+  );
+}
 
-      <div className={styles.navLinks}>
-        <a href="#producto" className={styles.navLink}>
-          Producto
-        </a>
-        <a href="#como-funciona" className={styles.navLink}>
-          Cómo funciona
-        </a>
-        <a href="#testimonios" className={styles.navLink}>
-          Opiniones
-        </a>
-        <a href="#pricing" className={styles.navLink}>
-          Precios
-        </a>
-      </div>
+function HeroNavbar() {
+  const t = useTranslations("landing");
+  const menuId = useId();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-      <div className={styles.navActions}>
-        <Link
-          href="/login"
-          className={`${styles.navGhost} ${sora.className}`}
-        >
-          Iniciar sesión
-        </Link>
-        <Link
-          href="/register"
-          className={`${styles.navSolid} ${sora.className}`}
-        >
-          Empezar gratis
-        </Link>
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    if (menuOpen) window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const onResize = () => {
+      if (window.matchMedia("(min-width: 880px)").matches) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const closeMenu = () => setMenuOpen(false);
+
+  return (
+    <header className={styles.navHeader}>
+      <nav className={styles.navbar} aria-label="Navegación principal">
+        <div className={styles.navStart}>
+          <Link href="/" className={styles.navLogo} aria-label="Mitsyy">
+            <MitsyyLogo priority navbar />
+          </Link>
+
+          <button
+            type="button"
+            className={styles.navMenuBtn}
+            aria-expanded={menuOpen}
+            aria-controls={menuId}
+            aria-label={menuOpen ? t("navMenuClose") : t("navMenuOpen")}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <MenuIcon open={menuOpen} />
+          </button>
+        </div>
+
+        <div className={styles.navLinks}>
+          {NAV_SECTIONS.map(({ href, key }) => (
+            <a key={href} href={href} className={styles.navLink}>
+              {t(key)}
+            </a>
+          ))}
+        </div>
+
+        <div className={styles.navActions}>
+          <Link
+            href="/login"
+            className={`${styles.navGhost} ${sora.className}`}
+          >
+            {t("signIn")}
+          </Link>
+          <Link
+            href="/register"
+            className={`${styles.navSolid} ${sora.className}`}
+          >
+            {t("createAccount")}
+          </Link>
+        </div>
+      </nav>
+
+      <div
+        id={menuId}
+        className={styles.navMobilePanel}
+        data-open={menuOpen || undefined}
+        hidden={!menuOpen}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("navMenuLabel")}
+      >
+        <button
+          type="button"
+          className={styles.navMobileBackdrop}
+          aria-label={t("navMenuClose")}
+          tabIndex={menuOpen ? 0 : -1}
+          onClick={closeMenu}
+        />
+        <div className={styles.navMobileSheet}>
+          <nav className={styles.navMobileLinks} aria-label={t("navMenuLabel")}>
+            {NAV_SECTIONS.map(({ href, key }) => (
+              <a
+                key={href}
+                href={href}
+                className={styles.navMobileLink}
+                onClick={closeMenu}
+              >
+                {t(key)}
+              </a>
+            ))}
+          </nav>
+        </div>
       </div>
-    </nav>
+    </header>
   );
 }
 

@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Flame, Lightbulb, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { SectionLabel } from "../../wellbeing/components/SectionLabel";
+import { SectionLabel } from "../../components/SectionLabel";
 import { StreakCard } from "../../gamification/components/StreakCard";
 
 export function TasksSidebarEmpty() {

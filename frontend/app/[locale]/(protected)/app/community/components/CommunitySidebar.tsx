@@ -5,7 +5,7 @@ import { Award } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/providers/auth-provider";
 import { listTopContributors } from "@/app/lib/community-templates-api";
-import { SectionLabel } from "../../wellbeing/components/SectionLabel";
+import { SectionLabel } from "../../components/SectionLabel";
 import type {
   CommunityFilters,
   TemplateCareer,

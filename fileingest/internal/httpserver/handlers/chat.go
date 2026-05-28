@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/elevenpray/fileingest/internal/domain"
 	"github.com/elevenpray/fileingest/internal/llm"
 	"github.com/elevenpray/fileingest/internal/rag"
 )
@@ -25,6 +26,8 @@ type chatMessage struct {
 type chatRequest struct {
 	WorkspaceID        string        `json:"workspaceId"`
 	ContextDocumentIDs []string      `json:"contextDocumentIds,omitempty"`
+	CourseID           string        `json:"courseId,omitempty"`
+	ClassID            string        `json:"classId,omitempty"`
 	Messages           []chatMessage `json:"messages"`
 	RAGEnabled         bool          `json:"ragEnabled"`
 	TopK               int           `json:"topK,omitempty"`
@@ -73,21 +76,37 @@ func (h *ChatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if body.RAGEnabled {
-		if body.WorkspaceID == "" {
-			sendEvent("error", `{"error":"workspaceId required when ragEnabled is true"}`)
-			return
+		var citations []domain.RetrievedChunk
+		var err error
+		if body.CourseID != "" && body.ClassID != "" {
+			if _, err = uuid.Parse(body.CourseID); err != nil {
+				sendEvent("error", `{"error":"invalid courseId"}`)
+				return
+			}
+			if _, err = uuid.Parse(body.ClassID); err != nil {
+				sendEvent("error", `{"error":"invalid classId"}`)
+				return
+			}
+			citations, err = h.Orchestrator.ChatRAGStreamByCourseClass(
+				r.Context(), body.CourseID, body.ClassID, messages, body.TopK, onDelta,
+			)
+		} else {
+			if body.WorkspaceID == "" {
+				sendEvent("error", `{"error":"workspaceId or courseId+classId required when ragEnabled is true"}`)
+				return
+			}
+			workspaceID, parseErr := uuid.Parse(body.WorkspaceID)
+			if parseErr != nil {
+				sendEvent("error", `{"error":"invalid workspaceId"}`)
+				return
+			}
+			docIDs, parseErr := parseUUIDs(body.ContextDocumentIDs)
+			if parseErr != nil {
+				sendEvent("error", `{"error":"invalid contextDocumentIds"}`)
+				return
+			}
+			citations, err = h.Orchestrator.ChatRAGStream(r.Context(), workspaceID, docIDs, messages, body.TopK, onDelta)
 		}
-		workspaceID, err := uuid.Parse(body.WorkspaceID)
-		if err != nil {
-			sendEvent("error", `{"error":"invalid workspaceId"}`)
-			return
-		}
-		docIDs, err := parseUUIDs(body.ContextDocumentIDs)
-		if err != nil {
-			sendEvent("error", `{"error":"invalid contextDocumentIds"}`)
-			return
-		}
-		citations, err := h.Orchestrator.ChatRAGStream(r.Context(), workspaceID, docIDs, messages, body.TopK, onDelta)
 		if err != nil {
 			payload, _ := json.Marshal(map[string]string{"error": err.Error()})
 			sendEvent("error", string(payload))

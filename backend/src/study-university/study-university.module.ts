@@ -20,6 +20,7 @@ import { Reminder } from './entities/reminder.entity';
 import { Semester } from './entities/semester.entity';
 import { StudyFocusSession } from './entities/study-focus-session.entity';
 import { StudyWorkspaceConfig } from './entities/study-workspace-config.entity';
+import { FileingestClient } from '../study-ai/fileingest.client';
 import { StudyUniversityController } from './study-university.controller';
 import { StudyUniversityService } from './study-university.service';
 
@@ -49,7 +50,7 @@ import { StudyUniversityService } from './study-university.service';
     WorkspacesModule,
   ],
   controllers: [StudyUniversityController],
-  providers: [StudyUniversityService],
+  providers: [StudyUniversityService, FileingestClient],
   exports: [StudyUniversityService],
 })
 export class StudyUniversityModule {}

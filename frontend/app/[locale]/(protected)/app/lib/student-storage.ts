@@ -20,15 +20,111 @@ export function getTodayKey(userId?: string | null): string {
   return `${CHECKIN_PREFIX}${date}`;
 }
 
-export function hasCheckInToday(userId?: string | null): boolean {
-  if (typeof window === "undefined") return true;
-  if (userId && localStorage.getItem(getTodayKey(userId)) !== null) return true;
-  return localStorage.getItem(getTodayKey()) !== null;
+export type DailyCheckIn = {
+  mood: string;
+  note?: string;
+  factors?: string[];
+};
+
+function parseCheckInValue(raw: string): DailyCheckIn | null {
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (parsed && typeof parsed === "object" && "mood" in parsed) {
+      const { mood, note, factors } = parsed as DailyCheckIn;
+      if (typeof mood === "string") {
+        const result: DailyCheckIn = {
+          mood,
+          note: typeof note === "string" ? note : undefined,
+        };
+        if (Array.isArray(factors) && factors.every((f) => typeof f === "string")) {
+          result.factors = factors;
+        }
+        return result;
+      }
+    }
+  } catch {
+    /* legacy plain mood string */
+  }
+  if (raw.length > 0) return { mood: raw };
+  return null;
 }
 
-export function saveCheckIn(mood: string, userId?: string | null): void {
+export function getTodayCheckIn(userId?: string | null): DailyCheckIn | null {
+  if (typeof window === "undefined") return null;
+  const key = getTodayKey(userId);
+  const raw = localStorage.getItem(key);
+  if (!raw) return null;
+  return parseCheckInValue(raw);
+}
+
+export function hasCheckInToday(userId?: string | null): boolean {
+  if (typeof window === "undefined") return true;
+  return getTodayCheckIn(userId) !== null;
+}
+
+export function saveTodayCheckIn(
+  mood: string,
+  note: string | undefined,
+  factors: string[] | undefined,
+  userId?: string | null,
+): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem(getTodayKey(userId), mood);
+  const payload: DailyCheckIn = { mood };
+  const trimmed = note?.trim();
+  if (trimmed) payload.note = trimmed;
+  if (factors && factors.length > 0) payload.factors = factors;
+  localStorage.setItem(getTodayKey(userId), JSON.stringify(payload));
+}
+
+function checkInKeyForDate(date: Date, userId?: string | null): string {
+  const ymd = date.toISOString().slice(0, 10);
+  if (userId) return `${CHECKIN_PREFIX}${userId}_${ymd}`;
+  return `${CHECKIN_PREFIX}${ymd}`;
+}
+
+/** Historial local de check-ins (últimos N días, más reciente al final). */
+export function getEmotionalCheckInHistory(
+  userId?: string | null,
+  days = 70,
+): { date: string; mood: string; factors?: string[] }[] {
+  if (typeof window === "undefined") return [];
+  const results: { date: string; mood: string; factors?: string[] }[] = [];
+  const cursor = new Date();
+  for (let i = 0; i < days; i++) {
+    const key = checkInKeyForDate(cursor, userId);
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      const parsed = parseCheckInValue(raw);
+      if (parsed) {
+        results.push({
+          date: cursor.toISOString().slice(0, 10),
+          mood: parsed.mood,
+          factors: parsed.factors,
+        });
+      }
+    }
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return results.reverse();
+}
+
+/** Dias consecutivos con check-in emocional (incluye hoy si ya registro). */
+export function getEmotionalCheckInStreak(userId?: string | null): number {
+  if (typeof window === "undefined") return 0;
+  let streak = 0;
+  const cursor = new Date();
+  for (let i = 0; i < 400; i++) {
+    const key = checkInKeyForDate(cursor, userId);
+    if (!localStorage.getItem(key)) break;
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+/** @deprecated Use saveTodayCheckIn */
+export function saveCheckIn(mood: string, userId?: string | null): void {
+  saveTodayCheckIn(mood, undefined, undefined, userId);
 }
 
 export function getStudentProfile(userId?: string | null): StudentProfile | null {

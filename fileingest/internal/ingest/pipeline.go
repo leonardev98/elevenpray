@@ -118,7 +118,7 @@ func (p *Pipeline) runStages(ctx context.Context, log *slog.Logger, req IngestRe
 		mime = ct
 	}
 
-	text, err := p.extractors.Extract(ctx, mime, data)
+	text, err := p.extractors.ExtractWithFilename(ctx, mime, req.Filename, data)
 	if err != nil {
 		return fmt.Errorf("extract: %w", err)
 	}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StudentPageShell } from "../components/StudentPageShell";
@@ -10,9 +11,17 @@ import { StudySummaryTab } from "./components/StudySummaryTab";
 import { StudyUploadZone } from "./components/StudyUploadZone";
 import { useStudySession } from "./hooks/use-study-session";
 
+const STUDY_TABS = ["chat", "quizzes", "flashcards", "summary"] as const;
+
 export default function StudentStudyPage() {
   const t = useTranslations("studentStudy");
+  const searchParams = useSearchParams();
   const session = useStudySession();
+  const tabParam = searchParams.get("tab");
+  const defaultTab =
+    tabParam && STUDY_TABS.includes(tabParam as (typeof STUDY_TABS)[number])
+      ? tabParam
+      : "chat";
 
   const workspaceBusy = session.ensuringWorkspace && !session.workspaceId;
   const displayError = session.error ?? session.linkError;
@@ -27,6 +36,7 @@ export default function StudentStudyPage() {
 
       <StudyUploadZone
         uploading={session.uploading || workspaceBusy}
+        documentProcessing={session.documentProcessing}
         documents={session.documents}
         activeDocumentId={session.activeDocument?.id ?? null}
         onSelect={session.setActiveDocument}
@@ -34,7 +44,7 @@ export default function StudentStudyPage() {
         disabled={!session.token || workspaceBusy}
       />
 
-      <Tabs defaultValue="chat" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="mb-4 w-full justify-start rounded-xl bg-[var(--app-surface)] p-1">
           <TabsTrigger value="chat">{t("tabChat")}</TabsTrigger>
           <TabsTrigger value="quizzes">{t("tabQuizzes")}</TabsTrigger>

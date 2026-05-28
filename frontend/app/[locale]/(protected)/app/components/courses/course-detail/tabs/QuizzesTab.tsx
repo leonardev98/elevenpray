@@ -24,8 +24,6 @@ import type { MockCourseExtended } from "../../../../lib/mock-course-data";
 import { useCourseClasses } from "../../../../lib/course-classes-store";
 import { useStudyBackendLink } from "../../../../lib/study-backend-link";
 import { useCourseQuizzes } from "../../../../lib/course-quizzes-store";
-import { PomodoroNavControl } from "../../../../pomodoro/components/PomodoroNavControl";
-
 interface QuizzesTabProps {
   course: MockCourseExtended;
 }
@@ -204,7 +202,6 @@ function QuizFullscreen({ open, onClose, hex, title, questions, onComplete }: Pl
               Pregunta {qIdx + 1} de {questions.length}
             </p>
           </div>
-          <PomodoroNavControl compact />
           <span className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)]">
             <Clock className="h-3.5 w-3.5" />
             {Math.floor(elapsedSeconds / 60)}:

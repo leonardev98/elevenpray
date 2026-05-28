@@ -30,6 +30,9 @@ import { CommunityModule } from './community/community.module';
 import { StudyAiModule } from './study-ai/study-ai.module';
 import { CurriculumModule } from './curriculum/curriculum.module';
 import { StudentActivityModule } from './student-activity/student-activity.module';
+import { EmotionalCheckinsModule } from './emotional-checkins/emotional-checkins.module';
+import { DayEntriesModule } from './day-entries/day-entries.module';
+import { InternalResourcesModule } from './internal-resources/internal-resources.module';
 
 @Module({
   imports: [
@@ -70,6 +73,9 @@ import { StudentActivityModule } from './student-activity/student-activity.modul
     StudyAiModule,
     CurriculumModule,
     StudentActivityModule,
+    EmotionalCheckinsModule,
+    DayEntriesModule,
+    InternalResourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

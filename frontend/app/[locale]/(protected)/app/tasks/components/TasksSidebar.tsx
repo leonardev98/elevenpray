@@ -7,7 +7,7 @@ import {
   ClipboardList,
   TrendingUp,
 } from "lucide-react";
-import { SectionLabel } from "../../wellbeing/components/SectionLabel";
+import { SectionLabel } from "../../components/SectionLabel";
 import { StreakCard } from "../../gamification/components/StreakCard";
 import { useStudentTasks } from "../context/student-tasks-context";
 import { getCourseStyle } from "../lib/task-styles";

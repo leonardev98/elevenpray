@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { ArrowRight, BookOpen, Building2, CalendarDays, GraduationCap, Sparkles, User } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "../../../providers/auth-provider";
-import { upsertStudentProfile } from "@/app/lib/auth-api";
+import { isStudentOnboardingComplete, upsertStudentProfile } from "@/app/lib/auth-api";
 import { getStudentProfile, saveStudentProfile } from "../app/lib/student-storage";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,18 +30,26 @@ function parseCycle(cycle: string): { year: string; period: CyclePeriod } | null
 }
 
 export default function OnboardingPage() {
-  const { user, token, refreshUser } = useAuth();
+  const { user, token, refreshUser, isLoading } = useAuth();
   const router = useRouter();
   const t = useTranslations("onboardingStudent");
   const defaultYear = useMemo(() => String(new Date().getFullYear()), []);
   const [name, setName] = useState(user?.name ?? "");
   const [university, setUniversity] = useState("");
   const [career, setCareer] = useState("");
+  const [prefillUniversity, setPrefillUniversity] = useState("");
+  const [prefillCareer, setPrefillCareer] = useState("");
   const [cycleYear, setCycleYear] = useState(defaultYear);
   const [cyclePeriod, setCyclePeriod] = useState<CyclePeriod>("I");
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoading && user && isStudentOnboardingComplete(user)) {
+      router.replace("/app");
+    }
+  }, [isLoading, user, router]);
 
   useEffect(() => {
     const fromLocal = user?.id ? getStudentProfile(user.id) : null;
@@ -54,8 +62,14 @@ export default function OnboardingPage() {
     const careerVal = fromServer?.career ?? fromLocal?.career;
     const cycleVal = fromServer?.cycle ?? fromLocal?.cycle;
 
-    if (universityVal) setUniversity(universityVal);
-    if (careerVal) setCareer(careerVal);
+    if (universityVal) {
+      setUniversity(universityVal);
+      setPrefillUniversity((prev) => prev || universityVal);
+    }
+    if (careerVal) {
+      setCareer(careerVal);
+      setPrefillCareer((prev) => prev || careerVal);
+    }
 
     if (cycleVal) {
       const parsed = parseCycle(cycleVal);
@@ -117,7 +131,7 @@ export default function OnboardingPage() {
   const firstName = user?.name?.trim().split(/\s+/)[0];
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10 sm:py-14">
+    <div className="relative flex min-h-[100dvh] items-start justify-center overflow-x-hidden px-4 py-8 sm:items-center sm:py-14">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-[var(--app-primary)]/15 blur-3xl"
@@ -201,6 +215,7 @@ export default function OnboardingPage() {
               id="university"
               label={t("university")}
               options={PERUVIAN_UNIVERSITIES}
+              defaultValue={prefillUniversity}
               otherItemLabel={t("otherUniversity")}
               otherInputPlaceholder={t("otherUniversityPlaceholder")}
               inputPlaceholder={t("universityPlaceholder")}
@@ -214,6 +229,7 @@ export default function OnboardingPage() {
               id="career"
               label={t("career")}
               options={PERUVIAN_CAREERS}
+              defaultValue={prefillCareer}
               otherItemLabel={t("otherCareer")}
               otherInputPlaceholder={t("otherCareerPlaceholder")}
               inputPlaceholder={t("careerPlaceholder")}

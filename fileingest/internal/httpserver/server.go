@@ -18,10 +18,11 @@ type Deps struct {
 	InternalAPIToken string
 
 	Health    *handlers.HealthHandler
-	Ingest    *handlers.IngestHandler
-	Documents *handlers.DocumentsHandler
-	Query     *handlers.QueryHandler
-	Chat      *handlers.ChatHandler
+	Ingest         *handlers.IngestHandler
+	ResourceUpload *handlers.ResourceUploadHandler
+	Documents      *handlers.DocumentsHandler
+	Query          *handlers.QueryHandler
+	Chat           *handlers.ChatHandler
 }
 
 // New builds an *http.Server bound to addr with all routes mounted.
@@ -38,6 +39,7 @@ func New(addr string, d Deps) *http.Server {
 	r.Route("/v1", func(r chi.Router) {
 		r.Use(mw.InternalToken(d.InternalAPIToken))
 		r.Method(http.MethodPost, "/ingest", d.Ingest)
+		r.Method(http.MethodPost, "/resources/upload", d.ResourceUpload)
 		r.Get("/documents/{id}/status", d.Documents.Status)
 		r.Method(http.MethodPost, "/query", d.Query)
 		r.Method(http.MethodPost, "/chat", d.Chat)

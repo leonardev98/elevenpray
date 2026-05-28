@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@/app/providers/auth-provider";
+import { getTodayEmotionalCheckIn } from "@/app/lib/emotional-checkins-api";
 import { getActivitySummary } from "@/app/lib/student-activity/api";
 import { hasCheckInToday } from "../lib/student-storage";
 
@@ -35,19 +36,26 @@ export function CheckInProvider({ children }: { children: ReactNode }) {
       return true;
     }
 
-    if (!token) {
-      setCheckedInToday(false);
-      return false;
-    }
-
-    try {
-      const summary = await getActivitySummary(token);
-      if (summary.checkinHoy) {
-        setCheckedInToday(true);
-        return true;
+    if (token) {
+      try {
+        const emotional = await getTodayEmotionalCheckIn(token);
+        if (emotional?.mood) {
+          setCheckedInToday(true);
+          return true;
+        }
+      } catch {
+        /* fallback */
       }
-    } catch {
-      // Si falla el servidor, usar solo caché local
+
+      try {
+        const summary = await getActivitySummary(token);
+        if (summary.checkinHoy) {
+          setCheckedInToday(true);
+          return true;
+        }
+      } catch {
+        /* use local only */
+      }
     }
 
     setCheckedInToday(false);
@@ -57,7 +65,8 @@ export function CheckInProvider({ children }: { children: ReactNode }) {
   const refreshCheckIn = useCallback(() => {
     const userId = user?.id ?? null;
     setCheckedInToday(hasCheckInToday(userId));
-  }, [user?.id]);
+    void resolveCheckInStatus();
+  }, [user?.id, resolveCheckInStatus]);
 
   useEffect(() => {
     if (authLoading) return;

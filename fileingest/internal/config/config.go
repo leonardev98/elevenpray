@@ -22,6 +22,9 @@ type Config struct {
 
 	AWS AWSConfig
 
+	Milvus  MilvusConfig
+	Backend BackendConfig
+
 	Ingest IngestConfig
 	RAG    RAGConfig
 }
@@ -40,6 +43,21 @@ type AWSConfig struct {
 	AccessKeyID     string
 	SecretAccessKey string
 	Bucket          string
+	PublicBaseURL   string
+}
+
+// MilvusConfig holds vector DB connection settings.
+type MilvusConfig struct {
+	Host       string
+	Port       string
+	Collection string
+	EmbedDims  int
+}
+
+// BackendConfig holds the NestJS webhook target.
+type BackendConfig struct {
+	ResourceWebhookURL   string
+	ResourceWebhookToken string
 }
 
 type IngestConfig struct {
@@ -75,6 +93,17 @@ func Load() (*Config, error) {
 			AccessKeyID:     os.Getenv("AWS_ACCESS_KEY_ID"),
 			SecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
 			Bucket:          os.Getenv("S3_BUCKET"),
+			PublicBaseURL:   strings.TrimRight(os.Getenv("S3_PUBLIC_BASE_URL"), "/"),
+		},
+		Milvus: MilvusConfig{
+			Host:       os.Getenv("MILVUS_HOST"),
+			Port:       getEnv("MILVUS_PORT", "19530"),
+			Collection: getEnv("MILVUS_COLLECTION", "course_resource_chunks"),
+			EmbedDims:  getEnvInt("MILVUS_EMBED_DIMS", 0),
+		},
+		Backend: BackendConfig{
+			ResourceWebhookURL:   os.Getenv("BACKEND_RESOURCE_WEBHOOK_URL"),
+			ResourceWebhookToken: os.Getenv("BACKEND_WEBHOOK_TOKEN"),
 		},
 		Ingest: IngestConfig{
 			ChunkTokens:  getEnvInt("INGEST_CHUNK_TOKENS", 500),
@@ -115,11 +144,26 @@ func (c *Config) validate() error {
 	if c.AWS.Bucket == "" {
 		missing = append(missing, "S3_BUCKET")
 	}
+	if c.Milvus.Host == "" {
+		missing = append(missing, "MILVUS_HOST")
+	}
+	if c.Backend.ResourceWebhookURL == "" {
+		missing = append(missing, "BACKEND_RESOURCE_WEBHOOK_URL")
+	}
+	if c.Backend.ResourceWebhookToken == "" {
+		missing = append(missing, "BACKEND_WEBHOOK_TOKEN")
+	}
 	if len(missing) > 0 {
 		return fmt.Errorf("missing required env vars: %s", strings.Join(missing, ", "))
 	}
 	if c.Azure.EmbedDims <= 0 {
 		return errors.New("AZURE_OPENAI_EMBED_DIMS must be > 0")
+	}
+	if c.Milvus.EmbedDims <= 0 {
+		c.Milvus.EmbedDims = c.Azure.EmbedDims
+	}
+	if c.Milvus.EmbedDims != c.Azure.EmbedDims {
+		return fmt.Errorf("MILVUS_EMBED_DIMS (%d) must match AZURE_OPENAI_EMBED_DIMS (%d)", c.Milvus.EmbedDims, c.Azure.EmbedDims)
 	}
 	return nil
 }

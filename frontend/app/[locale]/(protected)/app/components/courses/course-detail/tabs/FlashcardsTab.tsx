@@ -21,8 +21,6 @@ import type { MockCourseExtended } from "../../../../lib/mock-course-data";
 import { useCourseClasses } from "../../../../lib/course-classes-store";
 import { useStudyBackendLink } from "../../../../lib/study-backend-link";
 import { useCourseFlashcards } from "../../../../lib/course-flashcards-store";
-import { PomodoroNavControl } from "../../../../pomodoro/components/PomodoroNavControl";
-
 interface FlashcardStudyFullscreenProps {
   open: boolean;
   courseName: string;
@@ -116,7 +114,6 @@ export function FlashcardStudyFullscreen({
                   {idx + 1} / {order.length}
                 </p>
               </div>
-              <PomodoroNavControl compact />
             </div>
             <div className="mx-auto mt-2 h-1 max-w-4xl overflow-hidden rounded-full bg-[var(--bg-input)]">
               <div

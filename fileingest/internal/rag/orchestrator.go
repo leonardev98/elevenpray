@@ -14,12 +14,13 @@ import (
 // Orchestrator combines a retriever with the chat client to answer questions
 // grounded in the workspace's ingested documents.
 type Orchestrator struct {
-	retriever *Retriever
-	llm       *llm.Client
+	retriever   *Retriever
+	milvusRet   *MilvusRetriever
+	llm         *llm.Client
 }
 
-func NewOrchestrator(retriever *Retriever, client *llm.Client) *Orchestrator {
-	return &Orchestrator{retriever: retriever, llm: client}
+func NewOrchestrator(retriever *Retriever, milvusRet *MilvusRetriever, client *llm.Client) *Orchestrator {
+	return &Orchestrator{retriever: retriever, milvusRet: milvusRet, llm: client}
 }
 
 // QueryResult is the structured response returned by /v1/query.
@@ -37,6 +38,27 @@ func (o *Orchestrator) Answer(
 	topK int,
 ) (*QueryResult, error) {
 	chunks, err := o.retriever.Query(ctx, workspaceID, documentIDs, question, topK)
+	if err != nil {
+		return nil, err
+	}
+	prompt := BuildPrompt(question, chunks)
+	answer, err := o.llm.Chat(ctx, llm.ChatRequest{Messages: prompt})
+	if err != nil {
+		return nil, fmt.Errorf("chat: %w", err)
+	}
+	return &QueryResult{Answer: answer, Citations: chunks}, nil
+}
+
+// AnswerByCourseClass runs RAG scoped to Milvus chunks for a course/class pair.
+func (o *Orchestrator) AnswerByCourseClass(
+	ctx context.Context,
+	courseID, classID, question string,
+	topK int,
+) (*QueryResult, error) {
+	if o.milvusRet == nil {
+		return nil, fmt.Errorf("milvus retriever not configured")
+	}
+	chunks, err := o.milvusRet.Query(ctx, courseID, classID, question, topK)
 	if err != nil {
 		return nil, err
 	}
@@ -72,6 +94,42 @@ func (o *Orchestrator) ChatRAGStream(
 	if lastUser != "" {
 		var err error
 		chunks, err = o.retriever.Query(ctx, workspaceID, documentIDs, lastUser, topK)
+		if err != nil {
+			return nil, err
+		}
+	}
+	messages := injectContext(history, chunks)
+	if err := o.llm.ChatStream(ctx, llm.ChatRequest{Messages: messages}, onDelta); err != nil {
+		return chunks, err
+	}
+	return chunks, nil
+}
+
+// ChatRAGStreamByCourseClass streams a chat response using Milvus course/class context.
+func (o *Orchestrator) ChatRAGStreamByCourseClass(
+	ctx context.Context,
+	courseID, classID string,
+	history []llm.ChatMessage,
+	topK int,
+	onDelta func(string) error,
+) ([]domain.RetrievedChunk, error) {
+	if o.milvusRet == nil {
+		return nil, fmt.Errorf("milvus retriever not configured")
+	}
+	if len(history) == 0 {
+		return nil, fmt.Errorf("no messages")
+	}
+	lastUser := ""
+	for i := len(history) - 1; i >= 0; i-- {
+		if history[i].Role == "user" {
+			lastUser = history[i].Content
+			break
+		}
+	}
+	var chunks []domain.RetrievedChunk
+	if lastUser != "" {
+		var err error
+		chunks, err = o.milvusRet.Query(ctx, courseID, classID, lastUser, topK)
 		if err != nil {
 			return nil, err
 		}

@@ -37,8 +37,6 @@ import { ClassTaskSection } from "./ClassTaskSection";
 import { ClassAiSection } from "./ClassAiSection";
 import { ClassFlashcardsSection } from "./ClassFlashcardsSection";
 import { ClassQuizzesSection } from "./ClassQuizzesSection";
-import { PomodoroNavControl } from "../../../../pomodoro/components/PomodoroNavControl";
-
 interface ClassDetailProps {
   course: MockCourseExtended;
   cls: CourseClass;
@@ -232,8 +230,6 @@ export function ClassDetail({ course, cls, onClose }: ClassDetailProps) {
             <span className="hidden sm:inline">·</span>
             <span className="hidden truncate sm:inline">{course.name}</span>
           </div>
-
-          <PomodoroNavControl />
 
           <button
             type="button"

@@ -75,11 +75,12 @@ export class AuthService implements OnModuleInit {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) throw new ConflictException('Email already registered');
     const passwordHash = await this.hashPassword(dto.password);
-    const user = await this.usersService.create({
+    let user = await this.usersService.create({
       email: dto.email,
       name: dto.name,
       passwordHash,
     });
+    user = await this.ensureStudentOnboardingBackfill(user);
     const accessToken = this.jwtService.sign(this.payloadFrom(user));
     return { accessToken, user: this.toPublic(user) };
   }
@@ -93,8 +94,9 @@ export class AuthService implements OnModuleInit {
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const accessToken = this.jwtService.sign(this.payloadFrom(user));
-    return { accessToken, user: this.toPublic(user) };
+    const synced = await this.ensureStudentOnboardingBackfill(user);
+    const accessToken = this.jwtService.sign(this.payloadFrom(synced));
+    return { accessToken, user: this.toPublic(synced) };
   }
 
   async loginWithGoogle(
@@ -174,6 +176,7 @@ export class AuthService implements OnModuleInit {
       }
     }
 
+    user = await this.ensureStudentOnboardingBackfill(user);
     const accessToken = this.jwtService.sign(this.payloadFrom(user));
     return { accessToken, user: this.toPublic(user) };
   }
@@ -194,12 +197,15 @@ export class AuthService implements OnModuleInit {
       this.userCache.delete(payload.sub);
       return null;
     }
-    return this.cachePublicUser(this.toPublic(user));
+    const synced = await this.ensureStudentOnboardingBackfill(user);
+    return this.cachePublicUser(this.toPublic(synced));
   }
 
   async getPublicUserById(userId: string): Promise<PublicUser | null> {
     const user = await this.usersService.findById(userId);
-    return user ? this.cachePublicUser(this.toPublic(user)) : null;
+    if (!user) return null;
+    const synced = await this.ensureStudentOnboardingBackfill(user);
+    return this.cachePublicUser(this.toPublic(synced));
   }
 
   async updateProfile(
@@ -273,11 +279,30 @@ export class AuthService implements OnModuleInit {
     return { sub: user.id, email: user.email };
   }
 
+  private hasCompleteStudentProfile(user: User): boolean {
+    return !!(
+      user.studentUniversity?.trim() &&
+      user.studentCareer?.trim() &&
+      user.studentAcademicCycle?.trim()
+    );
+  }
+
+  /** Usuarios con perfil académico guardado pero sin marca de fecha (datos legacy). */
+  private async ensureStudentOnboardingBackfill(user: User): Promise<User> {
+    if (
+      user.studentOnboardingCompletedAt ||
+      !this.hasCompleteStudentProfile(user)
+    ) {
+      return user;
+    }
+    this.invalidateUserCache(user.id);
+    return this.usersService.update(user.id, {
+      studentOnboardingCompletedAt: new Date(),
+    });
+  }
+
   private toPublic(user: User): PublicUser {
-    const hasStudentData =
-      !!user.studentUniversity &&
-      !!user.studentCareer &&
-      !!user.studentAcademicCycle;
+    const hasStudentData = this.hasCompleteStudentProfile(user);
 
     return {
       id: user.id,
@@ -287,12 +312,13 @@ export class AuthService implements OnModuleInit {
       avatarUrl: user.avatarUrl ?? null,
       studentProfile: hasStudentData
         ? {
-            university: user.studentUniversity!,
-            career: user.studentCareer!,
-            cycle: user.studentAcademicCycle!,
+            university: user.studentUniversity!.trim(),
+            career: user.studentCareer!.trim(),
+            cycle: user.studentAcademicCycle!.trim(),
           }
         : null,
-      studentOnboardingCompleted: !!user.studentOnboardingCompletedAt,
+      studentOnboardingCompleted:
+        !!user.studentOnboardingCompletedAt || hasStudentData,
     };
   }
 
