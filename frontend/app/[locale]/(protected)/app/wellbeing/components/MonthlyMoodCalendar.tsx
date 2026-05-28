@@ -119,18 +119,20 @@ export function MonthlyMoodCalendar({
               </span>
             ))}
             {cells.map((cell) => {
-              if (!cell.date || !cell.dayNumber) {
+              const cellDate = cell.date;
+              if (!cellDate || !cell.dayNumber) {
                 return <span key={cell.key} className="h-8 w-full" aria-hidden />;
               }
               const moodLabel = cell.mood ? t(`moods.${cell.mood}`) : t("noMoodRecord");
-              const isToday = isSameDay(cell.date, today);
-              const dayTitle = format(cell.date, "d 'de' MMMM", { locale: es });
+              const isToday = isSameDay(cellDate, today);
+              const dayTitle = format(cellDate, "d 'de' MMMM", { locale: es });
+              const ymd = cell.key;
               return (
                 <button
                   key={cell.key}
                   type="button"
                   title={`${dayTitle}: ${moodLabel}`}
-                  onClick={() => setSelectedDate(toYmd(cell.date))}
+                  onClick={() => setSelectedDate(ymd)}
                   className={`h-8 rounded-lg text-xs font-medium transition ${
                     cell.mood
                       ? `${MOOD_CELL_CLASSES[cell.mood]} text-[var(--app-bg)] hover:opacity-90`
