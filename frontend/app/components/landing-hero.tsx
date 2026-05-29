@@ -383,7 +383,7 @@ export function LandingHero() {
                 <span className={sora.className}>
                   <AnimatedStudentCount reduceMotion={reduceMotion} />
                 </span>{" "}
-                estudiantes ya estudian con Lisyy
+                estudiantes ya estudian con Mitsyy
               </p>
               <p className={styles.trustLine2}>
                 UPC · UNMSM · PUCP · UNI · UNSA
