@@ -60,6 +60,9 @@ export function StudentSearchableField({
   onValueChange,
   isInvalid,
   errorMessage,
+  hint,
+  disabled = false,
+  disabledPlaceholder,
   icon,
 }: {
   id: string;
@@ -73,6 +76,11 @@ export function StudentSearchableField({
   onValueChange: (value: string) => void;
   isInvalid?: boolean;
   errorMessage?: string;
+  /** Texto auxiliar bajo el campo (p. ej. dependencia universidad → carrera). */
+  hint?: string;
+  disabled?: boolean;
+  /** Placeholder cuando el campo está deshabilitado. */
+  disabledPlaceholder?: string;
   icon?: ReactNode;
 }) {
   const { contains } = useFilter({ sensitivity: "base" });
@@ -132,10 +140,14 @@ export function StudentSearchableField({
   }, [selectedKey, otherDetail, inputValue, options]);
 
   useEffect(() => {
+    if (disabled) {
+      onValueChangeRef.current("");
+      return;
+    }
     onValueChangeRef.current(resolved);
-  }, [resolved]);
+  }, [resolved, disabled]);
 
-  const showOtherField = selectedKey === STUDENT_ONBOARDING_OTHER_ID;
+  const showOtherField = selectedKey === STUDENT_ONBOARDING_OTHER_ID && !disabled;
   const showError = Boolean(isInvalid && errorMessage);
 
   const listBoxItemClass = ({ isFocused, isSelected }: { isFocused?: boolean; isSelected?: boolean }) =>
@@ -150,9 +162,10 @@ export function StudentSearchableField({
       <ComboBox
         allowsCustomValue
         menuTrigger="focus"
-        inputValue={inputValue}
-        onInputChange={setInputValue}
-        selectedKey={selectedKey}
+        isDisabled={disabled}
+        inputValue={disabled ? "" : inputValue}
+        onInputChange={disabled ? undefined : setInputValue}
+        selectedKey={disabled ? null : selectedKey}
         defaultFilter={(textValue, iv) => {
           if (textValue.includes(STUDENT_ONBOARDING_OTHER_FILTER_SENTINEL)) return true;
           return contains(textValue, iv);
@@ -185,9 +198,15 @@ export function StudentSearchableField({
         <Label htmlFor={id} className="block text-sm font-medium text-[var(--app-fg)]">
           {label}
         </Label>
+        {hint && (
+          <p className="text-xs text-[var(--app-fg-secondary)]" id={`${id}-hint`}>
+            {hint}
+          </p>
+        )}
         <Group
           className={cn(
             "flex w-full min-w-0 items-stretch gap-0 overflow-hidden rounded-xl border bg-[var(--app-surface)] shadow-sm transition-colors",
+            disabled && "cursor-not-allowed opacity-60",
             isInvalid
               ? "border-red-500/60 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-red-500/20"
               : "border-[var(--app-border)] has-[[data-focused]]:border-[var(--app-primary)]/50 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-[var(--app-primary)]/20",
@@ -200,7 +219,8 @@ export function StudentSearchableField({
           )}
           <Input
             id={id}
-            placeholder={inputPlaceholder}
+            placeholder={disabled ? (disabledPlaceholder ?? inputPlaceholder) : inputPlaceholder}
+            aria-describedby={hint ? `${id}-hint` : undefined}
             readOnly={showOtherField}
             className={cn(
               "w-full min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none ring-0 focus:ring-0",

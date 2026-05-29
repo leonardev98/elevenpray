@@ -1,3 +1,5 @@
+import { getCareersByUniversityId } from "./peru-careers-by-university";
+
 /** Opción canónica para listas del onboarding estudiantil (Perú). */
 export type StudentOnboardingOption = {
   id: string;
@@ -15,15 +17,27 @@ export const STUDENT_ONBOARDING_OTHER_ID = "__student_onboarding_other__";
 export const STUDENT_ONBOARDING_OTHER_FILTER_SENTINEL = "__mitsyy_other_option__";
 
 /**
- * Universidades peruanas más populares, ordenadas alfabéticamente por nombre completo.
+ * Universidades peruanas licenciadas y de alta demanda, ordenadas alfabéticamente por nombre completo.
  * El `label` contiene solo el nombre limpio (sin paréntesis) y `shortName` la sigla.
  */
 export const PERUVIAN_UNIVERSITIES: StudentOnboardingOption[] = [
+  {
+    id: "esan",
+    label: "Universidad ESAN",
+    shortName: "ESAN",
+    textValue: "Universidad ESAN esan escuela de administracion negocios",
+  },
   {
     id: "pucp",
     label: "Pontificia Universidad Católica del Perú",
     shortName: "PUCP",
     textValue: "Pontificia Universidad Católica del Perú PUCP pucp católica catolica",
+  },
+  {
+    id: "ucal",
+    label: "Universidad de Ciencias y Artes de América Latina",
+    shortName: "UCAL",
+    textValue: "Universidad de Ciencias y Artes de América Latina UCAL ucal",
   },
   {
     id: "ucsur",
@@ -32,16 +46,28 @@ export const PERUVIAN_UNIVERSITIES: StudentOnboardingOption[] = [
     textValue: "Universidad Científica del Sur UCSUR ucsur cientifica científica sur",
   },
   {
+    id: "ucv",
+    label: "Universidad César Vallejo",
+    shortName: "UCV",
+    textValue: "Universidad César Vallejo UCV ucv cesar vallejo",
+  },
+  {
+    id: "udep",
+    label: "Universidad de Piura",
+    shortName: "UDEP",
+    textValue: "Universidad de Piura UDEP udep piura",
+  },
+  {
     id: "udl",
     label: "Universidad de Lima",
     shortName: "ULima",
     textValue: "Universidad de Lima ULima ulima udl",
   },
   {
-    id: "usmp",
-    label: "Universidad de San Martín de Porres",
-    shortName: "USMP",
-    textValue: "Universidad de San Martín de Porres USMP usmp san martín martin porres",
+    id: "up",
+    label: "Universidad del Pacífico",
+    shortName: "UP",
+    textValue: "Universidad del Pacífico UP up pacifico pacífico",
   },
   {
     id: "unalm",
@@ -68,6 +94,12 @@ export const PERUVIAN_UNIVERSITIES: StudentOnboardingOption[] = [
     textValue: "Universidad Nacional Mayor de San Marcos UNMSM unmsm san marcos",
   },
   {
+    id: "unsa",
+    label: "Universidad Nacional de San Agustín",
+    shortName: "UNSA",
+    textValue: "Universidad Nacional de San Agustín UNSA unsa san agustin arequipa",
+  },
+  {
     id: "upch",
     label: "Universidad Peruana Cayetano Heredia",
     shortName: "UPCH",
@@ -80,6 +112,30 @@ export const PERUVIAN_UNIVERSITIES: StudentOnboardingOption[] = [
     textValue: "Universidad Peruana de Ciencias Aplicadas UPC upc ciencias aplicadas",
   },
   {
+    id: "upn",
+    label: "Universidad Privada del Norte",
+    shortName: "UPN",
+    textValue: "Universidad Privada del Norte UPN upn norte trujillo chiclayo",
+  },
+  {
+    id: "urp",
+    label: "Universidad Ricardo Palma",
+    shortName: "URP",
+    textValue: "Universidad Ricardo Palma URP urp ricardo palma",
+  },
+  {
+    id: "usmp",
+    label: "Universidad de San Martín de Porres",
+    shortName: "USMP",
+    textValue: "Universidad de San Martín de Porres USMP usmp san martín martin porres",
+  },
+  {
+    id: "utec",
+    label: "Universidad de Ingeniería y Tecnología",
+    shortName: "UTEC",
+    textValue: "Universidad de Ingeniería y Tecnología UTEC utec ingenieria tecnologia",
+  },
+  {
     id: "utp",
     label: "Universidad Tecnológica del Perú",
     shortName: "UTP",
@@ -87,7 +143,10 @@ export const PERUVIAN_UNIVERSITIES: StudentOnboardingOption[] = [
   },
 ];
 
-/** Carreras universitarias más comunes en Perú, ordenadas alfabéticamente. */
+/**
+ * Lista global de carreras (compatibilidad y fallback cuando no hay universidad seleccionada).
+ * @deprecated Preferir `getCareersForUniversity` en onboarding.
+ */
 export const PERUVIAN_CAREERS: StudentOnboardingOption[] = [
   { id: "adm", label: "Administración", textValue: "Administración admin administracion negocios" },
   { id: "arq", label: "Arquitectura", textValue: "Arquitectura arquitecto" },
@@ -105,3 +164,39 @@ export const PERUVIAN_CAREERS: StudentOnboardingOption[] = [
   { id: "odo", label: "Odontología", textValue: "Odontología odontologia odontólogo" },
   { id: "psi", label: "Psicología", textValue: "Psicología psicologia psicólogo" },
 ];
+
+/** Busca una universidad del catálogo por id o por nombre guardado en perfil. */
+export function findUniversityOption(value: string): StudentOnboardingOption | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const byId = PERUVIAN_UNIVERSITIES.find((u) => u.id === trimmed);
+  if (byId) return byId;
+  const lower = trimmed.toLowerCase();
+  return PERUVIAN_UNIVERSITIES.find(
+    (u) =>
+      u.label.toLowerCase() === lower ||
+      u.shortName?.toLowerCase() === lower ||
+      u.textValue.toLowerCase().includes(lower),
+  );
+}
+
+/** Carreras asociadas a una universidad (por id o label). Vacío si no hay universidad válida. */
+export function getCareersForUniversity(universityValue: string): StudentOnboardingOption[] {
+  const uni = findUniversityOption(universityValue);
+  if (!uni) return [];
+  return getCareersByUniversityId(uni.id);
+}
+
+/** Indica si una carrera pertenece al catálogo de la universidad (comparación por label). */
+export function isCareerInUniversityCatalog(
+  careerLabel: string,
+  universityValue: string,
+): boolean {
+  const trimmed = careerLabel.trim();
+  if (!trimmed) return true;
+  const uni = findUniversityOption(universityValue);
+  if (!uni) return true;
+  const careers = getCareersByUniversityId(uni.id);
+  const lower = trimmed.toLowerCase();
+  return careers.some((c) => c.label.toLowerCase() === lower);
+}

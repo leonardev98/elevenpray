@@ -43,13 +43,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7)`
 		if meta == nil {
 			meta = map[string]any{}
 		}
-		metaJSON, err := json.Marshal(meta)
-		if err != nil {
-			return fmt.Errorf("marshal metadata: %w", err)
-		}
 		emb := pgvector.NewVector(c.Embedding)
+		// Pass map[string]any (not []byte): pgx encodes []byte as BYTEA, which breaks JSONB.
 		if _, err := tx.Exec(ctx, q,
-			c.ID, c.DocumentID, c.Index, c.Content, c.TokenCount, emb, metaJSON); err != nil {
+			c.ID, c.DocumentID, c.Index, c.Content, c.TokenCount, emb, meta); err != nil {
 			return fmt.Errorf("insert chunk %d: %w", c.Index, err)
 		}
 	}

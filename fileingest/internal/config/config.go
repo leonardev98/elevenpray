@@ -15,7 +15,8 @@ type Config struct {
 	Port     string
 	LogLevel string
 
-	Azure AzureConfig
+	Azure  AzureConfig
+	OpenAI OpenAIConfig
 
 	DatabaseURL      string
 	InternalAPIToken string
@@ -30,12 +31,18 @@ type Config struct {
 }
 
 type AzureConfig struct {
-	Endpoint        string
-	APIKey          string
-	ChatDeployment  string
-	EmbedDeployment string
-	EmbedDims       int
-	APIVersion      string
+	Endpoint       string
+	APIKey         string
+	ChatDeployment string
+	APIVersion     string
+}
+
+// OpenAIConfig holds public OpenAI API settings used for embeddings only.
+type OpenAIConfig struct {
+	APIKey        string
+	BaseURL       string
+	EmbedModel    string
+	EmbedDims     int
 }
 
 type AWSConfig struct {
@@ -81,12 +88,16 @@ func Load() (*Config, error) {
 		DatabaseURL:      os.Getenv("DATABASE_URL"),
 		InternalAPIToken: os.Getenv("INTERNAL_API_TOKEN"),
 		Azure: AzureConfig{
-			Endpoint:        strings.TrimRight(os.Getenv("AZURE_OPENAI_ENDPOINT"), "/"),
-			APIKey:          os.Getenv("AZURE_OPENAI_API_KEY"),
-			ChatDeployment:  os.Getenv("AZURE_OPENAI_CHAT_DEPLOYMENT"),
-			EmbedDeployment: os.Getenv("AZURE_OPENAI_EMBED_DEPLOYMENT"),
-			EmbedDims:       getEnvInt("AZURE_OPENAI_EMBED_DIMS", 1536),
-			APIVersion:      os.Getenv("AZURE_OPENAI_API_VERSION"),
+			Endpoint:       strings.TrimRight(os.Getenv("AZURE_OPENAI_ENDPOINT"), "/"),
+			APIKey:         os.Getenv("AZURE_OPENAI_API_KEY"),
+			ChatDeployment: os.Getenv("AZURE_OPENAI_CHAT_DEPLOYMENT"),
+			APIVersion:     os.Getenv("AZURE_OPENAI_API_VERSION"),
+		},
+		OpenAI: OpenAIConfig{
+			APIKey:     os.Getenv("OPENAI_API_KEY"),
+			BaseURL:    strings.TrimRight(getEnv("OPENAI_BASE_URL", "https://api.openai.com/v1"), "/"),
+			EmbedModel: getEnv("OPENAI_EMBED_MODEL", getEnv("AZURE_OPENAI_EMBED_DEPLOYMENT", "text-embedding-3-small")),
+			EmbedDims:  getEnvInt("OPENAI_EMBED_DIMS", getEnvInt("AZURE_OPENAI_EMBED_DIMS", 1536)),
 		},
 		AWS: AWSConfig{
 			Region:          getEnv("AWS_REGION", "us-east-1"),
@@ -138,8 +149,11 @@ func (c *Config) validate() error {
 	if c.Azure.ChatDeployment == "" {
 		missing = append(missing, "AZURE_OPENAI_CHAT_DEPLOYMENT")
 	}
-	if c.Azure.EmbedDeployment == "" {
-		missing = append(missing, "AZURE_OPENAI_EMBED_DEPLOYMENT")
+	if c.OpenAI.APIKey == "" {
+		missing = append(missing, "OPENAI_API_KEY")
+	}
+	if c.OpenAI.EmbedModel == "" {
+		missing = append(missing, "OPENAI_EMBED_MODEL")
 	}
 	if c.AWS.Bucket == "" {
 		missing = append(missing, "S3_BUCKET")
@@ -156,14 +170,14 @@ func (c *Config) validate() error {
 	if len(missing) > 0 {
 		return fmt.Errorf("missing required env vars: %s", strings.Join(missing, ", "))
 	}
-	if c.Azure.EmbedDims <= 0 {
-		return errors.New("AZURE_OPENAI_EMBED_DIMS must be > 0")
+	if c.OpenAI.EmbedDims <= 0 {
+		return errors.New("OPENAI_EMBED_DIMS must be > 0")
 	}
 	if c.Milvus.EmbedDims <= 0 {
-		c.Milvus.EmbedDims = c.Azure.EmbedDims
+		c.Milvus.EmbedDims = c.OpenAI.EmbedDims
 	}
-	if c.Milvus.EmbedDims != c.Azure.EmbedDims {
-		return fmt.Errorf("MILVUS_EMBED_DIMS (%d) must match AZURE_OPENAI_EMBED_DIMS (%d)", c.Milvus.EmbedDims, c.Azure.EmbedDims)
+	if c.Milvus.EmbedDims != c.OpenAI.EmbedDims {
+		return fmt.Errorf("MILVUS_EMBED_DIMS (%d) must match OPENAI_EMBED_DIMS (%d)", c.Milvus.EmbedDims, c.OpenAI.EmbedDims)
 	}
 	return nil
 }

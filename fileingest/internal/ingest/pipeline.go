@@ -14,6 +14,7 @@ import (
 	"github.com/elevenpray/fileingest/internal/ingest/chunker"
 	"github.com/elevenpray/fileingest/internal/ingest/extractor"
 	"github.com/elevenpray/fileingest/internal/llm"
+	"github.com/elevenpray/fileingest/internal/storage/milvus"
 	"github.com/elevenpray/fileingest/internal/storage/postgres"
 	s3client "github.com/elevenpray/fileingest/internal/storage/s3"
 )
@@ -31,7 +32,7 @@ type Pipeline struct {
 	chunker    *chunker.Recursive
 	llm        *llm.Client
 	docs       *postgres.DocumentRepo
-	chunks     *postgres.ChunkRepo
+	milvus     *milvus.Client
 	maxFileMB  int
 }
 
@@ -42,7 +43,7 @@ func New(
 	chunker *chunker.Recursive,
 	llm *llm.Client,
 	docs *postgres.DocumentRepo,
-	chunks *postgres.ChunkRepo,
+	mv *milvus.Client,
 	maxFileMB int,
 ) *Pipeline {
 	return &Pipeline{
@@ -52,7 +53,7 @@ func New(
 		chunker:    chunker,
 		llm:        llm,
 		docs:       docs,
-		chunks:     chunks,
+		milvus:     mv,
 		maxFileMB:  maxFileMB,
 	}
 }
@@ -136,7 +137,7 @@ func (p *Pipeline) runStages(ctx context.Context, log *slog.Logger, req IngestRe
 		return err
 	}
 
-	domainChunks := make([]domain.Chunk, 0, len(pieces))
+	milvusRows := make([]milvus.ChunkRow, 0, len(pieces))
 	for batchStart := 0; batchStart < len(pieces); batchStart += embedBatchSize {
 		batchEnd := batchStart + embedBatchSize
 		if batchEnd > len(pieces) {
@@ -156,25 +157,19 @@ func (p *Pipeline) runStages(ctx context.Context, log *slog.Logger, req IngestRe
 			if len(v) != p.llm.EmbedDims() {
 				return fmt.Errorf("embedding dim mismatch: got %d, want %d", len(v), p.llm.EmbedDims())
 			}
-			domainChunks = append(domainChunks, domain.Chunk{
-				ID:         uuid.New(),
-				DocumentID: req.DocumentID,
-				Index:      batchStart + i,
-				Content:    batch[i].Content,
-				TokenCount: batch[i].TokenCount,
-				Embedding:  v,
-				Metadata: map[string]any{
-					"filename": req.Filename,
-				},
-			})
+			idx := batchStart + i
+			milvusRows = append(milvusRows, studyChunkRow(
+				req.DocumentID, req.WorkspaceID, idx, batch[i].Content, v,
+			))
 		}
 	}
 
-	if err := p.chunks.InsertBatch(ctx, domainChunks); err != nil {
-		return fmt.Errorf("persist chunks: %w", err)
+	if err := p.milvus.InsertChunks(ctx, milvusRows); err != nil {
+		return fmt.Errorf("persist milvus chunks: %w", err)
 	}
+	log.Info("milvus_inserted", "chunks", len(milvusRows))
 
-	total := len(domainChunks)
+	total := len(milvusRows)
 	if err := p.docs.UpdateStatus(ctx, req.DocumentID, domain.StatusReady, &total, nil); err != nil {
 		return err
 	}

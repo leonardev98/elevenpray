@@ -13,6 +13,7 @@ import { GuidedJournalModal } from "./GuidedJournalModal";
 import { WellbeingPomodoroPanel } from "./WellbeingPomodoroPanel";
 import { isNightTime } from "../lib/get-greeting";
 import { useWellbeingDayContext } from "./WellbeingDayProvider";
+import { STUDY_PAGE_ENABLED } from "@/app/lib/feature-flags";
 
 const LIZYY_IMAGE_URL =
   "https://mitsyy-bucket.s3.us-east-2.amazonaws.com/lizyy+sin+fonod.png";
@@ -45,7 +46,7 @@ export function LisyyDailyAction({ index = 0 }: { index?: number }) {
         setBreathingOpen(true);
         break;
       case "flashcards":
-        router.push("/app/study?tab=flashcards");
+        router.push(STUDY_PAGE_ENABLED ? "/app/study?tab=flashcards" : "/app/courses");
         break;
       case "pomodoro":
       case "study":

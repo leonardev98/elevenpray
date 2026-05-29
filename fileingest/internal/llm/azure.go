@@ -1,13 +1,7 @@
-// Package llm wraps the Azure OpenAI v1 API (which is OpenAI-compatible).
+// Package llm wraps OpenAI-compatible APIs for chat and embeddings.
 //
-// The endpoint shape used here is:
-//
-//	{AZURE_OPENAI_ENDPOINT}/chat/completions
-//	{AZURE_OPENAI_ENDPOINT}/embeddings
-//
-// where AZURE_OPENAI_ENDPOINT already ends in "/openai/v1" (the "v1 API"
-// surface introduced by Azure). The deployment name is sent as the `model`
-// field in the request body, exactly like with public OpenAI.
+// Chat uses Azure OpenAI v1 ({AZURE_OPENAI_ENDPOINT}/chat/completions).
+// Embeddings use the public OpenAI API ({OPENAI_BASE}/embeddings) with OPENAI_API_KEY.
 package llm
 
 import (
@@ -15,29 +9,43 @@ import (
 	"time"
 )
 
-// Client is a thin Azure OpenAI v1 API client.
+const defaultOpenAIBase = "https://api.openai.com/v1"
+
+// Client calls Azure for chat and OpenAI for embeddings.
 type Client struct {
-	endpoint        string
-	apiKey          string
-	chatDeployment  string
-	embedDeployment string
-	embedDims       int
-	apiVersion      string // appended as ?api-version=... for backwards-compatible Azure paths
-	http            *http.Client
+	chatEndpoint   string
+	chatAPIKey     string
+	chatDeployment string
+	apiVersion     string // ?api-version= on Azure chat requests
+
+	embedEndpoint string
+	embedAPIKey   string
+	embedModel    string
+	embedDims     int
+
+	http *http.Client
 }
 
-// NewClient builds a new Azure OpenAI client. `endpoint` should be the v1 base
-// URL, e.g. "https://x.openai.azure.com/openai/v1".
-func NewClient(endpoint, apiKey, chatDeployment, embedDeployment string, embedDims int, apiVersion string) *Client {
+// NewClient builds a client. `chatEndpoint` is the Azure v1 base URL;
+// `embedEndpoint` is typically https://api.openai.com/v1.
+func NewClient(
+	chatEndpoint, chatAPIKey, chatDeployment, apiVersion string,
+	embedEndpoint, embedAPIKey, embedModel string, embedDims int,
+) *Client {
+	if embedEndpoint == "" {
+		embedEndpoint = defaultOpenAIBase
+	}
 	return &Client{
-		endpoint:        endpoint,
-		apiKey:          apiKey,
-		chatDeployment:  chatDeployment,
-		embedDeployment: embedDeployment,
-		embedDims:       embedDims,
-		apiVersion:      apiVersion,
+		chatEndpoint:   chatEndpoint,
+		chatAPIKey:     chatAPIKey,
+		chatDeployment: chatDeployment,
+		apiVersion:     apiVersion,
+		embedEndpoint:  embedEndpoint,
+		embedAPIKey:    embedAPIKey,
+		embedModel:     embedModel,
+		embedDims:      embedDims,
 		http: &http.Client{
-			Timeout: 5 * time.Minute, // streaming chats can be slow
+			Timeout: 5 * time.Minute,
 		},
 	}
 }
@@ -45,8 +53,8 @@ func NewClient(endpoint, apiKey, chatDeployment, embedDeployment string, embedDi
 // ChatDeployment returns the configured chat deployment name (exposed for logs).
 func (c *Client) ChatDeployment() string { return c.chatDeployment }
 
-// EmbedDeployment returns the configured embeddings deployment name.
-func (c *Client) EmbedDeployment() string { return c.embedDeployment }
+// EmbedDeployment returns the configured embeddings model name.
+func (c *Client) EmbedDeployment() string { return c.embedModel }
 
 // EmbedDims returns the embedding vector dimensions (must match the column).
 func (c *Client) EmbedDims() int { return c.embedDims }

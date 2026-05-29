@@ -81,6 +81,8 @@ export type ReferralState = {
   activados: number;
   usosEstaSemana: number;
   tiers: ReferralTierProgress[];
+  codigoReferidor: string | null;
+  puedeAplicarCodigo: boolean;
 };
 
 export type CycleShieldState = {
@@ -209,14 +211,16 @@ export function createDefaultExtras(opts?: {
   cycle?: string;
   referralActivados?: number;
 }): GamificationExtras {
-  const activados = opts?.referralActivados ?? 2;
-  const codigo = opts?.userId ? referralCodeFromUserId(opts.userId) : "MITSYY-DEMO1";
+  const activados = opts?.referralActivados ?? 0;
+  const codigo = opts?.userId ? referralCodeFromUserId(opts.userId) : "MITSYY-CAMPUS";
 
   return {
     referidos: {
       codigo,
       activados,
-      usosEstaSemana: 2,
+      usosEstaSemana: 0,
+      codigoReferidor: null,
+      puedeAplicarCodigo: true,
       tiers: REFERRAL_MILESTONES.map((t) => ({
         activados: t.activados,
         label: t.label,
@@ -225,20 +229,20 @@ export function createDefaultExtras(opts?: {
       })),
     },
     escudos: {
-      disponibles: 2,
+      disponibles: CYCLE_SHIELDS_PER_CYCLE,
       maxPorCiclo: CYCLE_SHIELDS_PER_CYCLE,
-      usadosEsteCiclo: 1,
-      cicloLabel: opts?.cycle ? `Ciclo ${opts.cycle}` : "Ciclo 2026-1",
+      usadosEsteCiclo: 0,
+      cicloLabel: opts?.cycle ? `Ciclo ${opts.cycle}` : "Ciclo actual",
     },
     liga: {
-      tier: "plata",
-      posicion: 4,
-      totalParticipantes: 28,
-      xpSemana: 890,
-      carrera: opts?.career ?? "Ingeniería de Software",
-      universidad: opts?.university ?? "UPC",
-      diasRestantes: 3,
-      enZonaAscenso: true,
+      tier: "bronce",
+      posicion: 0,
+      totalParticipantes: 0,
+      xpSemana: 0,
+      carrera: opts?.career ?? "",
+      universidad: opts?.university ?? "",
+      diasRestantes: 0,
+      enZonaAscenso: false,
       enZonaDescenso: false,
     },
     misiones: [
@@ -276,42 +280,38 @@ export function createDefaultExtras(opts?: {
         reclamada: false,
       },
     ],
-    rachaCompartida: [
-      { id: "1", nombre: "Sofía M.", inicial: "S", racha: 18, estudioHoy: true, color: "#7C3AED" },
-      { id: "2", nombre: "Luis P.", inicial: "L", racha: 9, estudioHoy: false, color: "#059669" },
-      { id: "3", nombre: "Ana R.", inicial: "A", racha: 14, estudioHoy: true, color: "#D97706" },
-    ],
+    rachaCompartida: [],
     multiplicadorActivo: { activo: false, factor: 1.5, hasta: null },
-    rachaSemanalActiva: true,
+    rachaSemanalActiva: false,
     ultimoCofre: null,
   };
 }
 
 export const gamificationData: GamificationData = {
   user: {
-    nombre: "Alejandro",
-    nivel: 7,
-    titulo: "Estudiante Constante",
-    xpActual: 2340,
-    xpSiguienteNivel: 3000,
-    avatarInicial: "A",
+    nombre: "",
+    nivel: 1,
+    titulo: "Novato",
+    xpActual: 0,
+    xpSiguienteNivel: 400,
+    avatarInicial: "E",
   },
-  tituloSiguienteNivel: "Estudiante Avanzado",
+  tituloSiguienteNivel: "Estudiante",
   rachas: {
     estudio: {
-      actual: 12,
-      mejor: 21,
-      hoy: true,
-      semana: [true, true, true, false, true, true, true],
+      actual: 0,
+      mejor: 0,
+      hoy: false,
+      semana: [false, false, false, false, false, false, false],
     },
     tareas: {
-      actual: 5,
-      mejor: 14,
+      actual: 0,
+      mejor: 0,
       hoy: false,
-      semana: [true, true, false, false, true, false, false],
+      semana: [false, false, false, false, false, false, false],
     },
   },
-  xpHoy: 85,
+  xpHoy: 0,
   xpMetaDiaria: 100,
   actividadesHoy: [
     { id: "pdf", label: "Chat PDF", icono: "BookOpen", xp: 20, completado: true },
@@ -326,8 +326,9 @@ export const gamificationData: GamificationData = {
       nombre: "Madrugador",
       descripcion: "3 días seguidos estudiando antes de las 8am",
       icono: "Sun",
-      desbloqueada: true,
-      fecha: "15 mayo 2026",
+      desbloqueada: false,
+      progreso: 0,
+      total: 3,
     },
     {
       id: 2,
@@ -361,8 +362,9 @@ export const gamificationData: GamificationData = {
       nombre: "Embajador",
       descripcion: "1 referido activado con tu código",
       icono: "Users",
-      desbloqueada: true,
-      fecha: "1 mayo 2026",
+      desbloqueada: false,
+      progreso: 0,
+      total: 1,
     },
     {
       id: 6,
@@ -396,18 +398,19 @@ export const gamificationData: GamificationData = {
       nombre: "Fundador",
       descripcion: "Usuario de la primera cohorte — permanente",
       icono: "Star",
-      desbloqueada: true,
-      fecha: "Enero 2026",
+      desbloqueada: false,
+      progreso: 0,
+      total: 1,
     },
   ],
   historialXP: [
-    { dia: "Lun", xp: 120 },
-    { dia: "Mar", xp: 85 },
+    { dia: "Lun", xp: 0 },
+    { dia: "Mar", xp: 0 },
     { dia: "Mié", xp: 0 },
-    { dia: "Jue", xp: 200 },
-    { dia: "Vie", xp: 150 },
-    { dia: "Sáb", xp: 90 },
-    { dia: "Hoy", xp: 85 },
+    { dia: "Jue", xp: 0 },
+    { dia: "Vie", xp: 0 },
+    { dia: "Sáb", xp: 0 },
+    { dia: "Hoy", xp: 0 },
   ],
   historialSemanas: {
     estudio: [
@@ -423,51 +426,9 @@ export const gamificationData: GamificationData = {
       [true, true, false, false, true, false, false],
     ],
   },
-  xpTareasSemana: 340,
-  comparacionSemana: { porcentaje: 12 },
-  ranking: [
-    {
-      posicion: 1,
-      nombre: "María C.",
-      universidad: "UPC",
-      carrera: "Ing. Software",
-      xp: 1240,
-      avatarColor: "#7C3AED",
-    },
-    {
-      posicion: 2,
-      nombre: "Carlos R.",
-      universidad: "UPC",
-      carrera: "Ing. Software",
-      xp: 1180,
-      avatarColor: "#059669",
-    },
-    {
-      posicion: 3,
-      nombre: "Valeria T.",
-      universidad: "UPC",
-      carrera: "Ing. Software",
-      xp: 1020,
-      avatarColor: "#D97706",
-    },
-    {
-      posicion: 4,
-      nombre: "Tú",
-      universidad: "UPC",
-      carrera: "Ing. Software",
-      xp: 890,
-      avatarColor: "#2563EB",
-      esUsuario: true,
-    },
-    {
-      posicion: 5,
-      nombre: "Diego F.",
-      universidad: "UPC",
-      carrera: "Ing. Software",
-      xp: 720,
-      avatarColor: "#DC2626",
-    },
-  ],
+  xpTareasSemana: 0,
+  comparacionSemana: { porcentaje: 0 },
+  ranking: [],
   extras: createDefaultExtras(),
 };
 

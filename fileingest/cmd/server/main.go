@@ -34,7 +34,8 @@ func main() {
 	logger.Info("starting",
 		"port", cfg.Port,
 		"chat_deployment", cfg.Azure.ChatDeployment,
-		"embed_deployment", cfg.Azure.EmbedDeployment,
+		"embed_model", cfg.OpenAI.EmbedModel,
+		"embed_provider", "openai",
 		"milvus_collection", cfg.Milvus.Collection,
 	)
 
@@ -49,7 +50,6 @@ func main() {
 	defer pool.Close()
 
 	docRepo := postgres.NewDocumentRepo(pool)
-	chunkRepo := postgres.NewChunkRepo(pool)
 
 	s3c, err := s3client.New(ctx, cfg.AWS.Region, cfg.AWS.AccessKeyID, cfg.AWS.SecretAccessKey, cfg.AWS.Bucket)
 	if err != nil {
@@ -73,9 +73,11 @@ func main() {
 		cfg.Azure.Endpoint,
 		cfg.Azure.APIKey,
 		cfg.Azure.ChatDeployment,
-		cfg.Azure.EmbedDeployment,
-		cfg.Azure.EmbedDims,
 		cfg.Azure.APIVersion,
+		cfg.OpenAI.BaseURL,
+		cfg.OpenAI.APIKey,
+		cfg.OpenAI.EmbedModel,
+		cfg.OpenAI.EmbedDims,
 	)
 
 	chk, err := chunker.NewRecursive(cfg.Ingest.ChunkTokens, cfg.Ingest.ChunkOverlap)
@@ -86,13 +88,13 @@ func main() {
 
 	backendNotify := notify.NewBackendClient(cfg.Backend.ResourceWebhookURL, cfg.Backend.ResourceWebhookToken)
 
-	pipeline := ingest.New(logger, s3c, chk, llmClient, docRepo, chunkRepo, cfg.Ingest.MaxFileMB)
+	pipeline := ingest.New(logger, s3c, chk, llmClient, docRepo, milvusClient, cfg.Ingest.MaxFileMB)
 	resourcePipeline := ingest.NewResourcePipeline(
 		logger, s3c, cfg.AWS.Region, cfg.AWS.PublicBaseURL,
 		chk, llmClient, milvusClient, backendNotify, cfg.Ingest.MaxFileMB,
 	)
 
-	pgRetriever := rag.NewRetriever(llmClient, chunkRepo, cfg.RAG.TopKDefault)
+	pgRetriever := rag.NewRetriever(llmClient, milvusClient, docRepo, cfg.RAG.TopKDefault)
 	milvusRetriever := rag.NewMilvusRetriever(llmClient, milvusClient, cfg.RAG.TopKDefault)
 	orch := rag.NewOrchestrator(pgRetriever, milvusRetriever, llmClient)
 
@@ -101,7 +103,7 @@ func main() {
 		InternalAPIToken: cfg.InternalAPIToken,
 		Health: &handlers.HealthHandler{
 			ChatDeployment:  cfg.Azure.ChatDeployment,
-			EmbedDeployment: cfg.Azure.EmbedDeployment,
+			EmbedDeployment: cfg.OpenAI.EmbedModel,
 		},
 		Ingest: &handlers.IngestHandler{Pipeline: pipeline, Logger: logger},
 		ResourceUpload: &handlers.ResourceUploadHandler{

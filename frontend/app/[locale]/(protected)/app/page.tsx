@@ -2,16 +2,14 @@
 
 import { format, parseISO } from "date-fns";
 import { enUS, es } from "date-fns/locale";
-import { BookOpen, CalendarDays, CheckSquare, Clock, Play } from "lucide-react";
-import { Link, useRouter } from "@/i18n/navigation";
+import { BookOpen, CalendarDays, CheckSquare, Clock } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCheckIn } from "./components/check-in-context";
 import { StudentPageShell } from "./components/StudentPageShell";
 import { DailyXpCard } from "./gamification/components/DailyXpCard";
 import { StreakCard } from "./gamification/components/StreakCard";
-import { useGamification } from "./gamification/gamification-context";
 import { courseCodeFromCourse } from "./tasks/lib/map-assignment";
 import { useHomeDashboard } from "./lib/use-home-dashboard";
 
@@ -19,19 +17,8 @@ export default function StudentHomePage() {
   const t = useTranslations("studentHome");
   const locale = useLocale() as "es" | "en";
   const dateFnsLocale = locale === "en" ? enUS : es;
-  const router = useRouter();
   const { checkedInToday, openGate } = useCheckIn();
-  const { recordActivity } = useGamification();
   const { classesToday, upcomingTasks, courseById, loading } = useHomeDashboard();
-
-  function handleStartStudy() {
-    if (!checkedInToday) {
-      openGate();
-      return;
-    }
-    void recordActivity("study");
-    router.push("/app/study");
-  }
 
   return (
     <StudentPageShell>
@@ -53,17 +40,6 @@ export default function StudentHomePage() {
             <p className="mt-1 text-xs text-[var(--app-fg-secondary)]">{t("checkInReminderDesc")}</p>
           </button>
         )}
-
-        <div className="flex flex-wrap items-center gap-3">
-          <Button
-            type="button"
-            onClick={handleStartStudy}
-            className="min-h-11 rounded-xl bg-[var(--app-primary)] px-6 text-[var(--app-bg)] hover:bg-[var(--app-primary-hover)]"
-          >
-            <Play className="mr-2 h-4 w-4" />
-            {t("startStudy")}
-          </Button>
-        </div>
 
         <section>
           <div className="mb-3 flex items-center justify-between">

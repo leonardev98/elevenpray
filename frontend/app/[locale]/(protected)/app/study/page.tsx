@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { STUDY_PAGE_ENABLED } from "@/app/lib/feature-flags";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StudentPageShell } from "../components/StudentPageShell";
 import { StudyChat } from "./components/StudyChat";
@@ -14,9 +17,18 @@ import { useStudySession } from "./hooks/use-study-session";
 const STUDY_TABS = ["chat", "quizzes", "flashcards", "summary"] as const;
 
 export default function StudentStudyPage() {
+  const router = useRouter();
   const t = useTranslations("studentStudy");
   const searchParams = useSearchParams();
   const session = useStudySession();
+
+  useEffect(() => {
+    if (!STUDY_PAGE_ENABLED) {
+      router.replace("/app");
+    }
+  }, [router]);
+
+  if (!STUDY_PAGE_ENABLED) return null;
   const tabParam = searchParams.get("tab");
   const defaultTab =
     tabParam && STUDY_TABS.includes(tabParam as (typeof STUDY_TABS)[number])

@@ -1,4 +1,4 @@
-// Package rag implements retrieval-augmented generation on top of pgvector.
+// Package rag implements retrieval-augmented generation (Milvus for study docs).
 package rag
 
 import (
@@ -9,21 +9,23 @@ import (
 
 	"github.com/elevenpray/fileingest/internal/domain"
 	"github.com/elevenpray/fileingest/internal/llm"
+	"github.com/elevenpray/fileingest/internal/storage/milvus"
 	"github.com/elevenpray/fileingest/internal/storage/postgres"
 )
 
 // Retriever turns a natural-language query into a list of relevant chunks.
 type Retriever struct {
 	llm    *llm.Client
-	chunks *postgres.ChunkRepo
+	milvus *milvus.Client
+	docs   *postgres.DocumentRepo
 	topK   int
 }
 
-func NewRetriever(client *llm.Client, chunks *postgres.ChunkRepo, defaultTopK int) *Retriever {
+func NewRetriever(client *llm.Client, mv *milvus.Client, docs *postgres.DocumentRepo, defaultTopK int) *Retriever {
 	if defaultTopK <= 0 {
 		defaultTopK = 5
 	}
-	return &Retriever{llm: client, chunks: chunks, topK: defaultTopK}
+	return &Retriever{llm: client, milvus: mv, docs: docs, topK: defaultTopK}
 }
 
 // Query embeds the input and returns the top-K matching chunks for a workspace.
@@ -49,9 +51,44 @@ func (r *Retriever) Query(
 		return nil, fmt.Errorf("embed returned %d vectors, want 1", len(vectors))
 	}
 
-	return r.chunks.SearchSimilar(ctx, vectors[0], postgres.SearchOptions{
-		WorkspaceID: workspaceID,
-		DocumentIDs: documentIDs,
-		TopK:        topK,
-	})
+	rows, err := r.milvus.SearchStudyDocuments(ctx, workspaceID, documentIDs, vectors[0], topK)
+	if err != nil {
+		return nil, err
+	}
+
+	filenames := map[string]string{}
+	if r.docs != nil && len(rows) > 0 {
+		ids := make([]uuid.UUID, 0, len(rows))
+		seen := map[string]struct{}{}
+		for _, row := range rows {
+			if _, ok := seen[row.ResourceID]; ok {
+				continue
+			}
+			seen[row.ResourceID] = struct{}{}
+			id, parseErr := uuid.Parse(row.ResourceID)
+			if parseErr != nil {
+				continue
+			}
+			ids = append(ids, id)
+		}
+		if m, err := r.docs.FilenamesByIDs(ctx, ids); err == nil {
+			filenames = m
+		}
+	}
+
+	out := make([]domain.RetrievedChunk, 0, len(rows))
+	for _, row := range rows {
+		fn := filenames[row.ResourceID]
+		if fn == "" {
+			fn = row.ResourceID
+		}
+		out = append(out, domain.RetrievedChunk{
+			Chunk: domain.Chunk{
+				Content: row.Content,
+				Index:   int(row.ChunkIndex),
+			},
+			DocumentFilename: fn,
+		})
+	}
+	return out, nil
 }

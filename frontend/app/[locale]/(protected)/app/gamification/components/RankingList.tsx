@@ -14,6 +14,14 @@ export function RankingList() {
   const { data } = useGamification();
   const liga = data.extras.liga;
 
+  if (data.ranking.length === 0) {
+    return (
+      <div className="student-card px-4 py-8 text-center text-sm text-[var(--app-fg-muted)]">
+        Aún no hay ranking para tu carrera. Gana XP esta semana para aparecer cuando esté disponible.
+      </div>
+    );
+  }
+
   return (
     <div className="student-card divide-y divide-[var(--app-border)] overflow-hidden">
       {data.ranking.map((entry) => (

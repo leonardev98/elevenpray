@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/milvus-io/milvus-sdk-go/v2/client"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 )
@@ -142,6 +143,30 @@ func (c *Client) InsertChunks(ctx context.Context, rows []ChunkRow) error {
 	return nil
 }
 
+// SearchStudyDocuments returns top-K chunks for study ingest (/v1/ingest) scoped
+// to a workspace and optional document IDs. Keys use study:ws: / study:doc: prefixes.
+func (c *Client) SearchStudyDocuments(
+	ctx context.Context,
+	workspaceID uuid.UUID,
+	documentIDs []uuid.UUID,
+	vector []float32,
+	topK int,
+) ([]ChunkRow, error) {
+	if topK <= 0 {
+		topK = 5
+	}
+	courseID := "study:ws:" + workspaceID.String()
+	expr := fmt.Sprintf(`course_id == "%s"`, escapeExpr(courseID))
+	if len(documentIDs) > 0 {
+		parts := make([]string, len(documentIDs))
+		for i, id := range documentIDs {
+			parts[i] = `"` + escapeExpr("study:doc:"+id.String()) + `"`
+		}
+		expr += fmt.Sprintf(" && class_id in [%s]", strings.Join(parts, ","))
+	}
+	return c.searchWithExpr(ctx, vector, topK, expr)
+}
+
 // SearchSimilar returns top-K chunks filtered by course and class.
 func (c *Client) SearchSimilar(
 	ctx context.Context,
@@ -153,6 +178,10 @@ func (c *Client) SearchSimilar(
 		topK = 5
 	}
 	expr := fmt.Sprintf(`course_id == "%s" && class_id == "%s"`, escapeExpr(courseID), escapeExpr(classID))
+	return c.searchWithExpr(ctx, vector, topK, expr)
+}
+
+func (c *Client) searchWithExpr(ctx context.Context, vector []float32, topK int, expr string) ([]ChunkRow, error) {
 	sp, err := entity.NewIndexHNSWSearchParam(64)
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { STUDY_PAGE_ENABLED } from "@/app/lib/feature-flags";
 import { useStudentTasks } from "../context/student-tasks-context";
 
 export function TasksStateBanner() {
@@ -29,9 +30,15 @@ export function TasksStateBanner() {
     return (
       <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-soft)]/60 px-4 py-4 text-sm text-[var(--app-fg-secondary)]">
         <p>{t("setupWorkspace")}</p>
-        <Link href="/app/study" className="mt-2 inline-block text-[var(--app-primary)] hover:underline">
-          {t("goToStudy")}
-        </Link>
+        {STUDY_PAGE_ENABLED ? (
+          <Link href="/app/study" className="mt-2 inline-block text-[var(--app-primary)] hover:underline">
+            {t("goToStudy")}
+          </Link>
+        ) : (
+          <Link href="/app/courses" className="mt-2 inline-block text-[var(--app-primary)] hover:underline">
+            {t("goToCourses")}
+          </Link>
+        )}
       </div>
     );
   }

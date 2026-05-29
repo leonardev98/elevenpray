@@ -166,7 +166,7 @@ func (c *Client) ChatStream(ctx context.Context, req ChatRequest, onDelta func(s
 }
 
 func (c *Client) newChatRequest(ctx context.Context, body []byte) (*http.Request, error) {
-	url := c.endpoint + "/chat/completions"
+	url := c.chatEndpoint + "/chat/completions"
 	if c.apiVersion != "" {
 		url += "?api-version=" + c.apiVersion
 	}
@@ -175,7 +175,7 @@ func (c *Client) newChatRequest(ctx context.Context, body []byte) (*http.Request
 		return nil, fmt.Errorf("build chat request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("api-key", c.apiKey)
-	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	req.Header.Set("api-key", c.chatAPIKey)
+	req.Header.Set("Authorization", "Bearer "+c.chatAPIKey)
 	return req, nil
 }

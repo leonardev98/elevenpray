@@ -17,7 +17,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StudentSearchableField } from "@/components/student/StudentSearchableField";
-import { PERUVIAN_CAREERS, PERUVIAN_UNIVERSITIES } from "@/data/peru-student-onboarding";
+import {
+  findUniversityOption,
+  getCareersForUniversity,
+  isCareerInUniversityCatalog,
+  PERUVIAN_CAREERS,
+  PERUVIAN_UNIVERSITIES,
+} from "@/data/peru-student-onboarding";
 
 const CYCLE_YEARS = [2024, 2025, 2026, 2027, 2028] as const;
 const CYCLE_PERIOD_VALUES = ["I", "II", "Verano"] as const;
@@ -79,6 +85,28 @@ export default function OnboardingPage() {
       }
     }
   }, [user?.id, user?.name, user?.studentProfile]);
+
+  const selectedUniversity = useMemo(
+    () => findUniversityOption(university),
+    [university],
+  );
+
+  const careerOptions = useMemo(() => {
+    if (!university.trim()) return [];
+    if (selectedUniversity) return getCareersForUniversity(selectedUniversity.id);
+    return PERUVIAN_CAREERS;
+  }, [university, selectedUniversity]);
+
+  const careerFieldKey = selectedUniversity?.id ?? (university.trim() ? "custom-uni" : "no-uni");
+
+  useEffect(() => {
+    if (!career.trim() || !university.trim()) return;
+    if (!selectedUniversity) return;
+    if (!isCareerInUniversityCatalog(career, university)) {
+      setCareer("");
+      setPrefillCareer("");
+    }
+  }, [university, selectedUniversity, career]);
 
   const cycle = `${cycleYear}-${cyclePeriod}`;
 
@@ -226,13 +254,17 @@ export default function OnboardingPage() {
             />
 
             <StudentSearchableField
+              key={careerFieldKey}
               id="career"
               label={t("career")}
-              options={PERUVIAN_CAREERS}
+              options={careerOptions}
               defaultValue={prefillCareer}
               otherItemLabel={t("otherCareer")}
               otherInputPlaceholder={t("otherCareerPlaceholder")}
               inputPlaceholder={t("careerPlaceholder")}
+              disabledPlaceholder={t("careerDisabledPlaceholder")}
+              hint={university.trim() ? t("careerDependsOnUniversity") : undefined}
+              disabled={!university.trim()}
               onValueChange={setCareer}
               isInvalid={invalidCareer}
               errorMessage={t("careerError")}

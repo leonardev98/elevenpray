@@ -82,3 +82,26 @@ WHERE id = $1`
 	d.Status = domain.DocumentStatus(status)
 	return &d, nil
 }
+
+// FilenamesByIDs returns document id → filename for citation labels in RAG.
+func (r *DocumentRepo) FilenamesByIDs(ctx context.Context, ids []uuid.UUID) (map[string]string, error) {
+	if len(ids) == 0 {
+		return map[string]string{}, nil
+	}
+	const q = `SELECT id::text, filename FROM fileingest_documents WHERE id = ANY($1)`
+	rows, err := r.pool.Query(ctx, q, ids)
+	if err != nil {
+		return nil, fmt.Errorf("filenames by ids: %w", err)
+	}
+	defer rows.Close()
+
+	out := make(map[string]string, len(ids))
+	for rows.Next() {
+		var id, name string
+		if err := rows.Scan(&id, &name); err != nil {
+			return nil, fmt.Errorf("scan filename: %w", err)
+		}
+		out[id] = name
+	}
+	return out, rows.Err()
+}

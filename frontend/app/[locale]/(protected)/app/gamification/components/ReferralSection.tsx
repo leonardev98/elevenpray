@@ -1,25 +1,49 @@
 "use client";
 
-import { Check, Copy, Gift, Users } from "lucide-react";
+import { Check, Copy, Gift, Loader2, Ticket, Users } from "lucide-react";
 import { useState } from "react";
 import { REFERRAL_REFEREE_REWARD } from "@/data/gamification-config";
 import { cn } from "@/lib/utils";
 import { useGamification } from "../gamification-context";
 
 export function ReferralSection() {
-  const { data, copyReferralCode } = useGamification();
+  const { data, copyReferralCode, applyReferralCode } = useGamification();
   const { referidos } = data.extras;
   const [copied, setCopied] = useState(false);
+  const [inputCode, setInputCode] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState("");
+  const [applySuccess, setApplySuccess] = useState(false);
 
   const nextTier = referidos.tiers.find((t) => !t.completado);
   const meta = nextTier?.activados ?? referidos.tiers[referidos.tiers.length - 1]?.activados ?? 10;
   const progressPct = Math.min((referidos.activados / meta) * 100, 100);
+  const alreadyUsedCode = referidos.codigoReferidor != null;
 
   async function handleCopy() {
     const ok = await copyReferralCode();
     if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  async function handleApplyCode(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = inputCode.trim();
+    if (!trimmed || applying || alreadyUsedCode) return;
+
+    setApplying(true);
+    setApplyError("");
+    setApplySuccess(false);
+    try {
+      await applyReferralCode(trimmed);
+      setApplySuccess(true);
+      setInputCode("");
+    } catch (err) {
+      setApplyError(err instanceof Error ? err.message : "No se pudo activar el código");
+    } finally {
+      setApplying(false);
     }
   }
 
@@ -39,6 +63,63 @@ export function ReferralSection() {
           Tu código fue usado{" "}
           <strong>{referidos.usosEstaSemana}</strong> veces esta semana
         </span>
+      </div>
+
+      <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-elevated)] p-4">
+        <h4 className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+          <Ticket className="h-4 w-4 text-[var(--accent)]" />
+          ¿Tienes un código de un compañero?
+        </h4>
+        <p className="mt-1 text-xs text-[var(--text-muted)]">
+          Actívalo una sola vez y recibe recompensas junto con quien te invitó
+        </p>
+
+        {alreadyUsedCode ? (
+          <div className="mt-3 flex items-center gap-2 rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--xp)_10%,transparent)] px-3 py-2.5 text-xs text-[var(--text-primary)]">
+            <Check className="h-4 w-4 shrink-0 text-[var(--xp)]" />
+            Código activado: <strong className="font-mono">{referidos.codigoReferidor}</strong>
+          </div>
+        ) : (
+          <form onSubmit={(e) => void handleApplyCode(e)} className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <input
+              type="text"
+              value={inputCode}
+              onChange={(e) => {
+                setInputCode(e.target.value.toUpperCase());
+                setApplyError("");
+                setApplySuccess(false);
+              }}
+              placeholder="MITSYY-ABC123"
+              disabled={applying}
+              className="flex-1 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-input)] px-3 py-2.5 text-sm font-mono tracking-wide text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/20 disabled:opacity-60"
+            />
+            <button
+              type="submit"
+              disabled={applying || !inputCode.trim()}
+              className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-[var(--accent-fg)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {applying ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Activando…
+                </>
+              ) : (
+                "Activar código"
+              )}
+            </button>
+          </form>
+        )}
+
+        {applyError && (
+          <p className="mt-2 text-xs text-red-500" role="alert">
+            {applyError}
+          </p>
+        )}
+        {applySuccess && (
+          <p className="mt-2 text-xs text-[var(--xp)]" role="status">
+            ¡Código activado! Ganaste +500 XP y tu compañero también.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

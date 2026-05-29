@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserXpEvent } from '../community/entities/user-xp-event.entity';
 import { UserDailyActivity } from './entities/user-daily-activity.entity';
 import { RecordActivityDto } from './dto/record-activity.dto';
+import {
+  computeLevelProgress,
+  xpForActivityRow,
+} from './gamification-level.util';
 
 export type StreakVariant = 'estudio' | 'tareas';
 
@@ -11,6 +16,11 @@ export interface StreakSummary {
   mejor: number;
   hoy: boolean;
   semana: boolean[];
+}
+
+export interface HistorialXpDia {
+  dia: string;
+  xp: number;
 }
 
 export interface ActivitySummaryResponse {
@@ -22,6 +32,13 @@ export interface ActivitySummaryResponse {
   xpHoy: number;
   xpMetaDiaria: number;
   xpTareasSemana: number;
+  totalXp: number;
+  nivel: number;
+  titulo: string;
+  tituloSiguienteNivel: string;
+  xpActual: number;
+  xpSiguienteNivel: number;
+  historialXP: HistorialXpDia[];
 }
 
 function toYmd(d: Date): string {
@@ -88,12 +105,25 @@ function buildWeekArray(activeDates: Set<string>, todayYmd: string): boolean[] {
   return week;
 }
 
+const WEEKDAY_LABELS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] as const;
+
 @Injectable()
 export class StudentActivityService {
   constructor(
     @InjectRepository(UserDailyActivity)
     private readonly repo: Repository<UserDailyActivity>,
+    @InjectRepository(UserXpEvent)
+    private readonly xpEventsRepo: Repository<UserXpEvent>,
   ) {}
+
+  async recordXpEvent(userId: string, amount: number, source: string): Promise<UserXpEvent> {
+    return this.xpEventsRepo.save({
+      userId,
+      amount,
+      source,
+      referenceId: null,
+    });
+  }
 
   async record(userId: string, dto: RecordActivityDto): Promise<UserDailyActivity> {
     const activityDate = dto.date ?? toYmd(new Date());
@@ -136,12 +166,27 @@ export class StudentActivityService {
     const studyToday = studySet.has(todayYmd);
     const tasksToday = taskSet.has(todayYmd);
 
-    const xpPerActivity = 20;
-    let xpHoy = 0;
     const todayRow = rows.find((r) => r.activityDate === todayYmd);
-    if (todayRow?.checkin) xpHoy += xpPerActivity;
-    if (todayRow?.study) xpHoy += xpPerActivity;
-    if (todayRow?.tasks) xpHoy += xpPerActivity;
+    const xpHoy = todayRow ? xpForActivityRow(todayRow) : 0;
+
+    const activityXpTotal = rows.reduce((sum, row) => sum + xpForActivityRow(row), 0);
+    const bonusXpRow = await this.xpEventsRepo
+      .createQueryBuilder('e')
+      .select('COALESCE(SUM(e.amount), 0)', 'total')
+      .where('e.user_id = :userId', { userId })
+      .getRawOne<{ total: string }>();
+    const bonusXp = Number(bonusXpRow?.total ?? 0);
+    const totalXp = activityXpTotal + bonusXp;
+    const level = computeLevelProgress(totalXp);
+
+    const historialXP: HistorialXpDia[] = [];
+    for (let offset = 6; offset >= 0; offset--) {
+      const ymd = addDaysYmd(todayYmd, -offset);
+      const row = rows.find((r) => r.activityDate === ymd);
+      const jsDay = parseYmd(ymd).getDay();
+      const label = offset === 0 ? 'Hoy' : WEEKDAY_LABELS[jsDay];
+      historialXP.push({ dia: label, xp: row ? xpForActivityRow(row) : 0 });
+    }
 
     return {
       rachas: {
@@ -161,7 +206,14 @@ export class StudentActivityService {
       checkinHoy: todayRow?.checkin ?? false,
       xpHoy,
       xpMetaDiaria: 100,
-      xpTareasSemana: tasksThisWeek * xpPerActivity,
+      xpTareasSemana: tasksThisWeek * 20,
+      totalXp,
+      nivel: level.nivel,
+      titulo: level.titulo,
+      tituloSiguienteNivel: level.tituloSiguienteNivel,
+      xpActual: level.xpActual,
+      xpSiguienteNivel: level.xpSiguienteNivel,
+      historialXP,
     };
   }
 }

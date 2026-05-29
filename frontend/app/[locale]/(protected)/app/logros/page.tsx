@@ -4,7 +4,6 @@ import { StudentPageShell } from "../components/StudentPageShell";
 import { SectionLabel } from "../components/SectionLabel";
 import { BadgeGrid } from "../gamification/components/BadgeGrid";
 import { CycleShieldCard } from "../gamification/components/CycleShieldCard";
-import { DemoControls } from "../gamification/components/DemoControls";
 import { GamificationHero } from "../gamification/components/GamificationHero";
 import { MissionsPanel } from "../gamification/components/MissionsPanel";
 import { RankingList } from "../gamification/components/RankingList";
@@ -103,7 +102,6 @@ export default function LogrosPage() {
           </div>
         </section>
 
-        <DemoControls />
       </div>
     </StudentPageShell>
   );

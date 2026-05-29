@@ -44,6 +44,12 @@ export class User {
   })
   studentOnboardingCompletedAt: Date | null;
 
+  @Column({ name: 'referred_by_user_id', type: 'uuid', nullable: true })
+  referredByUserId: string | null;
+
+  @Column({ name: 'referred_at', type: 'timestamptz', nullable: true })
+  referredAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 }

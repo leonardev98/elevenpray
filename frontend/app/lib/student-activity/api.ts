@@ -1,4 +1,5 @@
 import { getAuthHeaders, getBaseUrl } from "../api";
+import { normalizeActivitySummary } from "./normalize-summary";
 
 export type ActivityType = "study" | "tasks" | "checkin";
 
@@ -7,6 +8,11 @@ export interface StreakSummaryDto {
   mejor: number;
   hoy: boolean;
   semana: boolean[];
+}
+
+export interface HistorialXpDiaDto {
+  dia: string;
+  xp: number;
 }
 
 export interface ActivitySummaryDto {
@@ -18,6 +24,13 @@ export interface ActivitySummaryDto {
   xpHoy: number;
   xpMetaDiaria: number;
   xpTareasSemana: number;
+  totalXp: number;
+  nivel: number;
+  titulo: string;
+  tituloSiguienteNivel: string;
+  xpActual: number;
+  xpSiguienteNivel: number;
+  historialXP: HistorialXpDiaDto[];
 }
 
 export async function getActivitySummary(token: string): Promise<ActivitySummaryDto> {
@@ -29,7 +42,8 @@ export async function getActivitySummary(token: string): Promise<ActivitySummary
     const err = await res.json().catch(() => ({}));
     throw new Error((err as { message?: string }).message ?? "Error al cargar actividad");
   }
-  return res.json();
+  const raw = (await res.json()) as ActivitySummaryDto;
+  return normalizeActivitySummary(raw);
 }
 
 export async function recordActivity(
@@ -45,5 +59,21 @@ export async function recordActivity(
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error((err as { message?: string }).message ?? "Error al registrar actividad");
+  }
+}
+
+export async function recordBonusXp(
+  token: string,
+  amount: number,
+  source: string,
+): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/student-activity/xp`, {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ amount, source }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? "Error al registrar XP");
   }
 }

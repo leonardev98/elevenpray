@@ -6,8 +6,14 @@ import { useGamification } from "../gamification-context";
 export function GamificationHero() {
   const { data } = useGamification();
   const { user } = data;
-  const xpProgress = (user.xpActual / user.xpSiguienteNivel) * 100;
-  const xpFaltante = user.xpSiguienteNivel - user.xpActual;
+  const nivel = Number.isFinite(user.nivel) ? user.nivel : 1;
+  const xpActual = Number.isFinite(user.xpActual) ? user.xpActual : 0;
+  const xpSiguienteNivel =
+    Number.isFinite(user.xpSiguienteNivel) && user.xpSiguienteNivel > 0
+      ? user.xpSiguienteNivel
+      : 400;
+  const xpProgress = Math.min((xpActual / xpSiguienteNivel) * 100, 100);
+  const xpFaltante = Math.max(0, xpSiguienteNivel - xpActual);
 
   return (
     <div className="student-card overflow-hidden bg-[var(--bg-surface)] p-6">
@@ -24,9 +30,9 @@ export function GamificationHero() {
             </span>
             <div className="space-y-1.5">
               <p className="text-sm font-semibold text-[var(--text-primary)]">
-                Nivel <span className="text-[var(--xp)]">{user.nivel}</span>{" "}
+                Nivel <span className="text-[var(--xp)]">{nivel}</span>{" "}
                 <span className="font-normal text-[var(--text-muted)]">
-                  · {user.xpActual} / {user.xpSiguienteNivel} XP para nivel {user.nivel + 1}
+                  · {xpActual} / {xpSiguienteNivel} XP para nivel {nivel + 1}
                 </span>
               </p>
               <div className="h-1.5 max-w-md overflow-hidden rounded-full bg-[var(--bg-input)]">

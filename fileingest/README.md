@@ -8,8 +8,10 @@ Se ejecuta detrás del backend NestJS de ElevenPray. El frontend nunca lo llama 
 
 - Go 1.22
 - HTTP: `chi`
-- DB: PostgreSQL (Supabase) + extensión `pgvector` via `pgx/v5` + `pgvector-go`
-- LLM: Azure OpenAI v1 API (`/openai/v1`) — chat + embeddings con clave compartida
+- DB: PostgreSQL (Supabase) — solo metadatos de documentos (`fileingest_documents`)
+- Vectores: Milvus (study `/v1/ingest` y recursos de curso `/v1/resources/upload`)
+- LLM chat: Azure OpenAI v1 (`/openai/v1`) — DeepSeek-V4-Flash
+- Embeddings: API pública OpenAI (`OPENAI_API_KEY`, `text-embedding-3-small`)
 - PDF: `ledongthuc/pdf` (puro Go, sin CGO)
 - Office Open XML: DOCX/PPTX (ZIP + XML, puro Go), XLSX (`excelize/v2`)
 - Tokens: `tiktoken-go` (cl100k_base)
@@ -38,14 +40,14 @@ fileingest/
 
 ## Variables de entorno
 
-Ver `.env.example`. Mínimas requeridas: `DATABASE_URL`, `INTERNAL_API_TOKEN`, `AZURE_OPENAI_*`, `AWS_*` y `S3_BUCKET`.
+Ver `.env.example`. Mínimas requeridas: `DATABASE_URL`, `INTERNAL_API_TOKEN`, `AZURE_OPENAI_*` (chat), `OPENAI_API_KEY` (embeddings), `AWS_*` y `S3_BUCKET`.
 
 ## Setup local
 
 ```bash
 cd fileingest
 cp .env.example .env
-# rellena DATABASE_URL, AZURE_OPENAI_API_KEY, INTERNAL_API_TOKEN, AWS_*
+# rellena DATABASE_URL, AZURE_OPENAI_API_KEY, OPENAI_API_KEY, INTERNAL_API_TOKEN, AWS_*
 
 # Instala dependencias
 go mod tidy
@@ -124,7 +126,7 @@ Chat con SSE. Eventos: `delta` (cada token), `citations` (al final, si `ragEnabl
 Frontend → NestJS (auth JWT, permisos por workspace)
          → fileingest (X-Internal-Token)
               ↳ S3 GetObject
-              ↳ Azure OpenAI (embeddings + chat)
+              ↳ Milvus (embeddings) + Azure/OpenAI (chat)
               ↳ Postgres + pgvector
 ```
 

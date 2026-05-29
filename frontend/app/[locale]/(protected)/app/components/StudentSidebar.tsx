@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { SidebarStreakCompact } from "../gamification/components/SidebarStreakCompact";
 import { useTheme } from "@/app/providers/theme-provider";
 import { MitsyyLogo } from "@/app/components/mitsyy-logo";
+import { STUDY_PAGE_ENABLED } from "@/app/lib/feature-flags";
 
 const NAV_ITEMS = [
   { href: "/app", key: "home", icon: Home, exact: true },
@@ -35,6 +36,10 @@ const NAV_ITEMS = [
   { href: "/app/community", key: "community", icon: Users },
   { href: "/app/plan", key: "plan", icon: CreditCard },
 ] as const;
+
+const VISIBLE_NAV_ITEMS = STUDY_PAGE_ENABLED
+  ? NAV_ITEMS
+  : NAV_ITEMS.filter((item) => item.href !== "/app/study");
 
 interface StudentSidebarProps {
   collapsed?: boolean;
@@ -97,7 +102,7 @@ export function StudentSidebar({
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-2" aria-label={t("label")}>
-        {NAV_ITEMS.map((item) => {
+        {VISIBLE_NAV_ITEMS.map((item) => {
           const { href, key, icon: Icon } = item;
           const exact = "exact" in item ? item.exact : false;
           const active = isActive(href, exact);

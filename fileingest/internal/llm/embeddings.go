@@ -42,7 +42,7 @@ func (c *Client) Embed(ctx context.Context, inputs []string) ([][]float32, error
 	}
 
 	body := embeddingsRequest{
-		Model: c.embedDeployment,
+		Model: c.embedModel,
 		Input: inputs,
 	}
 	// Some embedding models (e.g. text-embedding-3-*) accept a "dimensions" override.
@@ -54,17 +54,13 @@ func (c *Client) Embed(ctx context.Context, inputs []string) ([][]float32, error
 		return nil, fmt.Errorf("marshal embed body: %w", err)
 	}
 
-	url := c.endpoint + "/embeddings"
-	if c.apiVersion != "" {
-		url += "?api-version=" + c.apiVersion
-	}
+	url := c.embedEndpoint + "/embeddings"
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(raw))
 	if err != nil {
 		return nil, fmt.Errorf("build embed request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("api-key", c.apiKey)
-	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	req.Header.Set("Authorization", "Bearer "+c.embedAPIKey)
 
 	resp, err := c.http.Do(req)
 	if err != nil {

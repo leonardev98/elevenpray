@@ -11,8 +11,17 @@ import { GamificationIcon } from "./GamificationIcon";
 export function DailyXpCard() {
   const { data } = useGamification();
   const [barWidth, setBarWidth] = useState(0);
-  const progress = Math.min((data.xpHoy / data.xpMetaDiaria) * 100, 100);
-  const xpFaltante = data.user.xpSiguienteNivel - data.user.xpActual;
+  const metaDiaria = data.xpMetaDiaria > 0 ? data.xpMetaDiaria : 100;
+  const progress = Math.min((data.xpHoy / metaDiaria) * 100, 100);
+  const nivel = Number.isFinite(data.user.nivel) ? data.user.nivel : 1;
+  const xpActual = Number.isFinite(data.user.xpActual) ? data.user.xpActual : 0;
+  const xpSiguienteNivel =
+    Number.isFinite(data.user.xpSiguienteNivel) && data.user.xpSiguienteNivel > 0
+      ? data.user.xpSiguienteNivel
+      : 400;
+  const xpFaltante = Math.max(0, xpSiguienteNivel - xpActual);
+  const nivelProgress =
+    xpSiguienteNivel > 0 ? Math.min(xpActual / xpSiguienteNivel, 1) : 0;
 
   const today = format(new Date(), "EEEE d 'de' MMMM", { locale: es });
 
@@ -36,7 +45,7 @@ export function DailyXpCard() {
         <div className="mb-1.5 flex items-center justify-between gap-2">
           <span className="text-xs font-medium text-[var(--app-fg-secondary)]">XP de hoy</span>
           <span className="text-xs font-semibold text-[var(--app-fg)]">
-            {data.xpHoy} / {data.xpMetaDiaria} XP
+            {data.xpHoy} / {metaDiaria} XP
           </span>
         </div>
         <div className="h-2.5 overflow-hidden rounded-full bg-[var(--bg-input)]">
@@ -94,16 +103,18 @@ export function DailyXpCard() {
               fill="none"
               stroke="var(--xp)"
               strokeWidth="4"
-              strokeDasharray={`${(data.user.xpActual / data.user.xpSiguienteNivel) * 175.9} 175.9`}
+              strokeDasharray={`${nivelProgress * 175.9} 175.9`}
               strokeLinecap="round"
             />
           </svg>
           <div className="flex flex-col items-center">
             <span className="text-[10px] text-[var(--text-muted)]">Nivel</span>
-            <span className="text-2xl font-bold text-[var(--xp)]">{data.user.nivel}</span>
+            <span className="text-2xl font-bold text-[var(--xp)]">{nivel}</span>
           </div>
         </div>
-        <p className="mt-1 text-[10px] text-[var(--text-muted)]">{xpFaltante} XP para nivel {data.user.nivel + 1}</p>
+        <p className="mt-1 text-[10px] text-[var(--text-muted)]">
+          {xpFaltante} XP para nivel {nivel + 1}
+        </p>
       </div>
     </div>
   );

@@ -33,6 +33,7 @@ import { StudentActivityModule } from './student-activity/student-activity.modul
 import { EmotionalCheckinsModule } from './emotional-checkins/emotional-checkins.module';
 import { DayEntriesModule } from './day-entries/day-entries.module';
 import { InternalResourcesModule } from './internal-resources/internal-resources.module';
+import { ReferralsModule } from './referrals/referrals.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { InternalResourcesModule } from './internal-resources/internal-resources
     EmotionalCheckinsModule,
     DayEntriesModule,
     InternalResourcesModule,
+    ReferralsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
