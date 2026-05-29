@@ -7,7 +7,6 @@ import { toast } from "@/app/lib/toast";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useCurriculum } from "@/app/lib/curriculum/hooks";
 import { fireConfetti } from "@/app/lib/curriculum/confetti";
-import { LAW_TEMPLATE, SYSTEMS_TEMPLATE } from "@/app/lib/curriculum/templates";
 import type { CurriculumCourse, CurriculumStatus } from "@/app/lib/curriculum/types";
 import { StudentPageShell } from "../components/StudentPageShell";
 import { ConfirmDestructiveModal } from "../components/ConfirmDestructiveModal";
@@ -37,7 +36,6 @@ export default function MallaPage() {
     updateCourse,
     setStatus,
     removeCourse,
-    importTemplate,
     coursesByCycle,
     cycleNumbers,
     getCourseById,
@@ -50,7 +48,6 @@ export default function MallaPage() {
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<CurriculumCourse | null>(null);
   const [deleting, setDeleting] = useState<CurriculumCourse | null>(null);
-  const [importMenuOpen, setImportMenuOpen] = useState(false);
 
   const toastStatusDesc = useCallback(
     (status: CurriculumStatus, courseName: string) => {
@@ -140,34 +137,6 @@ export default function MallaPage() {
     [formMode, editing, updateCourse, createCourse, t],
   );
 
-  const handleImport = async (
-    template: ReadonlyArray<{
-      cycleNumber: number;
-      code?: string;
-      name: string;
-      credits?: number;
-      prerequisiteCodes?: readonly string[];
-    }>,
-  ) => {
-    setImportMenuOpen(false);
-    try {
-      await importTemplate(
-        template.map((item) => ({
-          ...item,
-          prerequisiteCodes: item.prerequisiteCodes
-            ? [...item.prerequisiteCodes]
-            : undefined,
-        })),
-      );
-      toast.success(t("toastImportTitle"), t("toastImportDesc"));
-    } catch (e) {
-      toast.error(
-        t("toastErrorTitle"),
-        e instanceof Error ? e.message : t("errorLoad"),
-      );
-    }
-  };
-
   if (!token) {
     return (
       <StudentPageShell title={t("title")} maxWidth="max-w-7xl">
@@ -186,27 +155,7 @@ export default function MallaPage() {
           setEditing(null);
           setFormOpen(true);
         }}
-        onImportTemplate={() => setImportMenuOpen((v) => !v)}
       />
-
-      {importMenuOpen && (
-        <div className="mb-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => void handleImport(SYSTEMS_TEMPLATE)}
-            className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs hover:bg-[var(--bg-elevated)]"
-          >
-            {t("templateSystems")}
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleImport(LAW_TEMPLATE)}
-            className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs hover:bg-[var(--bg-elevated)]"
-          >
-            {t("templateLaw")}
-          </button>
-        </div>
-      )}
 
       {loading && <MallaSkeleton />}
 

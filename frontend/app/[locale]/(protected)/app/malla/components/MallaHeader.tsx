@@ -1,20 +1,18 @@
 "use client";
 
-import { Plus, Search, Upload } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface MallaHeaderProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onAddCourse: () => void;
-  onImportTemplate: () => void;
 }
 
 export function MallaHeader({
   searchQuery,
   onSearchChange,
   onAddCourse,
-  onImportTemplate,
 }: MallaHeaderProps) {
   const t = useTranslations("studentMalla");
 
@@ -40,14 +38,6 @@ export function MallaHeader({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={onImportTemplate}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/80 px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] backdrop-blur-sm transition hover:bg-[var(--bg-elevated)]"
-          >
-            <Upload className="h-4 w-4" />
-            {t("importTemplate")}
-          </button>
           <button
             type="button"
             onClick={onAddCourse}
