@@ -115,6 +115,10 @@ function defaultData(userName?: string, userId?: string): GamificationData {
     { dia: "Sáb", xp: 0 },
     { dia: "Hoy", xp: 0 },
   ];
+  base.historialSemanas = {
+    estudio: Array.from({ length: 4 }, () => [false, false, false, false, false, false, false]),
+    tareas: Array.from({ length: 4 }, () => [false, false, false, false, false, false, false]),
+  };
   base.ranking = [];
   base.comparacionSemana = { porcentaje: 0 };
   base.extras = buildExtras(userId, profile);
@@ -208,14 +212,7 @@ function mergeSummary(prev: GamificationData, summary: ActivitySummaryDto): Gami
         xpSemana: summary.xpTareasSemana,
       },
     },
-    historialSemanas: {
-      estudio: prev.historialSemanas.estudio.map((row, i) =>
-        i === 3 ? summary.rachas.estudio.semana : row,
-      ),
-      tareas: prev.historialSemanas.tareas.map((row, i) =>
-        i === 3 ? summary.rachas.tareas.semana : row,
-      ),
-    },
+    historialSemanas: summary.historialSemanas,
   };
 }
 

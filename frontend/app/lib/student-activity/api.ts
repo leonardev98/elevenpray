@@ -15,6 +15,11 @@ export interface HistorialXpDiaDto {
   xp: number;
 }
 
+export interface HistorialSemanasDto {
+  estudio: boolean[][];
+  tareas: boolean[][];
+}
+
 export interface ActivitySummaryDto {
   rachas: {
     estudio: StreakSummaryDto;
@@ -31,6 +36,7 @@ export interface ActivitySummaryDto {
   xpActual: number;
   xpSiguienteNivel: number;
   historialXP: HistorialXpDiaDto[];
+  historialSemanas: HistorialSemanasDto;
 }
 
 export async function getActivitySummary(token: string): Promise<ActivitySummaryDto> {

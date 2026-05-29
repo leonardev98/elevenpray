@@ -15,6 +15,19 @@ const EMPTY_WEEK: HistorialXpDiaDto[] = [
   { dia: "Hoy", xp: 0 },
 ];
 
+function emptyHistorialSemanas(): { estudio: boolean[][]; tareas: boolean[][] } {
+  const week = () => Array.from({ length: 7 }, () => false);
+  const rows = () => Array.from({ length: 4 }, week);
+  return { estudio: rows(), tareas: rows() };
+}
+
+function fallbackHistorialSemanas(raw: ActivitySummaryDto): { estudio: boolean[][]; tareas: boolean[][] } {
+  const base = emptyHistorialSemanas();
+  base.estudio[3] = [...raw.rachas.estudio.semana];
+  base.tareas[3] = [...raw.rachas.tareas.semana];
+  return base;
+}
+
 /**
  * Asegura campos de nivel/XP aunque el backend aún no exponga la versión nueva del summary.
  */
@@ -45,5 +58,6 @@ export function normalizeActivitySummary(raw: ActivitySummaryDto): ActivitySumma
       Array.isArray(raw.historialXP) && raw.historialXP.length > 0
         ? raw.historialXP
         : EMPTY_WEEK,
+    historialSemanas: raw.historialSemanas ?? fallbackHistorialSemanas(raw),
   };
 }

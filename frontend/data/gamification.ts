@@ -413,18 +413,8 @@ export const gamificationData: GamificationData = {
     { dia: "Hoy", xp: 0 },
   ],
   historialSemanas: {
-    estudio: [
-      [true, true, true, true, true, true, true],
-      [true, true, false, true, true, true, true],
-      [true, true, true, true, false, true, true],
-      [true, true, true, false, true, true, true],
-    ],
-    tareas: [
-      [true, true, true, true, false, true, true],
-      [false, true, true, true, true, false, true],
-      [true, false, true, false, true, true, false],
-      [true, true, false, false, true, false, false],
-    ],
+    estudio: Array.from({ length: 4 }, () => [false, false, false, false, false, false, false]),
+    tareas: Array.from({ length: 4 }, () => [false, false, false, false, false, false, false]),
   },
   xpTareasSemana: 0,
   comparacionSemana: { porcentaje: 0 },

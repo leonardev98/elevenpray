@@ -70,15 +70,22 @@ export function StudentSidebar({
         mobileOpen ? "flex" : "hidden lg:flex",
       )}
     >
-      <div className="flex min-h-[4.5rem] items-center justify-between gap-2 px-3 py-4">
-        <Link
-          href="/app"
-          onClick={onCloseMobile}
-          className={cn("flex min-w-0 flex-1 items-center", collapsed && "justify-center")}
-          aria-label="Mitsyy"
-        >
-          <MitsyyLogo size={collapsed ? "md" : "lg"} compact={collapsed} />
-        </Link>
+      <div
+        className={cn(
+          "flex min-h-[4.5rem] items-center gap-2 px-3 py-4",
+          collapsed ? "justify-center" : "justify-between",
+        )}
+      >
+        {!collapsed && (
+          <Link
+            href="/app"
+            onClick={onCloseMobile}
+            className="flex min-w-0 flex-1 items-center"
+            aria-label="Mitsyy"
+          >
+            <MitsyyLogo size="lg" />
+          </Link>
+        )}
         {onToggleCollapse && (
           <button
             type="button"
@@ -158,16 +165,18 @@ export function StudentSidebar({
         </button>
       </div>
 
-      <div className="border-t-[0.5px] border-[var(--border)] px-3 py-4">
-        <Link
-          href="/app"
-          onClick={onCloseMobile}
-          className={cn("flex items-center", collapsed && "justify-center")}
-          aria-label="Mitsyy"
-        >
-          <MitsyyLogo size="sm" compact={collapsed} />
-        </Link>
-      </div>
+      {!collapsed && (
+        <div className="border-t-[0.5px] border-[var(--border)] px-3 py-4">
+          <Link
+            href="/app"
+            onClick={onCloseMobile}
+            className="flex items-center"
+            aria-label="Mitsyy"
+          >
+            <MitsyyLogo size="sm" />
+          </Link>
+        </div>
+      )}
     </aside>
   );
 }

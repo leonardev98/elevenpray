@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
 import { enUS, es } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Menu, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useStudyBackendLinkStore } from "../lib/study-backend-link";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,6 @@ import { useStudentCalendarEvents } from "../lib/use-student-calendar-events";
 import { EventEditorModal, type EditorState } from "./EventEditorModal";
 import { StudentScheduleCalendar } from "./StudentScheduleCalendar";
 import { WeeklyScheduleGrid } from "./WeeklyScheduleGrid";
-import { useStudentShell } from "./student-shell-context";
 
 type ViewMode = "week" | "day";
 
@@ -37,7 +36,6 @@ function StudentCalendarShellInner() {
   const t = useTranslations("studentCalendar");
   const locale = useLocale() as "es" | "en";
   const dateFnsLocale = locale === "en" ? enUS : es;
-  const { openMobileMenu } = useStudentShell();
   const courseMap = useStudyBackendLinkStore((s) => s.courseMap);
 
   const today = useMemo(() => new Date(), []);
@@ -116,28 +114,16 @@ function StudentCalendarShellInner() {
   return (
     <div className="flex w-full flex-col gap-5">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
-          {openMobileMenu && (
-            <button
-              type="button"
-              onClick={openMobileMenu}
-              className="mt-1 rounded-xl p-2 text-[var(--app-fg-secondary)] hover:bg-[var(--app-surface)] lg:hidden"
-              aria-label={t("title")}
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          )}
-          <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg-muted)]">
-              {format(today, "EEEE, d MMMM", { locale: dateFnsLocale })}
-            </p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[var(--app-fg)] lg:text-4xl">
-              {t("myWeek")}
-            </h1>
-            <p className="mt-1 text-sm capitalize text-[var(--app-fg-secondary)]">
-              {rangeLabel}
-            </p>
-          </div>
+        <div className="min-w-0">
+          <p className="text-xs font-medium uppercase tracking-wider text-[var(--app-fg-muted)]">
+            {format(today, "EEEE, d MMMM", { locale: dateFnsLocale })}
+          </p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[var(--app-fg)] lg:text-4xl">
+            {t("myWeek")}
+          </h1>
+          <p className="mt-1 text-sm capitalize text-[var(--app-fg-secondary)]">
+            {rangeLabel}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

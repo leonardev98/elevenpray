@@ -39,6 +39,10 @@ export interface ActivitySummaryResponse {
   xpActual: number;
   xpSiguienteNivel: number;
   historialXP: HistorialXpDia[];
+  historialSemanas: {
+    estudio: boolean[][];
+    tareas: boolean[][];
+  };
 }
 
 function toYmd(d: Date): string {
@@ -103,6 +107,24 @@ function buildWeekArray(activeDates: Set<string>, todayYmd: string): boolean[] {
     week.push(activeDates.has(addDaysYmd(monday, i)));
   }
   return week;
+}
+
+function buildHistorialSemanas(
+  activeDates: Set<string>,
+  todayYmd: string,
+  weekCount = 4,
+): boolean[][] {
+  const currentMonday = getMondayOfWeek(todayYmd);
+  const weeks: boolean[][] = [];
+  for (let w = weekCount - 1; w >= 0; w--) {
+    const weekMonday = addDaysYmd(currentMonday, -7 * w);
+    const week: boolean[] = [];
+    for (let d = 0; d < 7; d++) {
+      week.push(activeDates.has(addDaysYmd(weekMonday, d)));
+    }
+    weeks.push(week);
+  }
+  return weeks;
 }
 
 const WEEKDAY_LABELS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] as const;
@@ -214,6 +236,10 @@ export class StudentActivityService {
       xpActual: level.xpActual,
       xpSiguienteNivel: level.xpSiguienteNivel,
       historialXP,
+      historialSemanas: {
+        estudio: buildHistorialSemanas(studySet, todayYmd),
+        tareas: buildHistorialSemanas(taskSet, todayYmd),
+      },
     };
   }
 }
