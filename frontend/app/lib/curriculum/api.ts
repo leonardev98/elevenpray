@@ -64,7 +64,29 @@ function normalizeState(data: Record<string, unknown>): CurriculumState {
       }))
     : [];
   const stats = normalizeStats((data.stats as Record<string, unknown>) ?? {});
-  return { courses, prerequisites, stats };
+  const fromApi = Array.isArray(data.cycleNumbers ?? data.cycle_numbers)
+    ? (data.cycleNumbers ?? data.cycle_numbers) as unknown[]
+    : [];
+  const cycleNumbersFromApi = fromApi
+    .map((n) => Number(n))
+    .filter((n) => Number.isFinite(n) && n >= 1);
+  const courseCycles = [...new Set(courses.map((c) => c.cycleNumber))].sort((a, b) => a - b);
+  const totalCycles = Number(data.totalCycles ?? data.total_cycles ?? 0);
+  const cycleNumbers =
+    cycleNumbersFromApi.length > 0
+      ? cycleNumbersFromApi
+      : courseCycles.length > 0
+        ? courseCycles
+        : totalCycles > 0
+          ? Array.from({ length: totalCycles }, (_, i) => i + 1)
+          : [];
+  return {
+    courses,
+    prerequisites,
+    stats,
+    totalCycles: totalCycles > 0 ? totalCycles : cycleNumbers.length > 0 ? cycleNumbers[cycleNumbers.length - 1]! : 0,
+    cycleNumbers,
+  };
 }
 
 async function handleResponse(res: Response): Promise<CurriculumState> {

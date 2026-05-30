@@ -2,10 +2,14 @@ import { getBaseUrl, getAuthHeaders } from "./api";
 
 export type UserRole = 'user' | 'platform_admin';
 
+export type StudentProgramType = "tecnico" | "universidad";
+
 export interface StudentProfilePublic {
   university: string;
   career: string;
   cycle: string;
+  institutionType?: StudentProgramType | null;
+  curriculumTotalCycles?: number | null;
 }
 
 export interface PublicUser {
@@ -60,6 +64,19 @@ export function normalizePublicUser(raw: Record<string, unknown>): PublicUser {
     (raw.student_profile as StudentProfilePublic | undefined)?.cycle ??
     (raw.studentAcademicCycle as string | undefined) ??
     (raw.student_academic_cycle as string | undefined);
+  const institutionType =
+    (raw.studentProfile as StudentProfilePublic | undefined)?.institutionType ??
+    (raw.student_profile as StudentProfilePublic | undefined)?.institutionType ??
+    (raw.studentProgramType as StudentProgramType | undefined) ??
+    (raw.student_program_type as StudentProgramType | undefined) ??
+    null;
+  const curriculumTotalCyclesRaw =
+    (raw.studentProfile as StudentProfilePublic | undefined)?.curriculumTotalCycles ??
+    (raw.student_profile as StudentProfilePublic | undefined)?.curriculumTotalCycles ??
+    raw.curriculumTotalCycles ??
+    raw.curriculum_total_cycles;
+  const curriculumTotalCycles =
+    curriculumTotalCyclesRaw != null ? Number(curriculumTotalCyclesRaw) : null;
 
   const hasStudentData =
     typeof studentUniversity === "string" &&
@@ -89,6 +106,11 @@ export function normalizePublicUser(raw: Record<string, unknown>): PublicUser {
           university: studentUniversity!,
           career: studentCareer!,
           cycle: studentCycle!,
+          institutionType: institutionType ?? null,
+          curriculumTotalCycles:
+            curriculumTotalCycles != null && Number.isFinite(curriculumTotalCycles)
+              ? curriculumTotalCycles
+              : null,
         }
       : null,
     studentOnboardingCompleted,
@@ -182,7 +204,13 @@ export async function me(token: string): Promise<PublicUser> {
 
 export async function upsertStudentProfile(
   token: string,
-  data: { university: string; career: string; cycle: string; name?: string },
+  data: {
+    university: string;
+    career: string;
+    cycle: string;
+    institutionType: StudentProgramType;
+    name?: string;
+  },
 ): Promise<PublicUser> {
   const res = await fetch(`${getBaseUrl()}/auth/student-profile`, {
     method: "PATCH",

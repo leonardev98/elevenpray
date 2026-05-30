@@ -29,6 +29,7 @@ interface MallaCourseFormProps {
   initial?: CurriculumCourse | null;
   allCourses: CurriculumCourse[];
   defaultCycle?: number;
+  maxCycle?: number;
   onClose: () => void;
   onSubmit: (values: MallaCourseFormValues) => Promise<void>;
 }
@@ -39,6 +40,7 @@ export function MallaCourseForm({
   initial,
   allCourses,
   defaultCycle = 1,
+  maxCycle = 12,
   onClose,
   onSubmit,
 }: MallaCourseFormProps) {
@@ -236,7 +238,7 @@ export function MallaCourseForm({
             onChange={(e) => setCycleNumber(Number(e.target.value))}
             className={cn(STUDENT_MODAL_INPUT, "mt-1 cursor-pointer")}
           >
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+            {Array.from({ length: Math.max(1, maxCycle) }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>
                 {t("cycleLabel", { roman: cycleToRoman(n) })}
               </option>

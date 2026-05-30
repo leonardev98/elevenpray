@@ -53,6 +53,8 @@ export class UsersService {
       studentCareer?: string | null;
       studentAcademicCycle?: string | null;
       studentOnboardingCompletedAt?: Date | null;
+      studentProgramType?: 'tecnico' | 'universidad' | null;
+      curriculumTotalCycles?: number | null;
     },
   ): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
@@ -78,6 +80,10 @@ export class UsersService {
       user.studentAcademicCycle = data.studentAcademicCycle;
     if (data.studentOnboardingCompletedAt !== undefined)
       user.studentOnboardingCompletedAt = data.studentOnboardingCompletedAt;
+    if (data.studentProgramType !== undefined)
+      user.studentProgramType = data.studentProgramType;
+    if (data.curriculumTotalCycles !== undefined)
+      user.curriculumTotalCycles = data.curriculumTotalCycles;
 
     return this.userRepository.save(user);
   }

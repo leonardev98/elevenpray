@@ -9,6 +9,8 @@ export type StudentOnboardingOption = {
   shortName?: string;
   /** Texto usado para filtrar (incluye nombre, siglas y alias coloquiales). */
   textValue: string;
+  /** URL futura en S3; mientras tanto se usa gradiente por id. */
+  imageUrl?: string;
 };
 
 export const STUDENT_ONBOARDING_OTHER_ID = "__student_onboarding_other__";
@@ -128,6 +130,12 @@ export const PERUVIAN_UNIVERSITIES: StudentOnboardingOption[] = [
     label: "Universidad de San Martín de Porres",
     shortName: "USMP",
     textValue: "Universidad de San Martín de Porres USMP usmp san martín martin porres",
+  },
+  {
+    id: "usil",
+    label: "Universidad San Ignacio de Loyola",
+    shortName: "USIL",
+    textValue: "Universidad San Ignacio de Loyola USIL usil san ignacio loyola",
   },
   {
     id: "utec",

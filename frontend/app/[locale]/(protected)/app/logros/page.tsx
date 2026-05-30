@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { StudentPageShell } from "../components/StudentPageShell";
 import { SectionLabel } from "../components/SectionLabel";
 import { BadgeGrid } from "../gamification/components/BadgeGrid";
@@ -17,10 +18,11 @@ import { XpWeekChart } from "../gamification/components/XpWeekChart";
 import { useGamification } from "../gamification/gamification-context";
 
 export default function LogrosPage() {
+  const tNav = useTranslations("studentNav");
   const { data } = useGamification();
 
   return (
-    <StudentPageShell title="Logros" maxWidth="max-w-4xl">
+    <StudentPageShell title={tNav("achievements")} maxWidth="max-w-4xl">
       <div className="space-y-10 pb-8">
         <GamificationHero />
 

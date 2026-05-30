@@ -8,6 +8,7 @@ export type StudentProfile = {
   university: string;
   career: string;
   cycle: string;
+  institutionType?: "tecnico" | "universidad";
 };
 
 function profileKey(userId: string): string {

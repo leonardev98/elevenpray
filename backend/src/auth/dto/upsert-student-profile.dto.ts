@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class UpsertStudentProfileDto {
   @IsString()
@@ -15,6 +15,9 @@ export class UpsertStudentProfileDto {
   @MinLength(1)
   @MaxLength(50)
   cycle: string;
+
+  @IsIn(['tecnico', 'universidad'])
+  institutionType: 'tecnico' | 'universidad';
 
   @IsOptional()
   @IsString()

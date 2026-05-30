@@ -5,6 +5,7 @@ import {
   filterCurriculumCoursesForList,
   findCurriculumCourseByListId,
   resolveActiveCycleNumber,
+  resolveDefaultCycleForNewCourse,
 } from "./courses-list";
 import type { CurriculumCourse } from "./types";
 
@@ -69,6 +70,16 @@ describe("resolveActiveCycleNumber", () => {
 
   it("infers cycle with most activity when no profile", () => {
     expect(resolveActiveCycleNumber(sampleCourses)).toBe(1);
+  });
+});
+
+describe("resolveDefaultCycleForNewCourse", () => {
+  it("defaults to 1 when malla is empty even if profile says 12", () => {
+    expect(resolveDefaultCycleForNewCourse([], 12)).toBe(1);
+  });
+
+  it("uses active cycle when malla already has courses", () => {
+    expect(resolveDefaultCycleForNewCourse(sampleCourses, 12)).toBe(1);
   });
 });
 

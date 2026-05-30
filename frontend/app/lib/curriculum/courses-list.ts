@@ -74,6 +74,17 @@ export function filterCurriculumCoursesForList(
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
+/** Ciclo sugerido al crear un curso (no usa el perfil si la malla aún está vacía). */
+export function resolveDefaultCycleForNewCourse(
+  courses: CurriculumCourse[],
+  profileCycle?: number | null,
+): number {
+  if (courses.length > 0) {
+    return resolveActiveCycleNumber(courses, profileCycle);
+  }
+  return 1;
+}
+
 export function findCurriculumCourseByListId(
   courses: CurriculumCourse[],
   listId: string,

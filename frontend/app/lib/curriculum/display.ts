@@ -42,5 +42,6 @@ export function curriculumCourseToMock(course: CurriculumCourse): MockCourseExte
     streakDays: 0,
     colorHex: TOKEN_TO_HEX[course.colorToken] ?? null,
     credits: course.credits,
+    cycleNumber: course.cycleNumber,
   };
 }

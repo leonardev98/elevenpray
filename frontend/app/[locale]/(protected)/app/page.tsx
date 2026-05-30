@@ -15,13 +15,14 @@ import { useHomeDashboard } from "./lib/use-home-dashboard";
 
 export default function StudentHomePage() {
   const t = useTranslations("studentHome");
+  const tNav = useTranslations("studentNav");
   const locale = useLocale() as "es" | "en";
   const dateFnsLocale = locale === "en" ? enUS : es;
   const { checkedInToday, openGate } = useCheckIn();
   const { classesToday, upcomingTasks, courseById, loading } = useHomeDashboard();
 
   return (
-    <StudentPageShell>
+    <StudentPageShell title={tNav("home")}>
       <div className="space-y-6">
         <DailyXpCard />
 

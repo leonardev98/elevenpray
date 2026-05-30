@@ -6,6 +6,7 @@ import { CurriculumPrerequisite } from './entities/curriculum-prerequisite.entit
 import { Course } from '../study-university/entities/course.entity';
 import { Semester } from '../study-university/entities/semester.entity';
 import { StudyWorkspaceConfig } from '../study-university/entities/study-workspace-config.entity';
+import { User } from '../users/entities/user.entity';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 
 describe('CurriculumService', () => {
@@ -46,6 +47,9 @@ describe('CurriculumService', () => {
     ]),
     findOne: jest.fn(),
   };
+  const userRepo = {
+    findOne: jest.fn().mockResolvedValue({ id: 'user-1', curriculumTotalCycles: 10 }),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -58,6 +62,7 @@ describe('CurriculumService', () => {
         { provide: getRepositoryToken(Course), useValue: courseRepo },
         { provide: getRepositoryToken(Semester), useValue: semesterRepo },
         { provide: getRepositoryToken(StudyWorkspaceConfig), useValue: configRepo },
+        { provide: getRepositoryToken(User), useValue: userRepo },
       ],
     }).compile();
     service = module.get(CurriculumService);
@@ -67,5 +72,7 @@ describe('CurriculumService', () => {
     const result = await service.getCurriculum('user-1');
     expect(result.courses).toEqual([]);
     expect(result.stats.totalCourses).toBe(0);
+    expect(result.totalCycles).toBe(10);
+    expect(result.cycleNumbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   });
 });

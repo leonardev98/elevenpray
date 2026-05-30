@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Edit3, MoreHorizontal, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { cycleToRoman } from "@/app/lib/curriculum/curriculum-utils";
 import { getCourseAccentStyles } from "../../lib/course-styles";
 import type { MockCourseExtended } from "../../lib/mock-course-data";
 import { CourseProgressBar } from "./CourseProgressBar";
@@ -67,23 +68,32 @@ export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
         className="absolute inset-0 z-0 rounded-[inherit] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-primary)]"
       />
 
-      <span
-        className={cn(
-          "pointer-events-none relative z-10 inline-block w-fit rounded-lg border px-2.5 py-0.5 text-xs font-semibold",
-          !hex && styles.badge,
-        )}
-        style={
-          hex
-            ? {
-                backgroundColor: `${hex}26`,
-                borderColor: hex,
-                color: "var(--text-primary)",
-              }
-            : undefined
-        }
-      >
-        {course.code}
-      </span>
+      <div className="pointer-events-none relative z-10 flex flex-wrap items-center gap-2">
+        {course.code ? (
+          <span
+            className={cn(
+              "inline-block w-fit rounded-lg border px-2.5 py-0.5 text-xs font-semibold",
+              !hex && styles.badge,
+            )}
+            style={
+              hex
+                ? {
+                    backgroundColor: `${hex}26`,
+                    borderColor: hex,
+                    color: "var(--text-primary)",
+                  }
+                : undefined
+            }
+          >
+            {course.code}
+          </span>
+        ) : null}
+        {course.cycleNumber != null ? (
+          <span className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-2.5 py-0.5 text-xs font-medium text-[var(--app-fg-secondary)]">
+            {t("cardCycleLabel", { roman: cycleToRoman(course.cycleNumber) })}
+          </span>
+        ) : null}
+      </div>
       <h3 className="pointer-events-none relative z-10 mt-3 text-lg font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
         {course.name}
       </h3>

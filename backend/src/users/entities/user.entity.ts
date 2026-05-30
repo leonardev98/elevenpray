@@ -44,6 +44,12 @@ export class User {
   })
   studentOnboardingCompletedAt: Date | null;
 
+  @Column({ name: 'student_program_type', type: 'text', nullable: true })
+  studentProgramType: 'tecnico' | 'universidad' | null;
+
+  @Column({ name: 'curriculum_total_cycles', type: 'smallint', nullable: true })
+  curriculumTotalCycles: number | null;
+
   @Column({ name: 'referred_by_user_id', type: 'uuid', nullable: true })
   referredByUserId: string | null;
 

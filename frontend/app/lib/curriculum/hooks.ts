@@ -73,6 +73,8 @@ function buildStateFromCourses(
     courses: enriched,
     prerequisites,
     stats: computeCurriculumStats(enriched),
+    totalCycles: prev.totalCycles,
+    cycleNumbers: prev.cycleNumbers,
   };
 }
 
@@ -275,9 +277,14 @@ export function useCurriculum() {
   }, [state]);
 
   const cycleNumbers = useMemo(() => {
+    if (state?.cycleNumbers && state.cycleNumbers.length > 0) {
+      return state.cycleNumbers;
+    }
     const nums = [...coursesByCycle.keys()].sort((a, b) => a - b);
     return nums.length > 0 ? nums : [1];
-  }, [coursesByCycle]);
+  }, [coursesByCycle, state?.cycleNumbers]);
+
+  const totalCycles = state?.totalCycles ?? cycleNumbers.length;
 
   const getCourseById = useCallback(
     (id: string) => state?.courses.find((c) => c.id === id) ?? null,
@@ -297,6 +304,7 @@ export function useCurriculum() {
     importTemplate,
     coursesByCycle,
     cycleNumbers,
+    totalCycles,
     getCourseById,
     token,
   };

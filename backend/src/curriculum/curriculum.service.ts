@@ -12,6 +12,7 @@ import { Semester } from '../study-university/entities/semester.entity';
 import { StudyWorkspaceConfig } from '../study-university/entities/study-workspace-config.entity';
 import { CurriculumCourse, type CurriculumCourseStatus } from './entities/curriculum-course.entity';
 import { CurriculumPrerequisite } from './entities/curriculum-prerequisite.entity';
+import { User } from '../users/entities/user.entity';
 import {
   BulkImportCurriculumDto,
   CreateCurriculumCourseDto,
@@ -63,7 +64,29 @@ export class CurriculumService {
     private readonly semesterRepo: Repository<Semester>,
     @InjectRepository(StudyWorkspaceConfig)
     private readonly configRepo: Repository<StudyWorkspaceConfig>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
+
+  private resolveCycleNumbers(
+    user: Pick<User, 'curriculumTotalCycles'> | null,
+    courseCycleNumbers: number[],
+  ): { totalCycles: number; cycleNumbers: number[] } {
+    const fromCourses = [...new Set(courseCycleNumbers)].sort((a, b) => a - b);
+    const configured = user?.curriculumTotalCycles ?? 0;
+    if (configured > 0) {
+      const base = Array.from({ length: configured }, (_, i) => i + 1);
+      const merged = [...new Set([...base, ...fromCourses])].sort((a, b) => a - b);
+      return { totalCycles: configured, cycleNumbers: merged };
+    }
+    if (fromCourses.length > 0) {
+      return {
+        totalCycles: fromCourses[fromCourses.length - 1]!,
+        cycleNumbers: fromCourses,
+      };
+    }
+    return { totalCycles: 0, cycleNumbers: [] };
+  }
 
   private parseCredits(value: string | number | undefined, fallback = 0): string {
     const n = value === undefined ? fallback : Number(value);
@@ -309,7 +332,13 @@ export class CurriculumService {
   }
 
   async getCurriculum(userId: string) {
-    const courses = await this.buildViews(userId);
+    const [courses, user] = await Promise.all([
+      this.buildViews(userId),
+      this.userRepo.findOne({
+        where: { id: userId },
+        select: ['id', 'curriculumTotalCycles'],
+      }),
+    ]);
     const prerequisites = courses.flatMap((c) =>
       c.prerequisiteIds.map((prerequisiteId) => ({
         courseId: c.id,
@@ -323,7 +352,11 @@ export class CurriculumService {
         cycleNumber: c.cycleNumber,
       })),
     );
-    return { courses, prerequisites, stats };
+    const { totalCycles, cycleNumbers } = this.resolveCycleNumbers(
+      user,
+      courses.map((c) => c.cycleNumber),
+    );
+    return { courses, prerequisites, stats, totalCycles, cycleNumbers };
   }
 
   async createCourse(userId: string, dto: CreateCurriculumCourseDto) {

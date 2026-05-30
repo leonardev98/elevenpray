@@ -64,6 +64,7 @@ export function StudentSearchableField({
   disabled = false,
   disabledPlaceholder,
   icon,
+  compact = false,
 }: {
   id: string;
   label: string;
@@ -82,6 +83,8 @@ export function StudentSearchableField({
   /** Placeholder cuando el campo está deshabilitado. */
   disabledPlaceholder?: string;
   icon?: ReactNode;
+  /** Inputs más bajos (onboarding). */
+  compact?: boolean;
 }) {
   const { contains } = useFilter({ sensitivity: "base" });
   const initial = useMemo(
@@ -158,7 +161,7 @@ export function StudentSearchableField({
     );
 
   return (
-    <div className="relative">
+    <div className="relative z-0 focus-within:z-30">
       <ComboBox
         allowsCustomValue
         menuTrigger="focus"
@@ -193,9 +196,15 @@ export function StudentSearchableField({
             requestAnimationFrame(() => otherInputRef.current?.focus());
           }
         }}
-        className="flex flex-col gap-1.5"
+        className={cn("flex flex-col", compact ? "gap-1" : "gap-1.5")}
       >
-        <Label htmlFor={id} className="block text-sm font-medium text-[var(--app-fg)]">
+        <Label
+          htmlFor={id}
+          className={cn(
+            "block font-medium text-[var(--app-fg)]",
+            compact ? "text-xs" : "text-sm",
+          )}
+        >
           {label}
         </Label>
         {hint && (
@@ -205,7 +214,8 @@ export function StudentSearchableField({
         )}
         <Group
           className={cn(
-            "flex w-full min-w-0 items-stretch gap-0 overflow-hidden rounded-xl border bg-[var(--app-surface)] shadow-sm transition-colors",
+            "flex w-full min-w-0 items-stretch gap-0 overflow-hidden border bg-[var(--app-surface)] transition-colors",
+            compact ? "rounded-lg shadow-none" : "rounded-xl shadow-sm",
             disabled && "cursor-not-allowed opacity-60",
             isInvalid
               ? "border-red-500/60 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-red-500/20"
@@ -213,7 +223,12 @@ export function StudentSearchableField({
           )}
         >
           {icon && (
-            <div className="flex shrink-0 items-center justify-center pl-3 text-[var(--app-fg-muted)]">
+            <div
+              className={cn(
+                "flex shrink-0 items-center justify-center text-[var(--app-fg-muted)]",
+                compact ? "pl-2.5" : "pl-3",
+              )}
+            >
               {icon}
             </div>
           )}
@@ -223,11 +238,17 @@ export function StudentSearchableField({
             aria-describedby={hint ? `${id}-hint` : undefined}
             readOnly={showOtherField}
             className={cn(
-              "w-full min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none ring-0 focus:ring-0",
-              icon && "pl-2",
+              "w-full min-w-0 flex-1 border-0 bg-transparent text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none ring-0 focus:ring-0",
+              compact ? "h-9 px-2.5 text-sm" : "px-3 py-3",
+              icon && (compact ? "pl-1.5" : "pl-2"),
             )}
           />
-          <Button className="flex shrink-0 items-center justify-center border-l border-[var(--app-border)] bg-[var(--app-surface-soft)] px-3 text-[var(--app-fg-muted)] outline-none transition-colors pressed:bg-[var(--app-primary-soft)] hover:text-[var(--app-fg)]">
+          <Button
+            className={cn(
+              "flex shrink-0 items-center justify-center border-l border-[var(--app-border)] bg-[var(--app-surface-soft)] text-[var(--app-fg-muted)] outline-none transition-colors pressed:bg-[var(--app-primary-soft)] hover:text-[var(--app-fg)]",
+              compact ? "px-2.5" : "px-3",
+            )}
+          >
             <ChevronDown className="size-4" aria-hidden />
           </Button>
         </Group>
@@ -235,7 +256,7 @@ export function StudentSearchableField({
           placement="bottom start"
           offset={6}
           shouldFlip={false}
-          className="entering:animate-in entering:fade-in-0 entering:zoom-in-95 exiting:animate-out exiting:fade-out-0 exiting:zoom-out-95 z-50 min-w-[var(--trigger-width)] max-w-[var(--trigger-width)]"
+          className="entering:animate-in entering:fade-in-0 entering:zoom-in-95 exiting:animate-out exiting:fade-out-0 exiting:zoom-out-95 z-[200] min-w-[var(--trigger-width)] max-w-[var(--trigger-width)]"
         >
           <ListBox
             items={items}
@@ -294,7 +315,10 @@ export function StudentSearchableField({
             maxLength={120}
             placeholder={otherInputPlaceholder}
             className={cn(
-              "mt-2 w-full rounded-xl border bg-[var(--app-surface)] px-4 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none transition-colors",
+              "w-full border bg-[var(--app-surface)] text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none transition-colors",
+              compact
+                ? "mt-1.5 h-9 rounded-lg px-3 text-sm"
+                : "mt-2 rounded-xl px-4 py-3",
               isInvalid
                 ? "border-red-500/60 focus:border-red-500/70 focus:ring-2 focus:ring-red-500/20"
                 : "border-[var(--app-border)] focus:border-[var(--app-primary)]/50 focus:ring-2 focus:ring-[var(--app-primary)]/20",

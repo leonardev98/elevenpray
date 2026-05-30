@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { StudentPageShell } from "../components/StudentPageShell";
 import { StudentTasksProvider } from "./context/student-tasks-context";
 import { NewTaskModal } from "./components/NewTaskModal";
@@ -16,6 +17,7 @@ import { useStudentTasks } from "./context/student-tasks-context";
 import type { TaskStatus, TaskViewMode } from "./lib/task-types";
 
 function TasksPageContent() {
+  const t = useTranslations("studentTasks");
   const { tasks, loading, error, workspaceId } = useStudentTasks();
   const [viewMode, setViewMode] = useState<TaskViewMode>("list");
   const [modalOpen, setModalOpen] = useState(false);
@@ -30,7 +32,7 @@ function TasksPageContent() {
   }
 
   return (
-    <StudentPageShell hideTopBar maxWidth="max-w-7xl">
+    <StudentPageShell hideTopBar title={t("title")} maxWidth="max-w-7xl">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="min-w-0 flex-[7] space-y-4">
           <TasksPageHeader

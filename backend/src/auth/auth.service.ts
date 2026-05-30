@@ -15,9 +15,14 @@ import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpsertStudentProfileDto } from './dto/upsert-student-profile.dto';
 import type { JwtPayload } from '../common/decorators/current-user.decorator';
-import type { PublicUser } from './public-user.interface';
+import type { PublicUser, StudentProgramType } from './public-user.interface';
 
 export type { PublicUser } from './public-user.interface';
+
+const CYCLES_BY_PROGRAM: Record<StudentProgramType, number> = {
+  tecnico: 6,
+  universidad: 10,
+};
 
 const SEED_EMAIL = 'admin@localhost';
 const SEED_PASSWORD = 'admin';
@@ -235,17 +240,31 @@ export class AuthService implements OnModuleInit {
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException('User not found');
 
+    const programType = dto.institutionType;
+    const totalCycles = CYCLES_BY_PROGRAM[programType];
+
     const updates: {
       name?: string;
       studentUniversity: string;
       studentCareer: string;
       studentAcademicCycle: string;
+      studentProgramType: StudentProgramType;
+      curriculumTotalCycles?: number;
       studentOnboardingCompletedAt?: Date;
     } = {
       studentUniversity: dto.university.trim(),
       studentCareer: dto.career.trim(),
       studentAcademicCycle: dto.cycle.trim(),
+      studentProgramType: programType,
     };
+
+    const shouldBootstrapCycles =
+      user.curriculumTotalCycles == null ||
+      user.studentProgramType !== programType ||
+      user.curriculumTotalCycles < totalCycles;
+    if (shouldBootstrapCycles) {
+      updates.curriculumTotalCycles = totalCycles;
+    }
 
     if (dto.name !== undefined) updates.name = dto.name.trim();
     if (!user.studentOnboardingCompletedAt) {
@@ -315,6 +334,8 @@ export class AuthService implements OnModuleInit {
             university: user.studentUniversity!.trim(),
             career: user.studentCareer!.trim(),
             cycle: user.studentAcademicCycle!.trim(),
+            institutionType: user.studentProgramType ?? null,
+            curriculumTotalCycles: user.curriculumTotalCycles ?? null,
           }
         : null,
       studentOnboardingCompleted:

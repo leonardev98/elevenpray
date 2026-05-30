@@ -29,6 +29,7 @@ export type MockCourseExtended = MockCourse & {
   weeksCurrent: number;
   weeksTotal: number;
   streakDays: number;
+  cycleNumber?: number;
   colorHex?: string | null;
   modality?: string | null;
   scheduleStart?: string | null;

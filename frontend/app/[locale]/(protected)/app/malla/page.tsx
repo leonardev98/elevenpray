@@ -38,6 +38,7 @@ export default function MallaPage() {
     removeCourse,
     coursesByCycle,
     cycleNumbers,
+    totalCycles,
     getCourseById,
   } = useCurriculum();
 
@@ -171,7 +172,7 @@ export default function MallaPage() {
       {!loading && !error && state && (
         <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
           <div>
-            {state.courses.length === 0 ? (
+            {state.courses.length === 0 && totalCycles === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border)] py-20 text-center">
                 <GraduationCap className="mb-4 h-12 w-12 text-[var(--accent)] opacity-60" />
                 <h2 className="text-lg font-semibold">{t("emptyTitle")}</h2>
@@ -214,6 +215,7 @@ export default function MallaPage() {
         initial={editing}
         allCourses={state?.courses ?? []}
         defaultCycle={cycleNumbers[0] ?? 1}
+        maxCycle={totalCycles > 0 ? totalCycles : 12}
         onClose={() => {
           setFormOpen(false);
           setEditing(null);

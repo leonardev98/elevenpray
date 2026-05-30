@@ -47,6 +47,8 @@ export interface CurriculumState {
   courses: CurriculumCourse[];
   prerequisites: CurriculumPrerequisiteEdge[];
   stats: CurriculumStats;
+  totalCycles: number;
+  cycleNumbers: number[];
 }
 
 export interface CreateCurriculumCourseInput {

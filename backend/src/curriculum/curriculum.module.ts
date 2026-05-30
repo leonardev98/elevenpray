@@ -9,6 +9,7 @@ import { CurriculumController } from './curriculum.controller';
 import { CurriculumService } from './curriculum.service';
 import { CurriculumCourse } from './entities/curriculum-course.entity';
 import { CurriculumPrerequisite } from './entities/curriculum-prerequisite.entity';
+import { User } from '../users/entities/user.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CurriculumPrerequisite } from './entities/curriculum-prerequisite.entit
       Course,
       Semester,
       StudyWorkspaceConfig,
+      User,
     ]),
     AuthModule,
     WorkspacesModule,

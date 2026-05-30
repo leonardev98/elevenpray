@@ -3,14 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { cycleToRoman } from "@/app/lib/curriculum/curriculum-utils";
 import { ArrowRight, BookOpen, Check, Clock, Coins, Minus, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  appendPersistedStudentCourse,
   buildStudentCourseFromInput,
   buildStudentCourseUpdateFromInput,
   clampCourseCredits,
-  updatePersistedStudentCourse,
   type CourseModality,
   type CourseScheduleSlot,
   type StudentCourseStored,
@@ -102,13 +101,19 @@ function ScheduleQuarterSelect({
 
 type CourseModalMode = "create" | "edit";
 
+export type CourseModalSuccessPayload = {
+  cycleNumber: number;
+  course: StudentCourseStored;
+};
+
 interface AddCourseModalProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (payload: CourseModalSuccessPayload) => void;
   /** "create" (default) o "edit". En edit es obligatorio pasar `initialCourse`. */
   mode?: CourseModalMode;
   initialCourse?: StudentCourseStored | null;
+  defaultCycleNumber?: number;
 }
 
 function isValidModality(x: unknown): x is CourseModality {
@@ -121,6 +126,7 @@ export function AddCourseModal({
   onSuccess,
   mode = "create",
   initialCourse = null,
+  defaultCycleNumber = 1,
 }: AddCourseModalProps) {
   const t = useTranslations("studentCourses");
   const tCommon = useTranslations("common");
@@ -128,6 +134,7 @@ export function AddCourseModal({
 
   const [nombreCurso, setNombreCurso] = useState("");
   const [creditos, setCreditos] = useState("3");
+  const [academicCycleNumber, setAcademicCycleNumber] = useState(defaultCycleNumber);
   const [colorSeleccionado, setColorSeleccionado] = useState<string>(COLOR_OPTIONS[0]);
   const [diasSeleccionados, setDiasSeleccionados] = useState<string[]>([]);
   const [semanas, setSemanas] = useState(16);
@@ -170,6 +177,7 @@ export function AddCourseModal({
             ? String(initialCourse.credits)
             : "3",
         );
+        setAcademicCycleNumber(defaultCycleNumber);
         setColorSeleccionado(initialColor);
         setDiasSeleccionados(initialClassDays);
         setSemanas(initialWeeks);
@@ -192,6 +200,7 @@ export function AddCourseModal({
 
       setNombreCurso("");
       setCreditos("3");
+      setAcademicCycleNumber(defaultCycleNumber);
       setColorSeleccionado(COLOR_OPTIONS[0]);
       setDiasSeleccionados([]);
       setSemanas(16);
@@ -200,7 +209,7 @@ export function AddCourseModal({
       setSameEnd("");
       setPerDayMap({});
     });
-  }, [open, isEdit, initialCourse]);
+  }, [open, isEdit, initialCourse, defaultCycleNumber]);
 
   useEffect(() => {
     if (!open || scheduleMode !== "perDay") return;
@@ -397,12 +406,11 @@ export function AddCourseModal({
 
     if (isEdit && initialCourse) {
       const updated = buildStudentCourseUpdateFromInput(initialCourse, input);
-      updatePersistedStudentCourse(initialCourse.id, updated);
+      onSuccess?.({ cycleNumber: academicCycleNumber, course: updated });
     } else {
       const course = buildStudentCourseFromInput(input);
-      appendPersistedStudentCourse(course);
+      onSuccess?.({ cycleNumber: academicCycleNumber, course });
     }
-    onSuccess?.();
     onClose();
   }
 
@@ -508,6 +516,27 @@ export function AddCourseModal({
                       required
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label htmlFor="course-academic-cycle" className="text-xs font-medium text-[var(--app-fg)]">
+                    {t("formAcademicCycle")}
+                  </label>
+                  <p className="mt-0.5 text-[11px] leading-snug text-[var(--app-fg-muted)]">
+                    {t("formAcademicCycleHint")}
+                  </p>
+                  <select
+                    id="course-academic-cycle"
+                    value={academicCycleNumber}
+                    onChange={(e) => setAcademicCycleNumber(Number(e.target.value))}
+                    className="mt-1.5 w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2.5 text-sm text-[var(--app-fg)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--accent-hex)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                  >
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={n}>
+                        {t("formAcademicCycleOption", { roman: cycleToRoman(n) })}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
