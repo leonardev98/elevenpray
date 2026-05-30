@@ -65,6 +65,8 @@ export function StudentSearchableField({
   disabledPlaceholder,
   icon,
   compact = false,
+  glass = false,
+  glassOnPhoto = false,
 }: {
   id: string;
   label: string;
@@ -85,6 +87,10 @@ export function StudentSearchableField({
   icon?: ReactNode;
   /** Inputs más bajos (onboarding). */
   compact?: boolean;
+  /** Campos translúcidos (onboarding). */
+  glass?: boolean;
+  /** Texto claro solo cuando hay foto de universidad detrás */
+  glassOnPhoto?: boolean;
 }) {
   const { contains } = useFilter({ sensitivity: "base" });
   const initial = useMemo(
@@ -201,32 +207,50 @@ export function StudentSearchableField({
         <Label
           htmlFor={id}
           className={cn(
-            "block font-medium text-[var(--app-fg)]",
+            "block font-medium",
             compact ? "text-xs" : "text-sm",
+            glass && glassOnPhoto ? "text-white/85" : "text-[var(--app-fg)]",
           )}
         >
           {label}
         </Label>
         {hint && (
-          <p className="text-xs text-[var(--app-fg-secondary)]" id={`${id}-hint`}>
+          <p
+            className={cn(
+              "text-xs",
+              glass && glassOnPhoto ? "text-white/55" : "text-[var(--app-fg-secondary)]",
+            )}
+            id={`${id}-hint`}
+          >
             {hint}
           </p>
         )}
         <Group
           className={cn(
-            "flex w-full min-w-0 items-stretch gap-0 overflow-hidden border bg-[var(--app-surface)] transition-colors",
-            compact ? "rounded-lg shadow-none" : "rounded-xl shadow-sm",
+            "flex w-full min-w-0 items-stretch gap-0 overflow-hidden border transition-colors",
+            compact ? "rounded-2xl shadow-none" : "rounded-xl shadow-sm",
+            glass && glassOnPhoto
+              ? "border-white/35 bg-white/[0.14] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] backdrop-blur-md"
+              : glass
+                ? "border-[var(--app-border)] bg-[var(--app-surface)]/80 text-[var(--app-fg)] shadow-[var(--app-shadow-input)] backdrop-blur-md"
+                : "bg-[var(--app-surface)]",
+            !glass && !compact && "shadow-sm",
             disabled && "cursor-not-allowed opacity-60",
             isInvalid
               ? "border-red-500/60 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-red-500/20"
-              : "border-[var(--app-border)] has-[[data-focused]]:border-[var(--app-primary)]/50 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-[var(--app-primary)]/20",
+              : glass && glassOnPhoto
+                ? "has-[[data-focused]]:border-white/45 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-white/15"
+                : glass
+                  ? "border-[var(--app-border)] has-[[data-focused]]:border-[var(--app-primary)]/50 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-[var(--app-primary)]/20"
+                  : "border-[var(--app-border)] has-[[data-focused]]:border-[var(--app-primary)]/50 has-[[data-focused]]:ring-2 has-[[data-focused]]:ring-[var(--app-primary)]/20",
           )}
         >
           {icon && (
             <div
               className={cn(
-                "flex shrink-0 items-center justify-center text-[var(--app-fg-muted)]",
+                "flex shrink-0 items-center justify-center",
                 compact ? "pl-2.5" : "pl-3",
+                glass && glassOnPhoto ? "text-white/55" : "text-[var(--app-fg-muted)]",
               )}
             >
               {icon}
@@ -238,14 +262,20 @@ export function StudentSearchableField({
             aria-describedby={hint ? `${id}-hint` : undefined}
             readOnly={showOtherField}
             className={cn(
-              "w-full min-w-0 flex-1 border-0 bg-transparent text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none ring-0 focus:ring-0",
-              compact ? "h-9 px-2.5 text-sm" : "px-3 py-3",
+              "w-full min-w-0 flex-1 border-0 bg-transparent text-[var(--app-fg)] outline-none ring-0 placeholder:text-[var(--app-fg-muted)] focus:ring-0",
+              glass &&
+                glassOnPhoto &&
+                "text-white placeholder:text-white/45",
+              compact ? "h-10 px-2.5 text-sm" : "px-3 py-3",
               icon && (compact ? "pl-1.5" : "pl-2"),
             )}
           />
           <Button
             className={cn(
-              "flex shrink-0 items-center justify-center border-l border-[var(--app-border)] bg-[var(--app-surface-soft)] text-[var(--app-fg-muted)] outline-none transition-colors pressed:bg-[var(--app-primary-soft)] hover:text-[var(--app-fg)]",
+              "flex shrink-0 items-center justify-center border-l outline-none transition-colors",
+              glass && glassOnPhoto
+                ? "border-white/25 bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"
+                : "border-[var(--app-border)] bg-[var(--app-surface-soft)] text-[var(--app-fg-muted)] pressed:bg-[var(--app-primary-soft)] hover:text-[var(--app-fg)]",
               compact ? "px-2.5" : "px-3",
             )}
           >
@@ -315,13 +345,20 @@ export function StudentSearchableField({
             maxLength={120}
             placeholder={otherInputPlaceholder}
             className={cn(
-              "w-full border bg-[var(--app-surface)] text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none transition-colors",
+              "w-full border text-[var(--app-fg)] placeholder:text-[var(--app-fg-muted)] outline-none transition-colors",
               compact
-                ? "mt-1.5 h-9 rounded-lg px-3 text-sm"
+                ? "mt-1.5 h-9 rounded-2xl px-3 text-sm"
                 : "mt-2 rounded-xl px-4 py-3",
+              glass && glassOnPhoto
+                ? "border-white/35 bg-white/[0.14] text-white backdrop-blur-md placeholder:text-white/45"
+                : glass
+                  ? "border-[var(--app-border)] bg-[var(--app-surface)]/80 text-[var(--app-fg)] backdrop-blur-md"
+                  : "bg-[var(--app-surface)]",
               isInvalid
                 ? "border-red-500/60 focus:border-red-500/70 focus:ring-2 focus:ring-red-500/20"
-                : "border-[var(--app-border)] focus:border-[var(--app-primary)]/50 focus:ring-2 focus:ring-[var(--app-primary)]/20",
+                : glass
+                  ? "focus:border-white/45 focus:ring-2 focus:ring-white/15"
+                  : "border-[var(--app-border)] focus:border-[var(--app-primary)]/50 focus:ring-2 focus:ring-[var(--app-primary)]/20",
               !showOtherField && "pointer-events-none",
             )}
             tabIndex={showOtherField ? 0 : -1}
