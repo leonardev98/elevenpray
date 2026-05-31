@@ -59,6 +59,8 @@ function syncStudentProfileCache(u: PublicUser): void {
       university: u.studentProfile.university,
       career: u.studentProfile.career,
       cycle: u.studentProfile.cycle,
+      institutionType: u.studentProfile.institutionType ?? undefined,
+      gradeScale: u.studentProfile.gradeScale ?? undefined,
     },
     u.id,
   );

@@ -3,12 +3,15 @@ export const STUDENT_PROFILE_KEY_PREFIX = "mitsyy_student_profile_";
 export const STUDENT_PROFILE_KEY_LEGACY = "mitsyy_student_profile";
 export const CHECKIN_PREFIX = "mitsyy_checkin_";
 
+import type { StudentGradeScale } from "@/lib/student-grade-scale";
+
 export type StudentProfile = {
   name: string;
   university: string;
   career: string;
   cycle: string;
   institutionType?: "tecnico" | "universidad";
+  gradeScale?: StudentGradeScale;
 };
 
 function profileKey(userId: string): string {

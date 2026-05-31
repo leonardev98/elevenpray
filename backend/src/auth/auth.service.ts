@@ -78,8 +78,22 @@ export class AuthService implements OnModuleInit {
 
   async register(dto: RegisterDto): Promise<{ accessToken: string; user: PublicUser }> {
     const existing = await this.usersService.findByEmail(dto.email);
-    if (existing) throw new ConflictException('Email already registered');
     const passwordHash = await this.hashPassword(dto.password);
+
+    if (existing) {
+      if (this.isRegistrationComplete(existing)) {
+        throw new ConflictException('Email already registered');
+      }
+      let user = await this.resumeIncompleteRegistration(
+        existing,
+        dto,
+        passwordHash,
+      );
+      user = await this.ensureStudentOnboardingBackfill(user);
+      const accessToken = this.jwtService.sign(this.payloadFrom(user));
+      return { accessToken, user: this.toPublic(user) };
+    }
+
     let user = await this.usersService.create({
       email: dto.email,
       name: dto.name,
@@ -249,6 +263,7 @@ export class AuthService implements OnModuleInit {
       studentCareer: string;
       studentAcademicCycle: string;
       studentProgramType: StudentProgramType;
+      studentGradeScale: '0_20' | '0_100' | 'A_F';
       curriculumTotalCycles?: number;
       studentOnboardingCompletedAt?: Date;
     } = {
@@ -256,13 +271,10 @@ export class AuthService implements OnModuleInit {
       studentCareer: dto.career.trim(),
       studentAcademicCycle: dto.cycle.trim(),
       studentProgramType: programType,
+      studentGradeScale: dto.gradeScale,
     };
 
-    const shouldBootstrapCycles =
-      user.curriculumTotalCycles == null ||
-      user.studentProgramType !== programType ||
-      user.curriculumTotalCycles < totalCycles;
-    if (shouldBootstrapCycles) {
+    if (user.curriculumTotalCycles == null) {
       updates.curriculumTotalCycles = totalCycles;
     }
 
@@ -306,6 +318,33 @@ export class AuthService implements OnModuleInit {
     );
   }
 
+  /** Registro terminado: onboarding estudiantil completado o cuenta administrativa. */
+  private isRegistrationComplete(user: User): boolean {
+    if (user.role === 'platform_admin') return true;
+    return !!(
+      user.studentOnboardingCompletedAt || this.hasCompleteStudentProfile(user)
+    );
+  }
+
+  /** Usuarios que abandonaron el registro antes de completar onboarding. */
+  private async resumeIncompleteRegistration(
+    user: User,
+    dto: RegisterDto,
+    passwordHash: string,
+  ): Promise<User> {
+    this.invalidateUserCache(user.id);
+    return this.usersService.update(user.id, {
+      name: dto.name,
+      passwordHash,
+      studentUniversity: null,
+      studentCareer: null,
+      studentAcademicCycle: null,
+      studentOnboardingCompletedAt: null,
+      studentProgramType: null,
+      curriculumTotalCycles: null,
+    });
+  }
+
   /** Usuarios con perfil académico guardado pero sin marca de fecha (datos legacy). */
   private async ensureStudentOnboardingBackfill(user: User): Promise<User> {
     if (
@@ -336,6 +375,7 @@ export class AuthService implements OnModuleInit {
             cycle: user.studentAcademicCycle!.trim(),
             institutionType: user.studentProgramType ?? null,
             curriculumTotalCycles: user.curriculumTotalCycles ?? null,
+            gradeScale: user.studentGradeScale ?? '0_20',
           }
         : null,
       studentOnboardingCompleted:

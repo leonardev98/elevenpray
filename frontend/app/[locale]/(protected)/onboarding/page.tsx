@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
@@ -498,14 +498,35 @@ export default function OnboardingPage() {
       ? selectedUniversity?.id ?? (institution.trim() ? "custom-uni" : "no-uni")
       : "tecnico-career";
 
+  const careerRef = useRef(career);
+  careerRef.current = career;
+  const prevInstitutionRef = useRef<string | null>(null);
+
+  // Al cambiar de universidad, limpia solo carreras del catálogo que ya no aplican.
+  // Las carreras escritas a mano ("Mi carrera no aparece…") deben conservarse.
   useEffect(() => {
-    if (programType !== "universidad" || !career.trim() || !institution.trim()) return;
-    if (!selectedUniversity) return;
-    if (!isCareerInUniversityCatalog(career, institution)) {
+    if (programType !== "universidad" || !institution.trim()) {
+      prevInstitutionRef.current = institution;
+      return;
+    }
+    if (!selectedUniversity) {
+      prevInstitutionRef.current = institution;
+      return;
+    }
+
+    const previousInstitution = prevInstitutionRef.current;
+    prevInstitutionRef.current = institution;
+
+    if (previousInstitution == null || previousInstitution === institution) return;
+
+    const currentCareer = careerRef.current.trim();
+    if (!currentCareer) return;
+    if (isCareerInUniversityCatalog(currentCareer, institution)) return;
+    if (isCareerInUniversityCatalog(currentCareer, previousInstitution)) {
       setCareer("");
       setPrefillCareer("");
     }
-  }, [programType, institution, selectedUniversity, career]);
+  }, [programType, institution, selectedUniversity]);
 
   const cycle = `${cycleYear}-${cyclePeriod}`;
 
@@ -539,6 +560,7 @@ export default function OnboardingPage() {
       career: career.trim(),
       cycle: cycle.trim(),
       institutionType: programType,
+      gradeScale: "0_20" as const,
     };
 
     setStep("creating");
@@ -546,7 +568,17 @@ export default function OnboardingPage() {
 
     try {
       await upsertStudentProfile(token, profile);
-      saveStudentProfile(profile, user.id);
+      saveStudentProfile(
+        {
+          name: profile.name,
+          university: profile.university,
+          career: profile.career,
+          cycle: profile.cycle,
+          institutionType: profile.institutionType,
+          gradeScale: profile.gradeScale,
+        },
+        user.id,
+      );
       await refreshUser();
       const elapsed = Date.now() - startedAt;
       if (elapsed < MIN_CREATING_MS) {
@@ -868,7 +900,7 @@ export default function OnboardingPage() {
                         id="career"
                         label={t("career")}
                         options={careerOptions}
-                        defaultValue={prefillCareer}
+                        defaultValue={career}
                         otherItemLabel={t("otherCareer")}
                         otherInputPlaceholder={t("otherCareerPlaceholder")}
                         inputPlaceholder={t("careerPlaceholder")}

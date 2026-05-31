@@ -1,8 +1,12 @@
-import { getBaseUrl, getAuthHeaders } from "./api";
+import { apiFetch, formatApiConnectionError, getBaseUrl, getAuthHeaders } from "./api";
+import type { StudentGradeScale } from "@/lib/student-grade-scale";
+import { isStudentGradeScale, normalizeStudentGradeScale } from "@/lib/student-grade-scale";
 
 export type UserRole = 'user' | 'platform_admin';
 
 export type StudentProgramType = "tecnico" | "universidad";
+
+export type { StudentGradeScale };
 
 export interface StudentProfilePublic {
   university: string;
@@ -10,6 +14,7 @@ export interface StudentProfilePublic {
   cycle: string;
   institutionType?: StudentProgramType | null;
   curriculumTotalCycles?: number | null;
+  gradeScale?: StudentGradeScale | null;
 }
 
 export interface PublicUser {
@@ -86,6 +91,18 @@ export function normalizePublicUser(raw: Record<string, unknown>): PublicUser {
     typeof studentCycle === "string" &&
     studentCycle.length > 0;
 
+  const gradeScaleRaw =
+    (raw.studentProfile as StudentProfilePublic | undefined)?.gradeScale ??
+    (raw.student_profile as StudentProfilePublic | undefined)?.gradeScale ??
+    (raw.studentGradeScale as string | undefined) ??
+    (raw.student_grade_scale as string | undefined);
+  const gradeScale =
+    gradeScaleRaw && isStudentGradeScale(gradeScaleRaw)
+      ? gradeScaleRaw
+      : hasStudentData
+        ? normalizeStudentGradeScale(null)
+        : null;
+
   const studentOnboardingCompleted =
     raw.studentOnboardingCompleted === true ||
     raw.student_onboarding_completed === true ||
@@ -111,6 +128,7 @@ export function normalizePublicUser(raw: Record<string, unknown>): PublicUser {
             curriculumTotalCycles != null && Number.isFinite(curriculumTotalCycles)
               ? curriculumTotalCycles
               : null,
+          gradeScale: gradeScale ?? normalizeStudentGradeScale(null),
         }
       : null,
     studentOnboardingCompleted,
@@ -126,11 +144,16 @@ export async function login(
   email: string,
   password: string,
 ): Promise<AuthResponse> {
-  const res = await fetch(`${getBaseUrl()}/auth/login`, {
-    method: "POST",
-    headers: getAuthHeaders(null),
-    body: JSON.stringify({ email, password }),
-  });
+  let res: Response;
+  try {
+    res = await apiFetch(`${getBaseUrl()}/auth/login`, {
+      method: "POST",
+      headers: getAuthHeaders(null),
+      body: JSON.stringify({ email, password }),
+    });
+  } catch (err) {
+    throw new Error(formatApiConnectionError(err));
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message ?? "Error al iniciar sesión");
@@ -147,11 +170,16 @@ export async function register(
   password: string,
   name: string,
 ): Promise<AuthResponse> {
-  const res = await fetch(`${getBaseUrl()}/auth/register`, {
-    method: "POST",
-    headers: getAuthHeaders(null),
-    body: JSON.stringify({ email, password, name }),
-  });
+  let res: Response;
+  try {
+    res = await apiFetch(`${getBaseUrl()}/auth/register`, {
+      method: "POST",
+      headers: getAuthHeaders(null),
+      body: JSON.stringify({ email, password, name }),
+    });
+  } catch (err) {
+    throw new Error(formatApiConnectionError(err));
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message ?? "Error al registrarse");
@@ -181,14 +209,12 @@ export class AuthError extends Error {
 export async function me(token: string): Promise<PublicUser> {
   let res: Response;
   try {
-    res = await fetch(`${getBaseUrl()}/auth/me`, {
+    res = await apiFetch(`${getBaseUrl()}/auth/me`, {
       headers: getAuthHeaders(token),
       cache: "no-store",
     });
   } catch (err) {
-    throw new Error(
-      err instanceof Error ? `Network error: ${err.message}` : "Network error",
-    );
+    throw new Error(formatApiConnectionError(err));
   }
   if (res.status === 401 || res.status === 403) {
     throw new AuthError("Sesión inválida", res.status);
@@ -209,6 +235,7 @@ export async function upsertStudentProfile(
     career: string;
     cycle: string;
     institutionType: StudentProgramType;
+    gradeScale: StudentGradeScale;
     name?: string;
   },
 ): Promise<PublicUser> {

@@ -55,6 +55,7 @@ export class UsersService {
       studentOnboardingCompletedAt?: Date | null;
       studentProgramType?: 'tecnico' | 'universidad' | null;
       curriculumTotalCycles?: number | null;
+      studentGradeScale?: '0_20' | '0_100' | 'A_F';
     },
   ): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
@@ -84,6 +85,8 @@ export class UsersService {
       user.studentProgramType = data.studentProgramType;
     if (data.curriculumTotalCycles !== undefined)
       user.curriculumTotalCycles = data.curriculumTotalCycles;
+    if (data.studentGradeScale !== undefined)
+      user.studentGradeScale = data.studentGradeScale;
 
     return this.userRepository.save(user);
   }

@@ -50,6 +50,15 @@ export class User {
   @Column({ name: 'curriculum_total_cycles', type: 'smallint', nullable: true })
   curriculumTotalCycles: number | null;
 
+  @Column({
+    name: 'student_grade_scale',
+    type: 'enum',
+    enum: ['0_20', '0_100', 'A_F'],
+    enumName: 'university_grade_scale',
+    default: '0_20',
+  })
+  studentGradeScale: '0_20' | '0_100' | 'A_F';
+
   @Column({ name: 'referred_by_user_id', type: 'uuid', nullable: true })
   referredByUserId: string | null;
 

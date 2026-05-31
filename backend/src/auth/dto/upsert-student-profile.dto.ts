@@ -19,6 +19,9 @@ export class UpsertStudentProfileDto {
   @IsIn(['tecnico', 'universidad'])
   institutionType: 'tecnico' | 'universidad';
 
+  @IsIn(['0_20', '0_100', 'A_F'])
+  gradeScale: '0_20' | '0_100' | 'A_F';
+
   @IsOptional()
   @IsString()
   @MinLength(1)

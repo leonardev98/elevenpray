@@ -105,6 +105,8 @@ export function StudentSearchableField({
   const isOtherModeRef = useRef(false);
   const onValueChangeRef = useRef(onValueChange);
   const hydratedDefaultRef = useRef(defaultValue.trim());
+  const lastEmittedRef = useRef("");
+  const selectedKeyRef = useRef<Key | null>(initial.selectedKey);
 
   useEffect(() => {
     onValueChangeRef.current = onValueChange;
@@ -112,14 +114,42 @@ export function StudentSearchableField({
 
   useEffect(() => {
     isOtherModeRef.current = selectedKey === STUDENT_ONBOARDING_OTHER_ID;
+    selectedKeyRef.current = selectedKey;
   }, [selectedKey]);
 
-  // Sincroniza cuando el padre carga el perfil (p. ej. tras /auth/me).
+  const showOtherField = selectedKey === STUDENT_ONBOARDING_OTHER_ID && !disabled;
+
+  const prevShowOtherFieldRef = useRef(false);
+
+  useEffect(() => {
+    if (showOtherField && !prevShowOtherFieldRef.current) {
+      otherInputRef.current?.focus();
+    }
+    prevShowOtherFieldRef.current = showOtherField;
+  }, [showOtherField]);
+
+  // Sincroniza cuando el padre carga el perfil o cambia el catálogo (p. ej. universidad ↔ instituto).
   useEffect(() => {
     const trimmed = defaultValue.trim();
-    if (!trimmed || trimmed === hydratedDefaultRef.current) return;
-    hydratedDefaultRef.current = trimmed;
+
+    // Evita pisar lo que el usuario está escribiendo cuando el padre refleja onValueChange.
+    if (trimmed === lastEmittedRef.current) {
+      hydratedDefaultRef.current = trimmed;
+      return;
+    }
+
+    if (!trimmed) {
+      if (hydratedDefaultRef.current === "") return;
+      if (selectedKeyRef.current === STUDENT_ONBOARDING_OTHER_ID) return;
+      hydratedDefaultRef.current = "";
+      setSelectedKey(null);
+      setInputValue("");
+      setOtherDetail("");
+      return;
+    }
     const next = resolveValueToSelection(trimmed, options, otherItemLabel);
+    if (trimmed === hydratedDefaultRef.current) return;
+    hydratedDefaultRef.current = trimmed;
     setSelectedKey(next.selectedKey);
     setInputValue(next.inputValue);
     setOtherDetail(next.otherDetail);
@@ -150,13 +180,14 @@ export function StudentSearchableField({
 
   useEffect(() => {
     if (disabled) {
+      lastEmittedRef.current = "";
       onValueChangeRef.current("");
       return;
     }
+    lastEmittedRef.current = resolved;
     onValueChangeRef.current(resolved);
   }, [resolved, disabled]);
 
-  const showOtherField = selectedKey === STUDENT_ONBOARDING_OTHER_ID && !disabled;
   const showError = Boolean(isInvalid && errorMessage);
 
   const listBoxItemClass = ({ isFocused, isSelected }: { isFocused?: boolean; isSelected?: boolean }) =>
