@@ -41,20 +41,31 @@ export function EmotionalCheckInGate() {
     <AnimatePresence>
       {gateOpen && (
         <motion.div
+          key="emotional-checkin-gate"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--app-bg)]/95 p-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="checkin-title"
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          className="fixed inset-0 z-[100]"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            className="w-full max-w-lg rounded-[var(--app-radius-lg,1.25rem)] border border-[var(--app-border)] bg-[var(--app-surface)] p-8 shadow-app-modal"
+          <div
+            className="absolute inset-0 bg-[var(--app-bg)]/20 backdrop-blur-lg"
+            aria-hidden="true"
+          />
+
+          <div
+            className="relative flex h-full items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="checkin-title"
           >
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.98 }}
+              transition={{ duration: 0.24, ease: "easeOut" }}
+              className="w-full max-w-lg rounded-[var(--app-radius-lg,1.25rem)] border border-[var(--app-border)] bg-[var(--app-surface)] p-8 shadow-app-modal"
+            >
             <p className="text-center text-sm font-medium uppercase tracking-wider text-[var(--app-primary)]">
               {t("subtitle")}
             </p>
@@ -97,7 +108,8 @@ export function EmotionalCheckInGate() {
             <p className="mt-8 text-center text-[11px] leading-relaxed text-[var(--app-fg-muted)]">
               {t("disclaimer")}
             </p>
-          </motion.div>
+            </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
