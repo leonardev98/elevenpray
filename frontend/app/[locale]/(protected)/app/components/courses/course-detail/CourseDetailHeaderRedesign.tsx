@@ -1,18 +1,16 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
   BookOpen,
   CircleCheck,
   FileText,
-  Flame,
   GraduationCap,
   Layers,
   MapPin,
 } from "lucide-react";
-import { classDayLetters, courseHex, mondayWeekIndexFromDate } from "./course-detail-utils";
+import { classDayLetters, courseHex } from "./course-detail-utils";
 import type { MockCourseExtended } from "../../../lib/mock-course-data";
 
 interface CourseDetailHeaderRedesignProps {
@@ -20,52 +18,13 @@ interface CourseDetailHeaderRedesignProps {
   stats: { apuntes: number; archivos: number; flashcards: number; tareasCompletadas: number };
 }
 
-const WEEK_LABELS = ["L", "M", "X", "J", "V", "S", "D"];
-
 export function CourseDetailHeaderRedesign({ course, stats }: CourseDetailHeaderRedesignProps) {
   const hex = courseHex(course);
   const letters = classDayLetters(course);
-  const todayIdx = mondayWeekIndexFromDate(new Date());
-  /** Demo: L y M completados; hoy resaltado */
-  const streakComplete = [true, true, false, false, true, false, false];
 
   return (
     <header className="relative mb-6 border-b-[0.5px] border-[var(--border)] pb-6">
-      <div className="grid gap-4 lg:relative">
-        <div className="flex justify-end lg:absolute lg:right-0 lg:top-0 lg:z-10">
-          <div className="w-full max-w-[160px] rounded-[var(--radius-lg)] border-[0.5px] border-[var(--border)] bg-[var(--bg-surface)] p-3 shadow-[var(--shadow-sm)] sm:w-[160px]">
-            <div className="flex items-start gap-2">
-              <Flame className="h-5 w-5 shrink-0 text-[var(--racha)]" aria-hidden />
-              <div>
-                <p className="text-2xl font-semibold leading-none text-[var(--text-primary)] tabular-nums">{course.streakDays}</p>
-                <p className="mt-1 text-[10px] text-[var(--text-muted)]">días de racha</p>
-              </div>
-            </div>
-            <div className="mt-2 flex justify-between gap-0.5">
-              {WEEK_LABELS.map((label, i) => {
-                const done = streakComplete[i] ?? false;
-                const isToday = i === todayIdx;
-                return (
-                  <div
-                    key={label}
-                    title={label}
-                    className={cn(
-                      "flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-medium",
-                      done
-                        ? "bg-[var(--racha)] text-[var(--accent-fg)]"
-                        : "bg-[var(--bg-input)] text-[var(--text-muted)]",
-                      isToday && "ring-1 ring-dashed ring-[var(--racha)] ring-offset-1 ring-offset-[var(--bg-surface)]",
-                    )}
-                  >
-                    {label}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className="min-w-0 lg:pr-[176px]">
+      <div className="min-w-0">
         {/* Fila superior */}
         <div className="mb-4 flex items-center gap-3">
           <Link
@@ -150,7 +109,6 @@ export function CourseDetailHeaderRedesign({ course, stats }: CourseDetailHeader
                 : `${stats.tareasCompletadas} tareas completadas`}
             </span>
           </p>
-        </div>
         </div>
       </div>
     </header>
