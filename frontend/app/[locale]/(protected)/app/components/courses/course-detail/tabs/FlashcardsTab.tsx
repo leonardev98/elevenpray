@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Check,
@@ -21,12 +21,16 @@ import type { MockCourseExtended } from "../../../../lib/mock-course-data";
 import { useCourseClasses } from "../../../../lib/course-classes-store";
 import { useStudyBackendLink } from "../../../../lib/study-backend-link";
 import { useCourseFlashcards } from "../../../../lib/course-flashcards-store";
+import { useGamification } from "../../../../gamification/gamification-context";
+import { recordFlashcardSession } from "@/app/lib/student-activity/api";
 interface FlashcardStudyFullscreenProps {
   open: boolean;
   courseName: string;
   hex: string;
   cards: CourseFlashcard[];
   onClose: () => void;
+  onCardReviewed?: () => void;
+  onSessionComplete?: () => void;
 }
 
 export function FlashcardStudyFullscreen({
@@ -35,6 +39,8 @@ export function FlashcardStudyFullscreen({
   hex,
   cards,
   onClose,
+  onCardReviewed,
+  onSessionComplete,
 }: FlashcardStudyFullscreenProps) {
   const [order, setOrder] = useState<string[]>(() => cards.map((c) => c.id));
   const [idx, setIdx] = useState(0);
@@ -42,8 +48,17 @@ export function FlashcardStudyFullscreen({
   const [hint, setHint] = useState(true);
   const [done, setDone] = useState(false);
   const [counts, setCounts] = useState({ easy: 0, normal: 0, difficult: 0 });
+  const sessionCompleteRef = useRef(false);
+
+  useEffect(() => {
+    if (done && !sessionCompleteRef.current) {
+      sessionCompleteRef.current = true;
+      onSessionComplete?.();
+    }
+  }, [done, onSessionComplete]);
 
   const reset = useCallback(() => {
+    sessionCompleteRef.current = false;
     setOrder(cards.map((c) => c.id));
     setIdx(0);
     setFlipped(false);
@@ -56,6 +71,7 @@ export function FlashcardStudyFullscreen({
   const current = cards.find((c) => c.id === currentId) ?? cards[0];
 
   const nextFromRating = (kind: "easy" | "normal" | "difficult") => {
+    onCardReviewed?.();
     setCounts((c) => ({ ...c, [kind]: c[kind] + 1 }));
     setFlipped(false);
     setHint(true);
@@ -277,6 +293,7 @@ interface FlashcardsTabProps {
 export function FlashcardsTab({ course }: FlashcardsTabProps) {
   const hex = courseHex(course);
   const { token } = useAuth();
+  const { trackMission, refreshSummary } = useGamification();
   const { workspaceId, courseMap, classMap, ensureCourse } = useStudyBackendLink(token);
   const serverCourseId = courseMap[course.id] ?? null;
   const { items, loading, remove, reload } = useCourseFlashcards(
@@ -598,6 +615,13 @@ export function FlashcardsTab({ course }: FlashcardsTabProps) {
             hex={hex}
             cards={studyDeck}
             onClose={() => setStudyDeck(null)}
+            onCardReviewed={() => trackMission("flashcards-daily")}
+            onSessionComplete={() => {
+              if (!token) return;
+              void recordFlashcardSession(token)
+                .then(() => refreshSummary())
+                .catch(() => undefined);
+            }}
           />
         )}
       </AnimatePresence>

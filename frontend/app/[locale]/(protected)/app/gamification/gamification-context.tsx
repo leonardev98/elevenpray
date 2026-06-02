@@ -36,11 +36,15 @@ import { computeLevelProgress } from "@/data/gamification-level";
 import {
   applyTreasureReward,
   completeMission,
+  ensureGamificationExtras,
   loadGamificationExtras,
+  bumpMissionProgress,
   rollTreasureChest,
   saveGamificationExtras,
+  setMissions,
   useCycleShield,
 } from "./gamification-storage";
+import { syncMissionsFromBackend } from "@/data/gamification-missions";
 import { syncReferralBadges } from "./lib/sync-badges";
 
 type GamificationContextValue = {
@@ -54,6 +58,7 @@ type GamificationContextValue = {
   copyReferralCode: () => Promise<boolean>;
   applyReferralCode: (code: string) => Promise<void>;
   claimMission: (missionId: string) => void;
+  trackMission: (missionId: string, delta?: number) => void;
   useShield: () => boolean;
   tryTreasureChest: () => void;
   dismissTreasure: () => void;
@@ -70,9 +75,14 @@ function buildExtras(
   userId: string | undefined,
   profile: ReturnType<typeof getStudentProfile>,
 ): GamificationExtras {
-  const stored = userId ? loadGamificationExtras(userId) : null;
-  if (stored) return stored;
-  return createDefaultExtras({
+  if (!userId) {
+    return createDefaultExtras({
+      career: profile?.career,
+      university: profile?.university,
+      cycle: profile?.cycle,
+    });
+  }
+  return ensureGamificationExtras(userId, {
     userId,
     career: profile?.career,
     university: profile?.university,
@@ -106,6 +116,12 @@ function defaultData(userName?: string, userId?: string): GamificationData {
   base.rachas.tareas.semana = [false, false, false, false, false, false, false];
   base.xpHoy = 0;
   base.xpTareasSemana = 0;
+  base.actividadesHoy = base.actividadesHoy.map((a) => ({ ...a, completado: false }));
+  base.insignias = base.insignias.map((ins) =>
+    ins.desbloqueada
+      ? ins
+      : { ...ins, progreso: 0 },
+  );
   base.historialXP = [
     { dia: "Lun", xp: 0 },
     { dia: "Mar", xp: 0 },
@@ -175,6 +191,8 @@ function mergeSummary(prev: GamificationData, summary: ActivitySummaryDto): Gami
     return a;
   });
 
+  const misiones = syncMissionsFromBackend(prev.extras.misiones, summary.misiones);
+
   return {
     ...prev,
     user: {
@@ -211,6 +229,8 @@ function mergeSummary(prev: GamificationData, summary: ActivitySummaryDto): Gami
         ...prev.extras.liga,
         xpSemana: summary.xpTareasSemana,
       },
+      misiones,
+      rachaSemanalActiva: summary.rachaSemanalActiva ?? false,
     },
     historialSemanas: summary.historialSemanas,
   };
@@ -256,6 +276,9 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
             extras: mergeReferralSummary(next.extras, referralSummary),
           });
         }
+        if (user?.id) {
+          setMissions(user.id, next.extras.misiones);
+        }
         return next;
       });
     } catch {
@@ -276,7 +299,19 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, user?.id]);
+
+  const trackMission = useCallback(
+    (missionId: string, delta = 1) => {
+      if (!user?.id) return;
+      const updated = bumpMissionProgress(user.id, missionId, delta);
+      if (!updated) return;
+      setData((prev) =>
+        syncReferralBadges({ ...prev, extras: { ...prev.extras, misiones: updated.misiones } }),
+      );
+    },
+    [user?.id],
+  );
 
   const awardBonusXp = useCallback(
     async (amount: number, source: string) => {
@@ -474,6 +509,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       copyReferralCode,
       applyReferralCode,
       claimMission,
+      trackMission,
       useShield,
       tryTreasureChest,
       dismissTreasure,
@@ -494,6 +530,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       copyReferralCode,
       applyReferralCode,
       claimMission,
+      trackMission,
       useShield,
       tryTreasureChest,
       dismissTreasure,

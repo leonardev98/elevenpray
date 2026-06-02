@@ -61,6 +61,7 @@ import {
   weightedAverageInPercent,
 } from './study-university.calculations';
 import { FileingestClient } from '../study-ai/fileingest.client';
+import { XpRewardService } from '../student-activity/xp-reward.service';
 
 const CLASS_RESOURCE_ALLOWED_MIME = new Set([
   'application/pdf',
@@ -137,6 +138,7 @@ export class StudyUniversityService {
     @InjectRepository(Reminder)
     private readonly reminderRepo: Repository<Reminder>,
     private readonly fileingest: FileingestClient,
+    private readonly xpRewardService: XpRewardService,
   ) {}
 
   async uploadClassResource(
@@ -1402,6 +1404,9 @@ export class StudyUniversityService {
       completedAt: new Date(),
     });
     const saved = await this.quizAttemptRepo.save(attempt);
+    void this.xpRewardService
+      .awardQuizComplete(userId, saved.id, correctCount, totalQuestions)
+      .catch(() => undefined);
     // Devolvemos el mismo shape que `listQuizAttempts` para que el cliente
     // pueda renderizar el intento recién creado (necesita `sourceQuizTitles`).
     const quizMap = new Map(quizzes.map((q) => [q.id, q]));

@@ -19,6 +19,11 @@ import { UserXpEvent } from './entities/user-xp-event.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateAcademicTemplateDto } from './dto/community-template.dto';
 import { S3Service } from '../s3/s3.service';
+import { XpRewardService } from '../student-activity/xp-reward.service';
+import {
+  XP_TEMPLATE_APPROVED,
+  XP_TEMPLATE_POPULAR_MIN_DOWNLOADS,
+} from '../student-activity/xp-rewards.constants';
 
 const TEMPLATE_CONTENT_TYPE_EXT: Record<string, string> = {
   'application/pdf': 'pdf',
@@ -28,7 +33,6 @@ const TEMPLATE_CONTENT_TYPE_EXT: Record<string, string> = {
 
 const ALLOWED_TEMPLATE_MIMES = new Set(Object.keys(TEMPLATE_CONTENT_TYPE_EXT));
 const MAX_TEMPLATE_BYTES = 10 * 1024 * 1024;
-const XP_TEMPLATE_APPROVED = 200;
 
 export interface AcademicTemplateDto {
   id: string;
@@ -73,6 +77,7 @@ export class CommunityTemplatesService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly s3Service: S3Service,
+    private readonly xpRewardService: XpRewardService,
   ) {}
 
   private shortAuthorName(fullName: string): string {
@@ -381,9 +386,15 @@ export class CommunityTemplatesService {
     const updated = await this.templateRepo.findOne({
       where: { id: templateId },
     });
+    const downloadCount = updated?.downloadCount ?? template.downloadCount + 1;
+    if (downloadCount >= XP_TEMPLATE_POPULAR_MIN_DOWNLOADS) {
+      void this.xpRewardService
+        .awardTemplatePopularUse(template.userId, templateId)
+        .catch(() => undefined);
+    }
     return {
       downloadUrl: template.attachmentUrl,
-      downloadCount: updated?.downloadCount ?? template.downloadCount + 1,
+      downloadCount,
     };
   }
 

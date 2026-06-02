@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CommunityQuestionAnswer } from '../community/entities/community-question-answer.entity';
 import { UserXpEvent } from '../community/entities/user-xp-event.entity';
+import { QuizAttempt } from '../study-university/entities/quiz-attempt.entity';
 import { UserDailyActivity } from './entities/user-daily-activity.entity';
 import { RecordActivityDto } from './dto/record-activity.dto';
 import {
   computeLevelProgress,
   xpForActivityRow,
 } from './gamification-level.util';
+import { XpRewardService } from './xp-reward.service';
+import { XP_WEEKLY_STREAK_MIN_DAYS } from './xp-rewards.constants';
 
 export type StreakVariant = 'estudio' | 'tareas';
 
@@ -21,6 +25,11 @@ export interface StreakSummary {
 export interface HistorialXpDia {
   dia: string;
   xp: number;
+}
+
+export interface MissionProgressResponse {
+  quizSemana: number;
+  comunidadUtilSemana: number;
 }
 
 export interface ActivitySummaryResponse {
@@ -43,6 +52,8 @@ export interface ActivitySummaryResponse {
     estudio: boolean[][];
     tareas: boolean[][];
   };
+  misiones: MissionProgressResponse;
+  rachaSemanalActiva: boolean;
 }
 
 function toYmd(d: Date): string {
@@ -136,14 +147,24 @@ export class StudentActivityService {
     private readonly repo: Repository<UserDailyActivity>,
     @InjectRepository(UserXpEvent)
     private readonly xpEventsRepo: Repository<UserXpEvent>,
+    @InjectRepository(QuizAttempt)
+    private readonly quizAttemptRepo: Repository<QuizAttempt>,
+    @InjectRepository(CommunityQuestionAnswer)
+    private readonly communityAnswerRepo: Repository<CommunityQuestionAnswer>,
+    private readonly xpRewardService: XpRewardService,
   ) {}
 
-  async recordXpEvent(userId: string, amount: number, source: string): Promise<UserXpEvent> {
+  async recordXpEvent(
+    userId: string,
+    amount: number,
+    source: string,
+    referenceId: string | null = null,
+  ): Promise<UserXpEvent> {
     return this.xpEventsRepo.save({
       userId,
       amount,
       source,
-      referenceId: null,
+      referenceId,
     });
   }
 
@@ -185,6 +206,11 @@ export class StudentActivityService {
       (r) => r.tasks && r.activityDate >= weekStart && r.activityDate <= weekEnd,
     ).length;
 
+    const studyDaysThisWeek = rows.filter(
+      (r) => r.study && r.activityDate >= weekStart && r.activityDate <= weekEnd,
+    ).length;
+    const rachaSemanalActiva = studyDaysThisWeek >= XP_WEEKLY_STREAK_MIN_DAYS;
+
     const studyToday = studySet.has(todayYmd);
     const tasksToday = taskSet.has(todayYmd);
 
@@ -209,6 +235,27 @@ export class StudentActivityService {
       const label = offset === 0 ? 'Hoy' : WEEKDAY_LABELS[jsDay];
       historialXP.push({ dia: label, xp: row ? xpForActivityRow(row) : 0 });
     }
+
+    const weekStartDate = parseYmd(weekStart);
+    const weekEndDate = parseYmd(weekEnd);
+    weekEndDate.setHours(23, 59, 59, 999);
+
+    const [quizSemana, comunidadUtilSemana] = await Promise.all([
+      this.quizAttemptRepo
+        .createQueryBuilder('a')
+        .where('a.user_id = :userId', { userId })
+        .andWhere('a.completed_at IS NOT NULL')
+        .andWhere('a.completed_at >= :weekStart', { weekStart: weekStartDate })
+        .andWhere('a.completed_at <= :weekEnd', { weekEnd: weekEndDate })
+        .getCount(),
+      this.communityAnswerRepo
+        .createQueryBuilder('a')
+        .where('a.user_id = :userId', { userId })
+        .andWhere('a.upvote_count >= 1')
+        .andWhere('a.created_at >= :weekStart', { weekStart: weekStartDate })
+        .andWhere('a.created_at <= :weekEnd', { weekEnd: weekEndDate })
+        .getCount(),
+    ]);
 
     return {
       rachas: {
@@ -240,6 +287,16 @@ export class StudentActivityService {
         estudio: buildHistorialSemanas(studySet, todayYmd),
         tareas: buildHistorialSemanas(taskSet, todayYmd),
       },
+      misiones: {
+        quizSemana,
+        comunidadUtilSemana,
+      },
+      rachaSemanalActiva,
     };
+  }
+
+  async awardFlashcardSession(userId: string): Promise<{ xpAwarded: number }> {
+    const xpAwarded = await this.xpRewardService.awardFlashcardSession(userId);
+    return { xpAwarded };
   }
 }

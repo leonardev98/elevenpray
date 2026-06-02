@@ -20,6 +20,11 @@ export interface HistorialSemanasDto {
   tareas: boolean[][];
 }
 
+export interface MissionProgressDto {
+  quizSemana: number;
+  comunidadUtilSemana: number;
+}
+
 export interface ActivitySummaryDto {
   rachas: {
     estudio: StreakSummaryDto;
@@ -37,6 +42,8 @@ export interface ActivitySummaryDto {
   xpSiguienteNivel: number;
   historialXP: HistorialXpDiaDto[];
   historialSemanas: HistorialSemanasDto;
+  misiones?: MissionProgressDto;
+  rachaSemanalActiva?: boolean;
 }
 
 export async function getActivitySummary(token: string): Promise<ActivitySummaryDto> {
@@ -82,4 +89,20 @@ export async function recordBonusXp(
     const err = await res.json().catch(() => ({}));
     throw new Error((err as { message?: string }).message ?? "Error al registrar XP");
   }
+}
+
+export async function recordFlashcardSession(
+  token: string,
+): Promise<{ xpAwarded: number }> {
+  const res = await fetch(`${getBaseUrl()}/student-activity/flashcard-session`, {
+    method: "POST",
+    headers: getAuthHeaders(token),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      (err as { message?: string }).message ?? "Error al registrar sesión de flashcards",
+    );
+  }
+  return res.json() as Promise<{ xpAwarded: number }>;
 }

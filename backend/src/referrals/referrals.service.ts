@@ -21,7 +21,7 @@ export interface ReferralSummaryResponse {
   puedeAplicarCodigo: boolean;
 }
 
-const REFERRAL_XP_REWARD = 500;
+import { XP_REFERRAL } from '../student-activity/xp-rewards.constants';
 
 function getMondayYmd(): string {
   const today = new Date();
@@ -116,12 +116,12 @@ export class ReferralsService {
 
     await this.studentActivityService.recordXpEvent(
       userId,
-      REFERRAL_XP_REWARD,
+      XP_REFERRAL,
       'referral_referee',
     );
     await this.studentActivityService.recordXpEvent(
       referrer.id,
-      REFERRAL_XP_REWARD,
+      XP_REFERRAL,
       'referral_referrer',
     );
 

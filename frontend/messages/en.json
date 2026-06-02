@@ -810,14 +810,14 @@
     "moodHeatmapNextMonth": "Next month",
     "noMoodRecord": "No entry",
     "emotionalWeekTitle": "Your emotional week",
-    "correlationLabel": "What Lisyy discovered",
+    "correlationLabel": "What Mitsyy discovered",
     "correlation": {
       "insight1": "You study better on days you feel 'Good' or 'Excellent'.",
       "insight2": "Your 'Bad' days often follow nights with little sleep.",
       "insight3": "You've logged your mood for 12 days. That's already self-care.",
       "insight3Dynamic": "You've logged your mood for {count} days. That's already self-care.",
       "buildingTitle": "Building your profile",
-      "buildingBody": "Lisyy needs to know you better. Complete check-ins for 7 days to discover your patterns.",
+      "buildingBody": "Mitsyy needs to know you better. Complete check-ins for 7 days to discover your patterns.",
       "progress": "{done} of {total} days completed"
     },
     "calmExercisesTitle": "Calm exercises",

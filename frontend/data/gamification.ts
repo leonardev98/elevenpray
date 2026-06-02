@@ -17,6 +17,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { buildMissions } from "./gamification-missions";
 import {
   CYCLE_SHIELDS_PER_CYCLE,
   REFERRAL_MILESTONES,
@@ -245,41 +246,7 @@ export function createDefaultExtras(opts?: {
       enZonaAscenso: false,
       enZonaDescenso: false,
     },
-    misiones: [
-      {
-        id: "flashcards-calc",
-        titulo: "3 flashcards de Cálculo",
-        descripcion: "Repasa derivadas en menos de 5 min",
-        xp: 30,
-        progreso: 2,
-        total: 3,
-        tipo: "diaria",
-        completada: false,
-        reclamada: false,
-      },
-      {
-        id: "quiz-jueves",
-        titulo: "Quiz antes del jueves",
-        descripcion: "Completa un quiz de cualquier curso",
-        xp: 50,
-        progreso: 1,
-        total: 1,
-        tipo: "semanal",
-        completada: true,
-        reclamada: false,
-      },
-      {
-        id: "ayuda-comunidad",
-        titulo: "Ayuda a un compañero",
-        descripcion: "Responde en comunidad y que marquen útil",
-        xp: 100,
-        progreso: 0,
-        total: 1,
-        tipo: "semanal",
-        completada: false,
-        reclamada: false,
-      },
-    ],
+    misiones: buildMissions(),
     rachaCompartida: [],
     multiplicadorActivo: { activo: false, factor: 1.5, hasta: null },
     rachaSemanalActiva: false,
@@ -314,9 +281,9 @@ export const gamificationData: GamificationData = {
   xpHoy: 0,
   xpMetaDiaria: 100,
   actividadesHoy: [
-    { id: "pdf", label: "Chat PDF", icono: "BookOpen", xp: 20, completado: true },
-    { id: "quiz", label: "Quiz", icono: "Zap", xp: 20, completado: true },
-    { id: "checkin", label: "Check-in", icono: "Heart", xp: 20, completado: true },
+    { id: "pdf", label: "Chat PDF", icono: "BookOpen", xp: 20, completado: false },
+    { id: "quiz", label: "Quiz", icono: "Zap", xp: 20, completado: false },
+    { id: "checkin", label: "Check-in", icono: "Heart", xp: 20, completado: false },
     { id: "tarea", label: "Tarea", icono: "CheckCircle2", xp: 20, completado: false },
     { id: "comunidad", label: "Comunidad", icono: "Users", xp: 20, completado: false },
   ],
@@ -336,7 +303,7 @@ export const gamificationData: GamificationData = {
       descripcion: "Racha de 30 días sin romper",
       icono: "Flame",
       desbloqueada: false,
-      progreso: 12,
+      progreso: 0,
       total: 30,
     },
     {
@@ -345,7 +312,7 @@ export const gamificationData: GamificationData = {
       descripcion: "Contribuiste con 5 cursos a la comunidad",
       icono: "BookOpen",
       desbloqueada: false,
-      progreso: 2,
+      progreso: 0,
       total: 5,
     },
     {
@@ -354,7 +321,7 @@ export const gamificationData: GamificationData = {
       descripcion: "Completaste 10 quizzes pre-examen",
       icono: "Zap",
       desbloqueada: false,
-      progreso: 6,
+      progreso: 0,
       total: 10,
     },
     {
@@ -372,7 +339,7 @@ export const gamificationData: GamificationData = {
       descripcion: "3 referidos activados",
       icono: "Medal",
       desbloqueada: false,
-      progreso: 2,
+      progreso: 0,
       total: 3,
     },
     {
@@ -381,7 +348,7 @@ export const gamificationData: GamificationData = {
       descripcion: "5 referidos activados — badge dorado",
       icono: "Crown",
       desbloqueada: false,
-      progreso: 2,
+      progreso: 0,
       total: 5,
     },
     {
@@ -390,7 +357,7 @@ export const gamificationData: GamificationData = {
       descripcion: "10+ referidos — acceso Premium vitalicio",
       icono: "Sparkles",
       desbloqueada: false,
-      progreso: 2,
+      progreso: 0,
       total: 10,
     },
     {

@@ -33,6 +33,7 @@ import {
 } from './dto/create-answer.dto';
 import { CreateReportDto } from './dto/create-report.dto';
 import { S3Service } from '../s3/s3.service';
+import { XpRewardService } from '../student-activity/xp-reward.service';
 
 export interface AuthorDto {
   id: string;
@@ -127,6 +128,7 @@ export class CommunityService {
     private readonly userRepo: Repository<User>,
     private readonly dataSource: DataSource,
     private readonly s3Service: S3Service,
+    private readonly xpRewardService: XpRewardService,
   ) {}
 
   // ---------- helpers ----------
@@ -706,7 +708,7 @@ export class CommunityService {
   ): Promise<{ upvoted: true; upvoteCount: number }> {
     const answer = await this.answerRepo.findOne({ where: { id: answerId } });
     if (!answer) throw new NotFoundException('Respuesta no encontrada');
-    return this.dataSource.transaction(async (manager) => {
+    const result = await this.dataSource.transaction(async (manager) => {
       const existing = await manager.findOne(CommunityAnswerVote, {
         where: { answerId, userId },
       });
@@ -714,7 +716,12 @@ export class CommunityService {
         const fresh = await manager.findOne(CommunityQuestionAnswer, {
           where: { id: answerId },
         });
-        return { upvoted: true, upvoteCount: fresh?.upvoteCount ?? answer.upvoteCount };
+        return {
+          upvoted: true as const,
+          upvoteCount: fresh?.upvoteCount ?? answer.upvoteCount,
+          newVote: false,
+          authorId: answer.userId,
+        };
       }
       await manager.insert(CommunityAnswerVote, { answerId, userId });
       await manager.increment(
@@ -726,11 +733,26 @@ export class CommunityService {
       const fresh = await manager.findOne(CommunityQuestionAnswer, {
         where: { id: answerId },
       });
+      const upvoteCount = fresh?.upvoteCount ?? answer.upvoteCount + 1;
       return {
-        upvoted: true,
-        upvoteCount: fresh?.upvoteCount ?? answer.upvoteCount + 1,
+        upvoted: true as const,
+        upvoteCount,
+        newVote: true,
+        authorId: answer.userId,
       };
     });
+
+    if (
+      result.newVote &&
+      result.upvoteCount === 1 &&
+      result.authorId !== userId
+    ) {
+      void this.xpRewardService
+        .awardCommunityAnswerHelpful(result.authorId, answerId)
+        .catch(() => undefined);
+    }
+
+    return { upvoted: result.upvoted, upvoteCount: result.upvoteCount };
   }
 
   async unvoteAnswer(

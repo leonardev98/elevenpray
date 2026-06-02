@@ -24,4 +24,9 @@ export class StudentActivityController {
   recordXp(@CurrentUser('id') userId: string, @Body() dto: RecordXpDto) {
     return this.service.recordXpEvent(userId, dto.amount, dto.source);
   }
+
+  @Post('flashcard-session')
+  awardFlashcardSession(@CurrentUser('id') userId: string) {
+    return this.service.awardFlashcardSession(userId);
+  }
 }

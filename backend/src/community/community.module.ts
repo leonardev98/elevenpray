@@ -17,6 +17,7 @@ import { UserXpEvent } from './entities/user-xp-event.entity';
 import { User } from '../users/entities/user.entity';
 import { AuthModule } from '../auth/auth.module';
 import { S3Module } from '../s3/s3.module';
+import { StudentActivityModule } from '../student-activity/student-activity.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { S3Module } from '../s3/s3.module';
     ]),
     AuthModule,
     S3Module,
+    StudentActivityModule,
   ],
   controllers: [CommunityController, CommunityTemplatesController],
   providers: [CommunityService, CommunityTemplatesService],

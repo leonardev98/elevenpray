@@ -59,5 +59,7 @@ export function normalizeActivitySummary(raw: ActivitySummaryDto): ActivitySumma
         ? raw.historialXP
         : EMPTY_WEEK,
     historialSemanas: raw.historialSemanas ?? fallbackHistorialSemanas(raw),
+    misiones: raw.misiones ?? { quizSemana: 0, comunidadUtilSemana: 0 },
+    rachaSemanalActiva: raw.rachaSemanalActiva ?? false,
   };
 }

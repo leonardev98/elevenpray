@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
+import { StudentActivityModule } from '../student-activity/student-activity.module';
 import { WorkspacesModule } from '../workspaces/workspaces.module';
 import { Assignment } from './entities/assignment.entity';
 import { AttendanceRecord } from './entities/attendance-record.entity';
@@ -48,6 +49,7 @@ import { StudyUniversityService } from './study-university.service';
     ]),
     AuthModule,
     WorkspacesModule,
+    StudentActivityModule,
   ],
   controllers: [StudyUniversityController],
   providers: [StudyUniversityService, FileingestClient],

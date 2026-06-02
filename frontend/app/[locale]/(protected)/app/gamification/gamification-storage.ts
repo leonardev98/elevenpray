@@ -1,8 +1,15 @@
 import type {
   GamificationExtras,
-  Mission,
   TreasureReward,
 } from "@/data/gamification";
+import { createDefaultExtras } from "@/data/gamification";
+import {
+  buildMissions,
+  bumpMissionInList,
+  completeMissionInList,
+  hasLegacyMissions,
+  missionsToStoredState,
+} from "@/data/gamification-missions";
 
 const PREFIX = "mitsyy_gamification_extras_";
 
@@ -22,13 +29,31 @@ export function saveGamificationExtras(userId: string, extras: GamificationExtra
   localStorage.setItem(`${PREFIX}${userId}`, JSON.stringify(extras));
 }
 
+function normalizeExtrasMissions(extras: GamificationExtras): GamificationExtras {
+  if (hasLegacyMissions(extras.misiones)) {
+    return { ...extras, misiones: buildMissions() };
+  }
+  const stored = missionsToStoredState(extras.misiones);
+  return { ...extras, misiones: buildMissions(stored) };
+}
+
+export function ensureGamificationExtras(
+  userId: string,
+  opts?: Parameters<typeof createDefaultExtras>[0],
+): GamificationExtras {
+  const existing = loadGamificationExtras(userId);
+  const base = existing ?? createDefaultExtras(opts);
+  const normalized = normalizeExtrasMissions(base);
+  saveGamificationExtras(userId, normalized);
+  return normalized;
+}
+
 export function patchGamificationExtras(
   userId: string,
   patch: Partial<GamificationExtras>,
 ): GamificationExtras | null {
-  const current = loadGamificationExtras(userId);
-  if (!current) return null;
-  const next = { ...current, ...patch };
+  const current = ensureGamificationExtras(userId);
+  const next = normalizeExtrasMissions({ ...current, ...patch });
   saveGamificationExtras(userId, next);
   return next;
 }
@@ -37,31 +62,21 @@ export function completeMission(
   userId: string,
   missionId: string,
 ): { extras: GamificationExtras; xpGained: number } | null {
-  const extras = loadGamificationExtras(userId);
-  if (!extras) return null;
+  const extras = ensureGamificationExtras(userId);
+  const result = completeMissionInList(extras.misiones, missionId);
+  if (!result) return null;
 
-  const missions = extras.misiones.map((m) => {
-    if (m.id !== missionId) return m;
-    if (m.reclamada || m.progreso < m.total) return m;
-    return { ...m, completada: true, reclamada: true };
-  });
-
-  const mission = missions.find((m) => m.id === missionId);
-  if (!mission?.reclamada) return null;
-
-  const xpGained = mission.xp;
   const next: GamificationExtras = {
     ...extras,
-    misiones: missions,
-    multiplicadorActivo: extras.multiplicadorActivo,
+    misiones: result.missions,
   };
   saveGamificationExtras(userId, next);
-  return { extras: next, xpGained };
+  return { extras: next, xpGained: result.xpGained };
 }
 
 export function useCycleShield(userId: string): boolean {
-  const extras = loadGamificationExtras(userId);
-  if (!extras || extras.escudos.disponibles <= 0) return false;
+  const extras = ensureGamificationExtras(userId);
+  if (extras.escudos.disponibles <= 0) return false;
   const next: GamificationExtras = {
     ...extras,
     escudos: {
@@ -98,8 +113,7 @@ export function applyTreasureReward(
   userId: string,
   reward: TreasureReward,
 ): GamificationExtras | null {
-  const extras = loadGamificationExtras(userId);
-  if (!extras) return null;
+  const extras = ensureGamificationExtras(userId);
 
   let next = { ...extras, ultimoCofre: reward };
 
@@ -137,19 +151,18 @@ export function bumpMissionProgress(
   missionId: string,
   delta = 1,
 ): GamificationExtras | null {
-  const extras = loadGamificationExtras(userId);
-  if (!extras) return null;
+  const extras = ensureGamificationExtras(userId);
+  const misiones = bumpMissionInList(extras.misiones, missionId, delta);
+  const next = { ...extras, misiones };
+  saveGamificationExtras(userId, next);
+  return next;
+}
 
-  const misiones: Mission[] = extras.misiones.map((m) => {
-    if (m.id !== missionId || m.reclamada) return m;
-    const progreso = Math.min(m.progreso + delta, m.total);
-    return {
-      ...m,
-      progreso,
-      completada: progreso >= m.total,
-    };
-  });
-
+export function setMissions(
+  userId: string,
+  misiones: GamificationExtras["misiones"],
+): GamificationExtras {
+  const extras = ensureGamificationExtras(userId);
   const next = { ...extras, misiones };
   saveGamificationExtras(userId, next);
   return next;

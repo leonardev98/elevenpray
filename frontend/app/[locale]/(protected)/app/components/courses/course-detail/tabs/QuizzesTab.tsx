@@ -24,6 +24,7 @@ import type { MockCourseExtended } from "../../../../lib/mock-course-data";
 import { useCourseClasses } from "../../../../lib/course-classes-store";
 import { useStudyBackendLink } from "../../../../lib/study-backend-link";
 import { useCourseQuizzes } from "../../../../lib/course-quizzes-store";
+import { useGamification } from "../../../../gamification/gamification-context";
 interface QuizzesTabProps {
   course: MockCourseExtended;
 }
@@ -304,6 +305,7 @@ function QuizFullscreen({ open, onClose, hex, title, questions, onComplete }: Pl
 export function QuizzesTab({ course }: QuizzesTabProps) {
   const hex = courseHex(course);
   const { token } = useAuth();
+  const { trackMission, refreshSummary } = useGamification();
   const { workspaceId, courseMap, classMap, ensureCourse } = useStudyBackendLink(token);
   const serverCourseId = courseMap[course.id] ?? null;
 
@@ -449,6 +451,8 @@ export function QuizzesTab({ course }: QuizzesTabProps) {
       durationSeconds: payload.durationSeconds,
     });
     if (!result) return null;
+    trackMission("quiz-semanal");
+    void refreshSummary();
     return { correct: result.correctCount, total: result.totalQuestions, passed: result.passed };
   }
 

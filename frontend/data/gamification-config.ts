@@ -44,6 +44,33 @@ export const LEAGUE_TIERS = ["bronce", "plata", "oro", "diamante"] as const;
 
 export const CYCLE_SHIELDS_PER_CYCLE = 3;
 
+export const MISSION_DEFINITIONS = [
+  {
+    id: "flashcards-daily",
+    titulo: "Repasa 3 flashcards",
+    descripcion: "Cualquier curso — menos de 5 min",
+    xp: 30,
+    total: 3,
+    tipo: "diaria" as const,
+  },
+  {
+    id: "quiz-semanal",
+    titulo: "Completa un quiz",
+    descripcion: "Cualquier curso de tu malla",
+    xp: 50,
+    total: 1,
+    tipo: "semanal" as const,
+  },
+  {
+    id: "comunidad-semanal",
+    titulo: "Ayuda a un compañero",
+    descripcion: "Responde en comunidad y que marquen útil",
+    xp: 100,
+    total: 1,
+    tipo: "semanal" as const,
+  },
+] as const;
+
 export function referralCodeFromUserId(userId: string): string {
   const slice = userId.replace(/-/g, "").slice(0, 6).toUpperCase();
   return `MITSYY-${slice || "CAMPUS"}`;
